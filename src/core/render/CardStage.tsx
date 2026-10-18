@@ -10,8 +10,11 @@ import {
   surfaceElements,
 } from '../editor/selectors'
 import { elementBounds, findElement, flatten, unionBounds, type Bounds } from '../model/tree'
-import type { Element, Guide } from '../model/types'
+import type { Element, Guide, ImageValue } from '../model/types'
 import { buildTargets, snapBox, snapPoint, type SnapTargets } from '../tools/snap'
+import { CropOverlay } from './CropOverlay'
+import { DpiBadges } from './DpiBadges'
+import { cropAfterFrameResize } from './imageMath'
 import { ElementNode } from './nodes/ElementNode'
 import { SnapLines, TrimOverlay } from './Overlays'
 import type { AssetResolver, RenderNode } from './renderTypes'
@@ -34,6 +37,8 @@ export interface CardStageProps {
   coarse: boolean
   onTextEdit?: (id: string) => void
   onImageEdit?: (id: string) => void
+  /** Reposition the picture inside an image field (crop mode). */
+  onImageFieldFrame?: (id: string, patch: Partial<ImageValue>) => void
 }
 
 const SNAP_PX = 6
@@ -58,6 +63,7 @@ export function CardStage(props: CardStageProps) {
   const showOverlay = useEditor((s) => s.view.showOverlay)
   const editingTextId = useEditor((s) => s.view.editingTextId)
   const mode = useEditor((s) => s.view.mode)
+  const cropId = useEditor((s) => s.view.cropId)
   const [snapLines, setSnapLines] = useState<{ xs: number[]; ys: number[] }>({ xs: [], ys: [] })
   const [marquee, setMarquee] = useState<Bounds | null>(null)
   const [draftGuide, setDraftGuide] = useState<{ axis: 'x' | 'y'; pos: number } | null>(null)
@@ -153,6 +159,8 @@ export function CardStage(props: CardStageProps) {
     tr.nodes(ns)
     tr.getLayer()?.batchDraw()
   }, [editableSel, nodes, editingTextId])
+
+  const cropEl = cropId ? selectedEls.find((e) => e.id === cropId) : undefined
 
   const onlyImages =
     selectedEls.length > 0 &&
@@ -304,6 +312,23 @@ export function CardStage(props: CardStageProps) {
       const y = node.y()
       const rotation = node.rotation()
       node.scale({ x: 1, y: 1 })
+      const info = el.type === 'image' ? props.assets.getInfo(el.assetId) : undefined
+      if (el.type === 'image' && id === cropId && info) {
+        // Crop mode: resizing the frame reveals more or less of the picture.
+        const r = cropAfterFrameResize(el, { x, y, w: el.wMm * sx, h: el.hMm * sy }, info)
+        patches.push({
+          id,
+          apply: (e) => {
+            if (e.type !== 'image') return
+            e.xMm = x
+            e.yMm = y
+            e.wMm = r.wMm
+            e.hMm = r.hMm
+            e.crop = r.crop
+          },
+        })
+        continue
+      }
       patches.push({
         id,
         apply: (e) => {
@@ -534,6 +559,15 @@ export function CardStage(props: CardStageProps) {
                 </StageCtx.Provider>
               </Group>
               {showOverlay && <TrimOverlay w={w} h={h} bleed={bleedMm} safe={safeMm} />}
+              <DpiBadges nodes={nodes} assets={props.assets} k={k} />
+              {cropEl && (
+                <CropOverlay
+                  el={cropEl}
+                  assets={props.assets}
+                  fieldValue={findRenderNode(nodes, cropEl.id)?.image}
+                  onFrameChange={(patch) => props.onImageFieldFrame?.(cropEl.id, patch)}
+                />
+              )}
               {/* outlines for selected parts whose layout is fixed in this mode */}
               {selectedEls
                 .filter((el) => !editableSel.includes(el.id) && el.type !== 'group')
@@ -583,7 +617,7 @@ export function CardStage(props: CardStageProps) {
               ref={trRef}
               rotateEnabled={!hasGroup}
               flipEnabled={false}
-              keepRatio={onlyImages}
+              keepRatio={onlyImages && !cropId}
               shiftBehavior={onlyImages ? 'inverted' : 'default'}
               rotationSnaps={[0, 45, 90, 135, 180, 225, 270, 315]}
               rotationSnapTolerance={4}
@@ -680,6 +714,15 @@ function GuidesLayer({
 }
 
 // ---------- small utils ----------
+
+function findRenderNode(nodes: RenderNode[], id: string): RenderNode | undefined {
+  for (const n of nodes) {
+    if (n.element.id === id) return n
+    const c = n.children && findRenderNode(n.children, id)
+    if (c) return c
+  }
+  return undefined
+}
 
 /** Konva's selector syntax isn't CSS, so look nodes up by id with a predicate. */
 function findNode(stage: Konva.Stage | null | undefined, id: string): Konva.Node | undefined {

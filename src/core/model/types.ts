@@ -228,6 +228,9 @@ export interface FontAsset {
   id: Id
   projectId: Id
   family: string
+  /** CSS font-weight and font-style descriptors for this file. */
+  weight: string
+  style: string
   fileName: string
   blob: Blob
   createdAt: number

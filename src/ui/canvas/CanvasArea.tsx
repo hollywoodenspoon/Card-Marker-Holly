@@ -10,6 +10,10 @@ import { resolveSide } from '@/templates/resolve'
 import { IconButton } from '@/ui/components/ui/button'
 import { useCoarsePointer, type LayoutKind } from '@/ui/shell/useLayout'
 import { useIsDark } from '@/ui/theme/theme'
+import { screenToMm } from '@/core/render/viewport'
+import { setImageFieldValue } from '@/templates/fieldCommands'
+import { importAndPlace } from '@/ui/actions/imageActions'
+import { TextEditOverlay } from './TextEditOverlay'
 import { useRenderVersion } from './useRenderVersion'
 
 export function CanvasArea({ layout }: { layout: LayoutKind }) {
@@ -31,7 +35,21 @@ export function CanvasArea({ layout }: { layout: LayoutKind }) {
   const size = template?.size ?? doc.project.defaultSize
 
   return (
-    <div className="relative min-h-0 flex-1 overflow-hidden bg-canvas">
+    <div
+      className="relative min-h-0 flex-1 overflow-hidden bg-canvas"
+      onDragOver={(e) => {
+        if ([...e.dataTransfer.items].some((i) => i.kind === 'file')) e.preventDefault()
+      }}
+      onDrop={(e) => {
+        e.preventDefault()
+        const files = [...e.dataTransfer.files]
+        if (!files.length) return
+        const r = e.currentTarget.getBoundingClientRect()
+        const at = screenToMm(e.clientX - r.left, e.clientY - r.top)
+        const intoField = dropTarget(at)
+        void importAndPlace(files, intoField ? undefined : at, !intoField)
+      }}
+    >
       {template ? (
         <CardStage
           nodes={nodes}
@@ -46,6 +64,7 @@ export function CanvasArea({ layout }: { layout: LayoutKind }) {
           coarse={coarse}
           onTextEdit={(id) => setView({ editingTextId: id, selection: [id] })}
           onImageEdit={(id) => setView({ cropId: id, selection: [id] })}
+          onImageFieldFrame={(id, patch) => setImageFieldValue(id, patch, 'frame:' + id)}
         />
       ) : (
         <div className="grid h-full place-items-center p-6 text-center text-sm text-white/90">
@@ -54,9 +73,34 @@ export function CanvasArea({ layout }: { layout: LayoutKind }) {
             : 'No card selected.'}
         </div>
       )}
+      <TextEditOverlay phone={layout === 'phone'} />
       <ViewControls compact={layout === 'phone'} />
     </div>
   )
+}
+
+/**
+ * Dropping onto an image field fills it: select the frame under the pointer
+ * and return true so the image goes into it instead of floating free.
+ */
+function dropTarget(at: { x: number; y: number }): boolean {
+  const s = useEditor.getState()
+  const all = [
+    ...(activeTemplate(s)?.elements ?? []),
+    ...(s.view.mode === 'card' ? (currentCard(s)?.local[s.view.side] ?? []) : []),
+  ]
+  const hit = [...all]
+    .reverse()
+    .find(
+      (e) =>
+        e.type === 'imageField' &&
+        at.x >= e.xMm &&
+        at.x <= e.xMm + e.wMm &&
+        at.y >= e.yMm &&
+        at.y <= e.yMm + e.hMm,
+    )
+  if (hit) setView({ selection: [hit.id] })
+  return !!hit
 }
 
 function ViewControls({ compact }: { compact: boolean }) {

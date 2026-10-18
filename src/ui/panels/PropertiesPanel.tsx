@@ -7,7 +7,9 @@ import { Button } from '@/ui/components/ui/button'
 import { NumberField, Row, Section } from '@/ui/components/fields'
 import { CardSizeControls } from './properties/CardSizeControls'
 import { AlignButtons, GeometrySection } from './properties/GeometrySection'
+import { ImageFieldSection, ImageSection } from './properties/ImageSection'
 import { ShapeSection } from './properties/ShapeSection'
+import { TextSection } from './properties/TextSection'
 
 export function PropertiesPanel() {
   const els = useEditor(useShallow(selectedElements))
@@ -56,6 +58,9 @@ export function PropertiesPanel() {
         <div className="truncate text-sm font-semibold">{el.name}</div>
         <div className="text-xs text-muted-foreground">{typeLabel(el.type)}</div>
       </div>
+      {el.type === 'text' && <TextSection el={el} editable={editable} />}
+      {el.type === 'image' && <ImageSection el={el} editable={editable} />}
+      {el.type === 'imageField' && <ImageFieldSection el={el} />}
       {el.type === 'shape' && <ShapeSection el={el} editable={editable} />}
       <GeometrySection el={el} editable={editable} />
     </div>

@@ -1,5 +1,6 @@
 import type { AssetResolver } from '@/core/render/renderTypes'
 import type { Asset } from '@/core/model/types'
+import { svgDisplayBlob } from './imageAssets'
 
 /**
  * Decodes asset blobs into HTMLImageElements for the canvas and caches them.
@@ -43,14 +44,23 @@ export class BlobAssetResolver implements AssetResolver {
   getImage(id: string): HTMLImageElement | undefined {
     const img = this.images.get(id)
     if (img?.complete && img.naturalWidth) return img
-    if (!img && !this.loading.has(id)) this.load(id)
+    if (!img && !this.loading.has(id)) void this.load(id)
     return undefined
   }
 
-  private load(id: string) {
-    const url = this.getUrl(id)
-    if (!url) return
+  private async load(id: string) {
+    const a = this.assets[id]
+    if (!a) return
     this.loading.add(id)
+    let url = this.getUrl(id)!
+    if (a.isVector) {
+      // SVGs are decoded from a sized copy; getUrl() still serves the original.
+      try {
+        url = URL.createObjectURL(await svgDisplayBlob(a.blob, a.widthPx, a.heightPx))
+      } catch {
+        /* fall back to the original */
+      }
+    }
     const img = new Image()
     img.decoding = 'async'
     img.onload = () => {

@@ -1,25 +1,33 @@
-import { Text } from 'react-konva'
+import type Konva from 'konva'
+import { Group, Rect, Shape } from 'react-konva'
 import type { TextElement, TextValue } from '../../model/types'
-import { plainText } from '../../text/richtext'
-import { ptToMm } from '../../units/units'
+import { drawLayout, useTextLayout } from '../textDraw'
+import { useStageCtx } from '../stageContext'
 
-/** Simple text rendering; replaced by the rich-text layout engine. */
 export function TextNode({ el, value }: { el: TextElement; value: TextValue }) {
-  const s = el.baseStyle
+  const ctx = useStageCtx()
+  const layout = useTextLayout(el, value, ctx.renderVersion)
   return (
-    <Text
-      width={el.wMm}
-      height={el.hMm}
-      padding={el.paddingMm}
-      text={plainText(value.text)}
-      fontFamily={s.fontFamily}
-      fontSize={ptToMm(s.sizePt)}
-      fontStyle={`${s.italic ? 'italic ' : ''}${s.bold ? 'bold' : 'normal'}`}
-      textDecoration={s.underline ? 'underline' : ''}
-      fill={s.color}
-      align={el.align}
-      verticalAlign={el.vAlign}
-      lineHeight={el.lineHeight}
-    />
+    <Group>
+      {/* hit area: the whole box is grabbable, not just the glyphs */}
+      <Rect width={el.wMm} height={el.hMm} fill="transparent" />
+      <Shape
+        listening={false}
+        sceneFunc={(c: Konva.Context) =>
+          drawLayout(c._context as CanvasRenderingContext2D, layout, el.paddingMm)
+        }
+      />
+      {layout.overflow && !ctx.static && (
+        <Rect
+          width={el.wMm}
+          height={el.hMm}
+          stroke="#e5484d"
+          strokeWidth={1}
+          dash={[3, 2]}
+          strokeScaleEnabled={false}
+          listening={false}
+        />
+      )}
+    </Group>
   )
 }

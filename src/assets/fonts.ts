@@ -1,4 +1,7 @@
 import type { FontAsset } from '@/core/model/types'
+import { newId } from '@/core/model/ids'
+import { sharedMeasurer } from '@/core/text/measure'
+import { readFontNames, styleFromSubfamily } from './fontName'
 
 /** Built-in families always offered in the font picker. Inter is bundled with the app. */
 export const BUILTIN_FONTS = ['Inter', 'Georgia', 'Arial', 'Times New Roman', 'Courier New']
@@ -14,6 +17,7 @@ export function onFontsChanged(fn: () => void) {
   return () => listeners.delete(fn)
 }
 function bump() {
+  sharedMeasurer().clear()
   version++
   listeners.forEach((l) => l())
 }
@@ -21,7 +25,10 @@ function bump() {
 export async function registerFont(font: FontAsset): Promise<boolean> {
   if (registered.has(font.id)) return true
   try {
-    const face = new FontFace(font.family, await font.blob.arrayBuffer())
+    const face = new FontFace(font.family, await font.blob.arrayBuffer(), {
+      weight: font.weight ?? 'normal',
+      style: font.style ?? 'normal',
+    })
     await face.load()
     document.fonts.add(face)
     registered.set(font.id, face)
@@ -68,4 +75,23 @@ export function familyFromFileName(name: string): string {
     .replace(/[-_]+/g, ' ')
     .replace(/([a-z])([A-Z])/g, '$1 $2')
     .trim()
+}
+
+export const FONT_ACCEPT = '.ttf,.otf,font/ttf,font/otf'
+
+/** Read an uploaded TTF/OTF into a FontAsset. */
+export async function readFontFile(file: File, projectId: string): Promise<FontAsset> {
+  const buf = await file.arrayBuffer()
+  const names = readFontNames(buf)
+  const { weight, style } = styleFromSubfamily(names.subfamily)
+  return {
+    id: newId(),
+    projectId,
+    family: names.family?.trim() || familyFromFileName(file.name),
+    weight,
+    style,
+    fileName: file.name,
+    blob: new Blob([buf], { type: file.type || 'font/ttf' }),
+    createdAt: Date.now(),
+  }
 }
