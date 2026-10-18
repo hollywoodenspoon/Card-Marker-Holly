@@ -5,6 +5,9 @@ import { TopBar } from '@/ui/toolbar/TopBar'
 import { useUi } from '@/ui/uiStore'
 import { CanvasArea } from '@/ui/canvas/CanvasArea'
 
+/** Drawers open below the top bar so its controls stay reachable. */
+const BELOW_TOPBAR = 'top-[calc(3rem+1px+env(safe-area-inset-top))] shadow-xl'
+
 export function TabletShell() {
   const { leftTab, setLeftTab, leftOpen, setLeftOpen, rightOpen, setRightOpen } = useUi()
   return (
@@ -13,7 +16,14 @@ export function TabletShell() {
       <main className="flex min-h-0 flex-1 flex-col">
         <CanvasArea layout="tablet" />
       </main>
-      <Sheet open={leftOpen} onOpenChange={setLeftOpen} side="left" title="Panels" modal={false}>
+      <Sheet
+        open={leftOpen}
+        onOpenChange={setLeftOpen}
+        side="left"
+        title="Panels"
+        modal={false}
+        className={BELOW_TOPBAR}
+      >
         <LeftPanel tab={leftTab} onTab={setLeftTab} className="h-full" />
       </Sheet>
       <Sheet

@@ -1,0 +1,8 @@
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { updateElement } from '@/core/editor/elementCommands';
+import { ColorField, NumberField, Row, Section } from '@/ui/components/fields';
+import { Label, NativeSelect } from '@/ui/components/ui/input';
+export function ShapeSection({ el, editable }) {
+    const set = (fn, key) => updateElement(el.id, (d) => fn(d), `${key}:${el.id}`);
+    return (_jsxs(Section, { title: "Shape", children: [_jsxs("div", { className: "flex flex-col gap-1", children: [_jsx(Label, { htmlFor: "shape-kind", children: "Type" }), _jsxs(NativeSelect, { id: "shape-kind", value: el.kind, disabled: !editable, onChange: (e) => set((s) => void (s.kind = e.target.value), 'kind'), children: [_jsx("option", { value: "rect", children: "Rectangle" }), _jsx("option", { value: "ellipse", children: "Ellipse" }), _jsx("option", { value: "line", children: "Line" })] })] }), el.kind !== 'line' && (_jsx(ColorField, { label: "Fill", allowNone: true, value: el.fill, disabled: !editable, onChange: (v) => set((s) => void (s.fill = v), 'fill') })), _jsx(ColorField, { label: el.kind === 'line' ? 'Colour' : 'Stroke', allowNone: el.kind !== 'line', value: el.stroke, disabled: !editable, onChange: (v) => set((s) => void (s.stroke = v), 'stroke') }), _jsxs(Row, { children: [_jsx(NumberField, { label: "Stroke width", unit: "mm", min: 0, step: 0.1, value: el.strokeMm, disabled: !editable, onChange: (v) => set((s) => void (s.strokeMm = v), 'sw') }), el.kind === 'rect' && (_jsx(NumberField, { label: "Corner radius", unit: "mm", min: 0, step: 0.5, value: el.radiusMm, disabled: !editable, onChange: (v) => set((s) => void (s.radiusMm = v), 'radius') }))] })] }));
+}

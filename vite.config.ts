@@ -8,6 +8,10 @@ export default defineConfig({
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },
+  build: {
+    // The editor shell (React, Konva, Radix, Dexie) is ~300 kB gzipped; the text editor is split out.
+    chunkSizeWarningLimit: 1000,
+  },
   test: {
     environment: 'node',
     include: ['src/**/*.test.ts'],

@@ -1,4 +1,5 @@
 import { Check } from 'lucide-react'
+import { lazy, Suspense } from 'react'
 import { setView, useEditor } from '@/core/editor/editorStore'
 import { findSurfaceElement } from '@/core/editor/selectors'
 import type { TextElement } from '@/core/model/types'
@@ -7,17 +8,25 @@ import { pxPerMm, useViewport } from '@/core/render/viewport'
 import { CSS_PX_PER_MM } from '@/core/units/units'
 import { Button } from '@/ui/components/ui/button'
 import { useTextValue } from '@/ui/panels/properties/useFieldValues'
-import { RichTextEditor } from '@/ui/text/RichTextEditor'
 import { useRenderVersion } from './useRenderVersion'
 
 const done = () => setView({ editingTextId: null })
+
+// The editor (Tiptap/ProseMirror) loads only when text editing starts.
+const RichTextEditor = lazy(() =>
+  import('@/ui/text/RichTextEditor').then((m) => ({ default: m.RichTextEditor })),
+)
 
 /** In-place text editing over the canvas (desktop/tablet) or in a panel (phone). */
 export function TextEditOverlay({ phone }: { phone: boolean }) {
   const id = useEditor((s) => s.view.editingTextId)
   const el = useEditor((s) => (id ? findSurfaceElement(s, id) : undefined))
   if (!id || el?.type !== 'text') return null
-  return <Overlay key={id} el={el} phone={phone} />
+  return (
+    <Suspense fallback={null}>
+      <Overlay key={id} el={el} phone={phone} />
+    </Suspense>
+  )
 }
 
 /** The element's box in real CSS mm, scaled by `scale`. */

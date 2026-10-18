@@ -1,9 +1,10 @@
-import { Copy, MoreHorizontal, Plus, Search, Trash2 } from 'lucide-react'
+import { ChevronDown, Copy, GripVertical, MoreHorizontal, Plus, Search, Trash2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import {
   addCard,
   deleteCard,
   duplicateCard,
+  moveCard,
   renameCard,
   selectCard,
 } from '@/core/editor/cardCommands'
@@ -19,6 +20,8 @@ import {
   DropdownMenuTrigger,
 } from '@/ui/components/ui/dropdown'
 import { Input } from '@/ui/components/ui/input'
+import { useReorder } from '@/ui/components/useReorder'
+import { CardThumb as LiveThumb } from '@/ui/canvas/CardThumb'
 
 export function CardsPanel({ onPicked }: { onPicked?: () => void }) {
   const cards = useEditor((s) => s.doc?.cards)
@@ -29,6 +32,9 @@ export function CardsPanel({ onPicked }: { onPicked?: () => void }) {
     [cards],
   )
   const filtered = q ? list.filter((c) => c.name.toLowerCase().includes(q.toLowerCase())) : list
+  const { handleProps, rowRef, dragging } = useReorder((from, to) =>
+    moveCard(filtered[from].id, to),
+  )
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -43,21 +49,54 @@ export function CardsPanel({ onPicked }: { onPicked?: () => void }) {
             className="pl-8"
           />
         </div>
-        <Button size="sm" onClick={() => addCard()} title="New card using this card's layout">
-          <Plus /> Card
-        </Button>
+        <div className="flex">
+          <Button
+            size="sm"
+            className="rounded-r-none"
+            onClick={() => addCard()}
+            title="New card with the same templates and part toggles as the current card"
+          >
+            <Plus /> Card
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                size="sm"
+                className="rounded-l-none border-l border-white/20 px-2"
+                aria-label="More ways to add a card"
+              >
+                <ChevronDown />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onSelect={() => addCard()}>
+                New card using previous card's layout
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => addCard({ blank: true })}>
+                New card with default toggles
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
       <ul className="min-h-0 flex-1 space-y-1 overflow-auto px-2 pb-3">
-        {filtered.map((c) => (
-          <CardRow
-            key={c.id}
-            card={c}
-            active={c.id === currentId}
-            onPick={() => {
-              selectCard(c.id)
-              onPicked?.()
-            }}
-          />
+        {filtered.map((c, i) => (
+          <li key={c.id} ref={rowRef(i)}>
+            {dragging && dragging.over === i && dragging.from !== i && <DropLine />}
+            <CardRow
+              card={c}
+              active={c.id === currentId}
+              handle={q ? undefined : handleProps(i)}
+              dragged={dragging?.from === i}
+              onPick={() => {
+                selectCard(c.id)
+                onPicked?.()
+              }}
+            />
+            {dragging && i === filtered.length - 1 && dragging.over === filtered.length && (
+              <DropLine />
+            )}
+          </li>
         ))}
         {!filtered.length && (
           <li className="p-4 text-center text-sm text-muted-foreground">
@@ -69,22 +108,52 @@ export function CardsPanel({ onPicked }: { onPicked?: () => void }) {
   )
 }
 
-function CardRow({ card, active, onPick }: { card: Card; active: boolean; onPick: () => void }) {
+const DropLine = () => <div className="mx-2 h-0.5 rounded bg-accent" />
+
+function CardRow({
+  card,
+  active,
+  onPick,
+  handle,
+  dragged,
+}: {
+  card: Card
+  active: boolean
+  onPick: () => void
+  handle?: ReturnType<ReturnType<typeof useReorder>['handleProps']>
+  dragged?: boolean
+}) {
   const [renaming, setRenaming] = useState(false)
   return (
-    <li
+    <div
       className={cn(
-        'group flex items-center gap-2 rounded-lg p-1 pr-0.5',
+        'group flex items-center gap-1 rounded-lg p-1 pr-0.5',
         active ? 'bg-accent-soft' : 'hover:bg-muted',
+        dragged && 'opacity-50',
       )}
     >
+      {handle ? (
+        <span
+          {...handle}
+          role="button"
+          aria-label={`Drag to reorder ${card.name}`}
+          className="grid h-11 w-6 shrink-0 place-items-center text-muted-foreground"
+        >
+          <GripVertical className="size-3.5" />
+        </span>
+      ) : (
+        <span className="w-1" />
+      )}
       <button
         type="button"
         onClick={onPick}
         onDoubleClick={() => setRenaming(true)}
         className="flex min-h-11 min-w-0 flex-1 items-center gap-2 text-left"
       >
-        <CardThumb card={card} />
+        <span className="flex shrink-0 gap-1">
+          <LiveThumb card={card} side="front" heightPx={40} />
+          <LiveThumb card={card} side="back" heightPx={40} className="opacity-80" />
+        </span>
         {!renaming && <span className="truncate text-sm">{card.name}</span>}
       </button>
       {renaming && (
@@ -120,18 +189,6 @@ function CardRow({ card, active, onPick }: { card: Card; active: boolean; onPick
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-    </li>
-  )
-}
-
-/** Placeholder thumbnail until rendered thumbnails arrive. */
-function CardThumb({ card }: { card: Card }) {
-  return (
-    <span
-      aria-hidden
-      className="grid h-9 w-14 shrink-0 place-items-center rounded border bg-panel text-[10px] text-muted-foreground"
-    >
-      {card.name.slice(0, 2)}
-    </span>
+    </div>
   )
 }

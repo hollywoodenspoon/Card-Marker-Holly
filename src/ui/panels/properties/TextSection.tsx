@@ -48,7 +48,8 @@ export function TextSection({ el, editable }: { el: TextElement; editable: boole
           <Pencil /> Edit text
         </Button>
         <p className="text-xs text-muted-foreground">
-          Double-click the text on the card to edit. Select words to style them individually.
+          Double-click (or double-tap) the text on the card to edit. Select words to style them
+          individually.
         </p>
         {mode === 'card' && !editable && cardHasValue && (
           <Button variant="ghost" size="sm" onClick={() => resetFieldValue(el.id)}>
