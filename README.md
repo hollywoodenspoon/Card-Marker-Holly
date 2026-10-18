@@ -8,6 +8,7 @@ npm run dev      # start the dev server at http://localhost:5173
 npm run build    # type-check and build to dist/
 npm test         # run unit tests (Vitest)
 npm run lint     # ESLint
+npm run preview  # serve the production build (installable, works offline)
 ```
 
 Assumptions and design choices are listed in [DECISIONS.md](DECISIONS.md).

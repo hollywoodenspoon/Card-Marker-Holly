@@ -12,23 +12,12 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useEditor } from '@/core/editor/editorStore'
 import { buildPrintJob, type PrintJob } from '@/print/job'
 import { cn } from '@/lib/cn'
+import { downloadBlob, safeFileName } from '@/ui/actions/download'
 import { Button, IconButton } from '@/ui/components/ui/button'
 import type { LayoutKind } from '@/ui/shell/useLayout'
 import { useUi } from '@/ui/uiStore'
 import { PrintSettingsForm } from './PrintSettingsForm'
 import { SheetPreview } from './SheetPreview'
-
-function download(blob: Blob, name: string) {
-  const a = document.createElement('a')
-  a.href = URL.createObjectURL(blob)
-  a.download = name
-  document.body.appendChild(a)
-  a.click()
-  a.remove()
-  setTimeout(() => URL.revokeObjectURL(a.href), 2000)
-}
-
-const safeName = (s: string) => s.replace(/[^\w\- ]+/g, '').trim() || 'cards'
 
 /** Full-screen print view: sheet settings, preview of fronts and mirrored backs, PDF export. */
 export function PrintView({ layout }: { layout: LayoutKind }) {
@@ -65,7 +54,7 @@ export function PrintView({ layout }: { layout: LayoutKind }) {
       const { exportCardsPdf } = await import('@/print/pdf/exportPdf')
       const r = await exportCardsPdf(job, (d, t) => setBusy(`Page ${d} of ${t}…`))
       setWarnings(r.warnings)
-      download(r.blob, `${safeName(doc.project.name)} - cards.pdf`)
+      downloadBlob(r.blob, `${safeFileName(doc.project.name)} - cards.pdf`)
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
     } finally {
@@ -77,7 +66,10 @@ export function PrintView({ layout }: { layout: LayoutKind }) {
     setBusy('Preparing…')
     try {
       const { exportAlignmentPdf } = await import('@/print/pdf/exportPdf')
-      download(await exportAlignmentPdf(job), `${safeName(doc.project.name)} - alignment test.pdf`)
+      downloadBlob(
+        await exportAlignmentPdf(job),
+        `${safeFileName(doc.project.name)} - alignment test.pdf`,
+      )
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
     } finally {

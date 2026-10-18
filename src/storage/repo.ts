@@ -2,6 +2,7 @@ import type { DocState, LibraryState } from '@/core/editor/editorStore'
 import type { NewProjectBundle } from '@/core/model/factories'
 import type { Project } from '@/core/model/types'
 import { db, type CardMakerDB } from './db'
+import type { ProjectBundle } from './projectFile'
 
 const byId = <T extends { id: string }>(rows: T[]) =>
   Object.fromEntries(rows.map((r) => [r.id, r])) as Record<string, T>
@@ -16,6 +17,22 @@ export async function saveNewProject(b: NewProjectBundle, d: CardMakerDB = db) {
     await d.templates.bulkPut(b.templates)
     await d.cards.bulkPut(b.cards)
   })
+}
+
+/** Store a complete project (e.g. imported from a backup file). */
+export async function saveProjectBundle(b: ProjectBundle, d: CardMakerDB = db) {
+  await d.transaction(
+    'rw',
+    [d.projects, d.templates, d.cards, d.assets, d.fonts, d.stylePresets],
+    async () => {
+      await d.projects.put(b.project)
+      await d.templates.bulkPut(b.templates)
+      await d.cards.bulkPut(b.cards)
+      await d.stylePresets.bulkPut(b.stylePresets)
+      await d.assets.bulkPut(b.assets)
+      await d.fonts.bulkPut(b.fonts)
+    },
+  )
 }
 
 export async function loadProject(

@@ -1,4 +1,4 @@
-import { Home, Menu, PanelLeft, PanelRight, Printer, Redo2, Undo2 } from 'lucide-react'
+import { Download, Home, Menu, PanelLeft, PanelRight, Printer, Redo2, Undo2 } from 'lucide-react'
 import { goHome } from '@/app/session'
 import { redo, undo, useEditor } from '@/core/editor/editorStore'
 import { Button, IconButton } from '@/ui/components/ui/button'
@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@/ui/components/ui/dropdown'
 import type { LayoutKind } from '@/ui/shell/useLayout'
+import { exportOpenProject } from '@/ui/actions/projectFileActions'
 import { InstallMenuItem } from '@/ui/pwa/InstallMenuItem'
 import { ThemeMenuItems } from '@/ui/theme/ThemeMenu'
 import { useUi } from '@/ui/uiStore'
@@ -75,6 +76,9 @@ function AppMenu() {
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={() => void goHome()}>
           <Home /> All projects
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => void exportOpenProject()}>
+          <Download /> Export backup file
         </DropdownMenuItem>
         <InstallMenuItem />
         <DropdownMenuSeparator />

@@ -128,3 +128,10 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
   - the service worker precaches everything, including the on-demand text editor and PDF export code and the bundled fonts, so the editor and PDF export work fully offline
   - updates install automatically; a small notice says when the app is ready offline or when a new version is available
   - "Install app" appears in the ☰ menu when the browser offers it
+
+## Backups (project and template files)
+
+- **Project backup** (`.cardproject.json`): the whole project — templates, cards, shared styles, images and fonts (stored inside the file as base64). Export it from the ☰ menu in the editor or from a project's ⋯ menu on the Home screen.
+- Importing (Home → Import) always creates a **new** project, so it never overwrites anything. Every stored item gets a new id and all references are rewritten. Element ids are kept, so per-card part toggles and card-layer positions still match.
+- Template files (Templates panel → ⋯ → Export file / Import) carry the template's images, fonts, shared styles and symbol images.
+- Files are versioned (`format`, `version`); anything else is refused with a clear message.
