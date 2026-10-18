@@ -32,7 +32,7 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 
 ## Fonts
 
-- **Inter is bundled** (`@fontsource/inter`, regular/bold/italic). Georgia, Arial, Times New Roman and Courier New are listed as system fonts and may look different on another machine.
+- **Bundled fonts: Inter, Alegreya and Alegreya SC** (`@fontsource/*`, regular, bold, italic and bold italic). They are always available and can be embedded in the Shot 2 PDF export. Georgia, Arial, Times New Roman and Courier New are listed as system fonts and may look different on another machine.
   - For Shot 2: system fonts can't be embedded in a PDF. Export will need to use bundled or uploaded fonts, or warn about missing ones.
 - Uploaded TTF/OTF files are read for their family and style names (sfnt `name` table). Upload Regular, Bold and Italic files of the same family to get real bold and italics; otherwise the browser synthesises them.
 
