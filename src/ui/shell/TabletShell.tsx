@@ -1,6 +1,6 @@
 import { Sheet } from '@/ui/components/ui/sheet'
 import { LeftPanel } from '@/ui/panels/LeftPanel'
-import { PropertiesPanel } from '@/ui/panels/PropertiesPanel'
+import { RightPane } from '@/ui/panels/RightPane'
 import { TopBar } from '@/ui/toolbar/TopBar'
 import { useUi } from '@/ui/uiStore'
 import { CanvasArea } from '@/ui/canvas/CanvasArea'
@@ -30,10 +30,11 @@ export function TabletShell() {
         open={rightOpen}
         onOpenChange={setRightOpen}
         side="right"
-        title="Properties"
+        title="Layers & properties"
         modal={false}
+        className={BELOW_TOPBAR}
       >
-        <PropertiesPanel />
+        <RightPane />
       </Sheet>
     </div>
   )

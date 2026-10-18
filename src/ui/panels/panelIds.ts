@@ -7,5 +7,4 @@ export const LEFT_PANELS: { id: PanelId; label: string; icon: typeof Layers }[] 
   { id: 'templates', label: 'Templates', icon: LayoutTemplate },
   { id: 'assets', label: 'Assets', icon: Images },
   { id: 'fonts', label: 'Fonts', icon: Type },
-  { id: 'layers', label: 'Layers', icon: Layers },
 ]
