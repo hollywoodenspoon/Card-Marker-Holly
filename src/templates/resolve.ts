@@ -15,6 +15,11 @@ export function textValueFor(el: Element & { type: 'text' }, card?: Card): TextV
   return v?.kind === 'text' ? v : { kind: 'text', text: el.defaultText }
 }
 
+export function countValueFor(el: Element & { type: 'iconRow' }, card?: Card): number {
+  const v = card?.fields[el.fieldName]
+  return v?.kind === 'count' ? v.count : el.defaultCount
+}
+
 export function imageValueFor(el: Element & { type: 'imageField' }, card?: Card): ImageValue {
   const v = card?.fields[el.fieldName]
   if (v?.kind === 'image') return { ...v, fit: v.fit ?? el.fit }
@@ -43,6 +48,7 @@ function resolveElements(
     const node: RenderNode = { element: el, source, dimmed: !visible }
     if (el.type === 'text') node.text = textValueFor(el, card)
     else if (el.type === 'imageField') node.image = imageValueFor(el, card)
+    else if (el.type === 'iconRow') node.count = countValueFor(el, card)
     else if (el.type === 'group') node.children = resolveElements(el.children, source, card, mode)
     out.push(node)
   }

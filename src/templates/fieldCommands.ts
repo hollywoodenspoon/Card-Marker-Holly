@@ -2,7 +2,7 @@ import { commit, useEditor } from '@/core/editor/editorStore'
 import { updateElements } from '@/core/editor/elementCommands'
 import { findSurfaceElement, ownerOf } from '@/core/editor/selectors'
 import type { ImageValue, RichText } from '@/core/model/types'
-import { imageValueFor, textValueFor } from './resolve'
+import { countValueFor, imageValueFor, textValueFor } from './resolve'
 
 /**
  * Where content edits go:
@@ -48,7 +48,7 @@ export function currentTextContent(id: string): RichText | undefined {
 export function resetFieldValue(id: string) {
   const s = useEditor.getState()
   const el = findSurfaceElement(s, id)
-  if (!el || (el.type !== 'text' && el.type !== 'imageField') || target(id) !== 'cardField') return
+  if (!el || !('fieldName' in el) || target(id) !== 'cardField') return
   const cardId = s.view.cardId!
   commit((d) => {
     delete d.cards[cardId].fields[el.fieldName]
@@ -58,8 +58,7 @@ export function resetFieldValue(id: string) {
 export function hasCardValue(id: string): boolean {
   const s = useEditor.getState()
   const el = findSurfaceElement(s, id)
-  if (!el || (el.type !== 'text' && el.type !== 'imageField') || target(id) !== 'cardField')
-    return false
+  if (!el || !('fieldName' in el) || target(id) !== 'cardField') return false
   return !!s.doc!.cards[s.view.cardId!]?.fields[el.fieldName]
 }
 
@@ -96,5 +95,33 @@ export function setImageFieldValue(id: string, patch: Partial<ImageValue>, coale
       coalesce,
       { contentOnly: true },
     )
+  }
+}
+
+/** Icon count shown for an icon row in the current mode. */
+export function currentCount(id: string): number | undefined {
+  const s = useEditor.getState()
+  const el = findSurfaceElement(s, id)
+  if (el?.type !== 'iconRow') return undefined
+  const card = target(id) === 'cardField' ? s.doc!.cards[s.view.cardId!] : undefined
+  return countValueFor(el, card)
+}
+
+/** Set an icon row's count: the card's value, or the default on the template / card-only row. */
+export function setCount(id: string, count: number, coalesce?: string) {
+  const s = useEditor.getState()
+  const el = findSurfaceElement(s, id)
+  if (el?.type !== 'iconRow') return
+  const n = Math.max(0, Math.min(99, Math.round(count)))
+  if (target(id) === 'cardField') {
+    const cardId = s.view.cardId!
+    commit((d) => {
+      d.cards[cardId].fields[el.fieldName] = { kind: 'count', count: n }
+      d.cards[cardId].updatedAt = Date.now()
+    }, coalesce)
+  } else {
+    updateElements([id], (e) => void (e.type === 'iconRow' && (e.defaultCount = n)), coalesce, {
+      contentOnly: true,
+    })
   }
 }

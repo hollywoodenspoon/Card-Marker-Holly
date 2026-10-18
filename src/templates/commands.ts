@@ -172,15 +172,18 @@ export function saveCurrentCardAsTemplate(name: string) {
 export function renameField(id: string, name: string) {
   const s = useEditor.getState()
   const el = findSurfaceElement(s, id)
-  if (!el || (el.type !== 'text' && el.type !== 'imageField') || !name || name === el.fieldName)
-    return
+  if (!el || !('fieldName' in el) || !name || name === el.fieldName) return
   const from = el.fieldName
   const tid = s.view.mode === 'template' ? s.view.templateId : null
   commit((d) => {
     const lists = tid ? [d.templates[tid]?.elements ?? []] : []
     for (const list of lists) {
       const e = findElement(list, id)
-      if (e && (e.type === 'text' || e.type === 'imageField')) e.fieldName = name
+      if (e && 'fieldName' in e) {
+        // Keep the layer name in step when it was just the field name.
+        if (e.name === e.fieldName) e.name = name
+        e.fieldName = name
+      }
     }
     if (tid) {
       migrateFieldRename(Object.values(d.cards), tid, from, name)

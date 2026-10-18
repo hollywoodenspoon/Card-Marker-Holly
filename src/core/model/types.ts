@@ -166,9 +166,28 @@ export interface GroupElement extends ElementBase {
   children: Element[]
 }
 
-export type Element = TextElement | ImageFieldElement | ShapeElement | ImageElement | GroupElement
+export type IconRowDirection = 'horizontal' | 'vertical'
+
+/** The same icon repeated N times, centred in the box (stats shown as icons). */
+export interface IconRowElement extends ElementBase {
+  type: 'iconRow'
+  fieldName: string
+  /** Icon picture (from the template). */
+  assetId?: Id
+  /** Count shown on cards that don't set their own. */
+  defaultCount: number
+  direction: IconRowDirection
+  /** Size of each icon cell, mm. */
+  iconMm: number
+  gapMm: number
+  /** Shrink icons and gaps together when the row would overflow the box. */
+  fitToBox: boolean
+}
+
+export type Element =
+  TextElement | ImageFieldElement | ShapeElement | ImageElement | GroupElement | IconRowElement
 export type ElementType = Element['type']
-export type FieldElement = TextElement | ImageFieldElement
+export type FieldElement = TextElement | ImageFieldElement | IconRowElement
 
 // ---------- cards ----------
 
@@ -188,7 +207,12 @@ export interface ImageValue {
   zoom: number
 }
 
-export type FieldValue = TextValue | ImageValue
+export interface CountValue {
+  kind: 'count'
+  count: number
+}
+
+export type FieldValue = TextValue | ImageValue | CountValue
 
 export interface ElementOverride {
   visible?: boolean

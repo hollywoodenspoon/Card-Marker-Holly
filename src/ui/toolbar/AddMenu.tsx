@@ -24,13 +24,13 @@ export function AddMenu() {
         <DropdownMenuLabel>
           {mode === 'template' ? 'Add to template' : 'Add to this card only'}
         </DropdownMenuLabel>
-        {ADD_ITEMS.slice(0, 3).map((i) => (
+        {ADD_ITEMS.slice(0, 4).map((i) => (
           <DropdownMenuItem key={i.id} onSelect={() => i.run()}>
             <i.icon /> {i.label}
           </DropdownMenuItem>
         ))}
         <DropdownMenuSeparator />
-        {ADD_ITEMS.slice(3).map((i) => (
+        {ADD_ITEMS.slice(4).map((i) => (
           <DropdownMenuItem key={i.id} onSelect={() => i.run()}>
             <i.icon /> {i.label}
           </DropdownMenuItem>

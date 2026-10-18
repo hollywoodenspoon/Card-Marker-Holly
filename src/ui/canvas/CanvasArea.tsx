@@ -3,7 +3,12 @@ import { useMemo } from 'react'
 import { assetResolver } from '@/assets/assetResolver'
 import { CardStage } from '@/core/render/CardStage'
 import { setView, useEditor } from '@/core/editor/editorStore'
-import { activeTemplate, currentCard, findSurfaceElement } from '@/core/editor/selectors'
+import {
+  activeTemplate,
+  currentCard,
+  findSurfaceElement,
+  isLayoutEditable,
+} from '@/core/editor/selectors'
 import { fitToScreen, useViewport, zoomIn, zoomOut } from '@/core/render/viewport'
 import { cn } from '@/lib/cn'
 import { resolveSide } from '@/templates/resolve'
@@ -12,7 +17,7 @@ import { useCoarsePointer, type LayoutKind } from '@/ui/shell/useLayout'
 import { useIsDark } from '@/ui/theme/theme'
 import { screenToMm } from '@/core/render/viewport'
 import { currentImageValue, setImageFieldValue } from '@/templates/fieldCommands'
-import { chooseImageFor, importAndPlace } from '@/ui/actions/imageActions'
+import { chooseIconFor, chooseImageFor, importAndPlace } from '@/ui/actions/imageActions'
 import { CanvasHeader } from './CanvasHeader'
 import { SelectionActions } from './SelectionActions'
 import { TextEditOverlay } from './TextEditOverlay'
@@ -67,6 +72,13 @@ export function CanvasArea({ layout }: { layout: LayoutKind }) {
           coarse={coarse}
           onTextEdit={(id) => setView({ editingTextId: id, selection: [id] })}
           onImageEdit={(id) => {
+            const s = useEditor.getState()
+            const el = findSurfaceElement(s, id)
+            // An icon row without an icon asks for one; otherwise nothing to do.
+            if (el?.type === 'iconRow') {
+              if (!el.assetId && isLayoutEditable(s, id)) void chooseIconFor(id)
+              return
+            }
             // An empty art box opens the file picker; otherwise reposition/crop.
             if (
               findSurfaceElement(useEditor.getState(), id)?.type === 'imageField' &&

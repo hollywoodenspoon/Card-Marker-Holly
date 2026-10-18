@@ -44,6 +44,7 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 - The print-quality warning appears below **300 DPI** of effective resolution at the placed (and cropped or zoomed) size. Vector images never warn.
 - Dropping an image onto an image field fills it. "Add → Image…" always creates a new image element. Tapping an image in the Assets panel fills the selected art box, or adds a new image if no art box is selected.
 - Filling an art box on a card: double-click/double-tap an empty art box to pick a file, or use the floating bar (Choose/Replace image, Reposition, Default) that appears when an art box is selected. The picture is stored on the card; the template keeps its placeholder.
+- **Icon rows (stats as icons):** a field element that repeats one icon N times in a row or column, centred in its box. The icon and layout come from the template; the count is per card (stored under the field name like other values, so it carries over on template switches). Icons keep their aspect ratio in square cells; "shrink to fit" scales icons and gaps together when the row would overflow. Count 0 draws nothing on the card. Renaming a field also renames its layer if the two were the same.
 - Crop mode: drag the picture to move it; drag the frame handles to show more or less of it. For rotated images the frame maths uses the element's own axes.
 
 ## Canvas and interaction

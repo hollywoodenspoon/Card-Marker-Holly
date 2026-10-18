@@ -1,7 +1,7 @@
 import { IMAGE_ACCEPT, readImageFile, isSupportedImage } from '@/assets/imageAssets'
 import { setView, updateLibrary, useEditor } from '@/core/editor/editorStore'
 import { addElement, updateElements } from '@/core/editor/elementCommands'
-import { activeTemplate, findSurfaceElement } from '@/core/editor/selectors'
+import { activeTemplate, findSurfaceElement, isLayoutEditable } from '@/core/editor/selectors'
 import { createImage } from '@/core/model/factories'
 import type { Asset } from '@/core/model/types'
 import { centreCrop } from '@/core/render/imageMath'
@@ -32,6 +32,11 @@ export async function importImages(files: File[]): Promise<Asset[]> {
 export function placeAsset(asset: Asset, at?: { x: number; y: number }, newElement = false) {
   const s = useEditor.getState()
   const sel = s.view.selection.length === 1 ? findSurfaceElement(s, s.view.selection[0]) : undefined
+  // A selected icon row takes the picture as its icon (where its layout is editable).
+  if (sel?.type === 'iconRow' && !newElement && isLayoutEditable(s, sel.id)) {
+    setIconRowIcon(sel.id, asset.id)
+    return sel.id
+  }
   if (sel?.type === 'imageField' && !newElement) {
     setImageFieldValue(sel.id, { assetId: asset.id, offsetXMm: 0, offsetYMm: 0, zoom: 1 })
     return sel.id
@@ -99,4 +104,14 @@ export function pickFiles(accept: string, multiple = true): Promise<File[]> {
 export async function chooseImageFor(id: string) {
   const [f] = await pickFiles(IMAGE_ACCEPT, false)
   if (f) await replaceImage(id, f)
+}
+
+export function setIconRowIcon(id: string, assetId: string) {
+  updateElements([id], (e) => void (e.type === 'iconRow' && (e.assetId = assetId)))
+}
+
+/** Upload a picture and use it as an icon row's icon. */
+export async function chooseIconFor(id: string) {
+  const [asset] = await importImages(await pickFiles(IMAGE_ACCEPT, false))
+  if (asset) setIconRowIcon(id, asset.id)
 }

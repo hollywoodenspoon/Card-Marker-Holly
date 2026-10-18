@@ -9,6 +9,8 @@ export interface RenderNode {
   /** Resolved content for fields. */
   text?: TextValue
   image?: ImageValue
+  /** Resolved icon count for icon rows. */
+  count?: number
   children?: RenderNode[]
 }
 

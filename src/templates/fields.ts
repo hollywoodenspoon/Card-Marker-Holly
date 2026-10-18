@@ -2,7 +2,7 @@ import { flatten } from '@/core/model/tree'
 import type { Card, Element, FieldElement, Template } from '@/core/model/types'
 
 export function isField(el: Element): el is FieldElement {
-  return el.type === 'text' || el.type === 'imageField'
+  return el.type === 'text' || el.type === 'imageField' || el.type === 'iconRow'
 }
 
 export function templateFields(t: Template): FieldElement[] {
