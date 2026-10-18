@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import type { TextElement, TextValue } from '../model/types'
 import { layoutText, type TextLayout } from '../text/layout'
 import { cssFont, sharedMeasurer } from '../text/measure'
+import { textLayoutInput } from './textInput'
 
 /** Draw at 100× and scale down so tiny mm font sizes render crisply. */
 const F = 100
@@ -40,20 +41,7 @@ export function drawLayout(ctx: CanvasRenderingContext2D, layout: TextLayout, pa
 
 export function useTextLayout(el: TextElement, value: TextValue, version: number) {
   return useMemo(
-    () =>
-      layoutText(
-        {
-          text: value.text,
-          baseStyle: el.baseStyle,
-          align: el.align,
-          lineHeight: el.lineHeight,
-          vAlign: el.vAlign,
-          width: Math.max(0.1, el.wMm - 2 * el.paddingMm),
-          height: Math.max(0.1, el.hMm - 2 * el.paddingMm),
-          autoShrink: el.autoShrink,
-        },
-        sharedMeasurer(),
-      ),
+    () => layoutText(textLayoutInput(el, value.text), sharedMeasurer()),
     // version invalidates when fonts load
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [

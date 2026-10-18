@@ -1,4 +1,4 @@
-import type { CardSize } from '../model/types'
+import type { CardSize, PrintSettings } from '../model/types'
 import { commit } from './editorStore'
 
 /**
@@ -26,4 +26,10 @@ export function setSafe(mm: number) {
   commit((d) => {
     d.project.safeMm = Math.max(0, mm)
   }, 'safe')
+}
+
+export function setPrintSettings(patch: Partial<PrintSettings>, coalesce?: string) {
+  commit((d) => {
+    d.project.print = { ...d.project.print, ...patch }
+  }, coalesce)
 }

@@ -19,6 +19,8 @@ export interface StageInteraction {
   hiddenId: string | null
   /** Static rendering (thumbnails): no interaction at all. */
   static?: boolean
+  /** Print preview: draw exactly what the PDF prints (no editor placeholders). */
+  print?: boolean
 }
 
 export const StageCtx = createContext<StageInteraction | null>(null)

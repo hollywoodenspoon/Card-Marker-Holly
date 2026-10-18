@@ -13,9 +13,26 @@ export interface CardSize {
   heightMm: number
 }
 
+export type PrintOrientation = 'auto' | 'portrait' | 'landscape'
+export type FlipEdge = 'long' | 'short'
+
+/** Stored per project. Older projects may lack fields; see print/settings.ts. */
 export interface PrintSettings {
   paper: 'A4'
+  /** Unprintable border the printer needs, mm. */
   marginMm: number
+  orientation?: PrintOrientation
+  cutMarks?: boolean
+  markLengthMm?: number
+  /** Gap between the bleed edge and the start of a cut mark, mm. */
+  markOffsetMm?: number
+  guideLines?: boolean
+  includeBacks?: boolean
+  /** Must match the printer's duplex setting. */
+  flip?: FlipEdge
+  /** Nudge the backs sheet to compensate printer drift, mm. */
+  backOffsetXMm?: number
+  backOffsetYMm?: number
 }
 
 export interface Project {

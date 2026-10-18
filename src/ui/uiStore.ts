@@ -7,6 +7,8 @@ interface UiState {
   leftOpen: boolean // tablet drawer
   rightOpen: boolean // tablet drawer
   phoneSheet: PanelId | 'properties' | 'add' | null
+  printOpen: boolean
+  setPrintOpen: (o: boolean) => void
   /** Layers section of the right pane expanded (remembered per device). */
   layersOpen: boolean
   setLeftTab: (t: PanelId) => void
@@ -30,6 +32,8 @@ export const useUi = create<UiState>((set) => ({
   leftOpen: false,
   rightOpen: false,
   phoneSheet: null,
+  printOpen: false,
+  setPrintOpen: (printOpen) => set({ printOpen }),
   layersOpen: readLayersOpen(),
   setLeftTab: (leftTab) => set({ leftTab }),
   setLeftOpen: (leftOpen) => set({ leftOpen }),

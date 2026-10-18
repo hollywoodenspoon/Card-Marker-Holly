@@ -67,3 +67,36 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 - Breakpoints: phone under 768 px, tablet 768–1199 px, desktop 1200 px and up.
 - Phone text editing uses a panel at the top of the canvas instead of a bottom sheet, so the on-screen keyboard doesn't cover it. The card below updates live.
 - The theme setting is saved in `localStorage` and applied before first paint to avoid a flash. It is a device preference, not project data.
+
+## Printing (Shot 2)
+
+- **Sheet layout** (`src/print/layout.ts`, pure and unit-tested):
+  - cell = card + 2 × bleed; cells touch, with no gap between them
+  - the grid is centred on A4 inside the printer margin plus room for cut marks
+  - "Best fit" picks the orientation that fits more cards (ties go to portrait); you can override it
+  - cards are never rotated on the sheet
+  - all cards print once each, in list order
+- **Cut marks** (on by default, 4 mm long, 2 mm gap from the bleed edge):
+  - drawn on the outer edges of the grid, one mark per cut line on each side, like a standard gang-up sheet, so they never touch any card or its bleed
+  - the space for them is reserved inside the printer margin
+  - optional **guide lines** run through every cut line across the printable area
+- **Backs:**
+  - pages go front 1, back 1, front 2, … so a duplex printer can print them double-sided
+  - each back sits exactly behind its front: a long-edge flip mirrors left/right on a portrait page and top/bottom on a landscape page; a short-edge flip is the opposite
+  - back contents stay upright, so the flip setting must match the printer's duplex setting
+  - back offset X/Y nudges the whole backs page to correct printer drift
+  - a card without a back template leaves its back cell empty
+- **Alignment test:** a separate 2-page PDF with crosshairs at the corners and centre. The back page has the same crosshairs mirrored, plus ±3 mm scales for reading any offset.
+- **PDF output:**
+  - library: jsPDF (RGB), drawn through a small `DrawTarget` interface, so another output (for example CMYK) could be added without touching the card renderer
+  - page size: exact mm (A4 = 595.28 × 841.89 pt)
+  - text: drawn as **vector glyph outlines** with fontkit, from uploaded font files and the bundled Inter / Alegreya / Alegreya SC WOFF2 files, so it looks like the preview without embedding fonts
+    - text in a system font with no file (Georgia, Arial, …) is drawn as a 600 dpi image, and the export lists a warning
+    - bold or italic missing from a font file is imitated (stroke or slant), as the browser does
+  - images:
+    - SVGs stay vector (svg2pdf.js)
+    - PNG and JPEG are embedded at full resolution (PNG Flate-compressed)
+    - WebP is converted to PNG
+  - empty art boxes and icon rows without an icon print nothing, and the print preview matches
+  - low-DPI images are listed as warnings after export
+  - the export libraries load only when you export
