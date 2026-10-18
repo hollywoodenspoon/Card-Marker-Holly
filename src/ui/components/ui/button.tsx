@@ -27,8 +27,7 @@ const buttonVariants = cva(
 )
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
   asChild?: boolean
 }
 
@@ -48,10 +47,9 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = 'Button'
 
 /** Square icon button; `label` is required so every icon has an accessible name. */
-export const IconButton = React.forwardRef<
-  HTMLButtonElement,
-  ButtonProps & { label: string }
->(({ label, variant = 'ghost', size = 'icon', ...props }, ref) => (
-  <Button ref={ref} variant={variant} size={size} aria-label={label} title={label} {...props} />
-))
+export const IconButton = React.forwardRef<HTMLButtonElement, ButtonProps & { label: string }>(
+  ({ label, variant = 'ghost', size = 'icon', ...props }, ref) => (
+    <Button ref={ref} variant={variant} size={size} aria-label={label} title={label} {...props} />
+  ),
+)
 IconButton.displayName = 'IconButton'

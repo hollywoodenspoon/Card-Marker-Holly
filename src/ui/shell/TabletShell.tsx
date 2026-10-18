@@ -16,7 +16,13 @@ export function TabletShell() {
       <Sheet open={leftOpen} onOpenChange={setLeftOpen} side="left" title="Panels" modal={false}>
         <LeftPanel tab={leftTab} onTab={setLeftTab} className="h-full" />
       </Sheet>
-      <Sheet open={rightOpen} onOpenChange={setRightOpen} side="right" title="Properties" modal={false}>
+      <Sheet
+        open={rightOpen}
+        onOpenChange={setRightOpen}
+        side="right"
+        title="Properties"
+        modal={false}
+      >
         <PropertiesPanel />
       </Sheet>
     </div>

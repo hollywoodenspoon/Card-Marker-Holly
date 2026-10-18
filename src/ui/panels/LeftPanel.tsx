@@ -14,7 +14,10 @@ export function LeftPanel({
 }) {
   return (
     <div className={cn('flex min-h-0', className)}>
-      <nav aria-label="Panels" className="flex w-16 shrink-0 flex-col items-center gap-1 border-r py-2">
+      <nav
+        aria-label="Panels"
+        className="flex w-16 shrink-0 flex-col items-center gap-1 border-r py-2"
+      >
         {LEFT_PANELS.map((p) => (
           <button
             key={p.id}

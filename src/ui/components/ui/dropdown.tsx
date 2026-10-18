@@ -13,10 +13,7 @@ export function DropdownMenuContent({
       <DM.Content
         sideOffset={6}
         collisionPadding={8}
-        className={cn(
-          'z-50 min-w-44 rounded-lg border bg-panel p-1 text-sm shadow-lg',
-          className,
-        )}
+        className={cn('z-50 min-w-44 rounded-lg border bg-panel p-1 text-sm shadow-lg', className)}
         {...props}
       />
     </DM.Portal>

@@ -1,31 +1,41 @@
-import { Menu, PanelLeft, PanelRight, Redo2, Undo2 } from 'lucide-react'
+import { Home, Menu, PanelLeft, PanelRight, Redo2, Undo2 } from 'lucide-react'
+import { goHome } from '@/app/session'
+import { redo, undo, useEditor } from '@/core/editor/editorStore'
 import { IconButton } from '@/ui/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/ui/components/ui/dropdown'
 import type { LayoutKind } from '@/ui/shell/useLayout'
 import { ThemeMenuItems } from '@/ui/theme/ThemeMenu'
 import { useUi } from '@/ui/uiStore'
+import { ProjectName } from './ProjectName'
+import { SaveIndicator } from './SaveIndicator'
 
 export function TopBar({ layout }: { layout: LayoutKind }) {
   const { setLeftOpen, setRightOpen } = useUi()
+  const canUndo = useEditor((s) => s.canUndo)
+  const canRedo = useEditor((s) => s.canRedo)
+  const phone = layout === 'phone'
   return (
-    <header className="pt-safe flex shrink-0 items-center gap-1 border-b bg-panel px-2">
-      <div className="flex h-14 min-w-0 flex-1 items-center gap-1 md:h-12">
+    <header className="pt-safe pl-safe pr-safe flex shrink-0 items-center border-b bg-panel">
+      <div className="flex h-14 min-w-0 flex-1 items-center gap-1 px-2 md:h-12">
         {layout === 'tablet' && (
           <IconButton label="Open panels" onClick={() => setLeftOpen(true)}>
             <PanelLeft />
           </IconButton>
         )}
         <AppMenu />
-        <span className="truncate px-1 text-sm font-semibold">Card Maker</span>
+        <ProjectName className={phone ? 'max-w-[38vw]' : undefined} />
+        <SaveIndicator compact={phone} />
         <div className="flex-1" />
-        <IconButton label="Undo" disabled>
+        <IconButton label="Undo" disabled={!canUndo} onClick={undo}>
           <Undo2 />
         </IconButton>
-        <IconButton label="Redo" disabled>
+        <IconButton label="Redo" disabled={!canRedo} onClick={redo}>
           <Redo2 />
         </IconButton>
         {layout === 'tablet' && (
@@ -47,6 +57,10 @@ function AppMenu() {
         </IconButton>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start">
+        <DropdownMenuItem onSelect={() => void goHome()}>
+          <Home /> All projects
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
         <ThemeMenuItems />
       </DropdownMenuContent>
     </DropdownMenu>

@@ -31,8 +31,7 @@ export function Sheet({
             'fixed z-40 flex flex-col bg-panel shadow-2xl outline-none',
             side === 'left' && 'pl-safe inset-y-0 left-0 w-[320px] max-w-[85vw] border-r',
             side === 'right' && 'pr-safe inset-y-0 right-0 w-[320px] max-w-[85vw] border-l',
-            side === 'bottom' &&
-              'pb-safe inset-x-0 bottom-0 max-h-[70dvh] rounded-t-2xl border-t',
+            side === 'bottom' && 'pb-safe inset-x-0 bottom-0 max-h-[70dvh] rounded-t-2xl border-t',
             className,
           )}
         >

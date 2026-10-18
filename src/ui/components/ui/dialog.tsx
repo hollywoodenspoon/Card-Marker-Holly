@@ -25,7 +25,9 @@ export function DialogContent({
       >
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-1">
-            <DialogPrimitive.Title className="text-base font-semibold">{title}</DialogPrimitive.Title>
+            <DialogPrimitive.Title className="text-base font-semibold">
+              {title}
+            </DialogPrimitive.Title>
             <DialogPrimitive.Description
               className={cn('text-sm text-muted-foreground', !description && 'sr-only')}
             >
