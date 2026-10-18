@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from '@/ui/components/ui/dropdown'
 import { Input, Label, NativeSelect } from '@/ui/components/ui/input'
+import { InstallMenuItem } from '@/ui/pwa/InstallMenuItem'
 import { ThemeMenuItems } from '@/ui/theme/ThemeMenu'
 
 export function HomeScreen() {
@@ -40,6 +41,7 @@ export function HomeScreen() {
             </IconButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            <InstallMenuItem />
             <ThemeMenuItems />
           </DropdownMenuContent>
         </DropdownMenu>

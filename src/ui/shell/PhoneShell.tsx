@@ -58,6 +58,7 @@ export function PhoneShell() {
         open={phoneSheet !== null}
         onOpenChange={(o) => !o && setPhoneSheet(null)}
         side="bottom"
+        tall={phoneSheet === 'properties'}
         title={phoneSheet ? TITLES[phoneSheet] : ''}
       >
         {phoneSheet === 'add' ? (

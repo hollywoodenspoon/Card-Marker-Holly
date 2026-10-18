@@ -75,6 +75,21 @@
     overscroll-behavior: none;
     -webkit-tap-highlight-color: transparent;
   }
+  /* No double-tap zoom on controls (pinch zoom of the page stays possible elsewhere). */
+  button,
+  a,
+  input,
+  select,
+  label,
+  [role='button'] {
+    touch-action: manipulation;
+  }
+  /* The canvas: no long-press callout or text selection. */
+  [data-testid='card-stage'] {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
   :focus-visible {
     outline: 2px solid var(--ring);
     outline-offset: 1px;

@@ -23,6 +23,8 @@ import { StageCtx, type StageInteraction } from './stageContext'
 import { panBy, pxPerMm, RULER, screenToMm, useViewport, zoomAt, fitToScreen } from './viewport'
 
 Konva.hitOnDragEnabled = true
+// A tap must not nudge an element: drags start after a few pixels of movement.
+Konva.dragDistance = 4
 
 export interface CardStageProps {
   nodes: RenderNode[]
@@ -81,12 +83,17 @@ export function CardStage(props: CardStageProps) {
     const el = wrapRef.current
     if (!el) return
     let first = true
+    let lastW = 0
     const ro = new ResizeObserver(() => {
-      useViewport.setState({ stageW: el.clientWidth, stageH: el.clientHeight })
+      const nw = el.clientWidth
+      useViewport.setState({ stageW: nw, stageH: el.clientHeight })
+      // Refit on first layout and on big width changes (phone/tablet rotation),
+      // but not for small ones like a drawer opening.
       if (first) {
         first = false
         fitToScreen(w, h)
-      }
+      } else if (lastW && Math.abs(nw - lastW) / lastW > 0.25) fitToScreen()
+      lastW = nw
     })
     ro.observe(el)
     return () => ro.disconnect()

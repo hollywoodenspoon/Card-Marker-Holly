@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@/ui/components/ui/dropdown'
 import type { LayoutKind } from '@/ui/shell/useLayout'
+import { InstallMenuItem } from '@/ui/pwa/InstallMenuItem'
 import { ThemeMenuItems } from '@/ui/theme/ThemeMenu'
 import { useUi } from '@/ui/uiStore'
 import { AddMenu } from './AddMenu'
@@ -75,6 +76,7 @@ function AppMenu() {
         <DropdownMenuItem onSelect={() => void goHome()}>
           <Home /> All projects
         </DropdownMenuItem>
+        <InstallMenuItem />
         <DropdownMenuSeparator />
         <ThemeMenuItems />
       </DropdownMenuContent>

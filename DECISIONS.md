@@ -115,3 +115,16 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
   - "Detach" unlinks a text and keeps its look; deleting a style does the same for every text that used it
   - in the text editor, the brush menu applies a style's look to selected words as plain formatting
 - Template files carry the styles and symbol images their texts use. On import, a style with the same name, or a symbol with the same name, already in the project is reused instead of duplicated.
+
+## Phone, touch and offline
+
+- Drags start after 4 px of movement, so a tap selects without nudging.
+- Controls use `touch-action: manipulation` (no double-tap zoom). The canvas has no long-press callout or text selection.
+- Bottom sheets close by swiping the header down. The properties sheet is taller (85 % of the screen).
+- The canvas refits when its width changes a lot (device rotation), not for small changes such as a drawer opening.
+- On phone, the template banner is shortened to "Template ‹name› · n cards" with a "Done" button.
+- **PWA:**
+  - installable, with a manifest and icons at 192, 512 and maskable
+  - the service worker precaches everything, including the on-demand text editor and PDF export code and the bundled fonts, so the editor and PDF export work fully offline
+  - updates install automatically; a small notice says when the app is ready offline or when a new version is available
+  - "Install app" appears in the ☰ menu when the browser offers it
