@@ -3,8 +3,17 @@ import { newId } from '@/core/model/ids'
 import { sharedMeasurer } from '@/core/text/measure'
 import { readFontNames, styleFromSubfamily } from './fontName'
 
-/** Built-in families always offered in the font picker. Inter is bundled with the app. */
-export const BUILTIN_FONTS = ['Inter', 'Georgia', 'Arial', 'Times New Roman', 'Courier New']
+/** Fonts shipped with the app (always available, embeddable in exports). */
+export const BUNDLED_FONTS = ['Inter', 'Alegreya', 'Alegreya SC']
+
+/** Built-in families always offered in the font picker: bundled ones, then common system fonts. */
+export const BUILTIN_FONTS = [
+  ...BUNDLED_FONTS,
+  'Georgia',
+  'Arial',
+  'Times New Roman',
+  'Courier New',
+]
 
 const registered = new Map<string, FontFace>()
 const listeners = new Set<() => void>()
@@ -56,12 +65,11 @@ export async function registerProjectFonts(fonts: FontAsset[]) {
 /** Wait until the bundled fonts have loaded (so the first text layout is right). */
 export async function loadBuiltinFonts() {
   try {
-    await Promise.all([
-      document.fonts.load('16px Inter'),
-      document.fonts.load('bold 16px Inter'),
-      document.fonts.load('italic 16px Inter'),
-      document.fonts.load('italic bold 16px Inter'),
-    ])
+    await Promise.all(
+      BUNDLED_FONTS.flatMap((f) =>
+        ['', 'bold ', 'italic ', 'italic bold '].map((v) => document.fonts.load(`${v}16px "${f}"`)),
+      ),
+    )
   } catch {
     /* ignore */
   }

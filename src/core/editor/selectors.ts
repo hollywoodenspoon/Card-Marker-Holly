@@ -1,3 +1,4 @@
+import { mergeLayers } from '../model/layering'
 import { findElement } from '../model/tree'
 import type { Card, Element, Template } from '../model/types'
 import type { EditorState } from './editorStore'
@@ -35,9 +36,9 @@ export function localElements(s: EditorState): Element[] {
   return currentCard(s)?.local[s.view.side] ?? []
 }
 
-/** Everything that can be selected on the canvas, bottom to top. */
+/** Everything that can be selected on the canvas, bottom to top (drawing order). */
 export function surfaceElements(s: EditorState): Element[] {
-  return [...(activeTemplate(s)?.elements ?? []), ...localElements(s)]
+  return mergeLayers(activeTemplate(s)?.elements ?? [], localElements(s)).map((l) => l.el)
 }
 
 export type Owner = 'template' | 'local'

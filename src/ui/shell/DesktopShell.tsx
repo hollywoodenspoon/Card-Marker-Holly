@@ -1,5 +1,5 @@
 import { LeftPanel } from '@/ui/panels/LeftPanel'
-import { PropertiesPanel } from '@/ui/panels/PropertiesPanel'
+import { RightPane } from '@/ui/panels/RightPane'
 import { TopBar } from '@/ui/toolbar/TopBar'
 import { useUi } from '@/ui/uiStore'
 import { CanvasArea } from '@/ui/canvas/CanvasArea'
@@ -16,8 +16,8 @@ export function DesktopShell() {
         <main className="flex min-w-0 flex-1 flex-col">
           <CanvasArea layout="desktop" />
         </main>
-        <aside className="w-[300px] shrink-0 overflow-auto border-l bg-panel">
-          <PropertiesPanel />
+        <aside className="w-[300px] shrink-0 border-l bg-panel">
+          <RightPane />
         </aside>
       </div>
     </div>

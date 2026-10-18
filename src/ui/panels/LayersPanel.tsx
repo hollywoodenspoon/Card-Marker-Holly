@@ -14,13 +14,14 @@ import {
 import { useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { useEditor } from '@/core/editor/editorStore'
-import { moveElementTo, select } from '@/core/editor/elementCommands'
+import { moveCardLayerTo, moveElementTo, select } from '@/core/editor/elementCommands'
 import {
   activeTemplate,
   currentCard,
   isLayoutEditable,
   localElements,
 } from '@/core/editor/selectors'
+import { mergeLayers } from '@/core/model/layering'
 import type { Element } from '@/core/model/types'
 import { cn } from '@/lib/cn'
 import { toggleEditLock, toggleVisibility, renameElement } from '@/templates/commands'
@@ -28,36 +29,71 @@ import { isVisibleOnCard } from '@/templates/resolve'
 import { IconButton } from '@/ui/components/ui/button'
 import { useReorder } from '@/ui/components/useReorder'
 
-export function LayersPanel() {
+export function LayersPanel({ embedded }: { embedded?: boolean }) {
   const mode = useEditor((s) => s.view.mode)
   const template = useEditor(activeTemplate)
   const local = useEditor(useShallow(localElements))
   return (
-    <div className="min-h-0 flex-1 overflow-auto pb-4">
-      {mode === 'card' && local.length > 0 && (
-        <>
-          <Heading>This card only</Heading>
-          <LayerList elements={local} depth={0} />
-        </>
+    <div className={cn('min-h-0 flex-1 overflow-auto', embedded ? 'pb-2' : 'pb-4')}>
+      {!embedded && (
+        <Heading>
+          {mode === 'card'
+            ? `Layers · ${template?.name ?? 'no template'}`
+            : (template?.name ?? 'Template')}
+        </Heading>
       )}
-      <Heading>
-        {mode === 'card'
-          ? `Template parts · ${template?.name ?? 'none'}`
-          : (template?.name ?? 'Template')}
-      </Heading>
-      {template?.elements.length ? (
+      {mode === 'card' ? (
+        template?.elements.length || local.length ? (
+          <CardLayerList templateEls={template?.elements ?? []} local={local} />
+        ) : (
+          <Empty />
+        )
+      ) : template?.elements.length ? (
         <LayerList elements={template.elements} depth={0} />
       ) : (
-        <p className="px-4 py-2 text-sm text-muted-foreground">
-          No layers yet. Add text, an image or a shape.
-        </p>
+        <Empty />
       )}
       {mode === 'card' && (
         <p className="px-4 pt-3 text-xs text-muted-foreground">
-          Use the eye to hide a template part on this card only. Other parts stay where they are.
+          Drag this card's own layers anywhere, also between template parts. The eye hides a
+          template part on this card only; other parts stay where they are.
         </p>
       )}
     </div>
+  )
+}
+
+const Empty = () => (
+  <p className="px-4 py-2 text-sm text-muted-foreground">
+    No layers yet. Add text, an image or a shape.
+  </p>
+)
+
+/** Card mode: template parts and this card's elements in one stacking order. */
+function CardLayerList({ templateEls, local }: { templateEls: Element[]; local: Element[] }) {
+  const display = [...mergeLayers(templateEls, local)].reverse()
+  const { handleProps, rowRef, dragging } = useReorder((from, to) => {
+    const l = display[from]
+    if (l.source === 'card') moveCardLayerTo(l.el.id, display.length - 1 - to)
+  })
+  return (
+    <ul>
+      {display.map((l, i) => (
+        <li key={l.el.id} ref={rowRef(i)}>
+          {dragging && dragging.over === i && dragging.from !== i && <DropLine depth={0} />}
+          <LayerRow
+            el={l.el}
+            depth={0}
+            handle={handleProps(i)}
+            dragged={dragging?.from === i}
+            fromTemplate={l.source === 'template'}
+          />
+          {dragging && i === display.length - 1 && dragging.over === display.length && (
+            <DropLine depth={0} />
+          )}
+        </li>
+      ))}
+    </ul>
   )
 }
 
@@ -104,9 +140,12 @@ function LayerRow({
   depth,
   handle,
   dragged,
+  fromTemplate,
 }: {
   el: Element
   depth: number
+  /** Card mode: this row is a template part (fixed in the stack). */
+  fromTemplate?: boolean
   handle: ReturnType<ReturnType<typeof useReorder>['handleProps']>
   dragged: boolean
 }) {
@@ -189,6 +228,9 @@ function LayerRow({
             <span className="truncate text-sm">
               {el.name}
               {isField && <span className="ml-1.5 text-[10px] text-accent uppercase">field</span>}
+              {fromTemplate && (
+                <span className="ml-1.5 text-[10px] text-muted-foreground uppercase">template</span>
+              )}
             </span>
           )}
         </button>

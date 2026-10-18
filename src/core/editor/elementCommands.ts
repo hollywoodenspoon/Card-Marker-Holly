@@ -1,5 +1,6 @@
 import type { Draft } from 'immer'
 import { createGroup } from '../model/factories'
+import { placeLocal, stepLocal } from '../model/layering'
 import { newId } from '../model/ids'
 import {
   cloneWithNewIds,
@@ -146,10 +147,31 @@ export function nudgeSelection(dx: number, dy: number) {
 
 export type ReorderDir = 'forward' | 'backward' | 'front' | 'back'
 
+/**
+ * In card mode, a top-level card element is ordered against the template parts
+ * too: apply `fn` to the card's elements and the template's, and store the result.
+ */
+function withCardLayers(
+  d: D,
+  v: ViewState,
+  id: string,
+  fn: (locals: Element[], templateEls: Element[]) => Element[],
+): boolean {
+  if (v.mode !== 'card' || !v.cardId) return false
+  const c = d.cards[v.cardId]
+  if (!c || !c.local[v.side].some((e) => e.id === id)) return false
+  const tid = v.side === 'front' ? c.frontTemplateId : c.backTemplateId
+  const tplEls = (tid && d.templates[tid]?.elements) || []
+  c.local[v.side] = fn(c.local[v.side], tplEls as Element[])
+  return true
+}
+
 export function reorderElement(id: string, dir: ReorderDir) {
   const s = useEditor.getState()
   if (!isLayoutEditable(s, id)) return
   commit((d) => {
+    if (withCardLayers(d, s.view, id, (loc, tpl) => stepLocal(loc, tpl, id, dir)))
+      return stamp(d, s.view)
     for (const list of editableLists(d, s.view)) {
       const sibs = siblingsOf(list, id)
       if (!sibs) continue
@@ -185,6 +207,18 @@ export function moveElementTo(id: string, index: number) {
   })
 }
 
+/**
+ * Card mode: move a card element to `index` in the combined template + card
+ * order (bottom = 0, counted without the element itself).
+ */
+export function moveCardLayerTo(id: string, index: number) {
+  const s = useEditor.getState()
+  commit((d) => {
+    if (withCardLayers(d, s.view, id, (loc, tpl) => placeLocal(loc, tpl, id, index)))
+      stamp(d, s.view)
+  })
+}
+
 export function groupSelection() {
   const s = useEditor.getState()
   const ids = editableSelection(s)
@@ -199,6 +233,10 @@ export function groupSelection() {
       const top = Math.max(...picked.map((e) => sibs.indexOf(e)))
       const group = createGroup(JSON.parse(JSON.stringify(picked)), uniqueName('Group', names))
       group.id = groupId
+      // A group of card elements takes the place of its topmost member.
+      const anchor = sibs[top].zBelow
+      if (anchor) group.zBelow = anchor
+      group.children.forEach((c) => delete c.zBelow)
       sibs.splice(top + 1, 0, group as Element)
       for (let i = sibs.length - 1; i >= 0; i--) if (ids.includes(sibs[i].id)) sibs.splice(i, 1)
     }
@@ -221,6 +259,10 @@ export function ungroupSelection() {
         const group = sibs[i]
         if (group.type !== 'group') continue
         childIds.push(...group.children.map((c) => c.id))
+        for (const c of group.children) {
+          if (group.zBelow) c.zBelow = group.zBelow
+          else delete c.zBelow
+        }
         sibs.splice(i, 1, ...group.children)
       }
     }
