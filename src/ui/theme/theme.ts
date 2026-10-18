@@ -1,0 +1,52 @@
+import { useSyncExternalStore } from 'react'
+
+export type ThemeSetting = 'light' | 'dark' | 'system'
+const KEY = 'cardmaker.theme'
+const listeners = new Set<() => void>()
+
+function read(): ThemeSetting {
+  try {
+    const v = localStorage.getItem(KEY)
+    if (v === 'light' || v === 'dark' || v === 'system') return v
+  } catch {
+    /* storage unavailable */
+  }
+  return 'system'
+}
+
+let current: ThemeSetting = typeof window === 'undefined' ? 'system' : read()
+const media = typeof window === 'undefined' ? null : matchMedia('(prefers-color-scheme: dark)')
+
+function apply() {
+  const dark = current === 'dark' || (current === 'system' && !!media?.matches)
+  document.documentElement.classList.toggle('dark', dark)
+}
+
+media?.addEventListener('change', () => {
+  if (current === 'system') apply()
+  listeners.forEach((l) => l())
+})
+
+export function setTheme(t: ThemeSetting) {
+  current = t
+  try {
+    localStorage.setItem(KEY, t)
+  } catch {
+    /* ignore */
+  }
+  apply()
+  listeners.forEach((l) => l())
+}
+
+export function initTheme() {
+  apply()
+}
+
+function subscribe(l: () => void) {
+  listeners.add(l)
+  return () => listeners.delete(l)
+}
+
+export function useThemeSetting(): ThemeSetting {
+  return useSyncExternalStore(subscribe, () => current)
+}

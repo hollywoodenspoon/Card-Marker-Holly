@@ -1,0 +1,24 @@
+import { Sheet } from '@/ui/components/ui/sheet'
+import { LeftPanel } from '@/ui/panels/LeftPanel'
+import { PropertiesPanel } from '@/ui/panels/PropertiesPanel'
+import { TopBar } from '@/ui/toolbar/TopBar'
+import { useUi } from '@/ui/uiStore'
+import { CanvasArea } from './CanvasArea'
+
+export function TabletShell() {
+  const { leftTab, setLeftTab, leftOpen, setLeftOpen, rightOpen, setRightOpen } = useUi()
+  return (
+    <div className="h-app flex flex-col">
+      <TopBar layout="tablet" />
+      <main className="flex min-h-0 flex-1 flex-col">
+        <CanvasArea />
+      </main>
+      <Sheet open={leftOpen} onOpenChange={setLeftOpen} side="left" title="Panels" modal={false}>
+        <LeftPanel tab={leftTab} onTab={setLeftTab} className="h-full" />
+      </Sheet>
+      <Sheet open={rightOpen} onOpenChange={setRightOpen} side="right" title="Properties" modal={false}>
+        <PropertiesPanel />
+      </Sheet>
+    </div>
+  )
+}
