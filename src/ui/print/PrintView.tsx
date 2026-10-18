@@ -43,6 +43,7 @@ export function PrintView({ layout }: { layout: LayoutKind }) {
         cards: Object.values(doc.cards),
         assets: library.assets,
         fonts: Object.values(library.fonts),
+        stylePresets: doc.stylePresets,
       }),
     [doc, library],
   )

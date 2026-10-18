@@ -6,7 +6,7 @@ import { useStageCtx } from '../stageContext'
 
 export function TextNode({ el, value }: { el: TextElement; value: TextValue }) {
   const ctx = useStageCtx()
-  const layout = useTextLayout(el, value, ctx.renderVersion)
+  const layout = useTextLayout(el, value, ctx.renderVersion, (n) => ctx.assets.findSymbol(n))
   return (
     <Group>
       {/* hit area: the whole box is grabbable, not just the glyphs */}
@@ -14,7 +14,9 @@ export function TextNode({ el, value }: { el: TextElement; value: TextValue }) {
       <Shape
         listening={false}
         sceneFunc={(c: Konva.Context) =>
-          drawLayout(c._context as CanvasRenderingContext2D, layout, el.paddingMm)
+          drawLayout(c._context as CanvasRenderingContext2D, layout, el.paddingMm, (id) =>
+            ctx.assets.getImage(id),
+          )
         }
       />
       {layout.overflow && !ctx.static && (

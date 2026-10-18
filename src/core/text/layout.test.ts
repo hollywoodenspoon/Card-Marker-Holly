@@ -137,3 +137,41 @@ describe('auto-shrink', () => {
     expect(l.overflow).toBe(true)
   })
 })
+
+describe('inline symbols', () => {
+  const symbols = (name: string) =>
+    name === 'fire' ? { assetId: 'flame', aspect: 0.5 } : undefined
+
+  it('replaces {name} with a symbol 1 em high and aspect·em wide', () => {
+    const l = layoutText(base('Deal {fire} 3', { width: 100, symbols }), fake)
+    const f = l.lines[0].fragments
+    const sym = f.find((x) => x.symbolAssetId)!
+    expect(sym).toMatchObject({ text: '{fire}', symbolAssetId: 'flame' })
+    expect(sym.width).toBeCloseTo(size * 0.5)
+    expect(sym.x).toBeCloseTo(cw * 5) // after "Deal "
+  })
+
+  it('leaves unknown names as text', () => {
+    const l = layoutText(base('{nope}', { width: 100, symbols }), fake)
+    expect(l.lines[0].fragments[0]).toMatchObject({ text: '{nope}' })
+    expect(l.lines[0].fragments[0].symbolAssetId).toBeUndefined()
+  })
+
+  it('keeps a symbol glued to the word next to it when wrapping', () => {
+    // "aaaa 3{fire}" in a 6-char box: "3{fire}" must wrap together
+    const l = layoutText(base('aaaa 3{fire}', { width: cw * 5.6, symbols }), fake)
+    expect(l.lines).toHaveLength(2)
+    expect(l.lines[1].fragments.map((f) => f.text)).toEqual(['3', '{fire}'])
+  })
+
+  it('does not split a word made of differently styled runs', () => {
+    const input = base('', { width: cw * 6 })
+    input.text = {
+      paragraphs: [
+        { runs: [{ text: 'ab ' }, { text: 'Fi', style: { bold: true } }, { text: 're' }] },
+      ],
+    }
+    const l = layoutText(input, fake)
+    expect(l.lines.map((x) => x.fragments.map((f) => f.text).join(''))).toEqual(['ab', 'Fire'])
+  })
+})

@@ -100,3 +100,18 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
   - empty art boxes and icon rows without an icon print nothing, and the print preview matches
   - low-DPI images are listed as warnings after export
   - the export libraries load only when you export
+
+## Symbols and shared styles
+
+- **Inline symbols:** any image becomes a symbol when you give it a symbol name (Assets → ⋯ → Symbol name…; stored as the asset's first tag).
+  - Typing `{name}` in any text draws that image inline: 1 em high, with its own width/height ratio, and slightly below the baseline.
+  - Unknown names stay as typed text.
+  - A symbol sticks to the word next to it, so "3{fire}" never wraps apart. Words made of differently styled runs also no longer break apart.
+  - Symbols work the same on the canvas, in the PDF and in auto-shrink.
+- **Shared styles** (the spec's "style presets"):
+  - a style holds font, size, colour, bold, italic, underline and letter spacing
+  - a text linked to a style takes those values over its own base style, live, across every template and card; per-character formatting in the text still wins
+  - while a text is linked, the style controls edit the shared style (and say how many texts use it)
+  - "Detach" unlinks a text and keeps its look; deleting a style does the same for every text that used it
+  - in the text editor, the brush menu applies a style's look to selected words as plain formatting
+- Template files carry the styles and symbol images their texts use. On import, a style with the same name, or a symbol with the same name, already in the project is reused instead of duplicated.

@@ -72,6 +72,7 @@ async function write(d: CardMakerDB, prev: Snapshot, next: Snapshot) {
   if (!next.doc || !prev.doc) return
   const t = diffById(prev.doc.templates, next.doc.templates)
   const c = diffById(prev.doc.cards, next.doc.cards)
+  const sp = diffById(prev.doc.stylePresets, next.doc.stylePresets)
   const a = diffById(prev.library.assets, next.library.assets)
   const f = diffById(prev.library.fonts, next.library.fonts)
   const projectChanged =
@@ -80,17 +81,23 @@ async function write(d: CardMakerDB, prev: Snapshot, next: Snapshot) {
   if (!projectChanged && !a.put.length && !a.del.length && !f.put.length && !f.del.length) return
   useSaveStatus.setState({ status: 'saving' })
   try {
-    await d.transaction('rw', [d.projects, d.templates, d.cards, d.assets, d.fonts], async () => {
-      if (projectChanged) await d.projects.put({ ...next.doc!.project, updatedAt: Date.now() })
-      if (t.put.length) await d.templates.bulkPut(t.put)
-      if (t.del.length) await d.templates.bulkDelete(t.del)
-      if (c.put.length) await d.cards.bulkPut(c.put)
-      if (c.del.length) await d.cards.bulkDelete(c.del)
-      if (a.put.length) await d.assets.bulkPut(a.put)
-      if (a.del.length) await d.assets.bulkDelete(a.del)
-      if (f.put.length) await d.fonts.bulkPut(f.put)
-      if (f.del.length) await d.fonts.bulkDelete(f.del)
-    })
+    await d.transaction(
+      'rw',
+      [d.projects, d.templates, d.cards, d.assets, d.fonts, d.stylePresets],
+      async () => {
+        if (projectChanged) await d.projects.put({ ...next.doc!.project, updatedAt: Date.now() })
+        if (t.put.length) await d.templates.bulkPut(t.put)
+        if (t.del.length) await d.templates.bulkDelete(t.del)
+        if (c.put.length) await d.cards.bulkPut(c.put)
+        if (c.del.length) await d.cards.bulkDelete(c.del)
+        if (sp.put.length) await d.stylePresets.bulkPut(sp.put)
+        if (sp.del.length) await d.stylePresets.bulkDelete(sp.del)
+        if (a.put.length) await d.assets.bulkPut(a.put)
+        if (a.del.length) await d.assets.bulkDelete(a.del)
+        if (f.put.length) await d.fonts.bulkPut(f.put)
+        if (f.del.length) await d.fonts.bulkDelete(f.del)
+      },
+    )
     useSaveStatus.setState({ status: 'saved', error: undefined })
   } catch (e) {
     console.error('Autosave failed', e)

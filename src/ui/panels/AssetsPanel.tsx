@@ -1,4 +1,4 @@
-import { MoreHorizontal, Trash2, Upload } from 'lucide-react'
+import { Braces, MoreHorizontal, Trash2, Upload } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { assetResolver } from '@/assets/assetResolver'
 import { IMAGE_ACCEPT } from '@/assets/imageAssets'
@@ -61,6 +61,11 @@ export function AssetsPanel({ onPicked }: { onPicked?: () => void }) {
                   className="size-full object-contain p-1.5"
                   draggable={false}
                 />
+                {a.tags[0] && (
+                  <span className="absolute top-1 left-1 rounded bg-accent px-1 font-mono text-[10px] text-accent-foreground">
+                    {`{${a.tags[0]}}`}
+                  </span>
+                )}
               </button>
               <div className="flex items-center gap-1 border-t bg-panel pl-2">
                 <span className="min-w-0 flex-1 truncate text-xs">{a.name}</span>
@@ -81,6 +86,23 @@ export function AssetsPanel({ onPicked }: { onPicked?: () => void }) {
                       }}
                     >
                       Rename
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onSelect={() => {
+                        const v = prompt(
+                          'Symbol name — type {name} in any text to show this image inline. Leave empty to remove.',
+                          a.tags[0] ?? a.name.toLowerCase().replace(/[^a-z0-9_-]+/g, ''),
+                        )
+                        if (v === null) return
+                        const tag = v
+                          .trim()
+                          .toLowerCase()
+                          .replace(/[{}\s]+/g, '')
+                          .replace(/[^a-z0-9_-]/g, '')
+                        updateLibrary((l) => void (l.assets[a.id].tags = tag ? [tag] : []))
+                      }}
+                    >
+                      <Braces /> Symbol name…
                     </DropdownMenuItem>
                     <DropdownMenuItem danger onSelect={() => setDeleting(a)}>
                       <Trash2 /> Delete

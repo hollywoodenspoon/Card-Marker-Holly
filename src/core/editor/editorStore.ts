@@ -2,7 +2,16 @@ import { produce, type Draft } from 'immer'
 import { create } from 'zustand'
 import { History } from '../history/history'
 import { flatten } from '../model/tree'
-import type { Asset, Card, FontAsset, Id, Project, Side, Template } from '../model/types'
+import type {
+  Asset,
+  Card,
+  FontAsset,
+  Id,
+  Project,
+  Side,
+  StylePreset,
+  Template,
+} from '../model/types'
 import { surfaceElements } from './selectors'
 
 /** The undoable part of an open project. */
@@ -10,6 +19,8 @@ export interface DocState {
   project: Project
   templates: Record<Id, Template>
   cards: Record<Id, Card>
+  /** Shared text styles; texts linked to one follow it live. */
+  stylePresets: Record<Id, StylePreset>
 }
 
 /** Uploaded files. Not part of undo history. */

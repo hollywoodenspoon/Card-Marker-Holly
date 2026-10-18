@@ -1,4 +1,4 @@
-import type { Asset, Card, FontAsset, Project, Template } from '@/core/model/types'
+import type { Asset, Card, FontAsset, Project, StylePreset, Template } from '@/core/model/types'
 import type { RenderNode } from '@/core/render/renderTypes'
 import { resolveSide } from '@/templates/resolve'
 import { PAPERS } from './paper'
@@ -30,6 +30,7 @@ export function buildPrintJob(input: {
   cards: Card[]
   assets: Record<string, Asset>
   fonts: FontAsset[]
+  stylePresets?: Record<string, StylePreset>
 }): PrintJob {
   const settings = normalizePrint(input.project.print)
   const size = input.project.defaultSize
@@ -50,8 +51,8 @@ export function buildPrintJob(input: {
       const bt = card.backTemplateId ? input.templates[card.backTemplateId] : undefined
       return {
         card,
-        front: resolveSide(ft, card, 'front', 'card'),
-        back: bt ? resolveSide(bt, card, 'back', 'card') : null,
+        front: resolveSide(ft, card, 'front', 'card', input.stylePresets),
+        back: bt ? resolveSide(bt, card, 'back', 'card', input.stylePresets) : null,
       }
     })
   return {

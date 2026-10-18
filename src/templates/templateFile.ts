@@ -1,6 +1,7 @@
 import { newId } from '@/core/model/ids'
 import { flatten, walk } from '@/core/model/tree'
-import type { Asset, Element, FontAsset, Template } from '@/core/model/types'
+import type { Asset, Element, FontAsset, StylePreset, Template } from '@/core/model/types'
+import { base64ToBlob, blobToBase64 } from '@/storage/base64'
 
 /** Portable template file: the template plus the images and fonts it uses. */
 export interface TemplateFile {
@@ -9,21 +10,20 @@ export interface TemplateFile {
   template: Omit<Template, 'projectId' | 'thumbnail'>
   assets: (Omit<Asset, 'blob' | 'projectId'> & { data: string })[]
   fonts: (Omit<FontAsset, 'blob' | 'projectId'> & { data: string })[]
+  /** Shared styles used by the template's texts (merged by name on import). */
+  stylePresets?: Omit<StylePreset, 'projectId'>[]
 }
 
-async function blobToBase64(b: Blob): Promise<string> {
-  const bytes = new Uint8Array(await b.arrayBuffer())
-  let s = ''
-  for (let i = 0; i < bytes.length; i += 0x8000)
-    s += String.fromCharCode(...bytes.subarray(i, i + 0x8000))
-  return btoa(s)
-}
-
-function base64ToBlob(data: string, type: string): Blob {
-  const bin = atob(data)
-  const bytes = new Uint8Array(bin.length)
-  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i)
-  return new Blob([bytes], { type })
+/** `{name}` symbol tokens used in the template's texts. */
+function usedSymbols(els: Element[]): Set<string> {
+  const names = new Set<string>()
+  for (const e of flatten(els)) {
+    if (e.type !== 'text') continue
+    for (const p of e.defaultText.paragraphs)
+      for (const r of p.runs)
+        for (const m of r.text.matchAll(/\{([A-Za-z0-9_-]+)\}/g)) names.add(m[1].toLowerCase())
+  }
+  return names
 }
 
 function usedFamilies(els: Element[]): Set<string> {
@@ -41,19 +41,28 @@ export async function exportTemplate(
   t: Template,
   assets: Record<string, Asset>,
   fonts: Record<string, FontAsset>,
+  presets: Record<string, StylePreset> = {},
 ): Promise<TemplateFile> {
   const assetIds = new Set<string>()
+  const symbols = usedSymbols(t.elements)
+  for (const a of Object.values(assets))
+    if (a.tags.some((tag) => symbols.has(tag.toLowerCase()))) assetIds.add(a.id)
+  const presetIds = new Set<string>()
   for (const e of flatten(t.elements)) {
     if (e.type === 'image') assetIds.add(e.assetId)
     if (e.type === 'imageField' && e.defaultAssetId) assetIds.add(e.defaultAssetId)
     if (e.type === 'iconRow' && e.assetId) assetIds.add(e.assetId)
+    if (e.type === 'text' && e.stylePresetId) presetIds.add(e.stylePresetId)
   }
+  const usedPresets = [...presetIds].map((id) => presets[id]).filter(Boolean)
   const fams = usedFamilies(t.elements)
+  for (const p of usedPresets) if (p.style.fontFamily) fams.add(p.style.fontFamily)
   const { projectId: _p, thumbnail: _t, ...template } = t
   return {
     format: 'card-maker-template',
     version: 1,
     template: structuredClone(template),
+    stylePresets: usedPresets.map(({ projectId: _pid, ...p }) => structuredClone(p)),
     assets: await Promise.all(
       [...assetIds]
         .map((id) => assets[id])
@@ -76,22 +85,51 @@ export async function exportTemplate(
 
 /**
  * Turn a template file into new rows for `projectId`. Everything gets fresh
- * ids; fonts already in the project (same family, weight and style) are reused.
+ * ids. Already present in the project and reused: fonts (same family, weight
+ * and style), styles (same name) and symbols (same symbol name).
  */
 export function importTemplate(
   file: unknown,
   projectId: string,
   existingFonts: FontAsset[],
-): { template: Template; assets: Asset[]; fonts: FontAsset[] } {
+  existing: { presets?: StylePreset[]; assets?: Asset[] } = {},
+): { template: Template; assets: Asset[]; fonts: FontAsset[]; stylePresets: StylePreset[] } {
   const f = file as TemplateFile
   if (f?.format !== 'card-maker-template' || f.version !== 1 || !f.template)
     throw new Error('This is not a Card Maker template file.')
   const assetMap = new Map<string, string>()
-  const assets: Asset[] = (f.assets ?? []).map(({ data, ...meta }) => {
+  const assets: Asset[] = []
+  for (const { data, ...meta } of f.assets ?? []) {
+    const tag = meta.tags?.[0]?.toLowerCase()
+    const same = tag
+      ? existing.assets?.find((a) => a.tags.some((t) => t.toLowerCase() === tag))
+      : undefined
+    if (same) {
+      assetMap.set(meta.id, same.id)
+      continue
+    }
     const id = newId()
     assetMap.set(meta.id, id)
-    return { ...meta, id, projectId, blob: base64ToBlob(data, meta.mime) }
-  })
+    assets.push({
+      ...meta,
+      tags: meta.tags ?? [],
+      id,
+      projectId,
+      blob: base64ToBlob(data, meta.mime),
+    })
+  }
+  const presetMap = new Map<string, string>()
+  const stylePresets: StylePreset[] = []
+  for (const p of f.stylePresets ?? []) {
+    const same = existing.presets?.find((e) => e.name === p.name)
+    if (same) {
+      presetMap.set(p.id, same.id)
+      continue
+    }
+    const id = newId()
+    presetMap.set(p.id, id)
+    stylePresets.push({ ...structuredClone(p), id, projectId })
+  }
   const fonts: FontAsset[] = (f.fonts ?? [])
     .filter(
       (fo) =>
@@ -113,6 +151,11 @@ export function importTemplate(
     if (e.type === 'iconRow' && e.assetId) e.assetId = assetMap.get(e.assetId) ?? e.assetId
     if (e.type === 'imageField' && e.defaultAssetId)
       e.defaultAssetId = assetMap.get(e.defaultAssetId) ?? e.defaultAssetId
+    if (e.type === 'text' && e.stylePresetId) {
+      const id = presetMap.get(e.stylePresetId)
+      if (id) e.stylePresetId = id
+      else delete e.stylePresetId
+    }
   })
   const now = Date.now()
   return {
@@ -127,5 +170,6 @@ export function importTemplate(
     },
     assets,
     fonts,
+    stylePresets,
   }
 }

@@ -24,14 +24,15 @@ export async function loadProject(
 ): Promise<{ doc: DocState; library: LibraryState } | null> {
   const project = await d.projects.get(id)
   if (!project) return null
-  const [templates, cards, assets, fonts] = await Promise.all([
+  const [templates, cards, assets, fonts, presets] = await Promise.all([
     d.templates.where('projectId').equals(id).toArray(),
     d.cards.where('projectId').equals(id).toArray(),
     d.assets.where('projectId').equals(id).toArray(),
     d.fonts.where('projectId').equals(id).toArray(),
+    d.stylePresets.where('projectId').equals(id).toArray(),
   ])
   return {
-    doc: { project, templates: byId(templates), cards: byId(cards) },
+    doc: { project, templates: byId(templates), cards: byId(cards), stylePresets: byId(presets) },
     library: { assets: byId(assets), fonts: byId(fonts) },
   }
 }

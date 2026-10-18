@@ -196,7 +196,7 @@ export async function downloadTemplate(id: string) {
   const s = useEditor.getState()
   const t = s.doc?.templates[id]
   if (!t) return
-  const file = await exportTemplate(t, s.library.assets, s.library.fonts)
+  const file = await exportTemplate(t, s.library.assets, s.library.fonts, s.doc!.stylePresets)
   const blob = new Blob([JSON.stringify(file)], { type: 'application/json' })
   const a = document.createElement('a')
   a.href = URL.createObjectURL(blob)
@@ -209,10 +209,11 @@ export async function uploadTemplate(file: File, registerFonts: (f: FontAsset[])
   const s = useEditor.getState()
   if (!s.doc) return
   const data = JSON.parse(await file.text())
-  const { template, assets, fonts } = importTemplate(
+  const { template, assets, fonts, stylePresets } = importTemplate(
     data,
     s.doc.project.id,
     Object.values(s.library.fonts),
+    { presets: Object.values(s.doc.stylePresets), assets: Object.values(s.library.assets) },
   )
   const names = Object.values(s.doc.templates).map((t) => t.name)
   template.name = uniqueName(template.name, names)
@@ -222,6 +223,9 @@ export async function uploadTemplate(file: File, registerFonts: (f: FontAsset[])
     for (const a of assets) l.assets[a.id] = a
     for (const f of fonts) l.fonts[f.id] = f
   })
-  commit((d) => void (d.templates[template.id] = template))
+  commit((d) => {
+    d.templates[template.id] = template
+    for (const p of stylePresets) d.stylePresets[p.id] = p
+  })
   return template.id
 }

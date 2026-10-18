@@ -22,4 +22,6 @@ export interface AssetResolver {
   getImage(assetId: string): CanvasImageSource | undefined
   getInfo(assetId: string): { widthPx: number; heightPx: number; isVector: boolean } | undefined
   subscribe(fn: () => void): () => void
+  /** Asset tagged with this symbol name (for `{name}` in text). */
+  findSymbol(name: string): { assetId: string; aspect: number } | undefined
 }

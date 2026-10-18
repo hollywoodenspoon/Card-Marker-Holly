@@ -9,7 +9,7 @@ import { iconRowLayout } from '@/core/render/iconRowLayout'
 import { FULL_CROP, framePlacement } from '@/core/render/imageMath'
 import type { RenderNode } from '@/core/render/renderTypes'
 import { textLayoutInput } from '@/core/render/textInput'
-import { layoutText, type Fragment } from '@/core/text/layout'
+import { layoutText, SYMBOL_TOP_EM, type Fragment, type SymbolLookup } from '@/core/text/layout'
 import type { Measurer } from '@/core/text/measure'
 import type { Rect } from '../layout'
 import { ellipsePath, roundedRectPath, type DrawTarget, type PdfImage } from './drawTarget'
@@ -23,6 +23,7 @@ export interface PrintResources {
   info(assetId: string): { widthPx: number; heightPx: number; isVector: boolean } | undefined
   /** Draw one text fragment with its baseline at (x, baseline), in the current transform. */
   text(t: DrawTarget, f: Fragment, x: number, baseline: number): Promise<void>
+  symbols?: SymbolLookup
 }
 
 /**
@@ -163,12 +164,17 @@ async function drawText(
   text: TextElement['defaultText'],
   res: PrintResources,
 ) {
-  const layout = layoutText(textLayoutInput(el, text), res.measurer)
+  const layout = layoutText(textLayoutInput(el, text, res.symbols), res.measurer)
   const pad = el.paddingMm
   for (const line of layout.lines) {
     const baseline = pad + layout.offsetY + line.baseline
     for (const f of line.fragments) {
       const x = pad + f.x
+      if (f.symbolAssetId) {
+        const img = await res.image(f.symbolAssetId)
+        if (img) await t.image(img, x, baseline - SYMBOL_TOP_EM * f.sizeMm, f.width, f.sizeMm)
+        continue
+      }
       if (f.text.trim()) await res.text(t, f, x, baseline)
       if (f.style.underline) {
         const size = f.sizeMm

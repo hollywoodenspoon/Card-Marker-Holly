@@ -90,6 +90,11 @@ export async function exportCardsPdf(
       const a = job.assets[id]
       return a ? { widthPx: a.widthPx, heightPx: a.heightPx, isVector: a.isVector } : undefined
     },
+    symbols: (name) => {
+      const n = name.toLowerCase()
+      const a = Object.values(job.assets).find((x) => x.tags.some((t) => t.toLowerCase() === n))
+      return a ? { assetId: a.id, aspect: a.heightPx ? a.widthPx / a.heightPx : 1 } : undefined
+    },
     text: makeTextDrawer(fonts, measurer, (family) =>
       warnings.add(
         `“${family}” has no font file, so its text is printed as a 600 dpi image. Upload the font to keep it vector.`,

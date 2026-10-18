@@ -131,6 +131,8 @@ export interface TextElement extends ElementBase {
   type: 'text'
   /** Card values are looked up by this name. */
   fieldName: string
+  /** Linked shared style: its values override `baseStyle` (see templates/resolve). */
+  stylePresetId?: Id
   defaultText: RichText
   baseStyle: TextStyle
   align: TextAlign

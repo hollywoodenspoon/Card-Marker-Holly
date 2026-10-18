@@ -44,7 +44,8 @@ export function CardThumb({
       ? templates?.[(side === 'front' ? card.frontTemplateId : card.backTemplateId) ?? '']
       : undefined)
   const version = useRenderVersion()
-  const nodes = useMemo(() => resolveSide(t, card, side, 'card'), [t, card, side])
+  const presets = useEditor((s) => s.doc?.stylePresets)
+  const nodes = useMemo(() => resolveSide(t, card, side, 'card', presets), [t, card, side, presets])
   const { ref, visible } = useVisible<HTMLSpanElement>()
   const size = t?.size ?? useEditor.getState().doc?.project.defaultSize
   if (!size) return null
