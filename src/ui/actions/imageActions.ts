@@ -1,4 +1,4 @@
-import { readImageFile, isSupportedImage } from '@/assets/imageAssets'
+import { IMAGE_ACCEPT, readImageFile, isSupportedImage } from '@/assets/imageAssets'
 import { setView, updateLibrary, useEditor } from '@/core/editor/editorStore'
 import { addElement, updateElements } from '@/core/editor/elementCommands'
 import { activeTemplate, findSurfaceElement } from '@/core/editor/selectors'
@@ -82,7 +82,21 @@ export function pickFiles(accept: string, multiple = true): Promise<File[]> {
     input.type = 'file'
     input.accept = accept
     input.multiple = multiple
-    input.onchange = () => resolve([...(input.files ?? [])])
+    // Some mobile browsers (iOS Safari) ignore click() on a detached input.
+    input.style.display = 'none'
+    document.body.appendChild(input)
+    const finish = () => {
+      resolve([...(input.files ?? [])])
+      input.remove()
+    }
+    input.onchange = finish
+    input.addEventListener('cancel', finish)
     input.click()
   })
+}
+
+/** Open the file picker and put the chosen picture into an image field (or swap an image). */
+export async function chooseImageFor(id: string) {
+  const [f] = await pickFiles(IMAGE_ACCEPT, false)
+  if (f) await replaceImage(id, f)
 }

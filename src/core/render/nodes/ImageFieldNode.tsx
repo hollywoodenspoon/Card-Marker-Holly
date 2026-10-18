@@ -25,18 +25,7 @@ export function ImageFieldNode({ el, value }: { el: ImageFieldElement; value: Im
     return (
       <Group clipFunc={roundedClip(el.wMm, el.hMm, el.radiusMm)}>
         <Rect width={el.wMm} height={el.hMm} fill={el.placeholderColor} />
-        {!ctx.static && (
-          <Text
-            width={el.wMm}
-            height={el.hMm}
-            text={value.assetId ? '' : el.name}
-            align="center"
-            verticalAlign="middle"
-            fontFamily="Inter"
-            fontSize={Math.max(1.5, Math.min(4, el.hMm / 5, el.wMm / 6))}
-            fill="#7a7a85"
-          />
-        )}
+        {!ctx.static && !value.assetId && <PlaceholderLabel el={el} />}
       </Group>
     )
   }
@@ -51,5 +40,35 @@ export function ImageFieldNode({ el, value }: { el: ImageFieldElement; value: Im
       />
       <KImage image={img} x={p.x} y={p.y} width={p.w} height={p.h} />
     </Group>
+  )
+}
+
+/** "Art" plus a hint, sized to the box. Never drawn in thumbnails. */
+function PlaceholderLabel({ el }: { el: ImageFieldElement }) {
+  const big = Math.max(1.5, Math.min(4, el.hMm / 5, el.wMm / 6))
+  const small = big * 0.5
+  const gap = big * 0.35
+  const top = (el.hMm - (big + gap + small)) / 2
+  return (
+    <>
+      <Text
+        width={el.wMm}
+        y={top}
+        text={el.name}
+        align="center"
+        fontFamily="Inter"
+        fontSize={big}
+        fill="#7a7a85"
+      />
+      <Text
+        width={el.wMm}
+        y={top + big + gap}
+        text="Double-tap to add image"
+        align="center"
+        fontFamily="Inter"
+        fontSize={small}
+        fill="#8d8d97"
+      />
+    </>
   )
 }
