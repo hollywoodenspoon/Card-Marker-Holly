@@ -37,6 +37,15 @@ describe('RichText ⇄ ProseMirror', () => {
     expect(fromPM(doc, boldBase, 'left', 1.2).paragraphs[0].runs[0].style).toEqual({ bold: false })
   })
 
+  it('lets text typed without marks inherit the base style', () => {
+    const boldBase = { ...base, bold: true }
+    const doc = {
+      type: 'doc',
+      content: [{ type: 'paragraph', content: [{ type: 'text', text: 'New' }] }],
+    }
+    expect(fromPM(doc, boldBase, 'left', 1.2).paragraphs[0].runs[0]).toEqual({ text: 'New' })
+  })
+
   it('keeps empty paragraphs', () => {
     const rt = fromPM(
       { type: 'doc', content: [{ type: 'paragraph' }, { type: 'paragraph' }] },

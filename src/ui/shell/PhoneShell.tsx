@@ -4,7 +4,6 @@ import { Sheet } from '@/ui/components/ui/sheet'
 import { PanelBody } from '@/ui/panels/PanelBody'
 import { PropertiesPanel } from '@/ui/panels/PropertiesPanel'
 import { AddGrid } from '@/ui/toolbar/AddMenu'
-import { ModeSwitch } from '@/ui/toolbar/ModeSwitch'
 import { TopBar } from '@/ui/toolbar/TopBar'
 import { useUi } from '@/ui/uiStore'
 import { CanvasArea } from '@/ui/canvas/CanvasArea'
@@ -34,7 +33,6 @@ export function PhoneShell() {
       <TopBar layout="phone" />
       <main className="relative flex min-h-0 flex-1 flex-col">
         <CanvasArea layout="phone" />
-        <ModeSwitch className="absolute top-7 left-1/2 -translate-x-1/2 shadow-md" />
       </main>
       <nav
         aria-label="Tools"

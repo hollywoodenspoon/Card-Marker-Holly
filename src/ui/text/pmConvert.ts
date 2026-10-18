@@ -56,7 +56,11 @@ export function fromPM(
     if (Number.isFinite(lh) && Math.abs(lh - lineHeight) > 1e-6) para.lineHeight = lh
     for (const n of p.content ?? []) {
       if (n.type !== 'text' || !n.text) continue
-      para.runs.push({ text: n.text, ...diffStyle(styleFromMarks(n.marks ?? [], base), base) })
+      const marks = n.marks ?? []
+      // Every run we hand to the editor carries a textStyle mark. Text without one was
+      // typed after all marks were cleared (e.g. replacing a full selection): it inherits.
+      if (!marks.some((m) => m.type === 'textStyle')) para.runs.push({ text: n.text })
+      else para.runs.push({ text: n.text, ...diffStyle(styleFromMarks(marks, base), base) })
     }
     return para
   })

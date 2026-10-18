@@ -13,6 +13,7 @@ import { useIsDark } from '@/ui/theme/theme'
 import { screenToMm } from '@/core/render/viewport'
 import { setImageFieldValue } from '@/templates/fieldCommands'
 import { importAndPlace } from '@/ui/actions/imageActions'
+import { CanvasHeader } from './CanvasHeader'
 import { TextEditOverlay } from './TextEditOverlay'
 import { useRenderVersion } from './useRenderVersion'
 
@@ -73,6 +74,7 @@ export function CanvasArea({ layout }: { layout: LayoutKind }) {
             : 'No card selected.'}
         </div>
       )}
+      <CanvasHeader phone={layout === 'phone'} />
       <TextEditOverlay phone={layout === 'phone'} />
       <ViewControls compact={layout === 'phone'} />
     </div>
