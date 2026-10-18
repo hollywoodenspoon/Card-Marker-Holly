@@ -42,6 +42,7 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 - SVGs are drawn on screen from a sized copy (so they stay sharp when zoomed). The original SVG is kept for vector PDF output in Shot 2.
 - The print-quality warning appears below **300 DPI** of effective resolution at the placed (and cropped or zoomed) size. Vector images never warn.
 - Dropping an image onto an image field fills it. "Add → Image…" always creates a new image element. Tapping an image in the Assets panel fills the selected art box, or adds a new image if no art box is selected.
+- Filling an art box on a card: double-click/double-tap an empty art box to pick a file, or use the floating bar (Choose/Replace image, Reposition, Default) that appears when an art box is selected. The picture is stored on the card; the template keeps its placeholder.
 - Crop mode: drag the picture to move it; drag the frame handles to show more or less of it. For rotated images the frame maths uses the element's own axes.
 
 ## Canvas and interaction

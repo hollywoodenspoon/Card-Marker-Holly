@@ -3,7 +3,7 @@ import { useMemo } from 'react'
 import { assetResolver } from '@/assets/assetResolver'
 import { CardStage } from '@/core/render/CardStage'
 import { setView, useEditor } from '@/core/editor/editorStore'
-import { activeTemplate, currentCard } from '@/core/editor/selectors'
+import { activeTemplate, currentCard, findSurfaceElement } from '@/core/editor/selectors'
 import { fitToScreen, useViewport, zoomIn, zoomOut } from '@/core/render/viewport'
 import { cn } from '@/lib/cn'
 import { resolveSide } from '@/templates/resolve'
@@ -11,9 +11,10 @@ import { IconButton } from '@/ui/components/ui/button'
 import { useCoarsePointer, type LayoutKind } from '@/ui/shell/useLayout'
 import { useIsDark } from '@/ui/theme/theme'
 import { screenToMm } from '@/core/render/viewport'
-import { setImageFieldValue } from '@/templates/fieldCommands'
-import { importAndPlace } from '@/ui/actions/imageActions'
+import { currentImageValue, setImageFieldValue } from '@/templates/fieldCommands'
+import { chooseImageFor, importAndPlace } from '@/ui/actions/imageActions'
 import { CanvasHeader } from './CanvasHeader'
+import { SelectionActions } from './SelectionActions'
 import { TextEditOverlay } from './TextEditOverlay'
 import { useRenderVersion } from './useRenderVersion'
 
@@ -64,7 +65,16 @@ export function CanvasArea({ layout }: { layout: LayoutKind }) {
           dark={dark}
           coarse={coarse}
           onTextEdit={(id) => setView({ editingTextId: id, selection: [id] })}
-          onImageEdit={(id) => setView({ cropId: id, selection: [id] })}
+          onImageEdit={(id) => {
+            // An empty art box opens the file picker; otherwise reposition/crop.
+            if (
+              findSurfaceElement(useEditor.getState(), id)?.type === 'imageField' &&
+              !currentImageValue(id)?.assetId
+            ) {
+              setView({ selection: [id] })
+              void chooseImageFor(id)
+            } else setView({ cropId: id, selection: [id] })
+          }}
           onImageFieldFrame={(id, patch) => setImageFieldValue(id, patch, 'frame:' + id)}
         />
       ) : (
@@ -76,6 +86,7 @@ export function CanvasArea({ layout }: { layout: LayoutKind }) {
       )}
       <CanvasHeader phone={layout === 'phone'} />
       <TextEditOverlay phone={layout === 'phone'} />
+      <SelectionActions />
       <ViewControls compact={layout === 'phone'} />
     </div>
   )
