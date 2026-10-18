@@ -1,8 +1,0 @@
-import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import { Dialog as DialogPrimitive } from 'radix-ui';
-import { X } from 'lucide-react';
-import { cn } from '@/lib/cn';
-/** Slide-out drawer (tablet) or bottom sheet (phone), built on Radix Dialog. */
-export function Sheet({ open, onOpenChange, side, title, children, className, modal = true, }) {
-    return (_jsx(DialogPrimitive.Root, { open: open, onOpenChange: onOpenChange, modal: modal, children: _jsxs(DialogPrimitive.Portal, { children: [modal && _jsx(DialogPrimitive.Overlay, { className: "fixed inset-0 z-40 bg-black/30" }), _jsxs(DialogPrimitive.Content, { "aria-describedby": undefined, onInteractOutside: modal ? undefined : (e) => e.preventDefault(), className: cn('fixed z-40 flex flex-col bg-panel shadow-2xl outline-none', side === 'left' && 'pl-safe inset-y-0 left-0 w-[320px] max-w-[85vw] border-r', side === 'right' && 'pr-safe inset-y-0 right-0 w-[320px] max-w-[85vw] border-l', side === 'bottom' && 'pb-safe inset-x-0 bottom-0 max-h-[70dvh] rounded-t-2xl border-t', className), children: [_jsxs("div", { className: "flex h-12 shrink-0 items-center justify-between gap-2 border-b px-3", children: [side === 'bottom' && (_jsx("span", { className: "absolute top-1.5 left-1/2 h-1 w-10 -translate-x-1/2 rounded-full bg-input" })), _jsx(DialogPrimitive.Title, { className: "text-sm font-semibold", children: title }), _jsx(DialogPrimitive.Close, { "aria-label": "Close", className: "grid size-11 place-items-center rounded-md text-muted-foreground hover:bg-muted", children: _jsx(X, { className: "size-4" }) })] }), _jsx("div", { className: "min-h-0 flex-1 overflow-auto", children: children })] })] }) }));
-}
