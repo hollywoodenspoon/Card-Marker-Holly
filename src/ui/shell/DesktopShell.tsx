@@ -2,7 +2,7 @@ import { LeftPanel } from '@/ui/panels/LeftPanel'
 import { PropertiesPanel } from '@/ui/panels/PropertiesPanel'
 import { TopBar } from '@/ui/toolbar/TopBar'
 import { useUi } from '@/ui/uiStore'
-import { CanvasArea } from './CanvasArea'
+import { CanvasArea } from '@/ui/canvas/CanvasArea'
 
 export function DesktopShell() {
   const { leftTab, setLeftTab } = useUi()
@@ -14,7 +14,7 @@ export function DesktopShell() {
           <LeftPanel tab={leftTab} onTab={setLeftTab} className="flex-1" />
         </aside>
         <main className="flex min-w-0 flex-1 flex-col">
-          <CanvasArea />
+          <CanvasArea layout="desktop" />
         </main>
         <aside className="w-[300px] shrink-0 overflow-auto border-l bg-panel">
           <PropertiesPanel />

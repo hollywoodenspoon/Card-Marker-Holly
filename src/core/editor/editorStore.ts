@@ -31,7 +31,6 @@ export interface ViewState {
   editingTextId: Id | null
   /** Image element in crop mode / image field in frame-adjust mode. */
   cropId: Id | null
-  zoom: number
   showOverlay: boolean
   snapping: boolean
 }
@@ -52,7 +51,6 @@ export const initialView: ViewState = {
   selection: [],
   editingTextId: null,
   cropId: null,
-  zoom: 1,
   showOverlay: true,
   snapping: true,
 }

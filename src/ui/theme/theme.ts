@@ -50,3 +50,11 @@ function subscribe(l: () => void) {
 export function useThemeSetting(): ThemeSetting {
   return useSyncExternalStore(subscribe, () => current)
 }
+
+/** Whether the dark theme is currently applied. */
+export function useIsDark(): boolean {
+  return useSyncExternalStore(
+    subscribe,
+    () => current === 'dark' || (current === 'system' && !!media?.matches),
+  )
+}

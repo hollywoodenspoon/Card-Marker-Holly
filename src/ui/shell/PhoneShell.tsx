@@ -3,9 +3,11 @@ import { cn } from '@/lib/cn'
 import { Sheet } from '@/ui/components/ui/sheet'
 import { PanelBody } from '@/ui/panels/PanelBody'
 import { PropertiesPanel } from '@/ui/panels/PropertiesPanel'
+import { AddGrid } from '@/ui/toolbar/AddMenu'
+import { ModeSwitch } from '@/ui/toolbar/ModeSwitch'
 import { TopBar } from '@/ui/toolbar/TopBar'
 import { useUi } from '@/ui/uiStore'
-import { CanvasArea } from './CanvasArea'
+import { CanvasArea } from '@/ui/canvas/CanvasArea'
 
 const TOOLS = [
   { id: 'cards', label: 'Cards', icon: SquareStack },
@@ -30,8 +32,9 @@ export function PhoneShell() {
   return (
     <div className="h-app flex flex-col">
       <TopBar layout="phone" />
-      <main className="flex min-h-0 flex-1 flex-col">
-        <CanvasArea />
+      <main className="relative flex min-h-0 flex-1 flex-col">
+        <CanvasArea layout="phone" />
+        <ModeSwitch className="absolute top-7 left-1/2 -translate-x-1/2 shadow-md" />
       </main>
       <nav
         aria-label="Tools"
@@ -59,10 +62,12 @@ export function PhoneShell() {
         side="bottom"
         title={phoneSheet ? TITLES[phoneSheet] : ''}
       >
-        {phoneSheet === 'properties' ? (
+        {phoneSheet === 'add' ? (
+          <AddGrid onDone={() => setPhoneSheet(null)} />
+        ) : phoneSheet === 'properties' ? (
           <PropertiesPanel />
-        ) : phoneSheet && phoneSheet !== 'add' ? (
-          <PanelBody id={phoneSheet} />
+        ) : phoneSheet ? (
+          <PanelBody id={phoneSheet} onPicked={() => setPhoneSheet(null)} />
         ) : null}
       </Sheet>
     </div>

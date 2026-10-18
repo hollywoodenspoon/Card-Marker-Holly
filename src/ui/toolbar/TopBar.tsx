@@ -12,6 +12,8 @@ import {
 import type { LayoutKind } from '@/ui/shell/useLayout'
 import { ThemeMenuItems } from '@/ui/theme/ThemeMenu'
 import { useUi } from '@/ui/uiStore'
+import { AddMenu } from './AddMenu'
+import { ModeSwitch } from './ModeSwitch'
 import { ProjectName } from './ProjectName'
 import { SaveIndicator } from './SaveIndicator'
 
@@ -31,6 +33,13 @@ export function TopBar({ layout }: { layout: LayoutKind }) {
         <AppMenu />
         <ProjectName className={phone ? 'max-w-[38vw]' : undefined} />
         <SaveIndicator compact={phone} />
+        <div className="flex-1" />
+        {!phone && (
+          <div className="flex items-center gap-2 px-2">
+            <ModeSwitch />
+            <AddMenu />
+          </div>
+        )}
         <div className="flex-1" />
         <IconButton label="Undo" disabled={!canUndo} onClick={undo}>
           <Undo2 />

@@ -1,10 +1,13 @@
 import { CardsPanel } from './CardsPanel'
+import { LayersPanel } from './LayersPanel'
 import type { PanelId } from './panelIds'
 
 export function PanelBody({ id, onPicked }: { id: PanelId; onPicked?: () => void }) {
   switch (id) {
     case 'cards':
       return <CardsPanel onPicked={onPicked} />
+    case 'layers':
+      return <LayersPanel />
     default:
       return (
         <div className="p-4 text-sm text-muted-foreground">
