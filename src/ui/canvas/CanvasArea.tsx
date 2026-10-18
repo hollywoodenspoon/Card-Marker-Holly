@@ -29,7 +29,8 @@ export function CanvasArea({ layout }: { layout: LayoutKind }) {
   const template = doc ? activeTemplate({ ...state, doc, view }) : undefined
   const card = doc ? currentCard({ ...state, doc, view }) : undefined
   const nodes = useMemo(
-    () => resolveSide(template, card, view.side, view.mode),
+    // Template mode shows the template's own defaults, not the current card's values.
+    () => resolveSide(template, view.mode === 'template' ? undefined : card, view.side, view.mode),
     [template, card, view.side, view.mode],
   )
 
