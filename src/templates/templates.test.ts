@@ -235,3 +235,29 @@ describe('template files', () => {
     expect(() => importTemplate({ hello: 1 }, 'p', [])).toThrow()
   })
 })
+
+describe('card elements between template parts', () => {
+  it('draws and saves them in the merged order', () => {
+    const { front, card, title } = setup()
+    card.local.front.push({
+      ...createShape({ xMm: 0, yMm: 0, wMm: 5, hMm: 5 }, { name: 'Sticker' }),
+      zBelow: title.id,
+    })
+    expect(ids(resolveSide(front, card, 'front', 'card'))).toEqual([
+      'Background',
+      'Sticker',
+      'Title',
+      'Rarity gem',
+      'Flavor text',
+    ])
+    const t = saveCardAsTemplate(card, 'front', front, 'X', size)
+    expect(t.elements.map((e) => e.name)).toEqual([
+      'Background',
+      'Sticker',
+      'Title',
+      'Rarity gem',
+      'Flavor text',
+    ])
+    expect(t.elements[1].zBelow).toBeUndefined()
+  })
+})

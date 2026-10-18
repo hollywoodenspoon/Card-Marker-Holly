@@ -19,6 +19,7 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 - Renaming a field in a template moves existing card values for cards that use that template to the new name, unless the card already has a value under the new name.
 - Several parts of one template may share a field name. They then show the same value.
 - **Card-only layer** (confirmed with the owner): elements added in card mode belong to that card only and are drawn above the template. "Save card as template" merges the template parts (with the card's visibility and values as the new defaults) and the card layer into a new template.
+- **Card elements can sit between template parts.** Each top-level card element may name a template part it is drawn directly below (`zBelow`). Without one, or if that part is deleted from the template, it goes on top. The anchor follows the part when the template is reordered. In card mode the Layers list shows template parts and card elements in one stack: card elements can be dragged anywhere, template parts are fixed.
 - **Per-card overrides are visibility only** (confirmed with the owner). Art framing (fill/fit, pan, zoom) is part of the card's image field value.
 - Overrides for elements deleted from a template are ignored, not deleted, so undoing the deletion restores them.
 - Two lock flags: `toggleLocked` (can't be hidden per card, from the spec) and `editLocked` (the layers panel lock: can't be selected or moved on the canvas).
@@ -61,6 +62,7 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 
 ## Responsive shell
 
+- Layers live in the right pane above Properties (collapsible, remembered per device); tablet shows both in the right drawer; phone keeps a Layers bottom sheet.
 - Breakpoints: phone under 768 px, tablet 768–1199 px, desktop 1200 px and up.
 - Phone text editing uses a panel at the top of the canvas instead of a bottom sheet, so the on-screen keyboard doesn't cover it. The card below updates live.
 - The theme setting is saved in `localStorage` and applied before first paint to avoid a flash. It is a device preference, not project data.

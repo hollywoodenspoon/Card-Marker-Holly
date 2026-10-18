@@ -1,4 +1,5 @@
 import { newId } from '@/core/model/ids'
+import { mergeLayers } from '@/core/model/layering'
 import { cloneWithNewIds } from '@/core/model/tree'
 import type { Card, Element, Side, Template } from '@/core/model/types'
 import { isVisibleOnCard } from './resolve'
@@ -33,10 +34,13 @@ export function saveCardAsTemplate(
       if (copy.type === 'group' && el.type === 'group') copy.children = fromTemplate(el.children)
       return copy
     })
-  const elements = [
-    ...fromTemplate(template?.elements ?? []).map(cloneWithNewIds),
-    ...card.local[side].map((e) => cloneWithNewIds(structuredClone(e))),
-  ]
+  // Same stacking as on the card: card elements interleaved with template parts.
+  const elements = mergeLayers(template?.elements ?? [], card.local[side]).map((l) => {
+    if (l.source === 'template') return cloneWithNewIds(fromTemplate([l.el])[0])
+    const copy = cloneWithNewIds(structuredClone(l.el))
+    delete copy.zBelow
+    return copy
+  })
   const now = Date.now()
   return {
     id: newId(),

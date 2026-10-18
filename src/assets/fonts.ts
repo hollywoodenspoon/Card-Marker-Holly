@@ -7,7 +7,13 @@ import { readFontNames, styleFromSubfamily } from './fontName'
 export const BUNDLED_FONTS = ['Inter', 'Alegreya', 'Alegreya SC']
 
 /** Built-in families always offered in the font picker: bundled ones, then common system fonts. */
-export const BUILTIN_FONTS = [...BUNDLED_FONTS, 'Georgia', 'Arial', 'Times New Roman', 'Courier New']
+export const BUILTIN_FONTS = [
+  ...BUNDLED_FONTS,
+  'Georgia',
+  'Arial',
+  'Times New Roman',
+  'Courier New',
+]
 
 const registered = new Map<string, FontFace>()
 const listeners = new Set<() => void>()

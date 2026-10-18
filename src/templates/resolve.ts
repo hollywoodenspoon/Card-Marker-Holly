@@ -1,3 +1,4 @@
+import { mergeLayers } from '@/core/model/layering'
 import type { RenderNode } from '@/core/render/renderTypes'
 import type { Card, Element, ImageValue, Side, Template, TextValue } from '@/core/model/types'
 
@@ -53,7 +54,7 @@ function resolveElements(
  * Geometry always comes from the template, so hiding a part never moves the others.
  *
  * - card mode: per-card visibility overrides apply; hidden parts are dropped;
- *   the card's own layer is drawn on top.
+ *   the card's own elements are interleaved by their `zBelow` anchor (default on top).
  * - template mode: default visibility; hidden parts are kept but dimmed;
  *   the card (if any) only supplies preview values for fields.
  */
@@ -63,7 +64,10 @@ export function resolveSide(
   side: Side,
   mode: ResolveMode,
 ): RenderNode[] {
-  const nodes = template ? resolveElements(template.elements, 'template', card, mode) : []
-  if (mode === 'card' && card) nodes.push(...resolveElements(card.local[side], 'card', card, mode))
-  return nodes
+  if (mode !== 'card' || !card)
+    return template ? resolveElements(template.elements, 'template', card, mode) : []
+  // Card elements interleave with template parts (each sits below its anchor, or on top).
+  return mergeLayers(template?.elements ?? [], card.local[side]).flatMap((l) =>
+    resolveElements([l.el], l.source, card, mode),
+  )
 }

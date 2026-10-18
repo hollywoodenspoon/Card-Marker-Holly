@@ -101,6 +101,11 @@ export interface ElementBase {
   toggleLocked: boolean
   /** Locked in the layers panel: cannot be selected or moved on the canvas. */
   editLocked: boolean
+  /**
+   * Card-only elements: drawn directly below this top-level template element.
+   * Unset (or a missing id) means above all template parts.
+   */
+  zBelow?: Id
 }
 
 export type VAlign = 'top' | 'middle' | 'bottom'
