@@ -202,7 +202,8 @@ export function CardStage(props: CardStageProps) {
         const el = findSurfaceElement(useEditor.getState(), id)
         if (!el) return
         if (el.type === 'text') props.onTextEdit?.(id)
-        else if (el.type === 'image' || el.type === 'imageField') props.onImageEdit?.(id)
+        else if (el.type === 'image' || el.type === 'imageField' || el.type === 'iconRow')
+          props.onImageEdit?.(id)
       },
       dragBoundFunc: (id) => (pos) => {
         const d = drag.current

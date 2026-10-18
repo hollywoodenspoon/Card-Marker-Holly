@@ -7,6 +7,7 @@ import { Button } from '@/ui/components/ui/button'
 import { NumberField, Row, Section } from '@/ui/components/fields'
 import { CardSizeControls } from './properties/CardSizeControls'
 import { AlignButtons, GeometrySection } from './properties/GeometrySection'
+import { IconRowSection } from './properties/IconRowSection'
 import { ImageFieldSection, ImageSection } from './properties/ImageSection'
 import { PartSection } from './properties/PartSection'
 import { ShapeSection } from './properties/ShapeSection'
@@ -63,6 +64,7 @@ export function PropertiesPanel() {
       {el.type === 'text' && <TextSection el={el} editable={editable} />}
       {el.type === 'image' && <ImageSection el={el} editable={editable} />}
       {el.type === 'imageField' && <ImageFieldSection el={el} />}
+      {el.type === 'iconRow' && <IconRowSection el={el} editable={editable} />}
       {el.type === 'shape' && <ShapeSection el={el} editable={editable} />}
       <GeometrySection el={el} editable={editable} />
     </div>
@@ -74,6 +76,7 @@ function typeLabel(t: string) {
     {
       text: 'Text field',
       imageField: 'Image field',
+      iconRow: 'Icon row',
       shape: 'Shape',
       image: 'Image',
       group: 'Group',

@@ -14,6 +14,7 @@ export function usedAssetIds(doc: {
   for (const e of els) {
     if (e.type === 'image') ids.add(e.assetId)
     if (e.type === 'imageField' && e.defaultAssetId) ids.add(e.defaultAssetId)
+    if (e.type === 'iconRow' && e.assetId) ids.add(e.assetId)
   }
   for (const c of Object.values(doc.cards))
     for (const v of Object.values(c.fields)) if (v.kind === 'image' && v.assetId) ids.add(v.assetId)

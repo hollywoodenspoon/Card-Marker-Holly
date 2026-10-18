@@ -6,6 +6,7 @@ import type {
   CardSize,
   ElementBase,
   GroupElement,
+  IconRowElement,
   ImageElement,
   ImageFieldElement,
   Project,
@@ -67,6 +68,21 @@ export function createImageField(
     fit: 'fill',
     placeholderColor: '#d9d9de',
     radiusMm: 0,
+    ...opts,
+  }
+}
+
+export function createIconRow(box: Box, opts: Partial<IconRowElement> = {}): IconRowElement {
+  const name = opts.name ?? 'Stat'
+  return {
+    ...base(name, box),
+    type: 'iconRow',
+    fieldName: opts.fieldName ?? name,
+    defaultCount: 3,
+    direction: 'horizontal',
+    iconMm: Math.min(box.wMm, box.hMm),
+    gapMm: 1,
+    fitToBox: true,
     ...opts,
   }
 }

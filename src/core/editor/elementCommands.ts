@@ -65,8 +65,7 @@ export function addElement(el: Element) {
   const s = useEditor.getState()
   const names = flatten(surfaceElements(s)).map((e) => e.name)
   const named = { ...el, name: uniqueName(el.name, names) } as Element
-  if ((named.type === 'text' || named.type === 'imageField') && named.fieldName === el.name)
-    named.fieldName = named.name
+  if ('fieldName' in named && named.fieldName === el.name) named.fieldName = named.name
   commit((d) => {
     const list = targetList(d, s.view)
     if (!list) return

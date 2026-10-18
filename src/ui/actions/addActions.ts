@@ -1,7 +1,7 @@
 import { useEditor } from '@/core/editor/editorStore'
 import { addElement } from '@/core/editor/elementCommands'
 import { activeTemplate } from '@/core/editor/selectors'
-import { createImageField, createShape, createText } from '@/core/model/factories'
+import { createIconRow, createImageField, createShape, createText } from '@/core/model/factories'
 import type { ShapeKind } from '@/core/model/types'
 import { richTextFromPlain } from '@/core/text/richtext'
 
@@ -34,6 +34,11 @@ export function addShape(kind: ShapeKind) {
       stroke: kind === 'line' ? '#1a1a1a' : null,
     }),
   )
+}
+
+export function addIconRow() {
+  const { widthMm } = cardSize()
+  return addElement(createIconRow(centred(Math.min(40, widthMm - 10), 8), { name: 'Stat' }))
 }
 
 export function addImageField() {

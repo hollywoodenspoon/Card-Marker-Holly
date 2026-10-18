@@ -123,8 +123,7 @@ export function translateElement(el: Element, dx: number, dy: number) {
 export function fieldNames(els: Element[]): string[] {
   const names: string[] = []
   walk(els, (e) => {
-    if ((e.type === 'text' || e.type === 'imageField') && !names.includes(e.fieldName))
-      names.push(e.fieldName)
+    if ('fieldName' in e && !names.includes(e.fieldName)) names.push(e.fieldName)
   })
   return names
 }

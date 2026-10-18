@@ -3,6 +3,7 @@ import { Group } from 'react-konva'
 import type { RenderNode } from '../renderTypes'
 import { useStageCtx } from '../stageContext'
 import { ImageFieldNode } from './ImageFieldNode'
+import { IconRowNode } from './IconRowNode'
 import { ImageNode } from './ImageNode'
 import { ShapeNode } from './ShapeNode'
 import { TextNode } from './TextNode'
@@ -73,6 +74,7 @@ export function ElementNode({ node, inGroup }: { node: RenderNode; inGroup?: boo
         {el.type === 'text' && node.text && <TextNode el={el} value={node.text} />}
         {el.type === 'imageField' && node.image && <ImageFieldNode el={el} value={node.image} />}
         {el.type === 'image' && <ImageNode el={el} />}
+        {el.type === 'iconRow' && <IconRowNode el={el} count={node.count ?? el.defaultCount} />}
       </Group>
     </Group>
   )

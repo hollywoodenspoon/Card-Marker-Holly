@@ -24,6 +24,10 @@ export function saveCardAsTemplate(
         const v = card.fields[copy.fieldName]
         if (v?.kind === 'text') copy.defaultText = structuredClone(v.text)
       }
+      if (copy.type === 'iconRow') {
+        const v = card.fields[copy.fieldName]
+        if (v?.kind === 'count') copy.defaultCount = v.count
+      }
       if (copy.type === 'imageField') {
         const v = card.fields[copy.fieldName]
         if (v?.kind === 'image') {

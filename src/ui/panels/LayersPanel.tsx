@@ -8,6 +8,7 @@ import {
   ImagePlus,
   Lock,
   LockOpen,
+  Rows3,
   Shapes,
   Type,
 } from 'lucide-react'
@@ -133,7 +134,14 @@ const DropLine = ({ depth }: { depth: number }) => (
   />
 )
 
-const ICONS = { text: Type, imageField: ImagePlus, image: ImageIcon, shape: Shapes, group: Folder }
+const ICONS = {
+  text: Type,
+  imageField: ImagePlus,
+  image: ImageIcon,
+  shape: Shapes,
+  group: Folder,
+  iconRow: Rows3,
+}
 
 function LayerRow({
   el,

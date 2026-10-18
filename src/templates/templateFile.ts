@@ -46,6 +46,7 @@ export async function exportTemplate(
   for (const e of flatten(t.elements)) {
     if (e.type === 'image') assetIds.add(e.assetId)
     if (e.type === 'imageField' && e.defaultAssetId) assetIds.add(e.defaultAssetId)
+    if (e.type === 'iconRow' && e.assetId) assetIds.add(e.assetId)
   }
   const fams = usedFamilies(t.elements)
   const { projectId: _p, thumbnail: _t, ...template } = t
@@ -109,6 +110,7 @@ export function importTemplate(
   walk(elements, (e) => {
     e.id = newId()
     if (e.type === 'image') e.assetId = assetMap.get(e.assetId) ?? e.assetId
+    if (e.type === 'iconRow' && e.assetId) e.assetId = assetMap.get(e.assetId) ?? e.assetId
     if (e.type === 'imageField' && e.defaultAssetId)
       e.defaultAssetId = assetMap.get(e.defaultAssetId) ?? e.defaultAssetId
   })

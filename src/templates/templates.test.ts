@@ -2,6 +2,7 @@ import { produce } from 'immer'
 import { describe, expect, it } from 'vitest'
 import {
   createCard,
+  createIconRow,
   createImageField,
   createShape,
   createTemplate,
@@ -259,5 +260,31 @@ describe('card elements between template parts', () => {
       'Flavor text',
     ])
     expect(t.elements[1].zBelow).toBeUndefined()
+  })
+})
+
+describe('icon rows', () => {
+  it('use the card count, carry it across templates, and bake it into saved templates', () => {
+    const atk = createIconRow(
+      { xMm: 0, yMm: 0, wMm: 40, hMm: 8 },
+      { name: 'Attack', assetId: 'sword' },
+    )
+    const tpl = createTemplate('p', 'front', size, 'Creature', [atk])
+    const card = createCard('p', 1, tpl.id, null)
+    const count = (t: Template, c: Card) => resolveSide(t, c, 'front', 'card')[0].count
+    expect(count(tpl, card)).toBe(3) // default
+    card.fields.Attack = { kind: 'count', count: 5 }
+    expect(count(tpl, card)).toBe(5)
+    const other = createTemplate('p', 'front', size, 'Spell', [
+      createIconRow({ xMm: 0, yMm: 0, wMm: 20, hMm: 8 }, { name: 'Attack', direction: 'vertical' }),
+    ])
+    expect(
+      count(
+        other,
+        produce(card, (c) => switchTemplate(c, 'front', other.id)),
+      ),
+    ).toBe(5)
+    const saved = saveCardAsTemplate(card, 'front', tpl, 'X', size)
+    expect(saved.elements[0]).toMatchObject({ type: 'iconRow', defaultCount: 5, assetId: 'sword' })
   })
 })
