@@ -1,6 +1,7 @@
 import {
   ChevronDown,
   Copy,
+  FileSpreadsheet,
   GripVertical,
   Image,
   MoreHorizontal,
@@ -31,12 +32,14 @@ import {
 import { Input } from '@/ui/components/ui/input'
 import { useReorder } from '@/ui/components/useReorder'
 import { CardThumb as LiveThumb } from '@/ui/canvas/CardThumb'
+import { MailMergeDialog } from '@/ui/merge/MailMergeDialog'
 import { useUi } from '@/ui/uiStore'
 
 export function CardsPanel({ onPicked }: { onPicked?: () => void }) {
   const cards = useEditor((s) => s.doc?.cards)
   const currentId = useEditor((s) => s.view.cardId)
   const [q, setQ] = useState('')
+  const [merging, setMerging] = useState(false)
   const list = useMemo(
     () => (cards ? Object.values(cards).sort((a, b) => a.order - b.order) : []),
     [cards],
@@ -85,6 +88,10 @@ export function CardsPanel({ onPicked }: { onPicked?: () => void }) {
               <DropdownMenuItem onSelect={() => addCard({ blank: true })}>
                 New card with default toggles
               </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onSelect={() => setMerging(true)}>
+                <FileSpreadsheet /> Mail merge from spreadsheet…
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -114,6 +121,7 @@ export function CardsPanel({ onPicked }: { onPicked?: () => void }) {
           </li>
         )}
       </ul>
+      <MailMergeDialog open={merging} onClose={() => setMerging(false)} />
     </div>
   )
 }

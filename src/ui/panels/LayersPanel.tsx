@@ -236,6 +236,14 @@ function LayerRow({
             <span className="truncate text-sm">
               {el.name}
               {isField && <span className="ml-1.5 text-[10px] text-accent uppercase">field</span>}
+              {'mergeColumn' in el && el.mergeColumn && (
+                <span
+                  className="ml-1.5 rounded bg-accent-soft px-1 text-[10px] font-semibold text-accent"
+                  title={`Spreadsheet column ${el.mergeColumn}`}
+                >
+                  {el.mergeColumn}
+                </span>
+              )}
               {fromTemplate && (
                 <span className="ml-1.5 text-[10px] text-muted-foreground uppercase">template</span>
               )}

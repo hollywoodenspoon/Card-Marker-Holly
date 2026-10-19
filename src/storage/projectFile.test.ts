@@ -61,6 +61,8 @@ function sample() {
     createText({ xMm: 0, yMm: 0, wMm: 10, hMm: 5 }, { stylePresetId: 'p1' }),
   )
   b.project.print = { ...b.project.print, copies: { [card.id]: 3 }, order: [card.id] }
+  b.project.merge = { frontTemplateId: front.id, firstRow: 3, mode: 'merge' }
+  card.mergeRow = 7
   return {
     doc: {
       project: b.project,
@@ -95,6 +97,9 @@ describe('project files', () => {
     expect(card.fields.Attack).toEqual({ kind: 'count', count: 4 })
     expect(b.project.print.copies).toEqual({ [card.id]: 3 })
     expect(b.project.print.order).toEqual([card.id])
+    expect(b.project.merge).toMatchObject({ firstRow: 3, mode: 'merge' })
+    expect(tplIds.has(b.project.merge!.frontTemplateId!)).toBe(true)
+    expect(card.mergeRow).toBe(7)
     for (const el of [
       ...b.templates.flatMap((t) => flatten(t.elements)),
       ...flatten(card.local.front),

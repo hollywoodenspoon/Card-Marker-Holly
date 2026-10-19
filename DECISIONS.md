@@ -166,3 +166,14 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 - The base path comes from `BASE_PATH` at build time; local `npm run dev` and `npm run preview` stay at `/`. The PWA manifest and service worker use paths relative to the base, so install and offline work on Pages too.
 - `404.html` is a copy of the app, so a mistyped or old link still opens it.
 - **Projects live in each browser.** The Pages site, `localhost` and each computer or browser keep their own projects. Move a project with ☰ → Export backup file, then Home → Import.
+
+## Mail merge
+
+- Cards panel → "+ Card" ▾ → **Mail merge from spreadsheet…**. Reads `.xlsx` (any sheet), `.csv`/`.tsv`, or cells pasted from Excel or Google Sheets (tab-separated). Old `.xls` files are refused with a message to save as `.xlsx` or `.csv`.
+- **Column letters on template fields** (owner's design): each text, art box or icon-row field can be tagged with a spreadsheet column (A, B, … AA), in the template's properties ("Spreadsheet column") or in the merge dialog. The Layers panel shows the letter. "Use header names" fills letters for header cells that match field names.
+- Cell values by field type: text as typed (line breaks and `{symbols}` work); art boxes take an uploaded image's **file name** (extension optional, any case); icon rows take a number. An empty cell keeps the template default. Unknown images and non-numbers are listed as issues and skipped, not guessed.
+- Optional columns: card name, print copies, and a front/back template name per row (unknown names fall back to the templates chosen in the dialog).
+- **Rows:** first row (default 2, so row 1 can hold headers), "only rows" and "skip rows" lists such as `2-20, 25`. Empty rows are skipped.
+- **Modes:** "Update existing" updates cards an earlier merge made from the same row number (each card remembers its row), writing only the tagged fields, so part toggles, card-only layers and untagged values stay; other rows become new cards; nothing is deleted. "Add as new" always creates new cards (names are made unique).
+- A merge is one undo step. The dialog's choices are saved on the project and in backups.
+- Parsing libraries (papaparse, read-excel-file) load only when the dialog reads a file.

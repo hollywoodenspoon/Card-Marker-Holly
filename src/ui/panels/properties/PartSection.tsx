@@ -3,9 +3,10 @@ import { useState } from 'react'
 import { useEditor } from '@/core/editor/editorStore'
 import { updateElement } from '@/core/editor/elementCommands'
 import { activeTemplate, currentCard, ownerOf } from '@/core/editor/selectors'
-import type { Element } from '@/core/model/types'
+import type { Element, FieldElement } from '@/core/model/types'
 import { editTemplate, renameField, toggleVisibility } from '@/templates/commands'
 import { isField, sharedFieldNames } from '@/templates/fields'
+import { cleanColumn } from '@/templates/mailMerge'
 import { isVisibleOnCard } from '@/templates/resolve'
 import { Button } from '@/ui/components/ui/button'
 import { Input, Label } from '@/ui/components/ui/input'
@@ -57,6 +58,7 @@ export function PartSection({ el }: { el: Element }) {
           shared={sharedFieldNames(template, el).length}
         />
       )}
+      {isField(el) && <MergeColumnInput key={el.id + (el.mergeColumn ?? '')} el={el} />}
       <label className="flex items-center justify-between gap-3 text-sm">
         Shown by default
         <Switch
@@ -95,6 +97,38 @@ function FieldNameInput({ el, shared }: { el: Element & { fieldName: string }; s
         {shared > 0 &&
           ` ${shared} other part${shared > 1 ? 's' : ''} here use${shared > 1 ? '' : 's'} the same name and show the same value.`}
       </p>
+    </div>
+  )
+}
+
+/** Which spreadsheet column this field reads in a mail merge. */
+function MergeColumnInput({ el }: { el: FieldElement }) {
+  const [v, setV] = useState(el.mergeColumn ?? '')
+  const save = () => {
+    const col = cleanColumn(v)
+    if (v.trim() && !col) return setV(el.mergeColumn ?? '')
+    if (col === el.mergeColumn) return setV(col ?? '')
+    updateElement(el.id, (e) => {
+      if (!('fieldName' in e)) return
+      if (col) e.mergeColumn = col
+      else delete e.mergeColumn
+    })
+  }
+  return (
+    <div className="flex items-center justify-between gap-3">
+      <Label htmlFor="merge-column" className="text-sm font-normal text-foreground">
+        Spreadsheet column
+      </Label>
+      <Input
+        id="merge-column"
+        className="w-20 text-center uppercase"
+        placeholder="—"
+        maxLength={3}
+        value={v}
+        onChange={(e) => setV(e.target.value.toUpperCase())}
+        onBlur={save}
+        onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
+      />
     </div>
   )
 }
