@@ -1,4 +1,14 @@
-import { Download, Home, Menu, PanelLeft, PanelRight, Printer, Redo2, Undo2 } from 'lucide-react'
+import {
+  Download,
+  Home,
+  Image,
+  Menu,
+  PanelLeft,
+  PanelRight,
+  Printer,
+  Redo2,
+  Undo2,
+} from 'lucide-react'
 import { goHome } from '@/app/session'
 import { redo, undo, useEditor } from '@/core/editor/editorStore'
 import { Button, IconButton } from '@/ui/components/ui/button'
@@ -73,6 +83,13 @@ function AppMenu() {
       <DropdownMenuContent align="start">
         <DropdownMenuItem onSelect={() => useUi.getState().setPrintOpen(true)}>
           <Printer /> Print / export PDF
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onSelect={() =>
+            useUi.getState().setImageExport({ cardId: useEditor.getState().view.cardId })
+          }
+        >
+          <Image /> Export card images…
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={() => void goHome()}>
           <Home /> All projects

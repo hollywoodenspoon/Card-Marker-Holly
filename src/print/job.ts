@@ -40,7 +40,7 @@ interface Resolved {
  */
 const resolvedCache = new WeakMap<Card, Resolved>()
 
-function resolveCard(
+export function resolveCard(
   card: Card,
   front: Template | undefined,
   back: Template | undefined,
