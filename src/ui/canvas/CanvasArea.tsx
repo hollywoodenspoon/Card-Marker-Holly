@@ -11,6 +11,7 @@ import {
 } from '@/core/editor/selectors'
 import { fitToScreen, useViewport, zoomIn, zoomOut } from '@/core/render/viewport'
 import { cn } from '@/lib/cn'
+import { cardContext } from '@/templates/cardContext'
 import { resolveSide } from '@/templates/resolve'
 import { IconButton } from '@/ui/components/ui/button'
 import { useCoarsePointer, type LayoutKind } from '@/ui/shell/useLayout'
@@ -33,6 +34,9 @@ export function CanvasArea({ layout }: { layout: LayoutKind }) {
   const state = useEditor.getState()
   const template = doc ? activeTemplate({ ...state, doc, view }) : undefined
   const card = doc ? currentCard({ ...state, doc, view }) : undefined
+  const ctx = doc
+    ? cardContext(doc.project, doc.cards, view.mode === 'template' ? undefined : card?.id)
+    : undefined
   const nodes = useMemo(
     // Template mode shows the template's own defaults, not the current card's values.
     () =>
@@ -42,8 +46,19 @@ export function CanvasArea({ layout }: { layout: LayoutKind }) {
         view.side,
         view.mode,
         doc?.stylePresets,
+        ctx,
       ),
-    [template, card, view.side, view.mode, doc?.stylePresets],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      template,
+      card,
+      view.side,
+      view.mode,
+      doc?.stylePresets,
+      ctx?.number,
+      ctx?.total,
+      ctx?.keywords,
+    ],
   )
 
   if (!doc) return null

@@ -1,6 +1,6 @@
 import { newId } from '@/core/model/ids'
 import { flatten, walk } from '@/core/model/tree'
-import type { Asset, Element, FontAsset, StylePreset, Template } from '@/core/model/types'
+import type { Asset, Element, FontAsset, Keyword, StylePreset, Template } from '@/core/model/types'
 import { base64ToBlob, blobToBase64 } from '@/storage/base64'
 
 /** Portable template file: the template plus the images and fonts it uses. */
@@ -12,6 +12,8 @@ export interface TemplateFile {
   fonts: (Omit<FontAsset, 'blob' | 'projectId'> & { data: string })[]
   /** Shared styles used by the template's texts (merged by name on import). */
   stylePresets?: Omit<StylePreset, 'projectId'>[]
+  /** Project keywords, so the template looks the same elsewhere (merged by word on import). */
+  keywords?: Keyword[]
 }
 
 /** `{name}` symbol tokens used in the template's texts. */
@@ -42,6 +44,7 @@ export async function exportTemplate(
   assets: Record<string, Asset>,
   fonts: Record<string, FontAsset>,
   presets: Record<string, StylePreset> = {},
+  keywords: Keyword[] = [],
 ): Promise<TemplateFile> {
   const assetIds = new Set<string>()
   const symbols = usedSymbols(t.elements)
@@ -63,6 +66,7 @@ export async function exportTemplate(
     version: 1,
     template: structuredClone(template),
     stylePresets: usedPresets.map(({ projectId: _pid, ...p }) => structuredClone(p)),
+    ...(keywords.length ? { keywords: structuredClone(keywords) } : {}),
     assets: await Promise.all(
       [...assetIds]
         .map((id) => assets[id])
@@ -92,8 +96,15 @@ export function importTemplate(
   file: unknown,
   projectId: string,
   existingFonts: FontAsset[],
-  existing: { presets?: StylePreset[]; assets?: Asset[] } = {},
-): { template: Template; assets: Asset[]; fonts: FontAsset[]; stylePresets: StylePreset[] } {
+  existing: { presets?: StylePreset[]; assets?: Asset[]; keywords?: Keyword[] } = {},
+): {
+  template: Template
+  assets: Asset[]
+  fonts: FontAsset[]
+  stylePresets: StylePreset[]
+  /** Keywords from the file that the project doesn't have yet (same word, any case). */
+  keywords: Keyword[]
+} {
   const f = file as TemplateFile
   if (f?.format !== 'card-maker-template' || f.version !== 1 || !f.template)
     throw new Error('This is not a Card Maker template file.')
@@ -171,5 +182,18 @@ export function importTemplate(
     assets,
     fonts,
     stylePresets,
+    keywords: newKeywords(f.keywords ?? [], existing.keywords ?? []),
   }
+}
+
+const norm = (w: string) => w.trim().replace(/\s+/g, ' ').toLowerCase()
+function newKeywords(incoming: Keyword[], have: Keyword[]): Keyword[] {
+  const seen = new Set(have.map((k) => norm(k.word)))
+  const out: Keyword[] = []
+  for (const k of incoming) {
+    if (!k.word?.trim() || seen.has(norm(k.word))) continue
+    seen.add(norm(k.word))
+    out.push({ ...structuredClone(k), id: newId() })
+  }
+  return out
 }

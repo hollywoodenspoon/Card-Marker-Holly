@@ -10,6 +10,7 @@ import type {
   Template,
 } from '@/core/model/types'
 import type { RenderNode } from '@/core/render/renderTypes'
+import { cardContext } from '@/templates/cardContext'
 import { resolveCard } from '../job'
 import { BleedBands, bleedFramePath } from '../pdf/bleedFill'
 import { CanvasTarget } from '../pdf/canvasTarget'
@@ -30,6 +31,8 @@ export interface ImageExportInput {
   project: Project
   templates: Record<string, Template>
   cards: Card[]
+  /** Every card in the project, for card numbers (defaults to `cards`). */
+  allCards?: Record<string, Card>
   assets: Record<string, Asset>
   fonts: FontAsset[]
   stylePresets?: Record<string, StylePreset>
@@ -127,11 +130,13 @@ export async function exportCardImages(
           res,
         )
       : null
+  const allCards = input.allCards ?? Object.fromEntries(input.cards.map((c) => [c.id, c]))
   const sides = new Map<Card, { front: RenderNode[]; back: RenderNode[] | null }>()
   for (const c of input.cards) {
     const ft = c.frontTemplateId ? input.templates[c.frontTemplateId] : undefined
     const bt = c.backTemplateId ? input.templates[c.backTemplateId] : undefined
-    sides.set(c, resolveCard(c, ft, bt, input.stylePresets))
+    const ctx = cardContext(project, allCards, c.id)
+    sides.set(c, resolveCard(c, ft, bt, input.stylePresets, ctx))
   }
   const noBack = new Set<string>()
   const files = imageFiles(input.cards, options).filter((f) => {

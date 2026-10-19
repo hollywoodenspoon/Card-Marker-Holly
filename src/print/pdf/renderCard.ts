@@ -9,6 +9,7 @@ import { iconRowLayout } from '@/core/render/iconRowLayout'
 import { FULL_CROP, framePlacement } from '@/core/render/imageMath'
 import type { RenderNode } from '@/core/render/renderTypes'
 import { textLayoutInput } from '@/core/render/textInput'
+import { TEXT_PASSES, textEffects, type TextPass } from '@/core/text/effects'
 import { layoutText, SYMBOL_TOP_EM, type Fragment, type SymbolLookup } from '@/core/text/layout'
 import type { Measurer } from '@/core/text/measure'
 import type { Rect } from '../layout'
@@ -21,8 +22,18 @@ export interface PrintResources {
   /** Image bytes / SVG for an asset (cached by the caller). */
   image(assetId: string): Promise<PdfImage | undefined>
   info(assetId: string): { widthPx: number; heightPx: number; isVector: boolean } | undefined
-  /** Draw one text fragment with its baseline at (x, baseline), in the current transform. */
-  text(t: DrawTarget, f: Fragment, x: number, baseline: number): Promise<void>
+  /**
+   * Draw one text fragment with its baseline at (x, baseline), in the current
+   * transform: its shadow, its outline, or the letters themselves.
+   */
+  text(
+    t: DrawTarget,
+    f: Fragment,
+    x: number,
+    baseline: number,
+    pass?: TextPass,
+    alpha?: number,
+  ): Promise<void>
   symbols?: SymbolLookup
 }
 
@@ -62,7 +73,7 @@ async function drawNode(t: DrawTarget, n: RenderNode, parentAlpha: number, res: 
   t.opacity(alpha)
   switch (el.type) {
     case 'shape':
-      drawShape(t, el)
+      drawShape(t, el, alpha)
       break
     case 'image':
       await drawImage(t, el, res)
@@ -74,13 +85,26 @@ async function drawNode(t: DrawTarget, n: RenderNode, parentAlpha: number, res: 
       await drawIconRow(t, el, n.count ?? el.defaultCount, res)
       break
     case 'text':
-      if (n.text) await drawText(t, el, n.text.text, res)
+      if (n.text) await drawText(t, el, n.text.text, res, alpha)
       break
   }
   t.restore()
 }
 
-function drawShape(t: DrawTarget, el: ShapeElement) {
+function drawShape(t: DrawTarget, el: ShapeElement, alpha: number) {
+  if (el.shadow && el.shadow.opacity > 0 && (el.shadow.dxMm || el.shadow.dyMm)) {
+    const sh = el.shadow
+    t.save()
+    t.transform(translate(sh.dxMm, sh.dyMm))
+    t.opacity(alpha * sh.opacity)
+    const stroke = el.kind === 'line' || el.stroke ? sh.color : null
+    paintShape(t, { ...el, fill: el.fill && sh.color, stroke })
+    t.restore()
+  }
+  paintShape(t, el)
+}
+
+function paintShape(t: DrawTarget, el: ShapeElement) {
   const hasStroke = !!el.stroke && el.strokeMm > 0
   if (el.kind === 'line') {
     const color = el.stroke ?? el.fill ?? '#000000'
@@ -163,24 +187,40 @@ async function drawText(
   el: TextElement,
   text: TextElement['defaultText'],
   res: PrintResources,
+  alpha: number,
 ) {
   const layout = layoutText(textLayoutInput(el, text, res.symbols), res.measurer)
   const pad = el.paddingMm
-  for (const line of layout.lines) {
-    const baseline = pad + layout.offsetY + line.baseline
-    for (const f of line.fragments) {
-      const x = pad + f.x
+  const frags = layout.lines.flatMap((line) =>
+    line.fragments.map((f) => ({
+      f,
+      x: pad + f.x,
+      baseline: pad + layout.offsetY + line.baseline,
+    })),
+  )
+  // Every shadow first, then every outline, then the letters, as on the canvas.
+  for (const pass of TEXT_PASSES) {
+    for (const { f, x, baseline } of frags) {
+      const fx = textEffects(f.style, f.sizeMm)
+      if (pass === 'shadow' && !fx.shadow) continue
+      if (pass === 'outline' && !fx.outline) continue
       if (f.symbolAssetId) {
+        if (pass !== 'fill') continue
         const img = await res.image(f.symbolAssetId)
         if (img) await t.image(img, x, baseline - SYMBOL_TOP_EM * f.sizeMm, f.width, f.sizeMm)
         continue
       }
-      if (f.text.trim()) await res.text(t, f, x, baseline)
-      if (f.style.underline) {
+      if (f.text.trim()) await res.text(t, f, x, baseline, pass, alpha)
+      if (f.style.underline && pass !== 'outline') {
         const size = f.sizeMm
-        t.fillColor(f.style.color)
-        t.rect(x, baseline + size * 0.12, f.width, Math.max(size * 0.06, 0.05))
+        const dx = pass === 'shadow' ? fx.shadow!.dxMm : 0
+        const dy = pass === 'shadow' ? fx.shadow!.dyMm : 0
+        t.save()
+        if (pass === 'shadow') t.opacity(alpha * fx.shadow!.opacity)
+        t.fillColor(pass === 'shadow' ? fx.shadow!.color : f.style.color)
+        t.rect(x + dx, baseline + dy + size * 0.12, f.width, Math.max(size * 0.06, 0.05))
         t.fill()
+        t.restore()
       }
     }
   }

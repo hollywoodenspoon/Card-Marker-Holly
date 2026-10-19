@@ -8,6 +8,7 @@ import type { FontAsset, Side, Template } from '@/core/model/types'
 import { migrateFieldRename } from './fields'
 import { setPartVisibility } from './overrides'
 import { isVisibleOnCard } from './resolve'
+import { fieldDefaults, ruleHolds } from './rules'
 import { saveCardAsTemplate } from './saveCardAsTemplate'
 import { switchTemplate } from './switchTemplate'
 import { exportTemplate, importTemplate } from './templateFile'
@@ -27,9 +28,11 @@ export function toggleVisibility(id: string) {
     const cardId = s.view.cardId
     if (!el || !cardId || el.toggleLocked) return
     const card = s.doc!.cards[cardId]
-    const next = !isVisibleOnCard(el, card)
+    const defaults = fieldDefaults(activeTemplate(s)?.elements ?? [])
+    const next = !isVisibleOnCard(el, card, defaults)
+    const base = el.defaultVisible && ruleHolds(el.showIf, card, defaults)
     commit((d) => {
-      setPartVisibility(d.cards[cardId], el, next)
+      setPartVisibility(d.cards[cardId], el, next, base)
       d.cards[cardId].updatedAt = Date.now()
     })
     return
@@ -196,7 +199,13 @@ export async function downloadTemplate(id: string) {
   const s = useEditor.getState()
   const t = s.doc?.templates[id]
   if (!t) return
-  const file = await exportTemplate(t, s.library.assets, s.library.fonts, s.doc!.stylePresets)
+  const file = await exportTemplate(
+    t,
+    s.library.assets,
+    s.library.fonts,
+    s.doc!.stylePresets,
+    s.doc!.project.keywords,
+  )
   const blob = new Blob([JSON.stringify(file)], { type: 'application/json' })
   const a = document.createElement('a')
   a.href = URL.createObjectURL(blob)
@@ -209,11 +218,15 @@ export async function uploadTemplate(file: File, registerFonts: (f: FontAsset[])
   const s = useEditor.getState()
   if (!s.doc) return
   const data = JSON.parse(await file.text())
-  const { template, assets, fonts, stylePresets } = importTemplate(
+  const { template, assets, fonts, stylePresets, keywords } = importTemplate(
     data,
     s.doc.project.id,
     Object.values(s.library.fonts),
-    { presets: Object.values(s.doc.stylePresets), assets: Object.values(s.library.assets) },
+    {
+      presets: Object.values(s.doc.stylePresets),
+      assets: Object.values(s.library.assets),
+      keywords: s.doc.project.keywords,
+    },
   )
   const names = Object.values(s.doc.templates).map((t) => t.name)
   template.name = uniqueName(template.name, names)
@@ -226,6 +239,7 @@ export async function uploadTemplate(file: File, registerFonts: (f: FontAsset[])
   commit((d) => {
     d.templates[template.id] = template
     for (const p of stylePresets) d.stylePresets[p.id] = p
+    if (keywords.length) d.project.keywords = [...(d.project.keywords ?? []), ...keywords]
   })
   return template.id
 }

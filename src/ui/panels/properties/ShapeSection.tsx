@@ -59,6 +59,54 @@ export function ShapeSection({ el, editable }: { el: ShapeElement; editable: boo
           />
         )}
       </Row>
+      <ColorField
+        label="Shadow"
+        allowNone
+        value={el.shadow?.color ?? null}
+        disabled={!editable}
+        onChange={(v) =>
+          set((s) => {
+            if (!v) delete s.shadow
+            else s.shadow = { dxMm: 0.8, dyMm: 0.8, opacity: 0.5, ...s.shadow, color: v }
+          }, 'shadow')
+        }
+      />
+      {el.shadow && (
+        <Row cols={3}>
+          <NumberField
+            label="Shadow X"
+            unit="mm"
+            step={0.1}
+            value={el.shadow.dxMm}
+            disabled={!editable}
+            onChange={(v) => set((s) => void (s.shadow && (s.shadow.dxMm = v)), 'shx')}
+          />
+          <NumberField
+            label="Shadow Y"
+            unit="mm"
+            step={0.1}
+            value={el.shadow.dyMm}
+            disabled={!editable}
+            onChange={(v) => set((s) => void (s.shadow && (s.shadow.dyMm = v)), 'shy')}
+          />
+          <NumberField
+            label="Opacity"
+            unit="%"
+            min={0}
+            max={100}
+            step={5}
+            precision={0}
+            value={Math.round(el.shadow.opacity * 100)}
+            disabled={!editable}
+            onChange={(v) =>
+              set(
+                (s) => void (s.shadow && (s.shadow.opacity = Math.min(100, Math.max(0, v)) / 100)),
+                'sho',
+              )
+            }
+          />
+        </Row>
+      )}
     </Section>
   )
 }

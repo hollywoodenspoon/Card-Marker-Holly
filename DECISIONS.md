@@ -2,6 +2,10 @@
 
 Where CLAUDE.md left room, the simplest option that fits it was picked. Each choice is listed here.
 
+## README
+
+- At the owner's request the README also holds a short feature guide ("Features and how to use them"), beyond the install/run/build commands CLAUDE.md asked for. Every feature PR updates it.
+
 ## Stack
 
 - **Canvas: Konva (react-konva).** It works declaratively with React state, has a built-in transformer (resize with locked aspect ratio, rotation handle, rotation snaps, configurable handle size for touch), and uses pointer events. Konva has no per-character text styling, so `src/core/text/` has its own rich-text layout engine (wrapping, alignment, justify, per-run styles, letter spacing, auto-shrink). The engine works in mm with an injectable measurer, so Shot 2's PDF export can reuse the same line layout.
@@ -177,3 +181,11 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 - **Modes:** "Update existing" updates cards an earlier merge made from the same row number (each card remembers its row), writing only the tagged fields, so part toggles, card-only layers and untagged values stay; other rows become new cards; nothing is deleted. "Add as new" always creates new cards (names are made unique).
 - A merge is one undo step. The dialog's choices are saved on the project and in backups.
 - Parsing libraries (papaparse, read-excel-file) load only when the dialog reads a file.
+
+## Design tools
+
+- **Show only when** (conditional parts): a template part can carry one rule on a field value (is / is not / contains / is filled in / is empty, ignoring capitals). The card's own value is compared, or the template default when the card has none. A part whose rule fails is hidden like a toggled-off part (nothing else moves). A per-card eye toggle still wins. Template mode shows every part so the layout can be edited.
+- **Card numbers** are text tokens resolved when a card is drawn: `{#}`, `{#:3}` (zero-padded) and `{total}`. The number is the card's place in the Cards list plus the project's "first card is number" (default 1); print copies of a card share its number. Add → Card number adds a small `{#}/{total}` text, so numbers appear only where added. In template mode the first number is shown as a preview. The tokens take precedence over a symbol with the same name.
+- **Keywords** are a project list of words/phrases with a partial style (bold, italic, underline, colour, font). Matching is whole-word and case-insensitive; phrases match any spacing; `{symbol}` names are never styled. Explicit formatting on the text wins over the keyword style. Each text part can opt out. Template files carry the project keywords; importing adds the ones the project doesn't have.
+- All three happen when a card is resolved, so the canvas, thumbnails, print preview, PDF and image export always agree. The stored text is never changed.
+- **Outline and shadow** are text-style fields (so shared styles and per-character formatting can carry them), sized in em so they scale with auto-shrink. Drawing order for a whole text is: every shadow, then every outline, then the letters, on the canvas and in the PDF (vector glyph paths; the system-font raster fallback draws the same effects). Outlines are stroked at twice the width with round joins, half hidden under the letters. Shadows are hard (no blur) on purpose, so screen and vector PDF match exactly. Shapes get a hard shadow too (Konva's shadow with blur 0 on screen, an offset copy in the PDF).

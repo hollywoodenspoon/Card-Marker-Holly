@@ -1,15 +1,17 @@
-import { LayoutTemplate } from 'lucide-react'
+import { Filter, LayoutTemplate } from 'lucide-react'
 import { useState } from 'react'
 import { useEditor } from '@/core/editor/editorStore'
 import { updateElement } from '@/core/editor/elementCommands'
 import { activeTemplate, currentCard, ownerOf } from '@/core/editor/selectors'
-import type { Element, FieldElement } from '@/core/model/types'
+import { fieldNames } from '@/core/model/tree'
+import type { Element, FieldElement, ShowRule } from '@/core/model/types'
 import { editTemplate, renameField, toggleVisibility } from '@/templates/commands'
 import { isField, sharedFieldNames } from '@/templates/fields'
 import { cleanColumn } from '@/templates/mailMerge'
 import { isVisibleOnCard } from '@/templates/resolve'
+import { fieldDefaults, RULE_OPS } from '@/templates/rules'
 import { Button } from '@/ui/components/ui/button'
-import { Input, Label } from '@/ui/components/ui/input'
+import { Input, Label, NativeSelect } from '@/ui/components/ui/input'
 import { Switch } from '@/ui/components/ui/switch'
 import { Section } from '@/ui/components/fields'
 
@@ -21,7 +23,11 @@ export function PartSection({ el }: { el: Element }) {
   const card = useEditor(currentCard)
 
   if (mode === 'card' && owner === 'template') {
-    const visible = isVisibleOnCard(el, card)
+    const visible = isVisibleOnCard(
+      el,
+      card,
+      template ? fieldDefaults(template.elements) : undefined,
+    )
     return (
       <Section title="Template part">
         <label className="flex items-center justify-between gap-3 text-sm">
@@ -75,7 +81,82 @@ export function PartSection({ el }: { el: Element }) {
           aria-label="Can be hidden per card"
         />
       </label>
+      {template && <ShowWhen el={el} fields={fieldNames(template.elements)} />}
     </Section>
+  )
+}
+
+/** "Show only when <field> <condition> <value>" for a template part. */
+function ShowWhen({ el, fields }: { el: Element; fields: string[] }) {
+  const rule = el.showIf
+  const set = (r: ShowRule | undefined, coalesce?: string) =>
+    updateElement(
+      el.id,
+      (e) => {
+        if (r) e.showIf = r
+        else delete e.showIf
+      },
+      coalesce,
+    )
+  const op = RULE_OPS.find((o) => o.id === rule?.op)
+  if (!rule)
+    return (
+      <Button
+        variant="outline"
+        size="sm"
+        className="self-start"
+        disabled={!fields.length}
+        onClick={() => set({ field: fields[0], op: 'is', value: '' })}
+      >
+        <Filter /> Show only when…
+      </Button>
+    )
+  return (
+    <div className="flex flex-col gap-1.5 rounded-lg border p-2" data-testid="show-when">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-medium text-muted-foreground">Show only when</span>
+        <Button size="sm" variant="ghost" onClick={() => set(undefined)}>
+          Remove
+        </Button>
+      </div>
+      <div className="grid grid-cols-2 gap-1.5">
+        <NativeSelect
+          aria-label="Field"
+          value={rule.field}
+          onChange={(e) => set({ ...rule, field: e.target.value })}
+        >
+          {!fields.includes(rule.field) && <option value={rule.field}>{rule.field}</option>}
+          {fields.map((f) => (
+            <option key={f} value={f}>
+              {f}
+            </option>
+          ))}
+        </NativeSelect>
+        <NativeSelect
+          aria-label="Condition"
+          value={rule.op}
+          onChange={(e) => set({ ...rule, op: e.target.value as ShowRule['op'] })}
+        >
+          {RULE_OPS.map((o) => (
+            <option key={o.id} value={o.id}>
+              {o.label}
+            </option>
+          ))}
+        </NativeSelect>
+      </div>
+      {op?.needsValue && (
+        <Input
+          aria-label="Value"
+          placeholder="e.g. Rare"
+          value={rule.value ?? ''}
+          onChange={(e) => set({ ...rule, value: e.target.value }, `showIf:${el.id}`)}
+        />
+      )}
+      <p className="text-xs text-muted-foreground">
+        Hidden on cards where this isn't true (ignores capitals). The eye in Layers can still show
+        or hide it on one card.
+      </p>
+    </div>
   )
 }
 

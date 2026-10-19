@@ -1,6 +1,7 @@
 import type { Font } from 'fontkit'
 import type { Fragment } from '@/core/text/layout'
 import { cssFont, type Measurer } from '@/core/text/measure'
+import { textEffects, type TextPass } from '@/core/text/effects'
 import type { DrawTarget, PdfImage } from './drawTarget'
 import type { FontSources } from './fontSources'
 
@@ -18,24 +19,53 @@ export function makeTextDrawer(
   onFallback: (family: string) => void,
 ) {
   let rasterId = 0
-  return async function drawFragment(t: DrawTarget, f: Fragment, x0: number, baseline: number) {
+  return async function drawFragment(
+    t: DrawTarget,
+    f: Fragment,
+    x0: number,
+    baseline: number,
+    pass: TextPass = 'fill',
+    alpha = 1,
+  ) {
     const resolved = await fonts.resolve(f.style)
     if (!resolved) {
+      // The raster fallback draws its shadow and outline together with the letters.
+      if (pass !== 'fill') return
       onFallback(f.style.fontFamily)
       return drawRaster(t, f, x0, baseline, measurer, `txt${rasterId++}`)
     }
     const size = f.sizeMm
     const ls = f.style.letterSpacingEm * size
+    const fx = textEffects(f.style, size)
     t.save()
-    t.fillColor(f.style.color)
+    let paint: () => void
+    if (pass === 'shadow' && fx.shadow) {
+      t.transform([1, 0, 0, 1, fx.shadow.dxMm, fx.shadow.dyMm])
+      t.opacity(alpha * fx.shadow.opacity)
+      t.fillColor(fx.shadow.color)
+      if (fx.outline) {
+        t.strokeColor(fx.shadow.color)
+        t.lineWidth(fx.outline.widthMm * 2)
+        t.lineJoin('round')
+        paint = () => t.fillStroke()
+      } else paint = () => t.fill()
+    } else if (pass === 'outline' && fx.outline) {
+      t.strokeColor(fx.outline.color)
+      t.lineWidth(fx.outline.widthMm * 2)
+      t.lineJoin('round')
+      paint = () => t.stroke()
+    } else {
+      t.fillColor(f.style.color)
+      if (resolved.synthBold) {
+        t.strokeColor(f.style.color)
+        t.lineWidth(size * 0.035)
+        paint = () => t.fillStroke()
+      } else paint = () => t.fill()
+    }
     if (resolved.synthItalic) {
       // Lean glyphs ~11° around the baseline, as browsers do for missing italics.
       const k = 0.2
       t.transform([1, 0, -k, 1, k * baseline, 0])
-    }
-    if (resolved.synthBold) {
-      t.strokeColor(f.style.color)
-      t.lineWidth(size * 0.035)
     }
     let x = x0
     for (const seg of segmentByFont(f.text, resolved.fonts)) {
@@ -45,10 +75,7 @@ export function makeTextDrawer(
         const p = run.positions[i]
         const gx = x + p.xOffset * s
         const gy = baseline - p.yOffset * s
-        if (glyphPath(t, g.path.commands, gx, gy, s)) {
-          if (resolved.synthBold) t.fillStroke()
-          else t.fill()
-        }
+        if (glyphPath(t, g.path.commands, gx, gy, s)) paint()
         x += p.xAdvance * s + ls
       })
     }
@@ -128,24 +155,55 @@ async function drawRaster(
   id: string,
 ) {
   const m = measurer.metrics(f.style, f.sizeMm)
-  const w = f.width + f.sizeMm * 0.2 // room for overhangs
-  const h = m.ascent + m.descent
+  const fx = textEffects(f.style, f.sizeMm)
+  // Room around the letters for overhangs, the outline and the shadow offset (mm).
+  const out = (fx.outline?.widthMm ?? 0) + f.sizeMm * 0.1
+  const left = out + Math.max(0, -(fx.shadow?.dxMm ?? 0))
+  const top = out + Math.max(0, -(fx.shadow?.dyMm ?? 0))
+  const w = left + f.width + out + Math.max(0, fx.shadow?.dxMm ?? 0) + f.sizeMm * 0.1
+  const h = top + m.ascent + m.descent + out + Math.max(0, fx.shadow?.dyMm ?? 0)
   const pxPerMm = FALLBACK_DPI / 25.4
   const canvas = document.createElement('canvas')
   canvas.width = Math.max(1, Math.ceil(w * pxPerMm))
   canvas.height = Math.max(1, Math.ceil(h * pxPerMm))
   const ctx = canvas.getContext('2d')!
   ctx.font = cssFont(f.style, f.sizeMm * pxPerMm)
-  ctx.fillStyle = f.style.color
   ctx.textBaseline = 'alphabetic'
+  ctx.lineJoin = 'round'
   const ls = f.style.letterSpacingEm * f.sizeMm * pxPerMm
-  if (ls) {
-    let cx = 0
-    for (const ch of f.text) {
-      ctx.fillText(ch, cx, m.ascent * pxPerMm)
-      cx += ctx.measureText(ch).width + ls
-    }
-  } else ctx.fillText(f.text, 0, m.ascent * pxPerMm)
+  const draw = (paint: (s: string, x: number, y: number) => void, dx = 0, dy = 0) => {
+    const x0 = (left + dx) * pxPerMm
+    const y0 = (top + m.ascent + dy) * pxPerMm
+    if (ls) {
+      let cx = x0
+      for (const ch of f.text) {
+        paint(ch, cx, y0)
+        cx += ctx.measureText(ch).width + ls
+      }
+    } else paint(f.text, x0, y0)
+  }
+  const lw = (fx.outline?.widthMm ?? 0) * 2 * pxPerMm
+  if (fx.shadow) {
+    ctx.globalAlpha = fx.shadow.opacity
+    ctx.fillStyle = ctx.strokeStyle = fx.shadow.color
+    ctx.lineWidth = lw
+    draw(
+      (s, x, y) => {
+        if (lw) ctx.strokeText(s, x, y)
+        ctx.fillText(s, x, y)
+      },
+      fx.shadow.dxMm,
+      fx.shadow.dyMm,
+    )
+    ctx.globalAlpha = 1
+  }
+  if (fx.outline) {
+    ctx.strokeStyle = fx.outline.color
+    ctx.lineWidth = lw
+    draw((s, x, y) => ctx.strokeText(s, x, y))
+  }
+  ctx.fillStyle = f.style.color
+  draw((s, x, y) => ctx.fillText(s, x, y))
   const blob = await new Promise<Blob>((r) => canvas.toBlob((b) => r(b!), 'image/png'))
   const img: PdfImage = {
     kind: 'raster',
@@ -155,5 +213,11 @@ async function drawRaster(
     widthPx: canvas.width,
     heightPx: canvas.height,
   }
-  await t.image(img, x, baseline - m.ascent, canvas.width / pxPerMm, canvas.height / pxPerMm)
+  await t.image(
+    img,
+    x - left,
+    baseline - m.ascent - top,
+    canvas.width / pxPerMm,
+    canvas.height / pxPerMm,
+  )
 }
