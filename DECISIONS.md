@@ -85,7 +85,8 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
   - the filled bleed is drawn over the card, so it always follows the card edge, even where a shape already reaches into the bleed
   - only the bleed becomes an image (it is cut off); inside the cut line the card stays vector
   - the image is made with the PDF's own card renderer (on a canvas), so it matches the printed card
-- **Cut marks** (on by default, 4 mm long, 2 mm gap from the bleed edge):
+- **Cut marks** (on by default, 3.5 mm long, 2 mm gap from the bleed edge):
+  - 3.5 mm (not 4) so that 9 portrait ID cards with 3 mm bleed fit on A4 (3 × 92 mm = 276 mm, exactly the space left inside a 5 mm margin)
   - drawn on the outer edges of the grid, one mark per cut line on each side, like a standard gang-up sheet, so they never touch any card or its bleed
   - the space for them is reserved inside the printer margin
   - optional **guide lines** run through every cut line across the printable area

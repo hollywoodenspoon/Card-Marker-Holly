@@ -47,9 +47,13 @@ describe('grid fit', () => {
     expect([s.pageW, s.pageH]).toEqual([210, 297])
   })
 
-  it('fits 8 portrait ID cards (4 × 2) on a landscape page', () => {
-    const s = computeSheet({ ...base, card: { w: 54, h: 86 } })
-    expect([s.orientation, s.cols, s.rows, s.perSheet]).toEqual(['landscape', 4, 2, 8])
+  it('fits 9 portrait ID cards (3 × 3) with the default 3.5 mm marks', () => {
+    const d = normalizePrint(undefined)
+    const s = computeSheet({ ...base, card: { w: 54, h: 86 }, markLengthMm: d.markLengthMm })
+    expect([s.orientation, s.cols, s.rows, s.perSheet]).toEqual(['portrait', 3, 3, 9])
+    // 4 mm marks leave 275 mm for 276 mm of cells: 8 on a landscape page
+    const l = computeSheet({ ...base, card: { w: 54, h: 86 } })
+    expect([l.orientation, l.cols, l.rows, l.perSheet]).toEqual(['landscape', 4, 2, 8])
   })
 
   it('compares orientations and lets the user override', () => {

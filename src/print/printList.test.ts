@@ -42,11 +42,11 @@ describe('print job pages', () => {
       ...createCard(project.id, i, templates[0].id, templates[1].id, n),
       id: n,
     }))
-    project.print = { ...project.print, copies: { A: 5, B: 0, C: 4 }, order: ['C', 'A'] }
+    project.print = { ...project.print, copies: { A: 6, B: 0, C: 4 }, order: ['C', 'A'] }
     const job = buildPrintJob({ project, templates: t, cards: cs, assets: {}, fonts: [] })
-    expect(job.sheet.perSheet).toBe(8)
+    expect(job.sheet.perSheet).toBe(9)
     expect(job.cards.map((c) => c.card.id)).toEqual(['C', 'A'])
-    expect(job.copyCount).toBe(9)
-    expect(job.pages).toEqual([[0, 0, 0, 0, 1, 1, 1, 1], [1]])
+    expect(job.copyCount).toBe(10)
+    expect(job.pages).toEqual([[0, 0, 0, 0, 1, 1, 1, 1, 1], [1]])
   })
 })
