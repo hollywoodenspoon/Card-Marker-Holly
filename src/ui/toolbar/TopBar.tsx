@@ -15,6 +15,7 @@ import {
   Printer,
   Redo2,
   Undo2,
+  Sheet,
 } from 'lucide-react'
 import { goHome } from '@/app/session'
 import { redo, undo, useEditor } from '@/core/editor/editorStore'
@@ -120,6 +121,9 @@ function AppMenu({ phone }: { phone: boolean }) {
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={() => useUi.getState().setKeywordsOpen(true)}>
           <Highlighter /> Keywords…
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => useUi.getState().setDataView('table')}>
+          <Sheet /> Card data (table, CSV, mail merge)
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={() => useUi.getState().setFindOpen(true)}>
           <TextSearch /> Find and replace…

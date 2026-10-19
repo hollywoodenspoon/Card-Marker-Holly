@@ -32,7 +32,6 @@ import {
 import { Input } from '@/ui/components/ui/input'
 import { useReorder } from '@/ui/components/useReorder'
 import { CardThumb as LiveThumb } from '@/ui/canvas/CardThumb'
-import { MailMergeDialog } from '@/ui/merge/MailMergeDialog'
 import { BulkBar } from './BulkBar'
 import { useUi } from '@/ui/uiStore'
 
@@ -40,7 +39,6 @@ export function CardsPanel({ onPicked }: { onPicked?: () => void }) {
   const cards = useEditor((s) => s.doc?.cards)
   const currentId = useEditor((s) => s.view.cardId)
   const [q, setQ] = useState('')
-  const [merging, setMerging] = useState(false)
   // Select mode: tick several cards and change them together.
   const [picked, setPicked] = useState<Set<string> | null>(null)
   const togglePicked = (id: string) =>
@@ -108,7 +106,7 @@ export function CardsPanel({ onPicked }: { onPicked?: () => void }) {
                 New card with default toggles
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onSelect={() => setMerging(true)}>
+              <DropdownMenuItem onSelect={() => useUi.getState().setDataView('import')}>
                 <FileSpreadsheet /> Mail merge from spreadsheet…
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -164,7 +162,6 @@ export function CardsPanel({ onPicked }: { onPicked?: () => void }) {
           onDone={(keep) => keep && setPicked(new Set(keep))}
         />
       )}
-      <MailMergeDialog open={merging} onClose={() => setMerging(false)} />
     </div>
   )
 }

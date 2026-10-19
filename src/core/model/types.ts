@@ -76,6 +76,8 @@ export interface Project {
   decks?: Deck[]
   /** Rounded-corner guide for a corner cutter (editor and print preview only, never printed). */
   cornerGuide?: { enabled: boolean; radiusMm: number }
+  /** Asset folder names in display order (keeps empty folders). */
+  assetFolders?: string[]
 }
 
 /** A deck: a count per card id (missing = not in the deck). */
@@ -373,6 +375,8 @@ export interface Asset {
   isVector: boolean
   /** Used by inline symbols (Shot 2), e.g. ["fire"]. */
   tags: string[]
+  /** Folder in the Assets panel (by name); none = top level. */
+  folder?: string
   createdAt: number
 }
 

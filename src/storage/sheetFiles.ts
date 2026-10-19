@@ -27,6 +27,11 @@ export function parseDelimited(text: string): Table {
   return rows
 }
 
+/** A CSV file's text (with a byte-order mark, so Excel reads accents correctly). */
+export function toCsv(rows: Table): string {
+  return '\uFEFF' + Papa.unparse(rows, { newline: '\r\n' })
+}
+
 function cellText(v: unknown): string {
   if (v === null || v === undefined) return ''
   if (v instanceof Date) return v.toISOString().slice(0, 10)

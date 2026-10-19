@@ -136,3 +136,35 @@ export function setCardText(cardId: string, fieldName: string, text: string) {
     c.updatedAt = Date.now()
   }, `proof:${cardId}:${fieldName}`)
 }
+
+/** Set a card's icon count (data table). */
+export function setCardCount(cardId: string, fieldName: string, count: number) {
+  commit((d) => {
+    const c = d.cards[cardId]
+    if (!c) return
+    c.fields[fieldName] = { kind: 'count', count: Math.max(0, Math.min(99, Math.round(count))) }
+    c.updatedAt = Date.now()
+  }, `table:${cardId}:${fieldName}`)
+}
+
+/** Put an uploaded image in a card's art box (data table); keeps the framing if it's the same image. */
+export function setCardImage(cardId: string, fieldName: string, assetId: string) {
+  commit((d) => {
+    const c = d.cards[cardId]
+    if (!c) return
+    const prev = c.fields[fieldName]
+    if (prev?.kind === 'image' && prev.assetId === assetId) return
+    c.fields[fieldName] = { kind: 'image', assetId, offsetXMm: 0, offsetYMm: 0, zoom: 1 }
+    c.updatedAt = Date.now()
+  })
+}
+
+/** Remove a card's own value, so the template default shows again. */
+export function clearCardValue(cardId: string, fieldName: string) {
+  commit((d) => {
+    const c = d.cards[cardId]
+    if (!c || !(fieldName in c.fields)) return
+    delete c.fields[fieldName]
+    c.updatedAt = Date.now()
+  })
+}
