@@ -63,6 +63,8 @@ function sample() {
   b.project.print = { ...b.project.print, copies: { [card.id]: 3 }, order: [card.id] }
   b.project.merge = { frontTemplateId: front.id, firstRow: 3, mode: 'merge' }
   card.mergeRow = 7
+  b.project.decks = [{ id: 'deck1', name: 'Starter', counts: { [card.id]: 2 } }]
+  b.project.print.deckId = 'deck1'
   return {
     doc: {
       project: b.project,
@@ -100,6 +102,10 @@ describe('project files', () => {
     expect(b.project.merge).toMatchObject({ firstRow: 3, mode: 'merge' })
     expect(tplIds.has(b.project.merge!.frontTemplateId!)).toBe(true)
     expect(card.mergeRow).toBe(7)
+    const [deck] = b.project.decks!
+    expect(deck.id).not.toBe('deck1')
+    expect(deck.counts).toEqual({ [card.id]: 2 })
+    expect(b.project.print.deckId).toBe(deck.id)
     for (const el of [
       ...b.templates.flatMap((t) => flatten(t.elements)),
       ...flatten(card.local.front),

@@ -1,6 +1,11 @@
 import {
+  Dices,
   Download,
   Highlighter,
+  LayoutGrid,
+  LayoutTemplate,
+  Library,
+  Type,
   TextSearch,
   Home,
   Image,
@@ -44,7 +49,7 @@ export function TopBar({ layout }: { layout: LayoutKind }) {
             <PanelLeft />
           </IconButton>
         )}
-        <AppMenu />
+        <AppMenu phone={phone} />
         <ProjectName className={phone ? 'max-w-[38vw]' : undefined} />
         <SaveIndicator compact={phone} />
         <div className="flex-1" />
@@ -74,7 +79,7 @@ export function TopBar({ layout }: { layout: LayoutKind }) {
   )
 }
 
-function AppMenu() {
+function AppMenu({ phone }: { phone: boolean }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -86,12 +91,32 @@ function AppMenu() {
         <DropdownMenuItem onSelect={() => useUi.getState().setPrintOpen(true)}>
           <Printer /> Print / export PDF
         </DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => useUi.getState().setGalleryOpen(true)}>
+          <LayoutGrid /> Gallery and proofreading
+        </DropdownMenuItem>
+        {phone && (
+          <>
+            <DropdownMenuItem onSelect={() => useUi.getState().setPhoneSheet('templates')}>
+              <LayoutTemplate /> Templates
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => useUi.getState().setPhoneSheet('decks')}>
+              <Library /> Decks
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => useUi.getState().setPhoneSheet('fonts')}>
+              <Type /> Fonts
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+          </>
+        )}
         <DropdownMenuItem
           onSelect={() =>
             useUi.getState().setImageExport({ cardId: useEditor.getState().view.cardId })
           }
         >
           <Image /> Export card images…
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => useUi.getState().setTtsOpen(true)}>
+          <Dices /> Export for Tabletop Simulator…
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={() => useUi.getState().setKeywordsOpen(true)}>
           <Highlighter /> Keywords…

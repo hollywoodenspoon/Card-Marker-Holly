@@ -1,4 +1,4 @@
-import type { Card, Id, PrintSettings } from '@/core/model/types'
+import type { Card, Deck, Id, PrintSettings } from '@/core/model/types'
 
 export interface PrintEntry {
   card: Card
@@ -8,6 +8,11 @@ export interface PrintEntry {
 export const copiesOf = (settings: Pick<PrintSettings, 'copies'>, cardId: Id) =>
   settings.copies?.[cardId] ?? 1
 
+/** Copies come from a deck's counts (cards not in it: 0) or from the print list. */
+export function copiesFor(settings: Pick<PrintSettings, 'copies'>, deck: Deck | undefined) {
+  return (cardId: Id) => (deck ? (deck.counts[cardId] ?? 0) : copiesOf(settings, cardId))
+}
+
 /**
  * Every card in print order with its copy count. A custom order lists card
  * ids; cards it doesn't name (added later) follow in Cards-list order, and ids
@@ -16,6 +21,7 @@ export const copiesOf = (settings: Pick<PrintSettings, 'copies'>, cardId: Id) =>
 export function printEntries(
   cards: Card[],
   settings: Pick<PrintSettings, 'copies' | 'order'>,
+  deck?: Deck,
 ): PrintEntry[] {
   const byList = [...cards].sort((a, b) => a.order - b.order)
   let ordered = byList
@@ -32,7 +38,8 @@ export function printEntries(
     }
     for (const c of byList) if (!seen.has(c.id)) ordered.push(c)
   }
-  return ordered.map((card) => ({ card, copies: copiesOf(settings, card.id) }))
+  const copies = copiesFor(settings, deck)
+  return ordered.map((card) => ({ card, copies: copies(card.id) }))
 }
 
 /** Cell-by-cell card indices into `entries`: copies sit next to each other. */

@@ -1,4 +1,12 @@
-import type { Asset, Card, FontAsset, Project, StylePreset, Template } from '@/core/model/types'
+import type {
+  Asset,
+  Card,
+  Deck,
+  FontAsset,
+  Project,
+  StylePreset,
+  Template,
+} from '@/core/model/types'
 import type { RenderNode } from '@/core/render/renderTypes'
 import { cardContext } from '@/templates/cardContext'
 import { resolveSide, type ResolveContext } from '@/templates/resolve'
@@ -25,6 +33,8 @@ export interface PrintJob {
   pages: number[][]
   /** Total cards printed, copies included. */
   copyCount: number
+  /** The deck being printed, if any (otherwise the print list). */
+  deck?: Deck
   /** Which sheets the PDF contains (backs only when some card has a back). */
   sides: { fronts: boolean; backs: boolean }
   assets: Record<string, Asset>
@@ -98,7 +108,10 @@ export function buildPrintJob(input: {
   const settings = normalizePrint(input.project.print)
   const sheet = computeSheet(sheetInput(input.project, settings))
   const byId = Object.fromEntries(input.cards.map((c) => [c.id, c]))
-  const cards = printEntries(input.cards, settings)
+  const deck = settings.deckId
+    ? input.project.decks?.find((d) => d.id === settings.deckId)
+    : undefined
+  const cards = printEntries(input.cards, settings, deck)
     .filter((e) => e.copies > 0)
     .map(({ card, copies }) => {
       const ft = card.frontTemplateId ? input.templates[card.frontTemplateId] : undefined
@@ -121,6 +134,7 @@ export function buildPrintJob(input: {
     cards,
     pages: paginate(slots.length, sheet.perSheet).map((page) => page.map((i) => slots[i])),
     copyCount: slots.length,
+    deck,
     sides: {
       fronts: settings.sheets !== 'backs',
       backs: settings.sheets !== 'fronts' && cards.some((c) => c.back),
