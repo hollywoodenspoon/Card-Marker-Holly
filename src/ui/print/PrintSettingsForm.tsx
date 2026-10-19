@@ -2,9 +2,10 @@ import { useEditor } from '@/core/editor/editorStore'
 import { setBleed, setPrintSettings } from '@/core/editor/projectCommands'
 import type { PrintSettings } from '@/core/model/types'
 import { capacity } from '@/print/layout'
-import { PAPERS } from '@/print/paper'
+import { sheetInput } from '@/print/job'
+import { PAPERS, paperOf, type PaperId } from '@/print/paper'
 import { normalizePrint } from '@/print/settings'
-import { Label } from '@/ui/components/ui/input'
+import { Label, NativeSelect } from '@/ui/components/ui/input'
 import { Switch } from '@/ui/components/ui/switch'
 import { Tabs, TabsList, TabsTrigger } from '@/ui/components/ui/tabs'
 import { NumberField, Row, Section } from '@/ui/components/fields'
@@ -15,24 +16,30 @@ const set = (patch: Partial<PrintSettings>, key?: string) =>
 export function PrintSettingsForm() {
   const project = useEditor((s) => s.doc!.project)
   const p = normalizePrint(project.print)
-  const input = {
-    paper: PAPERS[p.paper],
-    card: { w: project.defaultSize.widthMm, h: project.defaultSize.heightMm },
-    bleedMm: project.bleedMm,
-    marginMm: p.marginMm,
-    orientation: p.orientation,
-    cutMarks: p.cutMarks,
-    markLengthMm: p.markLengthMm,
-    markOffsetMm: p.markOffsetMm,
-  }
+  const input = sheetInput(project, p)
   const por = capacity(input, 'portrait').perSheet
   const lan = capacity(input, 'landscape').perSheet
   return (
     <div>
       <Section title="Sheet">
-        <p className="text-sm">
-          A4 · {project.defaultSize.widthMm} × {project.defaultSize.heightMm} mm cards
-        </p>
+        <div className="flex flex-col gap-1">
+          <Label htmlFor="print-paper">Paper</Label>
+          <NativeSelect
+            id="print-paper"
+            value={p.paper}
+            onChange={(e) => set({ paper: e.target.value })}
+          >
+            {(Object.keys(PAPERS) as PaperId[]).map((id) => (
+              <option key={id} value={id}>
+                {PAPERS[id].label} — {PAPERS[id].w} × {PAPERS[id].h} mm
+              </option>
+            ))}
+          </NativeSelect>
+          <p className="text-xs text-muted-foreground">
+            {paperOf(p.paper).label} · {project.defaultSize.widthMm} ×{' '}
+            {project.defaultSize.heightMm} mm cards
+          </p>
+        </div>
         <div className="flex flex-col gap-1">
           <Label>Orientation</Label>
           <Tabs
@@ -66,6 +73,21 @@ export function PrintSettingsForm() {
             onChange={setBleed}
           />
         </Row>
+        <NumberField
+          label="Gap between cards"
+          unit="mm"
+          min={0}
+          max={20}
+          step={0.5}
+          value={p.gapMm}
+          onChange={(v) => set({ gapMm: Math.max(0, v) }, 'gap')}
+        />
+        {p.gapMm > 0 && (
+          <p className="text-xs text-muted-foreground">
+            Each card is cut on its own: neighbours no longer share a cut line. Fewer cards may fit
+            on a sheet.
+          </p>
+        )}
         {project.bleedMm > 0 && (
           <div className="flex flex-col gap-1">
             <Label>Bleed fill</Label>
@@ -86,6 +108,18 @@ export function PrintSettingsForm() {
             </p>
           </div>
         )}
+      </Section>
+      <Section title="Draft (saves ink)">
+        <Toggle label="Greyscale" checked={p.draftGrey} onChange={(v) => set({ draftGrey: v })} />
+        <Toggle
+          label="Leave out art"
+          checked={p.draftNoArt}
+          onChange={(v) => set({ draftNoArt: v })}
+        />
+        <p className="text-xs text-muted-foreground">
+          For playtest copies. “Leave out art” skips pictures and art boxes; frames, text and shapes
+          still print.
+        </p>
       </Section>
       <Section title="Cutting">
         <Toggle label="Cut marks" checked={p.cutMarks} onChange={(v) => set({ cutMarks: v })} />

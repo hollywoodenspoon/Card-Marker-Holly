@@ -87,6 +87,7 @@ export function CanvasArea({ layout }: { layout: LayoutKind }) {
           heightMm={size.heightMm}
           bleedMm={doc.project.bleedMm}
           safeMm={doc.project.safeMm}
+          cornerRadiusMm={doc.project.cornerGuide?.enabled ? doc.project.cornerGuide.radiusMm : 0}
           guides={template.guides}
           assets={assetResolver}
           renderVersion={renderVersion}

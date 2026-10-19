@@ -68,3 +68,10 @@ export function setNumberStart(n: number) {
     d.project.numberStart = n
   }, 'numberStart')
 }
+
+/** Rounded-corner guide for a corner cutter (shown on screen only). */
+export function setCornerGuide(patch: Partial<{ enabled: boolean; radiusMm: number }>) {
+  commit((d) => {
+    d.project.cornerGuide = { enabled: false, radiusMm: 3, ...d.project.cornerGuide, ...patch }
+  }, 'cornerGuide')
+}

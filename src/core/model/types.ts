@@ -21,7 +21,8 @@ export type BleedFill = 'mirror' | 'stretch' | 'off'
 
 /** Stored per project. Older projects may lack fields; see print/settings.ts. */
 export interface PrintSettings {
-  paper: 'A4'
+  /** Paper size id (see print/paper.ts): A4, A3, A5, Letter, Legal. */
+  paper: string
   /** Unprintable border the printer needs, mm. */
   marginMm: number
   orientation?: PrintOrientation
@@ -42,6 +43,11 @@ export interface PrintSettings {
   backOffsetXMm?: number
   backOffsetYMm?: number
   bleedFill?: BleedFill
+  /** Space between cards on the sheet, mm (0 = cards touch and share cut lines). */
+  gapMm?: number
+  /** Ink-saving draft print. */
+  draftGrey?: boolean
+  draftNoArt?: boolean
   /** Copies to print per card id; missing means 1, 0 leaves the card out. */
   copies?: Record<Id, number>
   /** Custom print order (card ids); null follows the Cards list. */
@@ -64,6 +70,8 @@ export interface Project {
   keywords?: Keyword[]
   /** Number of the first card for `{#}` (default 1). */
   numberStart?: number
+  /** Rounded-corner guide for a corner cutter (editor and print preview only, never printed). */
+  cornerGuide?: { enabled: boolean; radiusMm: number }
 }
 
 /** A word or phrase that gets its own style wherever it appears in card text. */

@@ -16,7 +16,7 @@ import { CropOverlay } from './CropOverlay'
 import { DpiBadges } from './DpiBadges'
 import { cropAfterFrameResize } from './imageMath'
 import { ElementNode } from './nodes/ElementNode'
-import { SnapLines, TrimOverlay } from './Overlays'
+import { CornerGuide, SnapLines, TrimOverlay } from './Overlays'
 import type { AssetResolver, RenderNode } from './renderTypes'
 import { Rulers } from './Rulers'
 import { StageCtx, type StageInteraction } from './stageContext'
@@ -32,6 +32,8 @@ export interface CardStageProps {
   heightMm: number
   bleedMm: number
   safeMm: number
+  /** Corner-rounding guide radius in mm (0 or unset = off). */
+  cornerRadiusMm?: number
   guides: Guide[]
   assets: AssetResolver
   renderVersion: number
@@ -567,6 +569,7 @@ export function CardStage(props: CardStageProps) {
                 </StageCtx.Provider>
               </Group>
               {showOverlay && <TrimOverlay w={w} h={h} bleed={bleedMm} safe={safeMm} />}
+              {!!props.cornerRadiusMm && <CornerGuide w={w} h={h} r={props.cornerRadiusMm} />}
               <DpiBadges nodes={nodes} assets={props.assets} k={k} />
               {cropEl && (
                 <CropOverlay

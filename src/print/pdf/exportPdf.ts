@@ -14,6 +14,7 @@ import {
   type Sheet,
 } from '../layout'
 import type { DrawTarget } from './drawTarget'
+import { GreyTarget } from './greyTarget'
 import { JsPdfTarget } from './jsPdfTarget'
 import { bleedBands, drawBand } from './bleedFill'
 import { renderCard } from './renderCard'
@@ -53,8 +54,16 @@ async function drawSvg(svg: string, doc: jsPDF, x: number, y: number, w: number,
   }
 }
 
-function newDoc(sheet: Pick<Sheet, 'orientation'>) {
-  return new jsPDF({ unit: 'mm', format: 'a4', orientation: sheet.orientation, compress: true })
+/** Page format for jsPDF: the sheet's own width and height in mm. */
+const pageFormat = (sheet: Pick<Sheet, 'pageW' | 'pageH'>) => [sheet.pageW, sheet.pageH]
+
+function newDoc(sheet: Pick<Sheet, 'orientation' | 'pageW' | 'pageH'>) {
+  return new jsPDF({
+    unit: 'mm',
+    format: pageFormat(sheet),
+    orientation: sheet.orientation,
+    compress: true,
+  })
 }
 
 function strokeLines(t: DrawTarget, lines: Line[], width: number) {
@@ -78,7 +87,7 @@ function leaves(nodes: RenderNode[], out: RenderNode[] = []) {
 
 /**
  * Fronts and mirrored backs as an RGB PDF: front sheet 1, back sheet 1,
- * front sheet 2, … Pages are exactly A4 in mm.
+ * front sheet 2, … Pages are exactly the paper size in mm.
  */
 export async function exportCardsPdf(
   job: PrintJob,
@@ -93,7 +102,8 @@ export async function exportCardsPdf(
       `“${family}” has no font file, so its text is printed as a 600 dpi image. Upload the font to keep it vector.`,
     ),
   )
-  const target = new JsPdfTarget(doc, drawSvg)
+  const pdf = new JsPdfTarget(doc, drawSvg)
+  const target: DrawTarget = settings.draftGrey ? new GreyTarget(pdf) : pdf
   const bands = bleedBands(job, BLEED_DPI / 25.4, res)
   const drawCard = async (nodes: RenderNode[], c: { cell: Rect; trim: Rect }) => {
     await renderCard(target, nodes, c.cell, c.trim, res)
@@ -120,7 +130,7 @@ export async function exportCardsPdf(
   let first = true
 
   const page = async (draw: () => Promise<void>) => {
-    if (!first) doc.addPage('a4', sheet.orientation)
+    if (!first) doc.addPage(pageFormat(sheet), sheet.orientation)
     first = false
     doc.advancedAPI()
     await draw()
@@ -251,7 +261,7 @@ export async function exportAlignmentPdf(job: PrintJob): Promise<Blob> {
   )
   label('the crosshairs on both sides should line up.', sheet.pageW / 2, sheet.pageH / 2 + 32)
   // back
-  doc.addPage('a4', sheet.orientation)
+  doc.addPage(pageFormat(sheet), sheet.orientation)
   doc.advancedAPI()
   outlines(
     backCells(sheet, settings.flip, { x: settings.backOffsetXMm, y: settings.backOffsetYMm }),

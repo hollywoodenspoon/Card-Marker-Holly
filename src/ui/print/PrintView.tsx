@@ -12,6 +12,7 @@ import {
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useEditor } from '@/core/editor/editorStore'
 import { buildPrintJob, type PrintJob } from '@/print/job'
+import { paperOf } from '@/print/paper'
 import { cn } from '@/lib/cn'
 import { downloadBlob, safeFileName } from '@/ui/actions/download'
 import { Button, IconButton } from '@/ui/components/ui/button'
@@ -127,7 +128,9 @@ export function PrintView({ layout }: { layout: LayoutKind }) {
             >
               {nothing && <p className="text-danger">None of these cards has a back template.</p>}
               {job.sheet.perSheet === 0 && (
-                <p className="text-danger">The card doesn't fit on A4 with these margins.</p>
+                <p className="text-danger">
+                  The card doesn't fit on {paperOf(job.settings.paper).label} with these margins.
+                </p>
               )}
               {error && <p className="text-danger">Export failed: {error}</p>}
               {warnings.map((w) => (
@@ -274,7 +277,10 @@ function Previews({
         job.pages.length > 0 &&
         sides.map((s) => (
           <figure key={s} className="flex flex-col items-center gap-1.5">
-            <div className="shadow-xl">
+            <div
+              className="shadow-xl"
+              style={job.settings.draftGrey ? { filter: 'grayscale(1)' } : undefined}
+            >
               <SheetPreview job={job} sheetIndex={sheet} side={s} widthPx={w} bands={bands} />
             </div>
             <figcaption className="text-xs text-white/90">

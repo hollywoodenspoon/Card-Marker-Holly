@@ -251,3 +251,35 @@ describe('print settings', () => {
     expect(normalizePrint({ paper: 'A4', marginMm: 7 })).toEqual({ ...DEFAULT_PRINT, marginMm: 7 })
   })
 })
+
+describe('gap between cards and paper sizes', () => {
+  const card = { w: 54, h: 86 }
+  it('spaces cells by the gap, keeps them centred and inside the margin', () => {
+    const s = computeSheet({ ...base, card, gapMm: 4 })
+    const [a, b] = s.cells
+    expect(b.cell.x - (a.cell.x + a.cell.w)).toBeCloseTo(4)
+    expect(s.grid.x).toBeCloseTo((s.pageW - s.grid.w) / 2)
+    for (const c of s.cells) {
+      expect(c.cell.x).toBeGreaterThanOrEqual(5)
+      expect(c.cell.x + c.cell.w).toBeLessThanOrEqual(s.pageW - 5)
+    }
+  })
+
+  it('fits fewer cards when the gap needs the room, and marks every cut line', () => {
+    expect(computeSheet({ ...base, card, markLengthMm: 3.5 }).perSheet).toBe(9)
+    // 3 rows of 92 mm need 2 × 4 mm more with a 4 mm gap: only 2 rows fit on portrait
+    const g = computeSheet({ ...base, card, markLengthMm: 3.5, gapMm: 4 })
+    expect(g.perSheet).toBeLessThan(9)
+    const { xs } = trimLines(g)
+    expect(xs).toHaveLength(2 * g.cols)
+    for (const l of cutMarks(g, mark)) for (const c of g.cells) expect(hits(l, c.cell)).toBe(false)
+  })
+
+  it('lays out other paper sizes', () => {
+    const a3 = computeSheet({ ...base, card, paper: PAPERS.A3, markLengthMm: 3.5 })
+    expect([a3.pageW, a3.pageH].sort((x, y) => x - y)).toEqual([297, 420])
+    expect(a3.perSheet).toBeGreaterThan(9)
+    const letter = computeSheet({ ...base, card, paper: PAPERS.Letter, markLengthMm: 3.5 })
+    expect(Math.min(letter.pageW, letter.pageH)).toBeCloseTo(215.9)
+  })
+})
