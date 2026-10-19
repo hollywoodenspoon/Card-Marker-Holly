@@ -80,6 +80,11 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
     - a tick box leaves a card out, a copies count (0–99) prints it several times; copies fill cells next to each other
     - dragging the list sets a print order of its own; the Cards list is not changed. Cards added later go at the end. "Use Cards list order" drops the custom order.
     - stored in the project's print settings, so it is undoable and kept in backups
+- **Bleed fill** (auto-bleed; default "Mirror edges"):
+  - each finished card is rendered to an image (300 dpi in the PDF, 150 dpi in the preview), and its outer strip is mirrored outward into the bleed. "Stretch edges" repeats the outermost pixel row instead. "As designed" prints only what is drawn in the bleed.
+  - the filled bleed is drawn over the card, so it always follows the card edge, even where a shape already reaches into the bleed
+  - only the bleed becomes an image (it is cut off); inside the cut line the card stays vector
+  - the image is made with the PDF's own card renderer (on a canvas), so it matches the printed card
 - **Cut marks** (on by default, 4 mm long, 2 mm gap from the bleed edge):
   - drawn on the outer edges of the grid, one mark per cut line on each side, like a standard gang-up sheet, so they never touch any card or its bleed
   - the space for them is reserved inside the printer margin

@@ -14,6 +14,7 @@ export const DEFAULT_PRINT: FullPrintSettings = {
   flip: 'long',
   backOffsetXMm: 0,
   backOffsetYMm: 0,
+  bleedFill: 'mirror',
   copies: {},
   order: null,
 }

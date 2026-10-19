@@ -66,6 +66,26 @@ export function PrintSettingsForm() {
             onChange={setBleed}
           />
         </Row>
+        {project.bleedMm > 0 && (
+          <div className="flex flex-col gap-1">
+            <Label>Bleed fill</Label>
+            <Tabs
+              value={p.bleedFill}
+              onValueChange={(v) => set({ bleedFill: v as PrintSettings['bleedFill'] })}
+            >
+              <TabsList className="w-full">
+                <TabsTrigger value="mirror">Mirror edges</TabsTrigger>
+                <TabsTrigger value="stretch">Stretch edges</TabsTrigger>
+                <TabsTrigger value="off">As designed</TabsTrigger>
+              </TabsList>
+            </Tabs>
+            <p className="text-xs text-muted-foreground">
+              {p.bleedFill === 'off'
+                ? 'The bleed shows only what is drawn past the cut line.'
+                : 'The bleed takes its colours from the edge of each card, so a slightly off cut never shows white.'}
+            </p>
+          </div>
+        )}
       </Section>
       <Section title="Cutting">
         <Toggle label="Cut marks" checked={p.cutMarks} onChange={(v) => set({ cutMarks: v })} />

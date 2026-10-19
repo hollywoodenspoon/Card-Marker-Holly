@@ -15,6 +15,8 @@ export interface CardSize {
 
 export type PrintOrientation = 'auto' | 'portrait' | 'landscape'
 export type FlipEdge = 'long' | 'short'
+/** How the bleed is filled when printing: from the card edge, or only what was drawn there. */
+export type BleedFill = 'mirror' | 'stretch' | 'off'
 
 /** Stored per project. Older projects may lack fields; see print/settings.ts. */
 export interface PrintSettings {
@@ -33,6 +35,7 @@ export interface PrintSettings {
   /** Nudge the backs sheet to compensate printer drift, mm. */
   backOffsetXMm?: number
   backOffsetYMm?: number
+  bleedFill?: BleedFill
   /** Copies to print per card id; missing means 1, 0 leaves the card out. */
   copies?: Record<Id, number>
   /** Custom print order (card ids); null follows the Cards list. */

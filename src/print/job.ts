@@ -27,6 +27,35 @@ export interface PrintJob {
   fonts: FontAsset[]
 }
 
+interface Resolved {
+  front?: Template
+  back?: Template
+  presets?: Record<string, StylePreset>
+  nodes: Pick<PrintCard, 'front' | 'back'>
+}
+/**
+ * Resolved sides per card, reused while the card, its templates and the styles
+ * are unchanged. Stable node arrays let renderers cache per card side
+ * (e.g. auto-bleed bands) across print-setting changes.
+ */
+const resolvedCache = new WeakMap<Card, Resolved>()
+
+function resolveCard(
+  card: Card,
+  front: Template | undefined,
+  back: Template | undefined,
+  presets: Record<string, StylePreset> | undefined,
+) {
+  const hit = resolvedCache.get(card)
+  if (hit && hit.front === front && hit.back === back && hit.presets === presets) return hit.nodes
+  const nodes = {
+    front: resolveSide(front, card, 'front', 'card', presets),
+    back: back ? resolveSide(back, card, 'back', 'card', presets) : null,
+  }
+  resolvedCache.set(card, { front, back, presets, nodes })
+  return nodes
+}
+
 /** Everything needed to preview or export the print sheets, from the open project. */
 export function buildPrintJob(input: {
   project: Project
@@ -53,12 +82,7 @@ export function buildPrintJob(input: {
     .map(({ card, copies }) => {
       const ft = card.frontTemplateId ? input.templates[card.frontTemplateId] : undefined
       const bt = card.backTemplateId ? input.templates[card.backTemplateId] : undefined
-      return {
-        card,
-        copies,
-        front: resolveSide(ft, card, 'front', 'card', input.stylePresets),
-        back: bt ? resolveSide(bt, card, 'back', 'card', input.stylePresets) : null,
-      }
+      return { card, copies, ...resolveCard(card, ft, bt, input.stylePresets) }
     })
   const slots = printSlots(cards)
   return {

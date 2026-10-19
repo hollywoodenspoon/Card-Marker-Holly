@@ -1,17 +1,23 @@
 import { jsPDF } from 'jspdf'
 import { svg2pdf } from 'svg2pdf.js'
-import { sharedMeasurer } from '@/core/text/measure'
 import { croppedImageDpi, dpiFromMmPerPx, framePlacement, LOW_DPI } from '@/core/render/imageMath'
 import type { RenderNode } from '@/core/render/renderTypes'
 import { alignmentTargets } from '../alignmentTest'
 import type { PrintJob } from '../job'
-import { backCells, cutMarks, guideLines, mirrorLine, type Line, type Sheet } from '../layout'
+import {
+  backCells,
+  cutMarks,
+  guideLines,
+  mirrorLine,
+  type Line,
+  type Rect,
+  type Sheet,
+} from '../layout'
 import type { DrawTarget } from './drawTarget'
-import { FontSources } from './fontSources'
 import { JsPdfTarget } from './jsPdfTarget'
-import { PdfImages } from './pdfImages'
-import { renderCard, type PrintResources } from './renderCard'
-import { makeTextDrawer } from './textOutlines'
+import { bleedBands } from './bleedFill'
+import { renderCard } from './renderCard'
+import { createPrintResources } from './resources'
 
 export interface ExportResult {
   blob: Blob
@@ -20,6 +26,8 @@ export interface ExportResult {
 }
 
 const MARK_WIDTH_MM = 0.2
+/** Resolution of the auto-bleed band; it is cut off, so this only needs to look right at the cut. */
+const BLEED_DPI = 300
 const GUIDE_WIDTH_MM = 0.1
 
 /** svg2pdf needs the SVG in the document to resolve styles. */
@@ -80,28 +88,25 @@ export async function exportCardsPdf(
   const warnings = new Set<string>()
   if (!sheet.perSheet) throw new Error('The card does not fit on the page with these settings.')
   const doc = newDoc(sheet)
-  const images = new PdfImages(job.assets)
-  const fonts = new FontSources(job.fonts)
-  const measurer = sharedMeasurer()
-  const res: PrintResources = {
-    measurer,
-    image: (id) => images.get(id),
-    info: (id) => {
-      const a = job.assets[id]
-      return a ? { widthPx: a.widthPx, heightPx: a.heightPx, isVector: a.isVector } : undefined
-    },
-    symbols: (name) => {
-      const n = name.toLowerCase()
-      const a = Object.values(job.assets).find((x) => x.tags.some((t) => t.toLowerCase() === n))
-      return a ? { assetId: a.id, aspect: a.heightPx ? a.widthPx / a.heightPx : 1 } : undefined
-    },
-    text: makeTextDrawer(fonts, measurer, (family) =>
-      warnings.add(
-        `“${family}” has no font file, so its text is printed as a 600 dpi image. Upload the font to keep it vector.`,
-      ),
+  const res = createPrintResources(job, (family) =>
+    warnings.add(
+      `“${family}” has no font file, so its text is printed as a 600 dpi image. Upload the font to keep it vector.`,
     ),
-  }
+  )
   const target = new JsPdfTarget(doc, drawSvg)
+  const bands = bleedBands(job, BLEED_DPI / 25.4, res)
+  const drawCard = async (nodes: RenderNode[], c: { cell: Rect; trim: Rect }) => {
+    await renderCard(target, nodes, c.cell, c.trim, res)
+    if (!bands) return
+    const img = await bands.pdfImage(nodes)
+    // The band's empty middle sits exactly on the trim; the cell clip trims any rounding.
+    const p = bands.placement(c.trim)
+    target.save()
+    target.rect(c.cell.x, c.cell.y, c.cell.w, c.cell.h)
+    target.clip()
+    await target.image(img, p.x, p.y, p.w, p.h)
+    target.restore()
+  }
   const marks = settings.cutMarks
     ? cutMarks(sheet, { lengthMm: settings.markLengthMm, offsetMm: settings.markOffsetMm })
     : []
@@ -128,7 +133,7 @@ export async function exportCardsPdf(
     await page(async () => {
       for (const [slot, i] of indices.entries()) {
         const c = sheet.cells[slot]
-        await renderCard(target, job.cards[i].front, c.cell, c.trim, res)
+        await drawCard(job.cards[i].front, c)
         lowDpi(job, job.cards[i].front, i, warnings)
       }
       if (guides.length) strokeLines(target, guides, GUIDE_WIDTH_MM)
@@ -140,7 +145,7 @@ export async function exportCardsPdf(
           const back = job.cards[i].back
           if (!back) continue
           const c = backs[slot]
-          await renderCard(target, back, c.cell, c.trim, res)
+          await drawCard(back, c)
           lowDpi(job, back, i, warnings)
         }
         const off = { x: settings.backOffsetXMm, y: settings.backOffsetYMm }

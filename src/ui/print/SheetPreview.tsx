@@ -1,10 +1,12 @@
 import { useMemo } from 'react'
-import { Group, Layer, Line, Rect, Stage } from 'react-konva'
+import { Group, Image as KImage, Layer, Line, Rect, Stage } from 'react-konva'
 import { assetResolver } from '@/assets/assetResolver'
 import { StaticNodes } from '@/core/render/StaticCard'
 import type { PrintJob } from '@/print/job'
 import { backCells, cutMarks, guideLines, mirrorLine, type Line as L } from '@/print/layout'
+import type { BleedBands } from '@/print/pdf/bleedFill'
 import { useRenderVersion } from '@/ui/canvas/useRenderVersion'
+import { useReadyBands } from './usePreviewBands'
 
 /** One printed page drawn with the same card renderer as the editor. */
 export function SheetPreview({
@@ -12,19 +14,27 @@ export function SheetPreview({
   sheetIndex,
   side,
   widthPx,
+  bands,
 }: {
   job: PrintJob
   sheetIndex: number
   side: 'front' | 'back'
   widthPx: number
+  /** Auto-bleed bands, when the bleed is filled from the card edge. */
+  bands: BleedBands | null
 }) {
   const { sheet, settings } = job
   const version = useRenderVersion()
   const k = widthPx / sheet.pageW
   const heightPx = Math.round(sheet.pageH * k)
-  const indices = job.pages[sheetIndex] ?? []
+  const indices = useMemo(() => job.pages[sheetIndex] ?? [], [job.pages, sheetIndex])
   const offset = { x: settings.backOffsetXMm, y: settings.backOffsetYMm }
   const cells = side === 'front' ? sheet.cells : backCells(sheet, settings.flip, offset)
+  const sides = useMemo(
+    () => indices.map((i) => (side === 'front' ? job.cards[i].front : job.cards[i].back)),
+    [indices, job.cards, side],
+  )
+  const ready = useReadyBands(bands, sides)
 
   const lines = useMemo(() => {
     const marks = settings.cutMarks
@@ -53,11 +63,12 @@ export function SheetPreview({
             dash={[4, 4]}
             strokeScaleEnabled={false}
           />
-          {indices.map((cardIndex, slot) => {
+          {indices.map((_, slot) => {
             const c = cells[slot]
-            const pc = job.cards[cardIndex]
-            const nodes = side === 'front' ? pc.front : pc.back
+            const nodes = sides[slot]
             if (!nodes) return null
+            const band = ready?.get(nodes)
+            const at = band && bands?.placement(c.trim)
             return (
               <Group
                 key={slot}
@@ -69,6 +80,7 @@ export function SheetPreview({
                 <Group x={c.trim.x} y={c.trim.y}>
                   <StaticNodes nodes={nodes} assets={assetResolver} renderVersion={version} print />
                 </Group>
+                {band && at && <KImage image={band} x={at.x} y={at.y} width={at.w} height={at.h} />}
               </Group>
             )
           })}

@@ -20,6 +20,7 @@ import { useUi } from '@/ui/uiStore'
 import { PrintList } from './PrintList'
 import { PrintSettingsForm } from './PrintSettingsForm'
 import { SheetPreview } from './SheetPreview'
+import { usePreviewBands } from './usePreviewBands'
 
 /** Full-screen print view: sheet settings, preview of fronts and mirrored backs, PDF export. */
 export function PrintView({ layout }: { layout: LayoutKind }) {
@@ -237,6 +238,7 @@ function Previews({
   withBacks: boolean
 }) {
   const ref = useRef<HTMLDivElement>(null)
+  const bands = usePreviewBands(job)
   const [size, setSize] = useState({ w: 0, h: 0 })
   useEffect(() => {
     const el = ref.current
@@ -264,7 +266,7 @@ function Previews({
         sides.map((s) => (
           <figure key={s} className="flex flex-col items-center gap-1.5">
             <div className="shadow-xl">
-              <SheetPreview job={job} sheetIndex={sheet} side={s} widthPx={w} />
+              <SheetPreview job={job} sheetIndex={sheet} side={s} widthPx={w} bands={bands} />
             </div>
             <figcaption className="text-xs text-white/90">
               {s === 'front' ? 'Fronts' : `Backs (mirrored, ${job.settings.flip}-edge flip)`}
