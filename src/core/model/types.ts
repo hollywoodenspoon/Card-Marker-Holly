@@ -58,6 +58,28 @@ export interface Project {
   bleedMm: number
   safeMm: number
   print: PrintSettings
+  /** Last mail merge choices, so the next merge starts with them. */
+  merge?: MergeSettings
+}
+
+export type MergeMode = 'merge' | 'add'
+
+export interface MergeSettings {
+  /** Columns (letters) for the card name, print copies and per-row template names. */
+  nameColumn?: string
+  copiesColumn?: string
+  frontColumn?: string
+  backColumn?: string
+  /** First spreadsheet row to read (1-based). */
+  firstRow?: number
+  /** Rows to read, e.g. "2-20, 25"; empty reads every row from `firstRow`. */
+  rows?: string
+  /** Rows to leave out, e.g. "7, 12-14". */
+  skip?: string
+  /** Update cards made from earlier merges, or always add new cards. */
+  mode?: MergeMode
+  frontTemplateId?: Id | null
+  backTemplateId?: Id | null
 }
 
 export interface Guide {
@@ -144,6 +166,8 @@ export interface TextElement extends ElementBase {
   type: 'text'
   /** Card values are looked up by this name. */
   fieldName: string
+  /** Spreadsheet column (A, B, … AA) this field reads in a mail merge. */
+  mergeColumn?: string
   /** Linked shared style: its values override `baseStyle` (see templates/resolve). */
   stylePresetId?: Id
   defaultText: RichText
@@ -160,6 +184,8 @@ export type ImageFit = 'fill' | 'fit'
 export interface ImageFieldElement extends ElementBase {
   type: 'imageField'
   fieldName: string
+  /** Spreadsheet column (A, B, … AA) this field reads in a mail merge. */
+  mergeColumn?: string
   defaultAssetId?: Id
   fit: ImageFit
   /** Placeholder background shown when the frame is empty. */
@@ -204,6 +230,8 @@ export type IconRowDirection = 'horizontal' | 'vertical'
 export interface IconRowElement extends ElementBase {
   type: 'iconRow'
   fieldName: string
+  /** Spreadsheet column (A, B, … AA) this field reads in a mail merge. */
+  mergeColumn?: string
   /** Icon picture (from the template). */
   assetId?: Id
   /** Count shown on cards that don't set their own. */
@@ -264,6 +292,8 @@ export interface Card {
   overrides: Record<Id, ElementOverride>
   /** Card-only elements drawn above the template. */
   local: Record<Side, Element[]>
+  /** Spreadsheet row this card was made from by a mail merge (1-based). */
+  mergeRow?: number
   thumbnail?: Blob
   createdAt: number
   updatedAt: number

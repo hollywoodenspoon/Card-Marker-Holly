@@ -106,6 +106,10 @@ export function importProject(file: unknown, nameSuffix = ''): ProjectBundle {
       Object.entries(print.copies).map(([id, n]) => [remap(ids.cards, id), n]),
     )
   if (print.order) print.order = print.order.map((id) => remap(ids.cards, id))
+  const merge = project.merge
+  if (merge?.frontTemplateId)
+    merge.frontTemplateId = ids.templates.get(merge.frontTemplateId) ?? null
+  if (merge?.backTemplateId) merge.backTemplateId = ids.templates.get(merge.backTemplateId) ?? null
   const templates: Template[] = (f.templates ?? []).map((t) => {
     const copy = structuredClone(t) as Template
     copy.id = ids.templates.get(t.id)!
