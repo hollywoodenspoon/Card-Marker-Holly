@@ -1,12 +1,36 @@
 import { useState } from 'react'
+import { fromDisplay, toDisplay, unitPrecision } from '@/core/units/units'
 import { cn } from '@/lib/cn'
 import { Label } from './ui/input'
+import { useUnits } from './useUnits'
 
 /**
  * Numeric input that commits as you type (valid numbers only) and on blur.
  * Arrow keys step by `step` (×10 with Shift).
+ *
+ * `unit="mm"` marks a length: the value (always mm) is shown and typed in the
+ * project's display unit (mm, cm, in or px), converting both ways.
  */
-export function NumberField({
+export function NumberField(props: Parameters<typeof PlainNumberField>[0]) {
+  const units = useUnits()
+  if (props.unit !== 'mm' || units.unit === 'mm') return <PlainNumberField {...props} />
+  const conv = (v: number | undefined) => (v === undefined ? undefined : toDisplay(v, units))
+  const { precision, step } = unitPrecision(units.unit)
+  return (
+    <PlainNumberField
+      {...props}
+      unit={units.unit}
+      value={toDisplay(props.value, units)}
+      min={conv(props.min)}
+      max={conv(props.max)}
+      step={step}
+      precision={precision}
+      onChange={(v) => props.onChange(fromDisplay(v, units))}
+    />
+  )
+}
+
+function PlainNumberField({
   label,
   value,
   onChange,

@@ -2,13 +2,26 @@ import type Konva from 'konva'
 import { Group, Line, Rect, Shape } from 'react-konva'
 import { RULER } from './viewport'
 
-/** Pick a tick step (mm) so major ticks are at least ~50 px apart. */
+/**
+ * Tick steps in display units (k = screen px per unit) so major ticks are at
+ * least ~50 px apart: 1, 2 or 5 times a power of ten.
+ */
 function steps(k: number) {
-  const candidates = [1, 2, 5, 10, 20, 50, 100]
-  const major = candidates.find((s) => s * k >= 50) ?? 100
-  const minor = major >= 10 ? major / 10 : major / (major === 5 ? 5 : 2)
+  let major = 10000
+  let digit = 1
+  find: for (let e = -3; e <= 4; e++)
+    for (const n of [1, 2, 5]) {
+      if (n * 10 ** e * k >= 50) {
+        major = n * 10 ** e
+        digit = n
+        break find
+      }
+    }
+  const minor = major / (digit === 1 ? 10 : digit)
   return { major, minor: minor * k >= 4 ? minor : major }
 }
+
+const label = (v: number) => String(Math.round(v * 1000) / 1000)
 
 interface RulerProps {
   stageW: number
@@ -18,12 +31,26 @@ interface RulerProps {
   k: number
   bg: string
   fg: string
+  /** Millimetres per display unit (1 for mm; labels and ticks follow the unit). */
+  mmPerUnit?: number
   /** Start creating a guide from a ruler. */
   onGuideStart: (axis: 'x' | 'y', e: Konva.KonvaEventObject<PointerEvent>) => void
 }
 
-/** Top and left rulers in screen space. Labels are in mm, 0 at the trim corner. */
-export function Rulers({ stageW, stageH, panX, panY, k, bg, fg, onGuideStart }: RulerProps) {
+/** Top and left rulers in screen space. Labels are in the display unit, 0 at the trim corner. */
+export function Rulers({
+  stageW,
+  stageH,
+  panX,
+  panY,
+  k: kMm,
+  bg,
+  fg,
+  mmPerUnit = 1,
+  onGuideStart,
+}: RulerProps) {
+  // Work in display units: screen px per unit.
+  const k = kMm * mmPerUnit
   const { major, minor } = steps(k)
   const draw = (axis: 'x' | 'y') => (ctx: Konva.Context) => {
     const c = ctx._context
@@ -38,7 +65,9 @@ export function Rulers({ stageW, stageH, panX, panY, k, bg, fg, onGuideStart }: 
     const startMm = Math.floor((RULER - origin) / k / minor) * minor
     const endMm = (len - origin) / k
     c.beginPath()
-    for (let mm = startMm; mm <= endMm; mm += minor) {
+    const n0 = Math.round(startMm / minor)
+    for (let i = n0; i * minor <= endMm; i++) {
+      const mm = i * minor
       const p = Math.round(origin + mm * k) + 0.5
       if (p < RULER) continue
       const isMajor = Math.abs(mm / major - Math.round(mm / major)) < 1e-6
@@ -51,13 +80,13 @@ export function Rulers({ stageW, stageH, panX, panY, k, bg, fg, onGuideStart }: 
         c.lineTo(RULER - t, p)
       }
       if (isMajor) {
-        const label = String(Math.round(mm))
-        if (axis === 'x') c.fillText(label, p + 2, 2)
+        const text = label(mm)
+        if (axis === 'x') c.fillText(text, p + 2, 2)
         else {
           c.save()
           c.translate(2, p + 2)
           c.rotate(Math.PI / 2)
-          c.fillText(label, 0, -9)
+          c.fillText(text, 0, -9)
           c.restore()
         }
       }

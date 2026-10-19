@@ -1,5 +1,5 @@
 import { closeDoc, openDoc, useEditor } from '@/core/editor/editorStore'
-import { createProject } from '@/core/model/factories'
+import { createProject, type NewProjectOptions } from '@/core/model/factories'
 import { sortedCards } from '@/core/editor/selectors'
 import { loadProject, saveNewProject, setSetting } from '@/storage/repo'
 import { registerProjectFonts } from '@/assets/fonts'
@@ -23,8 +23,8 @@ export async function openProject(id: string): Promise<boolean> {
   return true
 }
 
-export async function createAndOpenProject(name: string, presetId?: string) {
-  const bundle = createProject(name, presetId)
+export async function createAndOpenProject(name: string, opts?: string | NewProjectOptions) {
+  const bundle = createProject(name, opts)
   await saveNewProject(bundle)
   await openProject(bundle.project.id)
 }

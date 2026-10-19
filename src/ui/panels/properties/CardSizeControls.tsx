@@ -1,16 +1,11 @@
 import { RectangleHorizontal, RectangleVertical } from 'lucide-react'
 import { useEditor } from '@/core/editor/editorStore'
 import { setCardSize } from '@/core/editor/projectCommands'
-import {
-  matchPreset,
-  orientationOf,
-  presetSize,
-  SIZE_PRESETS,
-  withOrientation,
-} from '@/core/units/presets'
+import { matchPreset, orientationOf, presetSize, withOrientation } from '@/core/units/presets'
 import { IconButton } from '@/ui/components/ui/button'
 import { Label, NativeSelect } from '@/ui/components/ui/input'
 import { NumberField, Row } from '@/ui/components/fields'
+import { SizePresetOptions } from './SizePresetOptions'
 
 export function CardSizeControls() {
   const size = useEditor((s) => s.doc?.project.defaultSize)
@@ -30,12 +25,7 @@ export function CardSizeControls() {
               setCardSize(withOrientation(presetSize(e.target.value), orient))
             }}
           >
-            {SIZE_PRESETS.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.label} ({p.widthMm} × {p.heightMm})
-              </option>
-            ))}
-            <option value="custom">Custom</option>
+            <SizePresetOptions />
           </NativeSelect>
           <IconButton
             label="Portrait"

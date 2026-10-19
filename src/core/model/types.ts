@@ -1,3 +1,4 @@
+import type { UnitSettings } from '../units/units'
 /**
  * Document model. All geometry is in millimetres; font sizes are in points.
  * Nothing here knows about storage, rendering libraries, or the UI.
@@ -76,6 +77,8 @@ export interface Project {
   decks?: Deck[]
   /** Rounded-corner guide for a corner cutter (editor and print preview only, never printed). */
   cornerGuide?: { enabled: boolean; radiusMm: number }
+  /** Units lengths are shown in (stored values stay in mm). Unset = mm. */
+  units?: UnitSettings
   /** Asset folder names in display order (keeps empty folders). */
   assetFolders?: string[]
 }

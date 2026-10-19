@@ -10,6 +10,7 @@ import {
   surfaceElements,
 } from '../editor/selectors'
 import { elementBounds, findElement, flatten, unionBounds, type Bounds } from '../model/tree'
+import { mmPerUnit } from '../units/units'
 import type { Element, Guide, ImageValue } from '../model/types'
 import { buildTargets, snapBox, snapPoint, type SnapTargets } from '../tools/snap'
 import { CropOverlay } from './CropOverlay'
@@ -520,6 +521,8 @@ export function CardStage(props: CardStageProps) {
     void stage
   }
 
+  const units = useEditor((s) => s.doc?.project.units)
+  const rulerMmPerUnit = units ? mmPerUnit(units) : 1
   const rulerBg = dark ? '#26262b' : '#f4f4f6'
   const rulerFg = dark ? '#a1a1aa' : '#6b6b76'
   const anchor = coarse ? 22 : 9
@@ -656,6 +659,7 @@ export function CardStage(props: CardStageProps) {
               k={k}
               bg={rulerBg}
               fg={rulerFg}
+              mmPerUnit={rulerMmPerUnit}
               onGuideStart={onGuideStart}
             />
           </Layer>

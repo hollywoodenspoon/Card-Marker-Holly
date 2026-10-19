@@ -7,6 +7,7 @@ import { Button } from '@/ui/components/ui/button'
 import { Switch } from '@/ui/components/ui/switch'
 import { NumberField, Row, Section } from '@/ui/components/fields'
 import { CardSizeControls } from './properties/CardSizeControls'
+import { ProjectUnitsControls } from './properties/UnitsControls'
 import { AlignButtons, GeometrySection } from './properties/GeometrySection'
 import { IconRowSection } from './properties/IconRowSection'
 import { ImageFieldSection, ImageSection } from './properties/ImageSection'
@@ -91,6 +92,7 @@ function DocumentProperties() {
     <div>
       <Section title="Card">
         <CardSizeControls />
+        <ProjectUnitsControls />
       </Section>
       <Section title="Print area">
         <Row>
