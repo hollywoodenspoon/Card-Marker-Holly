@@ -1,5 +1,6 @@
 import { DEFAULT_TEXT_STYLE, richTextFromPlain } from '../text/richtext'
 import { DEFAULT_PRESET_ID, presetSize } from '../units/presets'
+import type { UnitSettings } from '../units/units'
 import { newId } from './ids'
 import type {
   Card,
@@ -225,30 +226,46 @@ export interface NewProjectBundle {
   cards: Card[]
 }
 
+export interface NewProjectOptions {
+  /** Card size (portrait or landscape); default the ID card preset. */
+  size?: CardSize
+  bleedMm?: number
+  units?: UnitSettings
+}
+
 export function createProject(
   name = 'My card game',
-  presetId = DEFAULT_PRESET_ID,
+  opts: string | NewProjectOptions = DEFAULT_PRESET_ID,
 ): NewProjectBundle {
   const t = now()
-  const size = presetSize(presetId)
+  const o: NewProjectOptions = typeof opts === 'string' ? { size: presetSize(opts) } : opts
+  const size = o.size ?? presetSize(DEFAULT_PRESET_ID)
+  const bleed = o.bleedMm ?? 3
   const project: Project = {
     id: newId(),
     name,
     createdAt: t,
     updatedAt: t,
     defaultSize: size,
-    bleedMm: 3,
+    bleedMm: bleed,
     safeMm: 3,
     print: { paper: 'A4', marginMm: 5 },
+    ...(o.units && o.units.unit !== 'mm' && { units: o.units }),
   }
   const front = createTemplate(
     project.id,
     'front',
     size,
     'Basic front',
-    starterFrontElements(size, 3),
+    starterFrontElements(size, bleed),
   )
-  const back = createTemplate(project.id, 'back', size, 'Basic back', starterBackElements(size, 3))
+  const back = createTemplate(
+    project.id,
+    'back',
+    size,
+    'Basic back',
+    starterBackElements(size, bleed),
+  )
   const card = createCard(project.id, 1, front.id, back.id, 'Card 1')
   return { project, templates: [front, back], cards: [card] }
 }

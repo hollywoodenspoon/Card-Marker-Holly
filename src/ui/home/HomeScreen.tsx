@@ -1,8 +1,7 @@
 import { Download, Menu, MoreHorizontal, Pencil, Plus, Trash2, Upload } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { createAndOpenProject, openProject } from '@/app/session'
+import { openProject } from '@/app/session'
 import type { Project } from '@/core/model/types'
-import { SIZE_PRESETS } from '@/core/units/presets'
 import { deleteProject, listProjects, renameProject } from '@/storage/repo'
 import { Button, IconButton } from '@/ui/components/ui/button'
 import { Dialog, DialogContent } from '@/ui/components/ui/dialog'
@@ -13,7 +12,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/ui/components/ui/dropdown'
-import { Input, Label, NativeSelect } from '@/ui/components/ui/input'
+import { Input } from '@/ui/components/ui/input'
+import { NewProjectDialog } from './NewProjectDialog'
 import { exportStoredProject, importProjectFromFile } from '@/ui/actions/projectFileActions'
 import { InstallMenuItem } from '@/ui/pwa/InstallMenuItem'
 import { ThemeMenuItems } from '@/ui/theme/ThemeMenu'
@@ -74,17 +74,11 @@ export function HomeScreen() {
             </div>
             <h1 className="text-xl font-semibold">Design your first card</h1>
             <p className="text-sm text-muted-foreground">
-              Start with a 54 × 86 mm card and a ready-made layout. Fill in a name, drop in some
-              art, and you're done. Everything is saved in this browser.
+              Pick a card size and you get a ready-made layout. Fill in a name, drop in some art,
+              and you're done. Everything is saved in this browser.
             </p>
-            <Button
-              onClick={() => createAndOpenProject('My card game')}
-              className="w-full sm:w-auto"
-            >
+            <Button onClick={() => setCreating(true)} className="w-full sm:w-auto">
               <Plus /> Start a new project
-            </Button>
-            <Button variant="ghost" onClick={() => setCreating(true)}>
-              Choose a different card size…
             </Button>
             <Button variant="ghost" onClick={doImport}>
               <Upload /> Import a project file
@@ -179,51 +173,6 @@ export function HomeScreen() {
         </DialogContent>
       </Dialog>
     </div>
-  )
-}
-
-function NewProjectDialog({
-  open,
-  onOpenChange,
-}: {
-  open: boolean
-  onOpenChange: (o: boolean) => void
-}) {
-  const [name, setName] = useState('My card game')
-  const [preset, setPreset] = useState('id')
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent title="New project" description="You can change the card size later.">
-        <form
-          className="flex flex-col gap-4"
-          onSubmit={(e) => {
-            e.preventDefault()
-            void createAndOpenProject(name.trim() || 'Untitled', preset)
-          }}
-        >
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="np-name">Name</Label>
-            <Input id="np-name" value={name} onChange={(e) => setName(e.target.value)} autoFocus />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="np-size">Card size</Label>
-            <NativeSelect id="np-size" value={preset} onChange={(e) => setPreset(e.target.value)}>
-              {SIZE_PRESETS.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.label} — {p.widthMm} × {p.heightMm} mm
-                </option>
-              ))}
-            </NativeSelect>
-          </div>
-          <div className="flex justify-end gap-2">
-            <Button variant="secondary" onClick={() => onOpenChange(false)}>
-              Cancel
-            </Button>
-            <Button type="submit">Create</Button>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
   )
 }
 

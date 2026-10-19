@@ -15,6 +15,8 @@ interface UiState {
   findOpen: boolean
   galleryOpen: boolean
   ttsOpen: boolean
+  unitsOpen: boolean
+  setUnitsOpen: (o: boolean) => void
   setTtsOpen: (o: boolean) => void
   setGalleryOpen: (o: boolean) => void
   setFindOpen: (o: boolean) => void
@@ -64,6 +66,8 @@ export const useUi = create<UiState>((set) => ({
   findOpen: false,
   galleryOpen: false,
   ttsOpen: false,
+  unitsOpen: false,
+  setUnitsOpen: (unitsOpen) => set({ unitsOpen }),
   setTtsOpen: (ttsOpen) => set({ ttsOpen }),
   setGalleryOpen: (galleryOpen) => set({ galleryOpen }),
   setFindOpen: (findOpen) => set({ findOpen }),

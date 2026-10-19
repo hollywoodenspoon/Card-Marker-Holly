@@ -18,7 +18,7 @@ Assumptions and design choices are listed in [DECISIONS.md](DECISIONS.md).
 ## Features and how to use them
 
 ### Your first card in a minute
-1. Open the app and press **Start a new project**. You get a 54 × 86 mm card with a ready-made front and back.
+1. Open the app and press **Start a new project**. Pick a card size (the ID card, 54 × 86 mm, is the default), portrait or landscape, your units and the bleed, then **Create**. You get a ready-made front and back.
 2. Click **Card name** on the card and type. Double-click the grey art box to pick a picture.
 3. Press **Print** (top bar) → **Export PDF**. Everything saves by itself ("Saved" in the top bar).
 
@@ -37,7 +37,11 @@ Assumptions and design choices are listed in [DECISIONS.md](DECISIONS.md).
 - Folder ⋯: **Upload here**, **Rename**, **Delete folder** (the images stay, they just leave the folder).
 
 ### Card size, bleed and safe area
-- Right pane → **Card** (nothing selected): pick a preset (ID card 54 × 86, Poker, Trading card) or type a size; the two buttons switch portrait / landscape.
+- Right pane → **Card** (nothing selected): pick a preset or type a size; the two buttons switch portrait / landscape. Presets:
+  - **Card games:** ID card 54 × 86 mm, Poker 63.5 × 88.9, Trading card 63 × 88, **Japanese TCG** 59 × 86 (Yu-Gi-Oh!, Cardfight!! Vanguard), Bridge 57 × 89
+  - **Board games:** Mini American 41 × 63, Mini Euro 44 × 68, American 56 × 87, Euro 59 × 92, Tarot 70 × 120, Square 70 × 70 and 80 × 80, Dixit 80 × 120
+  - **Other:** business cards (EU 85 × 55, US 3.5 × 2 in)
+- **Units**: right pane → **Card** → *Units*, or ☰ → *Units…*: millimetres, centimetres, inches or pixels. Every size and position box, the size list and the rulers switch. Pixels are counted at a print resolution you set (default 300 pixels per inch), so 59 mm shows as 697 px. New projects start with the units you used last.
 - **Bleed** (default 3 mm) is extra art past the cut line (red). Keep text inside the **safe area** (green). The eye button at the bottom of the canvas shows or hides these lines.
 - **Corner cutter guide**: right pane (nothing selected) → *Show rounded corners* and set the radius of your corner cutter. The corners it will cut off are shaded orange in the editor and print preview; it is never printed.
 

@@ -15,6 +15,7 @@ import {
   Printer,
   Redo2,
   Undo2,
+  Ruler,
   Sheet,
 } from 'lucide-react'
 import { goHome } from '@/app/session'
@@ -127,6 +128,9 @@ function AppMenu({ phone }: { phone: boolean }) {
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={() => useUi.getState().setFindOpen(true)}>
           <TextSearch /> Find and replace…
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => useUi.getState().setUnitsOpen(true)}>
+          <Ruler /> Units…
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={() => void goHome()}>
           <Home /> All projects
