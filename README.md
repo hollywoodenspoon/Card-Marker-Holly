@@ -11,4 +11,6 @@ npm run lint     # ESLint
 npm run preview  # serve the production build (installable, works offline)
 ```
 
+Live version: https://hollywoodenspoon.github.io/Card-Marker-Holly/ — every push to `main` rebuilds it (`.github/workflows/pages.yml`). One-time setup: repo Settings → Pages → Source: **GitHub Actions**.
+
 Assumptions and design choices are listed in [DECISIONS.md](DECISIONS.md).
