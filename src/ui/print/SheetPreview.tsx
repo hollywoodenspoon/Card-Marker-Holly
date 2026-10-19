@@ -38,7 +38,11 @@ export function SheetPreview({
 
   const lines = useMemo(() => {
     const marks = settings.cutMarks
-      ? cutMarks(sheet, { lengthMm: settings.markLengthMm, offsetMm: settings.markOffsetMm })
+      ? cutMarks(sheet, {
+          lengthMm: settings.markLengthMm,
+          offsetMm: settings.markOffsetMm,
+          toEdge: settings.markToEdge,
+        })
       : []
     const guides = settings.guideLines ? guideLines(sheet) : []
     if (side === 'front') return { marks, guides }

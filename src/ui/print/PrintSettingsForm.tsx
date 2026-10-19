@@ -90,9 +90,16 @@ export function PrintSettingsForm() {
       <Section title="Cutting">
         <Toggle label="Cut marks" checked={p.cutMarks} onChange={(v) => set({ cutMarks: v })} />
         {p.cutMarks && (
+          <Toggle
+            label="Run marks to paper edge"
+            checked={p.markToEdge}
+            onChange={(v) => set({ markToEdge: v })}
+          />
+        )}
+        {p.cutMarks && (
           <Row>
             <NumberField
-              label="Mark length"
+              label={p.markToEdge ? 'Room for marks' : 'Mark length'}
               unit="mm"
               min={1}
               max={15}
@@ -117,8 +124,11 @@ export function PrintSettingsForm() {
           onChange={(v) => set({ guideLines: v })}
         />
         <p className="text-xs text-muted-foreground">
-          Cut marks sit outside the bleed, so they never print on a card. Guide lines run through
-          every cut line.
+          Cut marks sit outside the bleed, so they never print on a card.
+          {p.cutMarks && p.markToEdge
+            ? ' They run to the paper edge; your printer leaves out the part in its margin. “Room for marks” is the space kept free around the cards.'
+            : ''}{' '}
+          Guide lines run through every cut line.
         </p>
       </Section>
       <Section title="Backs">

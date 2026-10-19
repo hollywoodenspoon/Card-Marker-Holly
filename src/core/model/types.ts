@@ -26,6 +26,8 @@ export interface PrintSettings {
   orientation?: PrintOrientation
   cutMarks?: boolean
   markLengthMm?: number
+  /** Run cut marks from the gap out to the paper edge instead of a fixed length. */
+  markToEdge?: boolean
   /** Gap between the bleed edge and the start of a cut mark, mm. */
   markOffsetMm?: number
   guideLines?: boolean

@@ -142,6 +142,28 @@ describe('cut marks', () => {
     expect(right).toEqual({ x1: 197 + 2, y1: 31.5, x2: 197 + 6, y2: 31.5 })
   })
 
+  it('can run every mark from the gap out to the paper edge', () => {
+    const edge = cutMarks(s, { ...mark, toEdge: true })
+    expect(edge).toHaveLength(marks.length)
+    for (const l of edge) for (const c of s.cells) expect(hits(l, c.cell)).toBe(false)
+    const top = edge.find((l) => l.x1 === 16 && l.y2 < s.grid.y)!
+    expect(top).toEqual({ x1: 16, y1: 0, x2: 16, y2: 28.5 - 2 })
+    const bottom = edge.find((l) => l.x1 === 16 && l.y1 > s.grid.y)!
+    expect(bottom).toEqual({ x1: 16, y1: s.grid.y + s.grid.h + 2, x2: 16, y2: 297 })
+    const left = edge.find((l) => l.y1 === 31.5 && l.x2 < s.grid.x)!
+    expect(left).toEqual({ x1: 0, y1: 31.5, x2: 13 - 2, y2: 31.5 })
+    const right = edge.find((l) => l.y1 === 31.5 && l.x1 > s.grid.x + s.grid.w)!
+    expect(right).toEqual({ x1: 197 + 2, y1: 31.5, x2: 210, y2: 31.5 })
+  })
+
+  it('mirrors marks that run to the edge onto the backs page', () => {
+    const edge = cutMarks(s, { ...mark, toEdge: true })
+    const left = edge.find((l) => l.y1 === 31.5 && l.x2 < s.grid.x)!
+    // portrait + long edge mirrors left/right: the mark now runs from the gap to the right edge
+    const m = mirrorLine(left, s, 'long')
+    expect([Math.min(m.x1, m.x2), Math.max(m.x1, m.x2)]).toEqual([210 - 11, 210])
+  })
+
   it('shares cut lines between neighbours when there is no bleed', () => {
     const s0 = computeSheet({ ...base, bleedMm: 0 })
     expect(trimLines(s0).xs).toHaveLength(3)

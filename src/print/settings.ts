@@ -8,6 +8,7 @@ export const DEFAULT_PRINT: FullPrintSettings = {
   orientation: 'auto',
   cutMarks: true,
   markLengthMm: 3.5,
+  markToEdge: true,
   markOffsetMm: 2,
   guideLines: false,
   includeBacks: true,

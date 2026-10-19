@@ -88,6 +88,8 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 - **Cut marks** (on by default, 3.5 mm long, 2 mm gap from the bleed edge):
   - 3.5 mm (not 4) so that 9 portrait ID cards with 3 mm bleed fit on A4 (3 × 92 mm = 276 mm, exactly the space left inside a 5 mm margin)
   - drawn on the outer edges of the grid, one mark per cut line on each side, like a standard gang-up sheet, so they never touch any card or its bleed
+  - by default (owner's request) each mark runs from the 2 mm gap all the way to the paper edge, so a ruler lines up easily. The printer leaves out the part inside its unprintable margin. The 3.5 mm "Room for marks" is still kept free around the grid, so the card count doesn't change. Turn "Run marks to paper edge" off for short fixed-length marks.
+  - nothing is drawn around each card; corners are left square for a corner-rounding cutter
   - the space for them is reserved inside the printer margin
   - optional **guide lines** run through every cut line across the printable area
 - **Backs:**
