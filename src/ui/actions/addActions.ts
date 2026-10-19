@@ -30,7 +30,7 @@ export function addShape(kind: ShapeKind) {
     createShape(box, {
       name,
       kind,
-      fill: kind === 'line' ? null : '#6d5dfc',
+      fill: kind === 'line' ? null : '#0e9494',
       stroke: kind === 'line' ? '#1a1a1a' : null,
     }),
   )

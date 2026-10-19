@@ -1,6 +1,7 @@
 import { Image as KImage, Rect, Text } from 'react-konva'
 import type { IconRowElement } from '../../model/types'
-import { iconRowLayout } from '../iconRowLayout'
+import { greyCopy } from '../greyImage'
+import { iconRowLayout, iconRowSlots } from '../iconRowLayout'
 import { useStageCtx } from '../stageContext'
 
 export function IconRowNode({ el, count }: { el: IconRowElement; count: number }) {
@@ -42,14 +43,29 @@ export function IconRowNode({ el, count }: { el: IconRowElement; count: number }
       </>
     )
   }
-  const rects = iconRowLayout({ w: el.wMm, h: el.hMm }, count, info.widthPx / info.heightPx, el)
+  const slots = iconRowSlots(count, el)
+  const rects = iconRowLayout(
+    { w: el.wMm, h: el.hMm },
+    slots.length,
+    info.widthPx / info.heightPx,
+    el,
+  )
+  const grey = img && slots.some(Boolean) ? greyCopy(img, info.isVector) : undefined
   return (
     <>
       {hit}
       {!rects.length && !ctx.static && outline(0.5)}
       {img &&
         rects.map((r, i) => (
-          <KImage key={i} image={img} x={r.x} y={r.y} width={r.w} height={r.h} listening={false} />
+          <KImage
+            key={i}
+            image={slots[i] ? grey : img}
+            x={r.x}
+            y={r.y}
+            width={r.w}
+            height={r.h}
+            listening={false}
+          />
         ))}
     </>
   )

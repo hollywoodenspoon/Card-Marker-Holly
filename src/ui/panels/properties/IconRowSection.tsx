@@ -115,6 +115,51 @@ export function IconRowSection({ el, editable }: { el: IconRowElement; editable:
           aria-label="Shrink to fit the box"
         />
       </label>
+      <label className="flex items-center justify-between gap-3 text-sm">
+        Grey icons for the rest
+        <Switch
+          checked={!!el.greyTotal}
+          disabled={!editable}
+          onCheckedChange={(v) =>
+            set((e) => void (e.greyTotal = v ? Math.max(e.defaultCount, 5) : 0), 'grey')
+          }
+          aria-label="Grey icons for the rest"
+        />
+      </label>
+      {!!el.greyTotal && (
+        <>
+          <NumberField
+            label="Total icons (coloured + grey)"
+            min={1}
+            max={99}
+            step={1}
+            value={el.greyTotal}
+            disabled={!editable}
+            onChange={(v) => set((e) => void (e.greyTotal = Math.round(v)), 'greyTotal')}
+          />
+          <div className="flex flex-col gap-1">
+            <Label>Grey icons go</Label>
+            <Tabs
+              value={el.greyAt ?? 'end'}
+              onValueChange={(v) =>
+                editable && set((e) => void (e.greyAt = v as 'start' | 'end'), 'greyAt')
+              }
+            >
+              <TabsList className="w-full">
+                <TabsTrigger value="start" disabled={!editable}>
+                  {el.direction === 'vertical' ? 'At the top' : 'On the left'}
+                </TabsTrigger>
+                <TabsTrigger value="end" disabled={!editable}>
+                  {el.direction === 'vertical' ? 'At the bottom' : 'On the right'}
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            E.g. a count of 3 with a total of 5 shows 3 coloured and 2 grey icons.
+          </p>
+        </>
+      )}
       <p className="text-xs text-muted-foreground">
         Icons are centred in the box, so the row stays centred whatever the count.
       </p>

@@ -85,7 +85,7 @@ export function CropOverlay({
         <Rect
           width={el.wMm}
           height={el.hMm}
-          stroke="#6d5dfc"
+          stroke="#0e9494"
           strokeWidth={2}
           strokeScaleEnabled={false}
           listening={false}

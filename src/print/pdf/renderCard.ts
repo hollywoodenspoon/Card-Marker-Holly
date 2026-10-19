@@ -5,7 +5,7 @@ import type {
   ShapeElement,
   TextElement,
 } from '@/core/model/types'
-import { iconRowLayout } from '@/core/render/iconRowLayout'
+import { iconRowLayout, iconRowSlots } from '@/core/render/iconRowLayout'
 import { FULL_CROP, framePlacement } from '@/core/render/imageMath'
 import type { RenderNode } from '@/core/render/renderTypes'
 import { textLayoutInput } from '@/core/render/textInput'
@@ -13,6 +13,7 @@ import { TEXT_PASSES, textEffects, type TextPass } from '@/core/text/effects'
 import { layoutText, SYMBOL_TOP_EM, type Fragment, type SymbolLookup } from '@/core/text/layout'
 import type { Measurer } from '@/core/text/measure'
 import type { Rect } from '../layout'
+import { greyImage } from './greyTarget'
 import { ellipsePath, roundedRectPath, type DrawTarget, type PdfImage } from './drawTarget'
 import { multiply, rotate, scale, translate } from './matrix'
 
@@ -178,9 +179,27 @@ async function drawIconRow(
   const info = res.info(el.assetId)
   const img = await res.image(el.assetId)
   if (!info || !img) return
-  for (const r of iconRowLayout({ w: el.wMm, h: el.hMm }, count, info.widthPx / info.heightPx, el))
-    await t.image(img, r.x, r.y, r.w, r.h)
+  const slots = iconRowSlots(count, el)
+  const rects = iconRowLayout(
+    { w: el.wMm, h: el.hMm },
+    slots.length,
+    info.widthPx / info.heightPx,
+    el,
+  )
+  let grey: PdfImage | undefined
+  if (slots.some(Boolean) && rects[0]) {
+    const key = `${rects[0].w.toFixed(3)}x${rects[0].h.toFixed(3)}`
+    let byImg = greyCache.get(img)
+    if (!byImg) greyCache.set(img, (byImg = new Map()))
+    let p = byImg.get(key)
+    if (!p) byImg.set(key, (p = greyImage(img, rects[0].w, rects[0].h)))
+    grey = await p
+  }
+  for (const [i, r] of rects.entries()) await t.image((slots[i] && grey) || img, r.x, r.y, r.w, r.h)
 }
+
+/** Greyscale icon copies, per picture and printed size (SVGs are rasterised for this). */
+const greyCache = new WeakMap<PdfImage, Map<string, Promise<PdfImage | undefined>>>()
 
 async function drawText(
   t: DrawTarget,
