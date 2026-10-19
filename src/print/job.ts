@@ -23,6 +23,8 @@ export interface PrintJob {
   pages: number[][]
   /** Total cards printed, copies included. */
   copyCount: number
+  /** Which sheets the PDF contains (backs only when some card has a back). */
+  sides: { fronts: boolean; backs: boolean }
   assets: Record<string, Asset>
   fonts: FontAsset[]
 }
@@ -92,6 +94,10 @@ export function buildPrintJob(input: {
     cards,
     pages: paginate(slots.length, sheet.perSheet).map((page) => page.map((i) => slots[i])),
     copyCount: slots.length,
+    sides: {
+      fronts: settings.sheets !== 'backs',
+      backs: settings.sheets !== 'fronts' && cards.some((c) => c.back),
+    },
     assets: input.assets,
     fonts: input.fonts,
   }

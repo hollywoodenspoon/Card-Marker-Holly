@@ -12,6 +12,7 @@ export const DEFAULT_PRINT: FullPrintSettings = {
   markOffsetMm: 2,
   guideLines: false,
   includeBacks: true,
+  sheets: 'both',
   flip: 'long',
   backOffsetXMm: 0,
   backOffsetYMm: 0,
@@ -25,5 +26,6 @@ export function normalizePrint(p: PrintSettings | undefined): FullPrintSettings 
   const out = { ...DEFAULT_PRINT }
   for (const [k, v] of Object.entries(p ?? {}))
     if (v !== undefined) (out as Record<string, unknown>)[k] = v
+  if (p?.sheets === undefined && p?.includeBacks === false) out.sheets = 'fronts'
   return out
 }

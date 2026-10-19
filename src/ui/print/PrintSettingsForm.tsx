@@ -132,12 +132,26 @@ export function PrintSettingsForm() {
         </p>
       </Section>
       <Section title="Backs">
-        <Toggle
-          label="Print backs"
-          checked={p.includeBacks}
-          onChange={(v) => set({ includeBacks: v })}
-        />
-        {p.includeBacks && (
+        <div className="flex flex-col gap-1">
+          <Label>Sheets</Label>
+          <Tabs
+            value={p.sheets}
+            onValueChange={(v) => set({ sheets: v as PrintSettings['sheets'] })}
+          >
+            <TabsList className="w-full">
+              <TabsTrigger value="both">Fronts + backs</TabsTrigger>
+              <TabsTrigger value="fronts">Fronts</TabsTrigger>
+              <TabsTrigger value="backs">Backs</TabsTrigger>
+            </TabsList>
+          </Tabs>
+          {p.sheets === 'backs' && (
+            <p className="text-xs text-muted-foreground">
+              Backs are laid out mirrored for your flip setting, so this sheet can also be fed back
+              through the printer behind a printed fronts sheet.
+            </p>
+          )}
+        </div>
+        {p.sheets !== 'fronts' && (
           <>
             <div className="flex flex-col gap-1">
               <Label>Double-sided flip (match your printer)</Label>

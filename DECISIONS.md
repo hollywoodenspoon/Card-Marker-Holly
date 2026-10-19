@@ -98,6 +98,7 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
   - back contents stay upright, so the flip setting must match the printer's duplex setting
   - back offset X/Y nudges the whole backs page to correct printer drift
   - a card without a back template leaves its back cell empty
+  - **Sheets** (owner's request): "Fronts + backs" (default), "Fronts" or "Backs". Backs-only keeps the mirrored back layout, so it still lines up if fed back through the printer behind a printed fronts sheet. For a full sheet of one card back, set that card's copies in Cards to print. Older projects with backs switched off open as "Fronts".
 - **Alignment test:** a separate 2-page PDF with crosshairs at the corners and centre. The back page has the same crosshairs mirrored, plus ±3 mm scales for reading any offset.
 - **PDF output:**
   - library: jsPDF (RGB), drawn through a small `DrawTarget` interface, so another output (for example CMYK) could be added without touching the card renderer

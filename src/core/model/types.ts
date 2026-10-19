@@ -15,6 +15,7 @@ export interface CardSize {
 
 export type PrintOrientation = 'auto' | 'portrait' | 'landscape'
 export type FlipEdge = 'long' | 'short'
+export type PrintSheets = 'both' | 'fronts' | 'backs'
 /** How the bleed is filled when printing: from the card edge, or only what was drawn there. */
 export type BleedFill = 'mirror' | 'stretch' | 'off'
 
@@ -31,7 +32,10 @@ export interface PrintSettings {
   /** Gap between the bleed edge and the start of a cut mark, mm. */
   markOffsetMm?: number
   guideLines?: boolean
+  /** Old on/off switch for backs; replaced by `sheets`, still read for older projects. */
   includeBacks?: boolean
+  /** Which sheets to print. */
+  sheets?: PrintSheets
   /** Must match the printer's duplex setting. */
   flip?: FlipEdge
   /** Nudge the backs sheet to compensate printer drift, mm. */

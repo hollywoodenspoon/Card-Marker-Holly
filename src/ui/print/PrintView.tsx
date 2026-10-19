@@ -48,7 +48,9 @@ export function PrintView({ layout }: { layout: LayoutKind }) {
   const phone = layout === 'phone'
   const pageCount = job.pages.length
   const current = Math.min(sheet, Math.max(0, pageCount - 1))
-  const withBacks = job.settings.includeBacks && job.cards.some((c) => c.back)
+  const { fronts, backs: withBacks } = job.sides
+  const nothing = !fronts && !withBacks
+  const fileKind = fronts && withBacks ? 'cards' : fronts ? 'fronts' : 'backs'
 
   const exportCards = async () => {
     setError(null)
@@ -57,7 +59,7 @@ export function PrintView({ layout }: { layout: LayoutKind }) {
       const { exportCardsPdf } = await import('@/print/pdf/exportPdf')
       const r = await exportCardsPdf(job, (d, t) => setBusy(`Page ${d} of ${t}…`))
       setWarnings(r.warnings)
-      downloadBlob(r.blob, `${safeFileName(doc.project.name)} - cards.pdf`)
+      downloadBlob(r.blob, `${safeFileName(doc.project.name)} - ${fileKind}.pdf`)
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
     } finally {
@@ -95,7 +97,7 @@ export function PrintView({ layout }: { layout: LayoutKind }) {
           <div className="truncate text-xs text-muted-foreground" data-testid="print-summary">
             {job.sheet.perSheet} per sheet ({job.sheet.orientation}) · {job.copyCount} card
             {job.copyCount === 1 ? '' : 's'} · {pageCount} sheet{pageCount === 1 ? '' : 's'}
-            {withBacks ? ' + backs' : ''}
+            {fronts && withBacks ? ' + backs' : fronts ? ' · fronts only' : ' · backs only'}
           </div>
         </div>
         {!phone && (
@@ -104,7 +106,7 @@ export function PrintView({ layout }: { layout: LayoutKind }) {
           </Button>
         )}
         {!phone && (
-          <Button size="sm" onClick={exportCards} disabled={!!busy || !pageCount}>
+          <Button size="sm" onClick={exportCards} disabled={!!busy || !pageCount || nothing}>
             {busy ? <Loader2 className="animate-spin" /> : <FileDown />} {busy ?? 'Export PDF'}
           </Button>
         )}
@@ -118,11 +120,12 @@ export function PrintView({ layout }: { layout: LayoutKind }) {
           </aside>
         )}
         <main className="flex min-h-0 min-w-0 flex-1 flex-col bg-canvas">
-          {(error || warnings.length > 0 || job.sheet.perSheet === 0) && (
+          {(error || warnings.length > 0 || job.sheet.perSheet === 0 || nothing) && (
             <div
               className="m-3 flex flex-col gap-1 rounded-lg border bg-panel p-3 text-sm"
               role="status"
             >
+              {nothing && <p className="text-danger">None of these cards has a back template.</p>}
               {job.sheet.perSheet === 0 && (
                 <p className="text-danger">The card doesn't fit on A4 with these margins.</p>
               )}
@@ -155,7 +158,7 @@ export function PrintView({ layout }: { layout: LayoutKind }) {
             >
               <ChevronRight />
             </IconButton>
-            {phone && withBacks && (
+            {phone && fronts && withBacks && (
               <div className="ml-2 inline-flex rounded-lg bg-panel p-0.5">
                 {(['front', 'back'] as const).map((s) => (
                   <button
@@ -212,7 +215,11 @@ export function PrintView({ layout }: { layout: LayoutKind }) {
               <Button variant="outline" className="flex-1" onClick={exportTest} disabled={!!busy}>
                 <Crosshair /> Test page
               </Button>
-              <Button className="flex-[2]" onClick={exportCards} disabled={!!busy || !pageCount}>
+              <Button
+                className="flex-[2]"
+                onClick={exportCards}
+                disabled={!!busy || !pageCount || nothing}
+              >
                 {busy ? <Loader2 className="animate-spin" /> : <FileDown />} {busy ?? 'Export PDF'}
               </Button>
             </div>
@@ -247,14 +254,16 @@ function Previews({
     ro.observe(el)
     return () => ro.disconnect()
   }, [])
-  const both = !phone && withBacks
-  const count = both ? 2 : 1
+  const fronts = job.sides.fronts
+  const count = !phone && fronts && withBacks ? 2 : 1
   const aspect = job.sheet.pageW / job.sheet.pageH
   const gap = 24
   const labelH = 22
   const maxW = (size.w - gap * (count + 1)) / count
   const w = Math.max(0, Math.floor(Math.min(maxW, (size.h - gap * 2 - labelH) * aspect)))
-  const sides: ('front' | 'back')[] = both ? ['front', 'back'] : [phone ? side : 'front']
+  // Both sides side by side on wider screens; phones show one at a time.
+  const shown = (['front', 'back'] as const).filter((x) => (x === 'front' ? fronts : withBacks))
+  const sides = phone && shown.length === 2 ? [side] : shown
   return (
     <div
       ref={ref}

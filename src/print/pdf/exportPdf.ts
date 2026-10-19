@@ -113,8 +113,9 @@ export async function exportCardsPdf(
     x: settings.backOffsetXMm,
     y: settings.backOffsetYMm,
   })
-  const withBacks = settings.includeBacks && job.cards.some((c) => c.back)
-  const total = job.pages.length * (withBacks ? 2 : 1)
+  const { fronts, backs: withBacks } = job.sides
+  if (!fronts && !withBacks) throw new Error('None of these cards has a back.')
+  const total = job.pages.length * ((fronts ? 1 : 0) + (withBacks ? 1 : 0))
   let done = 0
   let first = true
 
@@ -128,15 +129,16 @@ export async function exportCardsPdf(
   }
 
   for (const indices of job.pages) {
-    await page(async () => {
-      for (const [slot, i] of indices.entries()) {
-        const c = sheet.cells[slot]
-        await drawCard(job.cards[i].front, c)
-        lowDpi(job, job.cards[i].front, i, warnings)
-      }
-      if (guides.length) strokeLines(target, guides, GUIDE_WIDTH_MM)
-      if (marks.length) strokeLines(target, marks, MARK_WIDTH_MM)
-    })
+    if (fronts)
+      await page(async () => {
+        for (const [slot, i] of indices.entries()) {
+          const c = sheet.cells[slot]
+          await drawCard(job.cards[i].front, c)
+          lowDpi(job, job.cards[i].front, i, warnings)
+        }
+        if (guides.length) strokeLines(target, guides, GUIDE_WIDTH_MM)
+        if (marks.length) strokeLines(target, marks, MARK_WIDTH_MM)
+      })
     if (withBacks)
       await page(async () => {
         for (const [slot, i] of indices.entries()) {
