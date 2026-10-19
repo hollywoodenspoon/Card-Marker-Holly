@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { useUi } from '@/ui/uiStore'
 import { redo, setView, undo, useEditor } from '@/core/editor/editorStore'
 import {
   deleteSelection,
@@ -32,6 +33,7 @@ export function useShortcuts() {
       if (mod && k === 'd') return run(duplicateSelection)
       if (mod && k === 'g' && !e.shiftKey) return run(groupSelection)
       if (mod && k === 'g' && e.shiftKey) return run(ungroupSelection)
+      if (mod && k === 'h') return run(() => useUi.getState().setFindOpen(true))
       if (mod && k === 'a')
         return run(() =>
           select(

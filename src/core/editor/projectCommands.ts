@@ -48,10 +48,14 @@ export function setCopies(cardId: Id, n: number) {
   }, 'print:copies:' + cardId)
 }
 
-/** Same copy count for every card (e.g. 1 = all, 0 = none). */
-export function setAllCopies(cardIds: Id[], n: number) {
+/**
+ * Same copy count for these cards (e.g. 1 = all, 0 = none). With `keepOthers`,
+ * other cards keep their counts; otherwise the list is replaced.
+ */
+export function setAllCopies(cardIds: Id[], n: number, keepOthers = false) {
   commit((d) => {
-    d.project.print.copies = Object.fromEntries(cardIds.map((id) => [id, clampCopies(n)]))
+    const these = Object.fromEntries(cardIds.map((id) => [id, clampCopies(n)]))
+    d.project.print.copies = keepOthers ? { ...d.project.print.copies, ...these } : these
   })
 }
 

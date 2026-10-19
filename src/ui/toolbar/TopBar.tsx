@@ -1,6 +1,7 @@
 import {
   Download,
   Highlighter,
+  TextSearch,
   Home,
   Image,
   Menu,
@@ -94,6 +95,9 @@ function AppMenu() {
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={() => useUi.getState().setKeywordsOpen(true)}>
           <Highlighter /> Keywords…
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => useUi.getState().setFindOpen(true)}>
+          <TextSearch /> Find and replace…
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={() => void goHome()}>
           <Home /> All projects
