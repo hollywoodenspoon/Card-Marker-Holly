@@ -3,9 +3,9 @@ import { createProject } from './factories'
 import { fieldNames } from './tree'
 
 describe('createProject', () => {
-  it('creates an 86 × 54 project with a front, a back, and one card', () => {
+  it('creates a portrait 54 × 86 project with a front, a back, and one card', () => {
     const { project, templates, cards } = createProject('Test')
-    expect(project.defaultSize).toMatchObject({ widthMm: 86, heightMm: 54 })
+    expect(project.defaultSize).toMatchObject({ widthMm: 54, heightMm: 86 })
     expect(project.bleedMm).toBe(3)
     expect(project.print).toEqual({ paper: 'A4', marginMm: 5 })
     expect(templates.map((t) => t.side)).toEqual(['front', 'back'])
@@ -22,6 +22,6 @@ describe('createProject', () => {
   it('background covers the bleed area', () => {
     const { templates } = createProject()
     const bg = templates[0].elements[0]
-    expect(bg).toMatchObject({ xMm: -3, yMm: -3, wMm: 92, hMm: 60 })
+    expect(bg).toMatchObject({ xMm: -3, yMm: -3, wMm: 60, hMm: 92 })
   })
 })

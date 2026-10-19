@@ -3,14 +3,14 @@ import type { CardSize, Orientation } from '../model/types'
 export interface SizePreset {
   id: string
   label: string
-  /** Portrait dimensions (width <= height), except ID card which is landscape by default. */
+  /** Portrait dimensions (width <= height); new projects start portrait. */
   widthMm: number
   heightMm: number
   note?: string
 }
 
 export const SIZE_PRESETS: SizePreset[] = [
-  { id: 'id', label: 'ID card', widthMm: 86, heightMm: 54, note: 'Default' },
+  { id: 'id', label: 'ID card', widthMm: 54, heightMm: 86, note: 'Default' },
   { id: 'poker', label: 'Poker', widthMm: 63.5, heightMm: 88.9, note: '2.5 × 3.5 in' },
   { id: 'tcg', label: 'Trading card', widthMm: 63, heightMm: 88 },
 ]

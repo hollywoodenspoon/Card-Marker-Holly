@@ -25,7 +25,8 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 - Two lock flags: `toggleLocked` (can't be hidden per card, from the spec) and `editLocked` (the layers panel lock: can't be selected or moved on the canvas).
 - **Groups** have no transform of their own. Children are stored in card coordinates. A group is a unit for naming, visibility and selection. Groups can be moved and resized (children scale) but not rotated. On the canvas, clicking a child of an already selected group selects that child. Children can also be selected from the layers panel.
 - Thumbnails are **rendered live** from the current template and card (lazily, when scrolled into view), not stored as blobs. They are always up to date with template edits. The `thumbnail` fields in the schema are unused for now.
-- New projects start with an 86 × 54 mm "Basic front" (background, art field, title, rules) and a "Basic back", so a first card can be made in under a minute.
+- **New projects start portrait** (owner's request): the ID card preset is 54 × 86 mm, and the size panel's Portrait/Landscape toggle turns it to 86 × 54. Existing projects keep their size.
+- New projects start with a "Basic front" (background, art field, title, rules) and a "Basic back", so a first card can be made in under a minute.
 - "New card" copies the previous card's templates and part toggles ("use previous card's layout"). The dropdown has a variant with default toggles.
 - Deleting a template moves its cards to another template of the same side. Their field values are kept.
 - Deleting an image that is in use asks for confirmation. Places that used it show an empty box.

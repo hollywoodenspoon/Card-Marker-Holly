@@ -74,7 +74,7 @@ export function HomeScreen() {
             </div>
             <h1 className="text-xl font-semibold">Design your first card</h1>
             <p className="text-sm text-muted-foreground">
-              Start with an 86 × 54 mm card and a ready-made layout. Fill in a name, drop in some
+              Start with a 54 × 86 mm card and a ready-made layout. Fill in a name, drop in some
               art, and you're done. Everything is saved in this browser.
             </p>
             <Button

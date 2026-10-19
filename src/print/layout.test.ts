@@ -47,6 +47,11 @@ describe('grid fit', () => {
     expect([s.pageW, s.pageH]).toEqual([210, 297])
   })
 
+  it('fits 8 portrait ID cards (4 × 2) on a landscape page', () => {
+    const s = computeSheet({ ...base, card: { w: 54, h: 86 } })
+    expect([s.orientation, s.cols, s.rows, s.perSheet]).toEqual(['landscape', 4, 2, 8])
+  })
+
   it('compares orientations and lets the user override', () => {
     expect(capacity(base, 'landscape')).toMatchObject({ cols: 2, rows: 3, perSheet: 6 })
     const l = computeSheet({ ...base, orientation: 'landscape' })
