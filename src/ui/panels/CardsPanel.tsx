@@ -33,6 +33,7 @@ import { Input } from '@/ui/components/ui/input'
 import { useReorder } from '@/ui/components/useReorder'
 import { CardThumb as LiveThumb } from '@/ui/canvas/CardThumb'
 import { MailMergeDialog } from '@/ui/merge/MailMergeDialog'
+import { BulkBar } from './BulkBar'
 import { useUi } from '@/ui/uiStore'
 
 export function CardsPanel({ onPicked }: { onPicked?: () => void }) {
@@ -40,6 +41,15 @@ export function CardsPanel({ onPicked }: { onPicked?: () => void }) {
   const currentId = useEditor((s) => s.view.cardId)
   const [q, setQ] = useState('')
   const [merging, setMerging] = useState(false)
+  // Select mode: tick several cards and change them together.
+  const [picked, setPicked] = useState<Set<string> | null>(null)
+  const togglePicked = (id: string) =>
+    setPicked((p) => {
+      const n = new Set(p)
+      if (n.has(id)) n.delete(id)
+      else n.add(id)
+      return n
+    })
   const list = useMemo(
     () => (cards ? Object.values(cards).sort((a, b) => a.order - b.order) : []),
     [cards],
@@ -57,11 +67,20 @@ export function CardsPanel({ onPicked }: { onPicked?: () => void }) {
           <Input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Search cards"
+            placeholder="Search"
             aria-label="Search cards"
             className="pl-8"
           />
         </div>
+        <Button
+          size="sm"
+          variant={picked ? 'default' : 'outline'}
+          aria-pressed={!!picked}
+          onClick={() => setPicked(picked ? null : new Set())}
+          title="Select several cards to change them together"
+        >
+          {picked ? 'Done' : 'Select'}
+        </Button>
         <div className="flex">
           <Button
             size="sm"
@@ -96,16 +115,34 @@ export function CardsPanel({ onPicked }: { onPicked?: () => void }) {
           </DropdownMenu>
         </div>
       </div>
+      {picked && (
+        <div className="flex items-center gap-2 px-3 pb-2 text-xs text-muted-foreground">
+          Tap cards to select them.
+          <div className="flex-1" />
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => setPicked(new Set(filtered.map((c) => c.id)))}
+          >
+            All
+          </Button>
+          <Button size="sm" variant="ghost" onClick={() => setPicked(new Set())}>
+            None
+          </Button>
+        </div>
+      )}
       <ul className="min-h-0 flex-1 space-y-1 overflow-auto px-2 pb-3">
         {filtered.map((c, i) => (
           <li key={c.id} ref={rowRef(i)}>
             {dragging && dragging.over === i && dragging.from !== i && <DropLine />}
             <CardRow
               card={c}
-              active={c.id === currentId}
-              handle={q ? undefined : handleProps(i)}
+              active={picked ? picked.has(c.id) : c.id === currentId}
+              handle={q || picked ? undefined : handleProps(i)}
               dragged={dragging?.from === i}
+              checked={picked ? picked.has(c.id) : undefined}
               onPick={() => {
+                if (picked) return togglePicked(c.id)
                 selectCard(c.id)
                 onPicked?.()
               }}
@@ -121,6 +158,12 @@ export function CardsPanel({ onPicked }: { onPicked?: () => void }) {
           </li>
         )}
       </ul>
+      {picked && (
+        <BulkBar
+          ids={list.filter((c) => picked.has(c.id)).map((c) => c.id)}
+          onDone={(keep) => keep && setPicked(new Set(keep))}
+        />
+      )}
       <MailMergeDialog open={merging} onClose={() => setMerging(false)} />
     </div>
   )
@@ -134,12 +177,15 @@ function CardRow({
   onPick,
   handle,
   dragged,
+  checked,
 }: {
   card: Card
   active: boolean
   onPick: () => void
   handle?: ReturnType<ReturnType<typeof useReorder>['handleProps']>
   dragged?: boolean
+  /** Select mode: shown as a tick box. */
+  checked?: boolean
 }) {
   const [renaming, setRenaming] = useState(false)
   return (
@@ -150,7 +196,17 @@ function CardRow({
         dragged && 'opacity-50',
       )}
     >
-      {handle ? (
+      {checked !== undefined ? (
+        <span className="grid h-11 w-6 shrink-0 place-items-center">
+          <input
+            type="checkbox"
+            className="size-4 accent-accent"
+            checked={checked}
+            onChange={onPick}
+            aria-label={`Select ${card.name}`}
+          />
+        </span>
+      ) : handle ? (
         <span
           {...handle}
           role="button"

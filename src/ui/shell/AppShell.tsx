@@ -1,6 +1,7 @@
 import { usePasteImages } from '@/ui/actions/usePaste'
 import { useShortcuts } from '@/ui/actions/useShortcuts'
 import { ExportImagesDialog } from '@/ui/export/ExportImagesDialog'
+import { FindReplaceDialog } from '@/ui/find/FindReplaceDialog'
 import { KeywordsDialog } from '@/ui/keywords/KeywordsDialog'
 import { PrintView } from '@/ui/print/PrintView'
 import { useUi } from '@/ui/uiStore'
@@ -22,6 +23,7 @@ export function AppShell() {
       {printOpen && <PrintView layout={layout} />}
       <ExportImagesDialog />
       <KeywordsDialog />
+      <FindReplaceDialog />
     </>
   )
 }
