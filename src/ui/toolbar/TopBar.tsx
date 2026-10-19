@@ -1,5 +1,6 @@
 import {
   Download,
+  Highlighter,
   Home,
   Image,
   Menu,
@@ -90,6 +91,9 @@ function AppMenu() {
           }
         >
           <Image /> Export card images…
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => useUi.getState().setKeywordsOpen(true)}>
+          <Highlighter /> Keywords…
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={() => void goHome()}>
           <Home /> All projects

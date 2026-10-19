@@ -11,6 +11,8 @@ interface UiState {
   setPrintOpen: (o: boolean) => void
   /** Card image export dialog; `cardId` preselects one card. */
   imageExport: { cardId: string | null } | null
+  keywordsOpen: boolean
+  setKeywordsOpen: (o: boolean) => void
   setImageExport: (v: UiState['imageExport']) => void
   /** Layers section of the right pane expanded (remembered per device). */
   layersOpen: boolean
@@ -38,6 +40,8 @@ export const useUi = create<UiState>((set) => ({
   printOpen: false,
   setPrintOpen: (printOpen) => set({ printOpen }),
   imageExport: null,
+  keywordsOpen: false,
+  setKeywordsOpen: (keywordsOpen) => set({ keywordsOpen }),
   setImageExport: (imageExport) => set({ imageExport }),
   layersOpen: readLayersOpen(),
   setLeftTab: (leftTab) => set({ leftTab }),

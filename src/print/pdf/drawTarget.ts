@@ -27,6 +27,8 @@ export interface DrawTarget {
   fillColor(hex: string): void
   strokeColor(hex: string): void
   lineWidth(mm: number): void
+  /** Corner style of strokes (round for text outlines). */
+  lineJoin(join: 'round' | 'miter'): void
   moveTo(x: number, y: number): void
   lineTo(x: number, y: number): void
   curveTo(x1: number, y1: number, x2: number, y2: number, x: number, y: number): void

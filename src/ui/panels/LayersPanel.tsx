@@ -27,6 +27,7 @@ import type { Element } from '@/core/model/types'
 import { cn } from '@/lib/cn'
 import { toggleEditLock, toggleVisibility, renameElement } from '@/templates/commands'
 import { isVisibleOnCard } from '@/templates/resolve'
+import { cachedDefaults, describeRule } from '@/templates/rules'
 import { IconButton } from '@/ui/components/ui/button'
 import { useReorder } from '@/ui/components/useReorder'
 
@@ -161,7 +162,8 @@ function LayerRow({
   const mode = useEditor((s) => s.view.mode)
   const editable = useEditor((s) => isLayoutEditable(s, el.id))
   const visible = useEditor((s) => {
-    if (s.view.mode === 'card' && !editable) return isVisibleOnCard(el, currentCard(s))
+    if (s.view.mode === 'card' && !editable)
+      return isVisibleOnCard(el, currentCard(s), cachedDefaults(activeTemplate(s)))
     return el.defaultVisible
   })
   const [open, setOpen] = useState(true)
@@ -236,6 +238,14 @@ function LayerRow({
             <span className="truncate text-sm">
               {el.name}
               {isField && <span className="ml-1.5 text-[10px] text-accent uppercase">field</span>}
+              {el.showIf && (
+                <span
+                  className="ml-1.5 rounded bg-muted px-1 text-[10px] font-semibold text-muted-foreground"
+                  title={`Shown only when ${describeRule(el.showIf)}`}
+                >
+                  if
+                </span>
+              )}
               {'mergeColumn' in el && el.mergeColumn && (
                 <span
                   className="ml-1.5 rounded bg-accent-soft px-1 text-[10px] font-semibold text-accent"

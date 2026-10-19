@@ -38,7 +38,7 @@ Assumptions and design choices are listed in [DECISIONS.md](DECISIONS.md).
 - **Shortcuts**: Ctrl/⌘ Z undo, Ctrl/⌘ Shift Z or Y redo, Ctrl/⌘ D duplicate, Delete, arrows nudge (Shift = 5 mm), Ctrl/⌘ G group, Ctrl/⌘ Shift G ungroup, Ctrl/⌘ 0 fit.
 
 ### Adding things
-**Add** (top bar, or the phone's bottom bar): Text, Image, Image field (art box), Icon row (stat), Rectangle, Ellipse, Line. In template mode things go on the template; in card mode they belong to that card only.
+**Add** (top bar, or the phone's bottom bar): Text, Image, Image field (art box), Icon row (stat), Card number, Rectangle, Ellipse, Line. In template mode things go on the template; in card mode they belong to that card only.
 
 ### Text
 - Double-click text to edit. Select words to change font, size, colour, bold, italic, underline; the toolbar also sets alignment, line height and letter spacing.
@@ -46,6 +46,9 @@ Assumptions and design choices are listed in [DECISIONS.md](DECISIONS.md).
 - **Fonts**: bundled Inter, Alegreya and Alegreya SC; upload your own TTF/OTF in the **Fonts** tab.
 - **Inline symbols**: in **Assets**, give an image a symbol name (⋯ → *Symbol name…*, e.g. `fire`). Typing `{fire}` in any text draws it inline.
 - **Shared styles**: Text properties → *New style from this text*. Every text linked to a style updates when you change it.
+- **Outline and shadow**: Text properties → *Effects*: outline colour and width, shadow colour, X/Y offset and opacity (sizes are % of the font size). Shapes have a *Shadow* row too. Shadows are sharp (no blur) so they print exactly as shown.
+- **Keywords**: ☰ → *Keywords…* (or Text properties → *Edit keywords…*). Add words or phrases like “Flying” with bold / italic / underline / colour / font; they're styled automatically in every card's text (whole words, any capitals). Turn *Style keywords in this text* off for parts like titles.
+- **Card numbers**: Add → *Card number* puts `{#}/{total}` on the template (e.g. “3/60”). You can type the tokens in any text: `{#}` is the card's place in the Cards list, `{#:3}` pads it (003), `{total}` is the number of cards. Change the first number under *Card numbers* (right pane, nothing selected).
 
 ### Images and art boxes
 - Upload by dragging files in, the Assets tab, or pasting.
@@ -61,6 +64,7 @@ Add → *Icon row*: the same icon repeated N times, centred in its box (horizont
 - **Templates** tab: new, rename, duplicate, delete, *Save card as template*, **Export file / Import** (carries its images, fonts and styles).
 - Every text, art box and icon row is a **field**: cards keep their own value under the field name, so switching template keeps matching values.
 - **Per card**: the eye in Layers hides a template part on that card only; other parts stay where they are.
+- **Show only when…**: in template mode, select a part → Template part → *Show only when…* and pick a field, a condition (is, is not, contains, is filled in, is empty) and a value — e.g. show the gold gem only when Rarity is Rare. Parts with a rule have an “if” badge in Layers; the eye on one card still overrides it. Works well with mail merge.
 - **Card-only layers**: in Card mode, added things belong to that card and can be dragged between template layers.
 
 ### Fronts and backs

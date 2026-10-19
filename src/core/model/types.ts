@@ -60,6 +60,17 @@ export interface Project {
   print: PrintSettings
   /** Last mail merge choices, so the next merge starts with them. */
   merge?: MergeSettings
+  /** Words styled automatically in every text (e.g. Flying in bold red). */
+  keywords?: Keyword[]
+  /** Number of the first card for `{#}` (default 1). */
+  numberStart?: number
+}
+
+/** A word or phrase that gets its own style wherever it appears in card text. */
+export interface Keyword {
+  id: Id
+  word: string
+  style: Partial<TextStyle>
 }
 
 export type MergeMode = 'merge' | 'add'
@@ -112,6 +123,15 @@ export interface TextStyle {
   underline: boolean
   /** Extra spacing between characters, in em. */
   letterSpacingEm: number
+  /** Outline around the letters (none when unset). */
+  outlineColor?: string
+  /** Outline thickness, as a fraction of the font size. */
+  outlineWidthEm?: number
+  /** Hard drop shadow (no blur, so screen and PDF match). */
+  shadowColor?: string
+  shadowDxEm?: number
+  shadowDyEm?: number
+  shadowOpacity?: number
 }
 
 export type TextAlign = 'left' | 'center' | 'right' | 'justify'
@@ -158,6 +178,17 @@ export interface ElementBase {
    * Unset (or a missing id) means above all template parts.
    */
   zBelow?: Id
+  /** Only shown on cards where this rule holds (e.g. Rarity is Rare). */
+  showIf?: ShowRule
+}
+
+export type ShowRuleOp = 'is' | 'isNot' | 'contains' | 'empty' | 'notEmpty'
+
+/** A condition on one of the card's field values. Matching ignores case. */
+export interface ShowRule {
+  field: string
+  op: ShowRuleOp
+  value?: string
 }
 
 export type VAlign = 'top' | 'middle' | 'bottom'
@@ -177,6 +208,8 @@ export interface TextElement extends ElementBase {
   vAlign: VAlign
   paddingMm: number
   autoShrink: { enabled: boolean; minPt: number }
+  /** Apply the project's keyword styles to this text (default on). */
+  styleKeywords?: boolean
 }
 
 export type ImageFit = 'fill' | 'fit'
@@ -202,6 +235,15 @@ export interface ShapeElement extends ElementBase {
   stroke: string | null
   strokeMm: number
   radiusMm: number
+  /** Hard drop shadow behind the shape. */
+  shadow?: ShapeShadow
+}
+
+export interface ShapeShadow {
+  color: string
+  dxMm: number
+  dyMm: number
+  opacity: number
 }
 
 /** Normalised crop rectangle (0..1) of the source image. */

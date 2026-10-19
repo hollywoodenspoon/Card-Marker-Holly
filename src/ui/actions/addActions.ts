@@ -3,7 +3,7 @@ import { addElement } from '@/core/editor/elementCommands'
 import { activeTemplate } from '@/core/editor/selectors'
 import { createIconRow, createImageField, createShape, createText } from '@/core/model/factories'
 import type { ShapeKind } from '@/core/model/types'
-import { richTextFromPlain } from '@/core/text/richtext'
+import { DEFAULT_TEXT_STYLE, richTextFromPlain } from '@/core/text/richtext'
 
 function cardSize() {
   const s = useEditor.getState()
@@ -45,4 +45,23 @@ export function addImageField() {
   const { widthMm, heightMm } = cardSize()
   const s = Math.min(widthMm, heightMm) * 0.5
   return addElement(createImageField(centred(s, s), { name: 'Art' }))
+}
+
+/** A small text part showing the card's number, e.g. "3/60" ({#} and {total} tokens). */
+export function addCardNumber() {
+  const { widthMm, heightMm } = cardSize()
+  return addElement(
+    createText(
+      { xMm: widthMm - 18, yMm: heightMm - 8, wMm: 14, hMm: 4 },
+      {
+        name: 'Card number',
+        fieldName: 'Card number',
+        defaultText: richTextFromPlain('{#}/{total}'),
+        align: 'right',
+        vAlign: 'middle',
+        styleKeywords: false,
+        baseStyle: { ...DEFAULT_TEXT_STYLE, sizePt: 6 },
+      },
+    ),
+  )
 }

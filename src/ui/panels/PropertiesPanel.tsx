@@ -1,7 +1,7 @@
 import { useShallow } from 'zustand/react/shallow'
 import { distributeSelection, groupSelection } from '@/core/editor/elementCommands'
 import { useEditor } from '@/core/editor/editorStore'
-import { setBleed, setSafe } from '@/core/editor/projectCommands'
+import { setBleed, setNumberStart, setSafe } from '@/core/editor/projectCommands'
 import { isLayoutEditable, selectedElements } from '@/core/editor/selectors'
 import { Button } from '@/ui/components/ui/button'
 import { NumberField, Row, Section } from '@/ui/components/fields'
@@ -115,6 +115,21 @@ function DocumentProperties() {
         <p className="text-xs text-muted-foreground">
           Bleed is the extra artwork beyond the cut line (red). Keep text inside the safe area
           (green).
+        </p>
+      </Section>
+      <Section title="Card numbers">
+        <NumberField
+          label="First card is number"
+          min={0}
+          max={9999}
+          step={1}
+          precision={0}
+          value={project.numberStart ?? 1}
+          onChange={(v) => setNumberStart(Math.max(0, Math.round(v)))}
+        />
+        <p className="text-xs text-muted-foreground">
+          Type {'{#}'} in any text for the card's number (its place in the Cards list), {'{#:3}'}{' '}
+          for 001, and {'{total}'} for the number of cards. Add → Card number adds one.
         </p>
       </Section>
     </div>

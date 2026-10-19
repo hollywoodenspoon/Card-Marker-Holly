@@ -1,8 +1,11 @@
 import { mergeLayers } from '@/core/model/layering'
+import { fieldDefaults, ruleHolds, type FieldDefaults } from './rules'
+import { decorateText } from './textDecor'
 import type { RenderNode } from '@/core/render/renderTypes'
 import type {
   Card,
   Element,
+  Keyword,
   ImageValue,
   Side,
   StylePreset,
@@ -13,10 +16,18 @@ import type {
 
 export type ResolveMode = 'card' | 'template'
 
-/** Is a template element visible on this card? */
-export function isVisibleOnCard(el: Element, card: Card | undefined): boolean {
-  if (el.toggleLocked || !card) return el.defaultVisible
-  return card.overrides[el.id]?.visible ?? el.defaultVisible
+/**
+ * Is a template element visible on this card? A per-card toggle wins; otherwise
+ * the part's default visibility and its "show when" rule decide.
+ */
+export function isVisibleOnCard(
+  el: Element,
+  card: Card | undefined,
+  defaults?: FieldDefaults,
+): boolean {
+  const base = el.defaultVisible && (!card || ruleHolds(el.showIf, card, defaults))
+  if (el.toggleLocked || !card) return base
+  return card.overrides[el.id]?.visible ?? base
 }
 
 export function textValueFor(el: Element & { type: 'text' }, card?: Card): TextValue {
@@ -50,29 +61,44 @@ export function effectiveText(el: TextElement, presets: Presets): TextElement {
   return p ? { ...el, baseStyle: { ...el.baseStyle, ...p.style } } : el
 }
 
-function resolveElements(
-  els: Element[],
-  source: 'template' | 'card',
-  card: Card | undefined,
-  mode: ResolveMode,
-  presets: Presets,
-): RenderNode[] {
+/** Extra information for resolving a card: its number in the deck, and project keywords. */
+export interface ResolveContext {
+  /** 1-based card number for `{#}` (Cards list position + numbering start). */
+  number?: number
+  /** Number of cards for `{total}`. */
+  total?: number
+  keywords?: Keyword[]
+}
+
+interface Env {
+  card: Card | undefined
+  mode: ResolveMode
+  presets: Presets
+  defaults: FieldDefaults
+  ctx: ResolveContext
+}
+
+function resolveElements(els: Element[], source: 'template' | 'card', env: Env): RenderNode[] {
+  const { card, mode, presets } = env
   const out: RenderNode[] = []
   for (const el of els) {
-    // Card-local elements only use their own default visibility.
+    // Card-local elements only use their own default visibility and rule.
     const visible =
-      source === 'template' && mode === 'card' ? isVisibleOnCard(el, card) : el.defaultVisible
+      mode !== 'card'
+        ? el.defaultVisible
+        : source === 'template'
+          ? isVisibleOnCard(el, card, env.defaults)
+          : el.defaultVisible && ruleHolds(el.showIf, card, env.defaults)
     if (!visible && mode === 'card') continue
     const node: RenderNode = {
       element: el.type === 'text' ? effectiveText(el, presets) : el,
       source,
       dimmed: !visible,
     }
-    if (el.type === 'text') node.text = textValueFor(el, card)
+    if (el.type === 'text') node.text = decorateText(textValueFor(el, card), el, env.ctx)
     else if (el.type === 'imageField') node.image = imageValueFor(el, card)
     else if (el.type === 'iconRow') node.count = countValueFor(el, card)
-    else if (el.type === 'group')
-      node.children = resolveElements(el.children, source, card, mode, presets)
+    else if (el.type === 'group') node.children = resolveElements(el.children, source, env)
     out.push(node)
   }
   return out
@@ -93,11 +119,14 @@ export function resolveSide(
   side: Side,
   mode: ResolveMode,
   presets?: Presets,
+  ctx: ResolveContext = {},
 ): RenderNode[] {
+  const defaults = fieldDefaults(template?.elements ?? [])
+  const env: Env = { card, mode, presets, defaults, ctx }
   if (mode !== 'card' || !card)
-    return template ? resolveElements(template.elements, 'template', card, mode, presets) : []
+    return template ? resolveElements(template.elements, 'template', env) : []
   // Card elements interleave with template parts (each sits below its anchor, or on top).
   return mergeLayers(template?.elements ?? [], card.local[side]).flatMap((l) =>
-    resolveElements([l.el], l.source, card, mode, presets),
+    resolveElements([l.el], l.source, env),
   )
 }

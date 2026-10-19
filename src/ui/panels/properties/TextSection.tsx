@@ -1,4 +1,5 @@
 import {
+  Highlighter,
   AlignCenter,
   AlignJustify,
   AlignLeft,
@@ -13,7 +14,6 @@ import {
   Underline,
 } from 'lucide-react'
 import { useMemo } from 'react'
-import { BUILTIN_FONTS } from '@/assets/fonts'
 import { setView, useEditor } from '@/core/editor/editorStore'
 import { updateElement } from '@/core/editor/elementCommands'
 import type { TextElement, TextStyle } from '@/core/model/types'
@@ -32,15 +32,13 @@ import { Button, IconButton } from '@/ui/components/ui/button'
 import { Label, NativeSelect } from '@/ui/components/ui/input'
 import { Switch } from '@/ui/components/ui/switch'
 import { ColorField, NumberField, Row, Section } from '@/ui/components/fields'
+import { useFontFamilies } from '@/ui/text/useFontFamilies'
+import { useUi } from '@/ui/uiStore'
 
 export function TextSection({ el, editable }: { el: TextElement; editable: boolean }) {
-  const fonts = useEditor((s) => s.library.fonts)
   const mode = useEditor((s) => s.view.mode)
   const cardHasValue = useEditor(() => hasCardValue(el.id))
-  const families = useMemo(
-    () => [...new Set([...Object.values(fonts).map((f) => f.family), ...BUILTIN_FONTS])],
-    [fonts],
-  )
+  const families = useFontFamilies()
   const set = (fn: (e: TextElement) => void, key: string) =>
     updateElement(el.id, (d) => fn(d as TextElement), `${key}:${el.id}`)
   /** Change the base style; runs in the default text that set this key follow it again. */
@@ -223,6 +221,100 @@ export function TextSection({ el, editable }: { el: TextElement; editable: boole
             onChange={(v) => set((e) => void (e.paddingMm = v), 'pad')}
           />
         </Row>
+      </Section>
+      <Section title="Effects">
+        <Row>
+          <ColorField
+            label="Outline"
+            allowNone
+            value={s.outlineColor ?? null}
+            disabled={!editable}
+            onChange={(v) => {
+              setStyle('outlineColor', v ?? undefined)
+              if (v && !s.outlineWidthEm) setStyle('outlineWidthEm', 0.06)
+            }}
+          />
+          <NumberField
+            label="Outline width"
+            unit="%"
+            min={0}
+            max={40}
+            step={1}
+            precision={0}
+            value={Math.round((s.outlineWidthEm ?? 0) * 100)}
+            disabled={!editable || !s.outlineColor}
+            onChange={(v) => setStyle('outlineWidthEm', Math.max(0, v) / 100)}
+          />
+        </Row>
+        <ColorField
+          label="Shadow"
+          allowNone
+          value={s.shadowColor ?? null}
+          disabled={!editable}
+          onChange={(v) => {
+            setStyle('shadowColor', v ?? undefined)
+            if (v && !s.shadowDxEm && !s.shadowDyEm) {
+              setStyle('shadowDxEm', 0.06)
+              setStyle('shadowDyEm', 0.06)
+            }
+          }}
+        />
+        {s.shadowColor && (
+          <Row cols={3}>
+            <NumberField
+              label="Shadow X"
+              unit="%"
+              step={1}
+              precision={0}
+              value={Math.round((s.shadowDxEm ?? 0) * 100)}
+              disabled={!editable}
+              onChange={(v) => setStyle('shadowDxEm', v / 100)}
+            />
+            <NumberField
+              label="Shadow Y"
+              unit="%"
+              step={1}
+              precision={0}
+              value={Math.round((s.shadowDyEm ?? 0) * 100)}
+              disabled={!editable}
+              onChange={(v) => setStyle('shadowDyEm', v / 100)}
+            />
+            <NumberField
+              label="Opacity"
+              unit="%"
+              min={0}
+              max={100}
+              step={5}
+              precision={0}
+              value={Math.round((s.shadowOpacity ?? 1) * 100)}
+              disabled={!editable}
+              onChange={(v) => setStyle('shadowOpacity', Math.min(100, Math.max(0, v)) / 100)}
+            />
+          </Row>
+        )}
+        <p className="text-xs text-muted-foreground">
+          Sizes are % of the font size, so effects grow and shrink with the text (and auto-shrink).
+          Shadows are sharp, with no blur, so they print exactly as shown.
+        </p>
+      </Section>
+      <Section title="Keywords">
+        <label className="flex items-center justify-between gap-3 text-sm">
+          Style keywords in this text
+          <Switch
+            checked={el.styleKeywords !== false}
+            disabled={!editable}
+            onCheckedChange={(v) =>
+              set((e) => {
+                if (v) delete e.styleKeywords
+                else e.styleKeywords = false
+              }, 'kw')
+            }
+            aria-label="Style keywords in this text"
+          />
+        </label>
+        <Button variant="outline" size="sm" onClick={() => useUi.getState().setKeywordsOpen(true)}>
+          <Highlighter /> Edit keywords…
+        </Button>
       </Section>
       <Section title="Auto-shrink">
         <label className="flex items-center justify-between gap-3 text-sm">

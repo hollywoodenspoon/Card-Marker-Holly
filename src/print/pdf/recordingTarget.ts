@@ -4,7 +4,12 @@ import { apply, IDENTITY, multiply, type Matrix } from './matrix'
 export type Op =
   | { op: 'rect'; x: number; y: number; w: number; h: number }
   | { op: 'image'; id: string; x: number; y: number; w: number; h: number }
-  | { op: 'fill' | 'stroke' | 'fillStroke' | 'clip'; color?: string; alpha: number }
+  | {
+      op: 'fill' | 'stroke' | 'fillStroke' | 'clip'
+      color?: string
+      strokeColor?: string
+      alpha: number
+    }
   | { op: 'point'; x: number; y: number }
 
 /**
@@ -39,6 +44,7 @@ export class RecordingTarget implements DrawTarget {
     this.strokeC = c
   }
   lineWidth() {}
+  lineJoin() {}
   private pt(x: number, y: number) {
     const p = apply(this.m, x, y)
     this.ops.push({ op: 'point', ...p })
@@ -71,7 +77,12 @@ export class RecordingTarget implements DrawTarget {
     this.ops.push({ op: 'stroke', color: this.strokeC, alpha: this.alpha })
   }
   fillStroke() {
-    this.ops.push({ op: 'fillStroke', color: this.fillC, alpha: this.alpha })
+    this.ops.push({
+      op: 'fillStroke',
+      color: this.fillC,
+      strokeColor: this.strokeC,
+      alpha: this.alpha,
+    })
   }
   clip() {
     this.ops.push({ op: 'clip', alpha: this.alpha })

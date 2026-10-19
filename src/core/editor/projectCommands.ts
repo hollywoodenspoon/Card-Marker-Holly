@@ -61,3 +61,10 @@ export function setPrintOrder(order: Id[] | null) {
     d.project.print.order = order
   })
 }
+
+/** Number of the first card for `{#}` card-number tokens. */
+export function setNumberStart(n: number) {
+  commit((d) => {
+    d.project.numberStart = n
+  }, 'numberStart')
+}

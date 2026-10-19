@@ -3,6 +3,7 @@ import { mergeLayers } from '@/core/model/layering'
 import { cloneWithNewIds } from '@/core/model/tree'
 import type { Card, Element, Side, Template } from '@/core/model/types'
 import { isVisibleOnCard } from './resolve'
+import { fieldDefaults } from './rules'
 
 /**
  * A new template from what a card shows on one side: its template's parts
@@ -16,10 +17,11 @@ export function saveCardAsTemplate(
   name: string,
   fallbackSize: Template['size'],
 ): Template {
+  const defaults = fieldDefaults(template?.elements ?? [])
   const fromTemplate = (els: Element[]): Element[] =>
     els.map((el) => {
       const copy = structuredClone(el) as Element
-      copy.defaultVisible = isVisibleOnCard(el, card)
+      copy.defaultVisible = isVisibleOnCard(el, card, defaults)
       if (copy.type === 'text') {
         const v = card.fields[copy.fieldName]
         if (v?.kind === 'text') copy.defaultText = structuredClone(v.text)

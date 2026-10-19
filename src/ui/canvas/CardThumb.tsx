@@ -4,6 +4,7 @@ import { useEditor } from '@/core/editor/editorStore'
 import type { Card, Side, Template } from '@/core/model/types'
 import { StaticCard } from '@/core/render/StaticCard'
 import { cn } from '@/lib/cn'
+import { cardContext } from '@/templates/cardContext'
 import { resolveSide } from '@/templates/resolve'
 import { useRenderVersion } from './useRenderVersion'
 
@@ -45,7 +46,14 @@ export function CardThumb({
       : undefined)
   const version = useRenderVersion()
   const presets = useEditor((s) => s.doc?.stylePresets)
-  const nodes = useMemo(() => resolveSide(t, card, side, 'card', presets), [t, card, side, presets])
+  const project = useEditor((s) => s.doc?.project)
+  const cards = useEditor((s) => s.doc?.cards)
+  const ctx = project && cards ? cardContext(project, cards, card?.id) : undefined
+  const nodes = useMemo(
+    () => resolveSide(t, card, side, 'card', presets, ctx),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [t, card, side, presets, ctx?.number, ctx?.total, ctx?.keywords],
+  )
   const { ref, visible } = useVisible<HTMLSpanElement>()
   const size = t?.size ?? useEditor.getState().doc?.project.defaultSize
   if (!size) return null

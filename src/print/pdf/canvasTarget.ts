@@ -64,6 +64,9 @@ export class CanvasTarget implements DrawTarget {
   lineWidth(mm: number) {
     this.ctx.lineWidth = mm
   }
+  lineJoin(join: 'round' | 'miter') {
+    this.ctx.lineJoin = join
+  }
   moveTo(x: number, y: number) {
     this.ctx.moveTo(x, y)
   }

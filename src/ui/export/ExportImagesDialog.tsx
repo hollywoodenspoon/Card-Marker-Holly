@@ -75,6 +75,7 @@ function ExportForm({ cardId, onDone }: { cardId: string | null; onDone: () => v
           project,
           templates: doc.templates,
           cards: chosen,
+          allCards: doc.cards,
           assets: library.assets,
           fonts: Object.values(library.fonts),
           stylePresets: doc.stylePresets,

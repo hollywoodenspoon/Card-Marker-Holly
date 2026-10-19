@@ -50,6 +50,9 @@ export class JsPdfTarget implements DrawTarget {
   lineWidth(mm: number) {
     this.doc.setLineWidth(mm)
   }
+  lineJoin(join: 'round' | 'miter') {
+    this.doc.setLineJoin(join)
+  }
   moveTo(x: number, y: number) {
     this.doc.moveTo(x, y)
   }

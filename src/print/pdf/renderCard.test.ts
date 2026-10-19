@@ -137,3 +137,56 @@ describe('renderCard', () => {
     expect(t.ops.some((o) => o.op === 'image' || o.op === 'fill')).toBe(false)
   })
 })
+
+describe('effects', () => {
+  it('draws every shadow, then every outline, then the letters', async () => {
+    const passes: string[] = []
+    const r: PrintResources = {
+      ...res,
+      text: async (_t, f, _x, _b, pass = 'fill') => {
+        passes.push(`${pass}:${f.text}`)
+      },
+    }
+    const el = createText(
+      { xMm: 0, yMm: 0, wMm: 80, hMm: 10 },
+      {
+        defaultText: richTextFromPlain('Hi'),
+        baseStyle: {
+          ...createText({ xMm: 0, yMm: 0, wMm: 1, hMm: 1 }).baseStyle,
+          outlineColor: '#000000',
+          outlineWidthEm: 0.05,
+          shadowColor: '#333333',
+          shadowDxEm: 0.05,
+          shadowDyEm: 0.05,
+        },
+      },
+    )
+    const c = sheet.cells[0]
+    await renderCard(
+      new RecordingTarget(),
+      [node(el, { text: { kind: 'text', text: el.defaultText } })],
+      c.cell,
+      c.trim,
+      r,
+    )
+    expect(passes).toEqual(['shadow:Hi', 'outline:Hi', 'fill:Hi'])
+  })
+
+  it('draws a shape shadow first, offset, in the shadow colour', async () => {
+    const t = new RecordingTarget()
+    const box = createShape(
+      { xMm: 10, yMm: 10, wMm: 20, hMm: 20 },
+      { fill: '#ff0000', shadow: { color: '#000000', dxMm: 1, dyMm: 2, opacity: 0.5 } },
+    )
+    const c = sheet.cells[0]
+    await renderCard(t, [node(box)], c.cell, c.trim, res)
+    const fills = t.ops.filter((o) => o.op === 'fill')
+    expect(fills.map((o) => o.op === 'fill' && [o.color, o.alpha])).toEqual([
+      ['#000000', 0.5],
+      ['#ff0000', 1],
+    ])
+    const rects = t.ops.filter((o) => o.op === 'rect').slice(1) // after the cell clip
+    expect(rects[0]).toMatchObject({ x: c.trim.x + 11, y: c.trim.y + 12, w: 20, h: 20 })
+    expect(rects[1]).toMatchObject({ x: c.trim.x + 10, y: c.trim.y + 10 })
+  })
+})
