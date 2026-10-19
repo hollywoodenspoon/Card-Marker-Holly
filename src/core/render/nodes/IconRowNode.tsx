@@ -4,7 +4,15 @@ import { greyCopy } from '../greyImage'
 import { iconRowLayout, iconRowSlots } from '../iconRowLayout'
 import { useStageCtx } from '../stageContext'
 
-export function IconRowNode({ el, count }: { el: IconRowElement; count: number }) {
+export function IconRowNode({
+  el,
+  count,
+  grey: greyCount = 0,
+}: {
+  el: IconRowElement
+  count: number
+  grey?: number
+}) {
   const ctx = useStageCtx()
   const img = el.assetId ? ctx.assets.getImage(el.assetId) : undefined
   const info = el.assetId ? ctx.assets.getInfo(el.assetId) : undefined
@@ -43,7 +51,7 @@ export function IconRowNode({ el, count }: { el: IconRowElement; count: number }
       </>
     )
   }
-  const slots = iconRowSlots(count, el)
+  const slots = iconRowSlots(count, greyCount, el.greyAt)
   const rects = iconRowLayout(
     { w: el.wMm, h: el.hMm },
     slots.length,

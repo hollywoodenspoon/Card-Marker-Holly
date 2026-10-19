@@ -28,7 +28,10 @@ export function saveCardAsTemplate(
       }
       if (copy.type === 'iconRow') {
         const v = card.fields[copy.fieldName]
-        if (v?.kind === 'count') copy.defaultCount = v.count
+        if (v?.kind === 'count') {
+          copy.defaultCount = v.count
+          if (v.grey !== undefined) copy.defaultGrey = v.grey
+        }
       }
       if (copy.type === 'imageField') {
         const v = card.fields[copy.fieldName]

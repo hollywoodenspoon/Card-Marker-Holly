@@ -83,7 +83,7 @@ async function drawNode(t: DrawTarget, n: RenderNode, parentAlpha: number, res: 
       await drawImageField(t, el, n, res)
       break
     case 'iconRow':
-      await drawIconRow(t, el, n.count ?? el.defaultCount, res)
+      await drawIconRow(t, el, n.count ?? el.defaultCount, n.grey ?? el.defaultGrey ?? 0, res)
       break
     case 'text':
       if (n.text) await drawText(t, el, n.text.text, res, alpha)
@@ -173,13 +173,14 @@ async function drawIconRow(
   t: DrawTarget,
   el: Element & { type: 'iconRow' },
   count: number,
+  greyCount: number,
   res: PrintResources,
 ) {
   if (!el.assetId) return
   const info = res.info(el.assetId)
   const img = await res.image(el.assetId)
   if (!info || !img) return
-  const slots = iconRowSlots(count, el)
+  const slots = iconRowSlots(count, greyCount, el.greyAt)
   const rects = iconRowLayout(
     { w: el.wMm, h: el.hMm },
     slots.length,

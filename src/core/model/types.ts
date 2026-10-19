@@ -305,8 +305,8 @@ export interface IconRowElement extends ElementBase {
   gapMm: number
   /** Shrink icons and gaps together when the row would overflow the box. */
   fitToBox: boolean
-  /** Fill up to this many icons with greyscale copies (e.g. 3 of 5); 0 or unset = off. */
-  greyTotal?: number
+  /** Greyscale icons shown after the coloured ones on cards that don't set their own (default 0). */
+  defaultGrey?: number
   /** Where the grey icons go: 'start' = left / top, 'end' = right / bottom (default). */
   greyAt?: 'start' | 'end'
 }
@@ -337,6 +337,8 @@ export interface ImageValue {
 export interface CountValue {
   kind: 'count'
   count: number
+  /** Greyscale icons on this card; unset = the template's default. */
+  grey?: number
 }
 
 export type FieldValue = TextValue | ImageValue | CountValue

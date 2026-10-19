@@ -1,7 +1,14 @@
 import { Crop, ImageUp, Minus, Plus, RotateCcw } from 'lucide-react'
 import { setView, useEditor } from '@/core/editor/editorStore'
 import { findSurfaceElement, isLayoutEditable } from '@/core/editor/selectors'
-import { currentCount, hasCardValue, resetFieldValue, setCount } from '@/templates/fieldCommands'
+import {
+  currentCount,
+  currentGrey,
+  hasCardValue,
+  resetFieldValue,
+  setCount,
+  setGrey,
+} from '@/templates/fieldCommands'
 import { chooseIconFor, chooseImageFor } from '@/ui/actions/imageActions'
 import { Button, IconButton } from '@/ui/components/ui/button'
 import { useImageValue } from '@/ui/panels/properties/useFieldValues'
@@ -23,6 +30,7 @@ export function SelectionActions() {
 /** − count + for icon rows, so stats are quick to set on each card. */
 function CountBar({ id }: { id: string }) {
   const count = useEditor(() => currentCount(id) ?? 0)
+  const grey = useEditor(() => currentGrey(id) ?? 0)
   const name = useEditor((s) => findSurfaceElement(s, id)?.name ?? '')
   const noIcon = useEditor((s) => {
     const el = findSurfaceElement(s, id)
@@ -37,7 +45,9 @@ function CountBar({ id }: { id: string }) {
           <ImageUp /> Choose icon
         </Button>
       )}
-      <span className="max-w-28 truncate px-2 text-xs text-muted-foreground">{name}</span>
+      <span className="hidden max-w-28 truncate px-2 text-xs text-muted-foreground sm:inline">
+        {name}
+      </span>
       <IconButton
         label="One less"
         size="icon-sm"
@@ -62,14 +72,41 @@ function CountBar({ id }: { id: string }) {
       >
         <Plus />
       </IconButton>
+      <span className="mx-1 h-6 w-px bg-border" aria-hidden />
+      <span className="px-1 text-xs text-muted-foreground">Grey</span>
+      <IconButton
+        label="One less grey"
+        size="icon-sm"
+        variant="outline"
+        disabled={grey <= 0}
+        onClick={() => setGrey(id, grey - 1)}
+      >
+        <Minus />
+      </IconButton>
+      <span
+        className="w-8 text-center text-sm font-semibold text-muted-foreground tabular-nums"
+        aria-live="polite"
+        aria-label={`${name} grey count`}
+      >
+        {grey}
+      </span>
+      <IconButton
+        label="One more grey"
+        size="icon-sm"
+        variant="outline"
+        onClick={() => setGrey(id, grey + 1)}
+      >
+        <Plus />
+      </IconButton>
       {overridden && (
         <Button
           size="sm"
           variant="ghost"
           onClick={() => resetFieldValue(id)}
-          title="Use the template's default count"
+          title="Use the template's default counts"
+          aria-label="Use the template's default counts"
         >
-          <RotateCcw /> Default
+          <RotateCcw /> <span className="hidden sm:inline">Default</span>
         </Button>
       )}
     </div>

@@ -49,17 +49,18 @@ export function iconRowLayout(
 }
 
 /**
- * Icons to draw for a count: coloured ones plus, with `greyTotal`, greyscale
- * ones filling up to that total, at the start (left / top) or end of the row.
- * Returns one flag per icon, true = grey.
+ * Icons to draw: `count` coloured ones and `greyCount` greyscale ones, the
+ * grey ones at the start (left / top) or end of the row. One flag per icon,
+ * true = grey.
  */
 export function iconRowSlots(
   count: number,
-  opts: { greyTotal?: number; greyAt?: 'start' | 'end' },
+  greyCount: number,
+  greyAt?: 'start' | 'end',
 ): boolean[] {
   const n = Math.max(0, Math.floor(count))
-  const grey = Math.max(0, Math.floor(opts.greyTotal ?? 0) - n)
+  const grey = Math.max(0, Math.floor(greyCount))
   const lit = Array<boolean>(n).fill(false)
   const off = Array<boolean>(grey).fill(true)
-  return opts.greyAt === 'start' ? [...off, ...lit] : [...lit, ...off]
+  return greyAt === 'start' ? [...off, ...lit] : [...lit, ...off]
 }

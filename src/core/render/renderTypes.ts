@@ -11,6 +11,8 @@ export interface RenderNode {
   image?: ImageValue
   /** Resolved icon count for icon rows. */
   count?: number
+  /** Resolved greyscale icon count for icon rows. */
+  grey?: number
   children?: RenderNode[]
 }
 

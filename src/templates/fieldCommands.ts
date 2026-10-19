@@ -2,7 +2,7 @@ import { commit, useEditor } from '@/core/editor/editorStore'
 import { updateElements } from '@/core/editor/elementCommands'
 import { findSurfaceElement, ownerOf } from '@/core/editor/selectors'
 import type { ImageValue, RichText } from '@/core/model/types'
-import { countValueFor, imageValueFor, textValueFor } from './resolve'
+import { countValueFor, greyValueFor, imageValueFor, textValueFor } from './resolve'
 import { richTextFromPlain } from '@/core/text/richtext'
 
 /**
@@ -117,11 +117,46 @@ export function setCount(id: string, count: number, coalesce?: string) {
   if (target(id) === 'cardField') {
     const cardId = s.view.cardId!
     commit((d) => {
-      d.cards[cardId].fields[el.fieldName] = { kind: 'count', count: n }
+      const prev = d.cards[cardId].fields[el.fieldName]
+      const grey = prev?.kind === 'count' ? prev.grey : undefined
+      d.cards[cardId].fields[el.fieldName] = {
+        kind: 'count',
+        count: n,
+        ...(grey !== undefined && { grey }),
+      }
       d.cards[cardId].updatedAt = Date.now()
     }, coalesce)
   } else {
     updateElements([id], (e) => void (e.type === 'iconRow' && (e.defaultCount = n)), coalesce, {
+      contentOnly: true,
+    })
+  }
+}
+
+/** Greyscale icon count shown for an icon row in the current mode. */
+export function currentGrey(id: string): number | undefined {
+  const s = useEditor.getState()
+  const el = findSurfaceElement(s, id)
+  if (el?.type !== 'iconRow') return undefined
+  const card = target(id) === 'cardField' ? s.doc!.cards[s.view.cardId!] : undefined
+  return greyValueFor(el, card)
+}
+
+/** Set an icon row's grey icons: the card's value, or the default on the template / card-only row. */
+export function setGrey(id: string, grey: number, coalesce?: string) {
+  const s = useEditor.getState()
+  const el = findSurfaceElement(s, id)
+  if (el?.type !== 'iconRow') return
+  const n = Math.max(0, Math.min(99, Math.round(grey)))
+  if (target(id) === 'cardField') {
+    const cardId = s.view.cardId!
+    const count = countValueFor(el, s.doc!.cards[cardId])
+    commit((d) => {
+      d.cards[cardId].fields[el.fieldName] = { kind: 'count', count, grey: n }
+      d.cards[cardId].updatedAt = Date.now()
+    }, coalesce)
+  } else {
+    updateElements([id], (e) => void (e.type === 'iconRow' && (e.defaultGrey = n)), coalesce, {
       contentOnly: true,
     })
   }
@@ -142,7 +177,13 @@ export function setCardCount(cardId: string, fieldName: string, count: number) {
   commit((d) => {
     const c = d.cards[cardId]
     if (!c) return
-    c.fields[fieldName] = { kind: 'count', count: Math.max(0, Math.min(99, Math.round(count))) }
+    const prev = c.fields[fieldName]
+    const grey = prev?.kind === 'count' ? prev.grey : undefined
+    c.fields[fieldName] = {
+      kind: 'count',
+      count: Math.max(0, Math.min(99, Math.round(count))),
+      ...(grey !== undefined && { grey }),
+    }
     c.updatedAt = Date.now()
   }, `table:${cardId}:${fieldName}`)
 }

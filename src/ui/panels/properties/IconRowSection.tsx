@@ -4,7 +4,14 @@ import { assetResolver } from '@/assets/assetResolver'
 import { useEditor } from '@/core/editor/editorStore'
 import { updateElement } from '@/core/editor/elementCommands'
 import type { IconRowElement } from '@/core/model/types'
-import { currentCount, hasCardValue, resetFieldValue, setCount } from '@/templates/fieldCommands'
+import {
+  currentCount,
+  currentGrey,
+  hasCardValue,
+  resetFieldValue,
+  setCount,
+  setGrey,
+} from '@/templates/fieldCommands'
 import { chooseIconFor, setIconRowIcon } from '@/ui/actions/imageActions'
 import { Button, IconButton } from '@/ui/components/ui/button'
 import { Label } from '@/ui/components/ui/input'
@@ -16,6 +23,7 @@ import { NumberField, Row, Section } from '@/ui/components/fields'
 export function IconRowSection({ el, editable }: { el: IconRowElement; editable: boolean }) {
   const mode = useEditor((s) => s.view.mode)
   const count = useEditor(() => currentCount(el.id) ?? 0)
+  const grey = useEditor(() => currentGrey(el.id) ?? 0)
   const overridden = useEditor(() => hasCardValue(el.id))
   const set = (fn: (e: IconRowElement) => void, key: string) =>
     updateElement(el.id, (d) => fn(d as IconRowElement), `${key}:${el.id}`)
@@ -23,42 +31,28 @@ export function IconRowSection({ el, editable }: { el: IconRowElement; editable:
 
   return (
     <Section title="Icon row">
-      <div className="flex flex-col gap-1">
-        <Label>{perCard ? 'Count for this card' : 'Default count'}</Label>
-        <div className="flex items-center gap-2">
-          <IconButton
-            label="One less"
-            variant="outline"
-            size="icon-sm"
-            disabled={count <= 0}
-            onClick={() => setCount(el.id, count - 1)}
-          >
-            <Minus />
-          </IconButton>
-          <input
-            aria-label="Count"
-            type="number"
-            min={0}
-            max={99}
-            value={count}
-            onChange={(e) => setCount(el.id, Number(e.target.value) || 0, 'count:' + el.id)}
-            className="h-11 w-16 rounded-md border border-input bg-panel text-center text-base tabular-nums outline-none focus-visible:border-accent md:h-8 md:text-sm"
-          />
-          <IconButton
-            label="One more"
-            variant="outline"
-            size="icon-sm"
-            onClick={() => setCount(el.id, count + 1)}
-          >
-            <Plus />
-          </IconButton>
-          {overridden && (
-            <Button variant="ghost" size="sm" onClick={() => resetFieldValue(el.id)}>
-              <RotateCcw /> Default
-            </Button>
-          )}
-        </div>
-      </div>
+      <Stepper
+        label={perCard ? 'Count for this card' : 'Default count'}
+        name="Count"
+        value={count}
+        onChange={(n, key) => setCount(el.id, n, key ? 'count:' + el.id : undefined)}
+      />
+      <Stepper
+        label={perCard ? 'Grey icons on this card' : 'Default grey icons'}
+        name="Grey icons"
+        value={grey}
+        onChange={(n, key) => setGrey(el.id, n, key ? 'grey:' + el.id : undefined)}
+      />
+      {overridden && (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="self-start"
+          onClick={() => resetFieldValue(el.id)}
+        >
+          <RotateCcw /> Use template counts
+        </Button>
+      )}
       <div className="flex flex-col gap-1">
         <Label>Icon</Label>
         <IconPicker el={el} disabled={!editable} />
@@ -115,55 +109,75 @@ export function IconRowSection({ el, editable }: { el: IconRowElement; editable:
           aria-label="Shrink to fit the box"
         />
       </label>
-      <label className="flex items-center justify-between gap-3 text-sm">
-        Grey icons for the rest
-        <Switch
-          checked={!!el.greyTotal}
-          disabled={!editable}
-          onCheckedChange={(v) =>
-            set((e) => void (e.greyTotal = v ? Math.max(e.defaultCount, 5) : 0), 'grey')
+      <div className="flex flex-col gap-1">
+        <Label>Grey icons go</Label>
+        <Tabs
+          value={el.greyAt ?? 'end'}
+          onValueChange={(v) =>
+            editable && set((e) => void (e.greyAt = v as 'start' | 'end'), 'greyAt')
           }
-          aria-label="Grey icons for the rest"
-        />
-      </label>
-      {!!el.greyTotal && (
-        <>
-          <NumberField
-            label="Total icons (coloured + grey)"
-            min={1}
-            max={99}
-            step={1}
-            value={el.greyTotal}
-            disabled={!editable}
-            onChange={(v) => set((e) => void (e.greyTotal = Math.round(v)), 'greyTotal')}
-          />
-          <div className="flex flex-col gap-1">
-            <Label>Grey icons go</Label>
-            <Tabs
-              value={el.greyAt ?? 'end'}
-              onValueChange={(v) =>
-                editable && set((e) => void (e.greyAt = v as 'start' | 'end'), 'greyAt')
-              }
-            >
-              <TabsList className="w-full">
-                <TabsTrigger value="start" disabled={!editable}>
-                  {el.direction === 'vertical' ? 'At the top' : 'On the left'}
-                </TabsTrigger>
-                <TabsTrigger value="end" disabled={!editable}>
-                  {el.direction === 'vertical' ? 'At the bottom' : 'On the right'}
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            E.g. a count of 3 with a total of 5 shows 3 coloured and 2 grey icons.
-          </p>
-        </>
-      )}
+        >
+          <TabsList className="w-full">
+            <TabsTrigger value="start" disabled={!editable}>
+              {el.direction === 'vertical' ? 'At the top' : 'On the left'}
+            </TabsTrigger>
+            <TabsTrigger value="end" disabled={!editable}>
+              {el.direction === 'vertical' ? 'At the bottom' : 'On the right'}
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
       <p className="text-xs text-muted-foreground">
         Icons are centred in the box, so the row stays centred whatever the count.
       </p>
     </Section>
+  )
+}
+
+/** − number + for an icon count. `typed` is true while typing, so edits coalesce. */
+function Stepper({
+  label,
+  name,
+  value,
+  onChange,
+}: {
+  label: string
+  name: string
+  value: number
+  onChange: (n: number, typed?: boolean) => void
+}) {
+  return (
+    <div className="flex flex-col gap-1">
+      <Label>{label}</Label>
+      <div className="flex items-center gap-2">
+        <IconButton
+          label={`${name}: one less`}
+          variant="outline"
+          size="icon-sm"
+          disabled={value <= 0}
+          onClick={() => onChange(value - 1)}
+        >
+          <Minus />
+        </IconButton>
+        <input
+          aria-label={name}
+          type="number"
+          min={0}
+          max={99}
+          value={value}
+          onChange={(e) => onChange(Number(e.target.value) || 0, true)}
+          className="h-11 w-16 rounded-md border border-input bg-panel text-center text-base tabular-nums outline-none focus-visible:border-accent md:h-8 md:text-sm"
+        />
+        <IconButton
+          label={`${name}: one more`}
+          variant="outline"
+          size="icon-sm"
+          onClick={() => onChange(value + 1)}
+        >
+          <Plus />
+        </IconButton>
+      </div>
+    </div>
   )
 }
 
