@@ -4,7 +4,7 @@ import type { Matrix } from './matrix'
 
 const decoded = new WeakMap<PdfImage, Promise<CanvasImageSource | undefined>>()
 
-function decode(img: PdfImage): Promise<CanvasImageSource | undefined> {
+export function decode(img: PdfImage): Promise<CanvasImageSource | undefined> {
   let p = decoded.get(img)
   if (!p) {
     p =
@@ -21,7 +21,7 @@ function decode(img: PdfImage): Promise<CanvasImageSource | undefined> {
 }
 
 /** An SVG with an explicit, large size so it decodes sharply. */
-async function loadSvg(svg: string): Promise<CanvasImageSource | undefined> {
+export async function loadSvg(svg: string): Promise<CanvasImageSource | undefined> {
   const { width, height } = svgSize(svg)
   const blob = await svgDisplayBlob(new Blob([svg], { type: 'image/svg+xml' }), width, height)
   const url = URL.createObjectURL(blob)

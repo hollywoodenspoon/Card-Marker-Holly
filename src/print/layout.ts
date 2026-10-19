@@ -28,6 +28,8 @@ export interface SheetInput {
   cutMarks: boolean
   markLengthMm: number
   markOffsetMm: number
+  /** Space between neighbouring cells, mm (default 0). */
+  gapMm?: number
 }
 
 export interface SheetCell {
@@ -60,10 +62,10 @@ const EPS = 1e-6
 export const markSpace = (i: Pick<SheetInput, 'cutMarks' | 'markLengthMm' | 'markOffsetMm'>) =>
   i.cutMarks ? i.markOffsetMm + i.markLengthMm : 0
 
-/** How many cells fit in an area. */
-export function fitGrid(availW: number, availH: number, cellW: number, cellH: number) {
+/** How many cells fit in an area, with `gap` between neighbours. */
+export function fitGrid(availW: number, availH: number, cellW: number, cellH: number, gap = 0) {
   const fit = (avail: number, size: number) =>
-    size <= 0 || avail <= 0 ? 0 : Math.floor(avail / size + EPS)
+    size <= 0 || avail < size - EPS ? 0 : Math.floor((avail + gap) / (size + gap) + EPS)
   return { cols: fit(availW, cellW), rows: fit(availH, cellH) }
 }
 
@@ -79,12 +81,12 @@ export function capacity(input: SheetInput, o: 'portrait' | 'landscape') {
   const reserve = 2 * (input.marginMm + markSpace(input))
   const cellW = input.card.w + 2 * input.bleedMm
   const cellH = input.card.h + 2 * input.bleedMm
-  const g = fitGrid(pageW - reserve, pageH - reserve, cellW, cellH)
+  const g = fitGrid(pageW - reserve, pageH - reserve, cellW, cellH, Math.max(0, input.gapMm ?? 0))
   return { ...g, perSheet: g.cols * g.rows }
 }
 
 /**
- * Lay out one sheet: cell = card + 2·bleed, cells abut, the grid is centred
+ * Lay out one sheet: cell = card + 2·bleed, cells abut (or sit `gapMm` apart), the grid is centred
  * on the page. With orientation 'auto' the orientation fitting more cards
  * wins (ties go to portrait).
  */
@@ -98,17 +100,18 @@ export function computeSheet(input: SheetInput): Sheet {
   const { pageW, pageH } = pageFor(input.paper, orientation)
   const { cols, rows } = capacity(input, orientation)
   const b = input.bleedMm
+  const gap = Math.max(0, input.gapMm ?? 0)
   const cellW = input.card.w + 2 * b
   const cellH = input.card.h + 2 * b
-  const gridW = cols * cellW
-  const gridH = rows * cellH
+  const gridW = cols ? cols * cellW + (cols - 1) * gap : 0
+  const gridH = rows ? rows * cellH + (rows - 1) * gap : 0
   const gx = (pageW - gridW) / 2
   const gy = (pageH - gridH) / 2
   const cells: SheetCell[] = []
   for (let row = 0; row < rows; row++)
     for (let col = 0; col < cols; col++) {
-      const x = gx + col * cellW
-      const y = gy + row * cellH
+      const x = gx + col * (cellW + gap)
+      const y = gy + row * (cellH + gap)
       cells.push({
         slot: cells.length,
         col,

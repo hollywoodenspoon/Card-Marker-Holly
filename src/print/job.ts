@@ -2,8 +2,9 @@ import type { Asset, Card, FontAsset, Project, StylePreset, Template } from '@/c
 import type { RenderNode } from '@/core/render/renderTypes'
 import { cardContext } from '@/templates/cardContext'
 import { resolveSide, type ResolveContext } from '@/templates/resolve'
-import { PAPERS } from './paper'
-import { computeSheet, paginate, type Sheet } from './layout'
+import { stripArt } from './draft'
+import { paperOf } from './paper'
+import { computeSheet, paginate, type Sheet, type SheetInput } from './layout'
 import { printEntries, printSlots } from './printList'
 import { normalizePrint, type FullPrintSettings } from './settings'
 
@@ -70,6 +71,21 @@ export function resolveCard(
   return nodes
 }
 
+/** Sheet layout input from the project and its print settings. */
+export function sheetInput(project: Project, settings: FullPrintSettings): SheetInput {
+  return {
+    paper: paperOf(settings.paper),
+    card: { w: project.defaultSize.widthMm, h: project.defaultSize.heightMm },
+    bleedMm: project.bleedMm,
+    marginMm: settings.marginMm,
+    orientation: settings.orientation,
+    cutMarks: settings.cutMarks,
+    markLengthMm: settings.markLengthMm,
+    markOffsetMm: settings.markOffsetMm,
+    gapMm: settings.gapMm,
+  }
+}
+
 /** Everything needed to preview or export the print sheets, from the open project. */
 export function buildPrintJob(input: {
   project: Project
@@ -80,17 +96,7 @@ export function buildPrintJob(input: {
   stylePresets?: Record<string, StylePreset>
 }): PrintJob {
   const settings = normalizePrint(input.project.print)
-  const size = input.project.defaultSize
-  const sheet = computeSheet({
-    paper: PAPERS[settings.paper],
-    card: { w: size.widthMm, h: size.heightMm },
-    bleedMm: input.project.bleedMm,
-    marginMm: settings.marginMm,
-    orientation: settings.orientation,
-    cutMarks: settings.cutMarks,
-    markLengthMm: settings.markLengthMm,
-    markOffsetMm: settings.markOffsetMm,
-  })
+  const sheet = computeSheet(sheetInput(input.project, settings))
   const byId = Object.fromEntries(input.cards.map((c) => [c.id, c]))
   const cards = printEntries(input.cards, settings)
     .filter((e) => e.copies > 0)
@@ -98,7 +104,14 @@ export function buildPrintJob(input: {
       const ft = card.frontTemplateId ? input.templates[card.frontTemplateId] : undefined
       const bt = card.backTemplateId ? input.templates[card.backTemplateId] : undefined
       const ctx = cardContext(input.project, byId, card.id)
-      return { card, copies, ...resolveCard(card, ft, bt, input.stylePresets, ctx) }
+      const sides = resolveCard(card, ft, bt, input.stylePresets, ctx)
+      if (!settings.draftNoArt) return { card, copies, ...sides }
+      return {
+        card,
+        copies,
+        front: stripArt(sides.front),
+        back: sides.back && stripArt(sides.back),
+      }
     })
   const slots = printSlots(cards)
   return {

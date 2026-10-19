@@ -30,6 +30,7 @@ Assumptions and design choices are listed in [DECISIONS.md](DECISIONS.md).
 ### Card size, bleed and safe area
 - Right pane → **Card** (nothing selected): pick a preset (ID card 54 × 86, Poker, Trading card) or type a size; the two buttons switch portrait / landscape.
 - **Bleed** (default 3 mm) is extra art past the cut line (red). Keep text inside the **safe area** (green). The eye button at the bottom of the canvas shows or hides these lines.
+- **Corner cutter guide**: right pane (nothing selected) → *Show rounded corners* and set the radius of your corner cutter. The corners it will cut off are shaded orange in the editor and print preview; it is never printed.
 
 ### Canvas basics
 - **Zoom**: buttons bottom-right, Ctrl/⌘ + mouse wheel, or pinch on touch. **Pan**: space + drag, middle mouse, or two fingers.
@@ -79,13 +80,14 @@ The **Front / Back** switch above the canvas. Each card picks a front template a
 3. Set the **first row** (row 1 is often headers), optional **only rows** / **skip rows** (e.g. `2-20, 25`), templates, and optional name / copies / template columns. *Use header names* fills letters from matching headers.
 4. Choose **Update existing** (cards made earlier from the same row are updated) or **Add as new**, check the issues list, then **Run merge**. One undo removes the whole merge.
 
-### Printing (A4 PDF)
+### Printing (PDF)
 **Print** (top bar; on phone ☰ → *Print / export PDF*) shows each sheet's fronts and mirrored backs.
 - **Cards to print**: tick boxes, copies (− / +), drag to set the print order; *All* / *None*.
-- **Sheet**: orientation (Best fit picks the most cards per sheet), printer margin, bleed.
+- **Sheet**: paper (A4, A3, A5, US Letter, US Legal), orientation (Best fit picks the most cards per sheet), printer margin, bleed, and **gap between cards** (0 = cards touch and share cut lines; a gap lets you cut each card on its own).
 - **Bleed fill**: *Mirror edges* (default) fills the bleed from each card's own edge, so a slightly off cut never shows white; *Stretch edges*; or *As designed*.
 - **Cutting**: cut marks sit outside the bleed and run to the paper edge (switch off for short marks); optional guide lines across the sheet.
 - **Backs**: *Sheets* = fronts + backs, fronts only, or backs only. Match the long/short-edge flip to your printer, print the **Alignment test** once, and enter any offset as Back offset X/Y.
+- **Draft (saves ink)**: *Greyscale* and/or *Leave out art* for playtest copies.
 - **Export PDF**: exact mm sizes — print at 100% / "actual size".
 
 ### Card images

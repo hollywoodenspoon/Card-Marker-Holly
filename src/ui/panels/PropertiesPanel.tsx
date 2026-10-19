@@ -1,9 +1,10 @@
 import { useShallow } from 'zustand/react/shallow'
 import { distributeSelection, groupSelection } from '@/core/editor/elementCommands'
 import { useEditor } from '@/core/editor/editorStore'
-import { setBleed, setNumberStart, setSafe } from '@/core/editor/projectCommands'
+import { setBleed, setCornerGuide, setNumberStart, setSafe } from '@/core/editor/projectCommands'
 import { isLayoutEditable, selectedElements } from '@/core/editor/selectors'
 import { Button } from '@/ui/components/ui/button'
+import { Switch } from '@/ui/components/ui/switch'
 import { NumberField, Row, Section } from '@/ui/components/fields'
 import { CardSizeControls } from './properties/CardSizeControls'
 import { AlignButtons, GeometrySection } from './properties/GeometrySection'
@@ -115,6 +116,31 @@ function DocumentProperties() {
         <p className="text-xs text-muted-foreground">
           Bleed is the extra artwork beyond the cut line (red). Keep text inside the safe area
           (green).
+        </p>
+      </Section>
+      <Section title="Corner cutter guide">
+        <label className="flex items-center justify-between gap-3 text-sm">
+          Show rounded corners
+          <Switch
+            checked={!!project.cornerGuide?.enabled}
+            onCheckedChange={(v) => setCornerGuide({ enabled: v })}
+            aria-label="Show rounded corners"
+          />
+        </label>
+        {project.cornerGuide?.enabled && (
+          <NumberField
+            label="Corner radius"
+            unit="mm"
+            min={0.5}
+            max={15}
+            step={0.5}
+            value={project.cornerGuide.radiusMm}
+            onChange={(v) => setCornerGuide({ radiusMm: Math.max(0.5, v) })}
+          />
+        )}
+        <p className="text-xs text-muted-foreground">
+          Shades the corners your corner cutter will remove, in the editor and print preview. It is
+          never printed.
         </p>
       </Section>
       <Section title="Card numbers">

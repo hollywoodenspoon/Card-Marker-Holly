@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { Group, Image as KImage, Layer, Line, Rect, Stage } from 'react-konva'
 import { assetResolver } from '@/assets/assetResolver'
+import { CornerGuide } from '@/core/render/Overlays'
 import { StaticNodes } from '@/core/render/StaticCard'
 import type { PrintJob } from '@/print/job'
 import { backCells, cutMarks, guideLines, mirrorLine, type Line as L } from '@/print/layout'
@@ -35,6 +36,8 @@ export function SheetPreview({
     [indices, job.cards, side],
   )
   const ready = useReadyBands(bands, sides)
+  const g = job.project.cornerGuide
+  const corner = g?.enabled ? g.radiusMm : 0
 
   const lines = useMemo(() => {
     const marks = settings.cutMarks
@@ -84,6 +87,9 @@ export function SheetPreview({
                 <Group x={c.trim.x} y={c.trim.y}>
                   <StaticNodes nodes={nodes} assets={assetResolver} renderVersion={version} print />
                 </Group>
+                {corner > 0 && (
+                  <CornerGuide x={c.trim.x} y={c.trim.y} w={c.trim.w} h={c.trim.h} r={corner} />
+                )}
                 {band && at && (
                   <Group
                     clipFunc={(ctx) => {
