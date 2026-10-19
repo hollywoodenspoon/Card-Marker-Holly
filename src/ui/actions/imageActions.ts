@@ -7,13 +7,16 @@ import type { Asset } from '@/core/model/types'
 import { centreCrop } from '@/core/render/imageMath'
 import { setImageFieldValue } from '@/templates/fieldCommands'
 
-export async function importImages(files: File[]): Promise<Asset[]> {
+/** Read image files into the library (into `folder` when given). */
+export async function importImages(files: File[], folder?: string): Promise<Asset[]> {
   const s = useEditor.getState()
   if (!s.doc) return []
   const assets: Asset[] = []
   for (const f of files.filter(isSupportedImage)) {
     try {
-      assets.push(await readImageFile(f, s.doc.project.id))
+      const a = await readImageFile(f, s.doc.project.id)
+      if (folder) a.folder = folder
+      assets.push(a)
     } catch (e) {
       console.warn('Could not read image', f.name, e)
     }

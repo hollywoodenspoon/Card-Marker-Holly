@@ -4,6 +4,7 @@ import { ExportImagesDialog } from '@/ui/export/ExportImagesDialog'
 import { TtsDialog } from '@/ui/export/TtsDialog'
 import { FindReplaceDialog } from '@/ui/find/FindReplaceDialog'
 import { KeywordsDialog } from '@/ui/keywords/KeywordsDialog'
+import { DataView } from '@/ui/data/DataView'
 import { GalleryView } from '@/ui/gallery/GalleryView'
 import { PrintView } from '@/ui/print/PrintView'
 import { useUi } from '@/ui/uiStore'
@@ -18,12 +19,14 @@ export function AppShell() {
   usePasteImages()
   const printOpen = useUi((s) => s.printOpen)
   const galleryOpen = useUi((s) => s.galleryOpen)
+  const dataOpen = useUi((s) => !!s.dataView)
   const shell =
     layout === 'phone' ? <PhoneShell /> : layout === 'tablet' ? <TabletShell /> : <DesktopShell />
   return (
     <>
       {shell}
       {galleryOpen && <GalleryView />}
+      {dataOpen && <DataView />}
       {printOpen && <PrintView layout={layout} />}
       <ExportImagesDialog />
       <KeywordsDialog />

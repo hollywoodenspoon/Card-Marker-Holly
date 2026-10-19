@@ -22,6 +22,12 @@ interface UiState {
   setImageExport: (v: UiState['imageExport']) => void
   /** Layers section of the right pane expanded (remembered per device). */
   layersOpen: boolean
+  /** Assets section docked at the bottom of the left pane expanded (remembered per device). */
+  assetsOpen: boolean
+  setAssetsOpen: (o: boolean) => void
+  /** Card data view (table, CSV export, mail merge); null when closed. */
+  dataView: 'table' | 'import' | null
+  setDataView: (v: 'table' | 'import' | null) => void
   setLeftTab: (t: PanelId) => void
   setLeftOpen: (o: boolean) => void
   setRightOpen: (o: boolean) => void
@@ -30,11 +36,19 @@ interface UiState {
 }
 
 const LAYERS_KEY = 'cardmaker.layersOpen'
-function readLayersOpen() {
+const ASSETS_KEY = 'cardmaker.assetsOpen'
+function readOpen(key: string) {
   try {
-    return localStorage.getItem(LAYERS_KEY) !== '0'
+    return localStorage.getItem(key) !== '0'
   } catch {
     return true
+  }
+}
+function writeOpen(key: string, open: boolean) {
+  try {
+    localStorage.setItem(key, open ? '1' : '0')
+  } catch {
+    /* storage unavailable */
   }
 }
 
@@ -55,17 +69,20 @@ export const useUi = create<UiState>((set) => ({
   setFindOpen: (findOpen) => set({ findOpen }),
   setKeywordsOpen: (keywordsOpen) => set({ keywordsOpen }),
   setImageExport: (imageExport) => set({ imageExport }),
-  layersOpen: readLayersOpen(),
+  layersOpen: readOpen(LAYERS_KEY),
+  assetsOpen: readOpen(ASSETS_KEY),
+  setAssetsOpen: (assetsOpen) => {
+    writeOpen(ASSETS_KEY, assetsOpen)
+    set({ assetsOpen })
+  },
+  dataView: null,
+  setDataView: (dataView) => set({ dataView }),
   setLeftTab: (leftTab) => set({ leftTab }),
   setLeftOpen: (leftOpen) => set({ leftOpen }),
   setRightOpen: (rightOpen) => set({ rightOpen }),
   setPhoneSheet: (phoneSheet) => set({ phoneSheet }),
   setLayersOpen: (layersOpen) => {
-    try {
-      localStorage.setItem(LAYERS_KEY, layersOpen ? '1' : '0')
-    } catch {
-      /* storage unavailable */
-    }
+    writeOpen(LAYERS_KEY, layersOpen)
     set({ layersOpen })
   },
 }))

@@ -27,6 +27,15 @@ Assumptions and design choices are listed in [DECISIONS.md](DECISIONS.md).
 - **Backup file**: ☰ → *Export backup file* saves the whole project (cards, templates, images, fonts) as one `.cardproject.json`. Import always creates a new project, so nothing is overwritten.
 - Projects live in the browser you made them in. To move work between computers, export a backup and import it on the other one.
 
+### Left pane
+- The rail on the left (desktop, and the tablet's left drawer) has the panels **Templates, Cards, Decks, Fonts**, then quick buttons: **Print**, **Gallery** (gallery and proofreading), **Images** (export card images), **Keywords** and **Data** (card data table, CSV export and mail merge). These are also in the ☰ menu.
+- **Assets** sit at the bottom of the left pane. Click the header to fold them away or open them again (remembered on this device). Click an image to put it on the card, or into the selected art box. The header buttons make a folder or upload images. On a phone, Assets is in the bottom bar.
+
+### Asset folders
+- **New folder** (folder button in the Assets header) → type a name. Folders open and close with a click on their name.
+- Put images in a folder: drag an image onto the folder's name (mouse or pen), or image ⋯ → **Move to folder…** (pick a folder, *No folder*, or make a new one).
+- Folder ⋯: **Upload here**, **Rename**, **Delete folder** (the images stay, they just leave the folder).
+
 ### Card size, bleed and safe area
 - Right pane → **Card** (nothing selected): pick a preset (ID card 54 × 86, Poker, Trading card) or type a size; the two buttons switch portrait / landscape.
 - **Bleed** (default 3 mm) is extra art past the cut line (red). Keep text inside the **safe area** (green). The eye button at the bottom of the canvas shows or hides these lines.
@@ -52,7 +61,7 @@ Assumptions and design choices are listed in [DECISIONS.md](DECISIONS.md).
 - **Card numbers**: Add → *Card number* puts `{#}/{total}` on the template (e.g. “3/60”). You can type the tokens in any text: `{#}` is the card's place in the Cards list, `{#:3}` pads it (003), `{total}` is the number of cards. Change the first number under *Card numbers* (right pane, nothing selected).
 
 ### Images and art boxes
-- Upload by dragging files in, the Assets tab, or pasting.
+- Upload by dragging files in, the Assets section (bottom of the left pane), or pasting.
 - Drag corners to resize (aspect locked; hold Shift for free resize), use the round handle to rotate or type an angle. Flip, opacity, crop and *Replace image* are in Image properties.
 - **Art box** (image field): each card fills it with its own picture — double-click it, or use the floating bar (*Choose/Replace image*, *Reposition*, *Default*). Fill or fit the frame; drag and zoom inside it.
 - A warning shows when a picture would print below about 300 DPI. SVGs stay sharp (vector) in the PDF.
@@ -87,9 +96,15 @@ The **Front / Back** switch above the canvas. Each card picks a front template a
 ### Find and replace
 ☰ → *Find and replace…* (Ctrl/⌘ H): searches every card's text (and, with *Also template text*, the templates' default text). Options for matching capitals and whole words. Untick places you want to keep, click a place to open that card, then **Replace all** — one undo puts everything back.
 
+### Card data (table and CSV export)
+Rail → **Data** (or ☰ → *Card data*) shows every card as a spreadsheet-style table: name, front and back template, print copies, then every field. Search and filter by deck at the top.
+- **Edit right in the table**: changes go straight onto the cards (undo works). Text cells take plain text; text with its own formatting is greyed (italic) and edited on the card. Art cells pick one of your uploaded images, icon-row cells take a number, ✕ clears a card's own value so the template default shows (greyed placeholder). A — means that card's template doesn't have the field. Click a thumbnail to open the card.
+- **Export CSV** saves the shown rows as `<project> cards.csv` (opens in Excel, Google Sheets, Numbers). Art is written as image file names and icon rows as numbers, the same as mail merge reads, and each field sits in its spreadsheet column letter (shown in the table header). Empty cells mean "template default".
+- To bring an edited CSV back: **Import** tab → choose the file, first row `2`, name column `A` (and copies / template columns from the header letters), then **Add as new**. "Update existing" matches cards by their original spreadsheet row, so it's meant for re-running the same sheet you first merged from.
+
 ### Mail merge (cards from a spreadsheet)
 1. In template mode, select each field and set **Spreadsheet column** (e.g. Title = `B`, Art = `D`). Upload art images first; the art column holds file names like `dragon.png`. Icon-row columns hold numbers.
-2. Cards → *+ Card* ▾ → **Mail merge from spreadsheet…** → choose an `.xlsx` / `.csv` file or paste cells.
+2. Cards → *+ Card* ▾ → **Mail merge from spreadsheet…** (or rail → **Data** → **Import**) → choose an `.xlsx` / `.csv` file or paste cells.
 3. Set the **first row** (row 1 is often headers), optional **only rows** / **skip rows** (e.g. `2-20, 25`), templates, and optional name / copies / template columns. *Use header names* fills letters from matching headers.
 4. Choose **Update existing** (cards made earlier from the same row are updated) or **Add as new**, check the issues list, then **Run merge**. One undo removes the whole merge.
 

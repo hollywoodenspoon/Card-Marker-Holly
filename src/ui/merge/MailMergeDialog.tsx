@@ -17,7 +17,6 @@ import {
 } from '@/templates/mailMerge'
 import { runMerge, setMergeColumns, setMergeSettings } from '@/templates/mergeCommands'
 import { Button } from '@/ui/components/ui/button'
-import { Dialog, DialogContent } from '@/ui/components/ui/dialog'
 import { Input, Label, NativeSelect } from '@/ui/components/ui/input'
 import { Tabs, TabsList, TabsTrigger } from '@/ui/components/ui/tabs'
 
@@ -25,21 +24,6 @@ const KIND: Record<FieldElement['type'], string> = {
   text: 'text',
   imageField: 'image file name',
   iconRow: 'number',
-}
-
-/** Make cards from spreadsheet rows. */
-export function MailMergeDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
-  return (
-    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent
-        title="Mail merge"
-        description="Each spreadsheet row becomes a card. Template fields read the column they're tagged with."
-        className="max-w-2xl"
-      >
-        {open && <MergeForm onClose={onClose} />}
-      </DialogContent>
-    </Dialog>
-  )
 }
 
 /** Template fields with their column letters: one entry per field part. */
@@ -69,7 +53,8 @@ function withLetters(t: Template | undefined, edits: Record<Id, string | undefin
   return copy
 }
 
-function MergeForm({ onClose }: { onClose: () => void }) {
+/** Make cards from spreadsheet rows (the Import tab of the card data view). */
+export function MergeForm({ onClose }: { onClose: () => void }) {
   const doc = useEditor((s) => s.doc!)
   const library = useEditor((s) => s.library)
   const card = useEditor(currentCard)
