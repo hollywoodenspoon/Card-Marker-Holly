@@ -7,7 +7,11 @@ import type { Matrix } from './matrix'
 const SVG_GREY_DPI = 300
 
 /** Turn a picture into a greyscale PNG (SVGs are rasterised at their printed size). */
-async function greyImage(img: PdfImage, wMm: number, hMm: number): Promise<PdfImage | undefined> {
+export async function greyImage(
+  img: PdfImage,
+  wMm: number,
+  hMm: number,
+): Promise<PdfImage | undefined> {
   const src = await decode(img)
   if (!src) return undefined
   const k = SVG_GREY_DPI / 25.4

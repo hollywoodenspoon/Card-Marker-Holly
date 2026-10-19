@@ -590,7 +590,7 @@ export function CardStage(props: CardStageProps) {
                     width={el.wMm}
                     height={el.hMm}
                     rotation={el.rotation}
-                    stroke="#6d5dfc"
+                    stroke="#0e9494"
                     strokeWidth={1.5}
                     dash={[5, 3]}
                     strokeScaleEnabled={false}
@@ -617,7 +617,7 @@ export function CardStage(props: CardStageProps) {
                   width={marquee.wMm}
                   height={marquee.hMm}
                   fill="rgba(109,93,252,0.08)"
-                  stroke="#6d5dfc"
+                  stroke="#0e9494"
                   strokeWidth={1}
                   strokeScaleEnabled={false}
                   listening={false}
@@ -634,9 +634,9 @@ export function CardStage(props: CardStageProps) {
               rotationSnapTolerance={4}
               anchorSize={anchor}
               anchorCornerRadius={anchor / 2}
-              anchorStroke="#6d5dfc"
+              anchorStroke="#0e9494"
               anchorFill="#ffffff"
-              borderStroke="#6d5dfc"
+              borderStroke="#0e9494"
               borderStrokeWidth={1.5}
               rotateAnchorOffset={coarse ? 36 : 24}
               padding={0}

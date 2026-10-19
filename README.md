@@ -69,6 +69,8 @@ Assumptions and design choices are listed in [DECISIONS.md](DECISIONS.md).
 ### Icon rows (stats)
 Add → *Icon row*: the same icon repeated N times, centred in its box (horizontal or vertical). The template sets the icon; each card sets the count.
 
+- **Grey icons for the rest**: Icon row properties → turn it on and set the **total** (e.g. 5). A card with a count of 3 then shows 3 coloured and 2 greyscale icons. *Grey icons go* puts the grey ones on the left or right (row), or at the top or bottom (column).
+
 ### Templates
 - **Template / Card** switch (top bar). In **Template** mode you edit the layout every card using it shares; changes show on all those cards straight away.
 - **Templates** tab: new, rename, duplicate, delete, *Save card as template*, **Export file / Import** (carries its images, fonts and styles).
@@ -124,4 +126,4 @@ Rail → **Data** (or ☰ → *Card data*) shows every card as a spreadsheet-sty
 ### Phone, tablet and offline
 - Works on phones and tablets: panels become drawers and bottom sheets; pinch to zoom, two fingers to pan. On phone, Templates, Decks and Fonts are in the ☰ menu.
 - **Install**: ☰ → *Install app* (when the browser offers it). After the first visit it works fully offline, including PDF export.
-- Themes: ☰ → Light, Dark or Follow system.
+- Themes: ☰ → Light, Dark or Follow system, or a colour theme: Bubblegum pop, Midnight arcade (dark), Forest or Sunset. The canvas around the card stays neutral grey in every theme so card colours look true.

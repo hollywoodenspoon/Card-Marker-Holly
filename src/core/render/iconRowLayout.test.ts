@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { iconRowLayout } from './iconRowLayout'
+import { iconRowLayout, iconRowSlots } from './iconRowLayout'
 
 const h = { direction: 'horizontal' as const, iconMm: 6, gapMm: 1, fitToBox: true }
 
@@ -48,5 +48,15 @@ describe('iconRowLayout', () => {
 
   it('draws nothing for a count of zero', () => {
     expect(iconRowLayout({ w: 20, h: 8 }, 0, 1, h)).toEqual([])
+  })
+})
+
+describe('iconRowSlots', () => {
+  it('fills up to the total with grey icons at the end or start', () => {
+    expect(iconRowSlots(3, {})).toEqual([false, false, false])
+    expect(iconRowSlots(2, { greyTotal: 5 })).toEqual([false, false, true, true, true])
+    expect(iconRowSlots(2, { greyTotal: 4, greyAt: 'start' })).toEqual([true, true, false, false])
+    expect(iconRowSlots(6, { greyTotal: 4 })).toHaveLength(6)
+    expect(iconRowSlots(0, { greyTotal: 2 })).toEqual([true, true])
   })
 })

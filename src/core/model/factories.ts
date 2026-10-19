@@ -92,7 +92,7 @@ export function createShape(box: Box, opts: Partial<ShapeElement> = {}): ShapeEl
     ...base(opts.name ?? 'Shape', box),
     type: 'shape',
     kind: 'rect',
-    fill: '#6d5dfc',
+    fill: '#0e9494',
     stroke: null,
     strokeMm: 0.5,
     radiusMm: 0,

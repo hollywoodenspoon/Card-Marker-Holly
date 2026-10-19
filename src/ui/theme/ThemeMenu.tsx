@@ -4,7 +4,7 @@ import {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
 } from '@/ui/components/ui/dropdown'
-import { setTheme, useThemeSetting, type ThemeSetting } from './theme'
+import { FUN_THEMES, setTheme, useThemeSetting, type ThemeSetting } from './theme'
 
 /** Theme radio items, meant to live inside an existing dropdown menu. */
 export function ThemeMenuItems() {
@@ -22,6 +22,16 @@ export function ThemeMenuItems() {
         <DropdownMenuRadioItem value="system">
           <Monitor /> Follow system
         </DropdownMenuRadioItem>
+        {FUN_THEMES.map((t) => (
+          <DropdownMenuRadioItem key={t.id} value={t.id}>
+            <span className="flex size-4 shrink-0 overflow-hidden rounded-full border" aria-hidden>
+              {t.swatch.map((c) => (
+                <span key={c} className="flex-1" style={{ background: c }} />
+              ))}
+            </span>
+            {t.label}
+          </DropdownMenuRadioItem>
+        ))}
       </DropdownMenuRadioGroup>
     </>
   )

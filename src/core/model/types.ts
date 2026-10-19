@@ -305,6 +305,10 @@ export interface IconRowElement extends ElementBase {
   gapMm: number
   /** Shrink icons and gaps together when the row would overflow the box. */
   fitToBox: boolean
+  /** Fill up to this many icons with greyscale copies (e.g. 3 of 5); 0 or unset = off. */
+  greyTotal?: number
+  /** Where the grey icons go: 'start' = left / top, 'end' = right / bottom (default). */
+  greyAt?: 'start' | 'end'
 }
 
 export type Element =
