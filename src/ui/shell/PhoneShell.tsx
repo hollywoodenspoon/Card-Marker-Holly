@@ -18,6 +18,7 @@ const TOOLS = [
 
 const TITLES: Record<string, string> = {
   cards: 'Cards',
+  decks: 'Decks',
   templates: 'Templates',
   layers: 'Layers',
   add: 'Add',

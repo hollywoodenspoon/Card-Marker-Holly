@@ -79,3 +79,23 @@ describe('which sheets print', () => {
     expect(job({ sheets: 'backs' }, [noBack]).sides).toEqual({ fronts: false, backs: false })
   })
 })
+
+describe('printing a deck', () => {
+  it('uses the deck counts instead of the print list (cards not in it are left out)', () => {
+    const { project, templates } = createProject()
+    const t = Object.fromEntries(templates.map((x) => [x.id, x]))
+    const cs = ['A', 'B', 'C'].map((n, i) => ({
+      ...createCard(project.id, i, templates[0].id, templates[1].id, n),
+      id: n,
+    }))
+    project.decks = [{ id: 'd', name: 'Starter', counts: { A: 2, C: 1 } }]
+    project.print = { ...project.print, copies: { B: 5 }, deckId: 'd' }
+    const job = buildPrintJob({ project, templates: t, cards: cs, assets: {}, fonts: [] })
+    expect(job.deck?.name).toBe('Starter')
+    expect(job.cards.map((c) => [c.card.id, c.copies])).toEqual([
+      ['A', 2],
+      ['C', 1],
+    ])
+    expect(job.copyCount).toBe(3)
+  })
+})

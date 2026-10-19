@@ -106,6 +106,19 @@ export function importProject(file: unknown, nameSuffix = ''): ProjectBundle {
       Object.entries(print.copies).map(([id, n]) => [remap(ids.cards, id), n]),
     )
   if (print.order) print.order = print.order.map((id) => remap(ids.cards, id))
+  if (project.decks)
+    project.decks = project.decks.map((dk) => ({
+      ...dk,
+      id: newId(),
+      counts: Object.fromEntries(
+        Object.entries(dk.counts).map(([id, n]) => [remap(ids.cards, id), n]),
+      ),
+    }))
+  // A printed deck id must follow its deck's new id.
+  if (print.deckId) {
+    const i = (f.project.decks ?? []).findIndex((dk) => dk.id === print.deckId)
+    print.deckId = i >= 0 ? project.decks![i].id : null
+  }
   const merge = project.merge
   if (merge?.frontTemplateId)
     merge.frontTemplateId = ids.templates.get(merge.frontTemplateId) ?? null

@@ -3,6 +3,7 @@ import { updateElements } from '@/core/editor/elementCommands'
 import { findSurfaceElement, ownerOf } from '@/core/editor/selectors'
 import type { ImageValue, RichText } from '@/core/model/types'
 import { countValueFor, imageValueFor, textValueFor } from './resolve'
+import { richTextFromPlain } from '@/core/text/richtext'
 
 /**
  * Where content edits go:
@@ -124,4 +125,14 @@ export function setCount(id: string, count: number, coalesce?: string) {
       contentOnly: true,
     })
   }
+}
+
+/** Set a card's text value from plain text (proofreading view). */
+export function setCardText(cardId: string, fieldName: string, text: string) {
+  commit((d) => {
+    const c = d.cards[cardId]
+    if (!c) return
+    c.fields[fieldName] = { kind: 'text', text: richTextFromPlain(text) }
+    c.updatedAt = Date.now()
+  }, `proof:${cardId}:${fieldName}`)
 }

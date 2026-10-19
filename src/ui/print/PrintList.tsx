@@ -1,18 +1,22 @@
 import { GripVertical, Minus, Plus } from 'lucide-react'
 import { useMemo } from 'react'
 import { useEditor } from '@/core/editor/editorStore'
+import { deckSize, setPrintDeck } from '@/templates/deckCommands'
 import { MAX_COPIES, setAllCopies, setCopies, setPrintOrder } from '@/core/editor/projectCommands'
 import type { Card } from '@/core/model/types'
 import { cn } from '@/lib/cn'
 import { movedOrder, printEntries } from '@/print/printList'
 import { CardThumb } from '@/ui/canvas/CardThumb'
 import { Button, IconButton } from '@/ui/components/ui/button'
+import { Label, NativeSelect } from '@/ui/components/ui/input'
 import { useReorder } from '@/ui/components/useReorder'
 
 /** Which cards print, how many of each, and in what order. */
 export function PrintList({ perSheet }: { perSheet: number }) {
   const cards = useEditor((s) => s.doc!.cards)
   const print = useEditor((s) => s.doc!.project.print)
+  const decks = useEditor((s) => s.doc!.project.decks)
+  const deck = print.deckId ? decks?.find((d) => d.id === print.deckId) : undefined
   const entries = useMemo(() => printEntries(Object.values(cards), print), [cards, print])
   const total = entries.reduce((n, e) => n + e.copies, 0)
   const sheets = perSheet > 0 ? Math.ceil(total / perSheet) : 0
@@ -21,8 +25,41 @@ export function PrintList({ perSheet }: { perSheet: number }) {
     setPrintOrder(movedOrder(entries, from, to)),
   )
 
+  const source = decks?.length ? (
+    <div className="mb-2 flex flex-col gap-1">
+      <Label htmlFor="print-source">Print</Label>
+      <NativeSelect
+        id="print-source"
+        value={deck?.id ?? ''}
+        onChange={(e) => setPrintDeck(e.target.value || null)}
+      >
+        <option value="">Cards to print (this list)</option>
+        {decks.map((d) => (
+          <option key={d.id} value={d.id}>
+            Deck: {d.name} ({deckSize(d)})
+          </option>
+        ))}
+      </NativeSelect>
+    </div>
+  ) : null
+
+  if (deck) {
+    const n = deckSize(deck)
+    const sh = perSheet > 0 ? Math.ceil(n / perSheet) : 0
+    return (
+      <section className="border-b px-4 py-3" aria-label="Cards to print">
+        {source}
+        <p className="text-xs text-muted-foreground" data-testid="print-list-summary">
+          Printing deck “{deck.name}”: {n} card{n === 1 ? '' : 's'} · {sh} sheet
+          {sh === 1 ? '' : 's'}. Change its counts in the Decks panel.
+        </p>
+      </section>
+    )
+  }
+
   return (
     <section className="border-b px-4 py-3" aria-labelledby="print-list-title">
+      {source}
       <div className="mb-1 flex items-center justify-between gap-2">
         <h3
           id="print-list-title"

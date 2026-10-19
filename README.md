@@ -75,6 +75,15 @@ The **Front / Back** switch above the canvas. Each card picks a front template a
 **Cards** tab: *+ Card* (copies the previous card's layout), search, drag to reorder, ⋯ for rename / duplicate / export image / delete.
 - **Change many cards at once**: press **Select**, tick cards (or *All*), then use the bar at the bottom: change the front or back template, show/hide a template part (eye buttons), set print copies, duplicate or delete. Each change is one undo step. Press **Done** to leave select mode.
 
+### Decks
+**Decks** tab (on phone: ☰ → *Decks*): *New deck*, then − / + per card for how many of each it holds (e.g. two starter decks). ⋯ renames, duplicates or deletes a deck. **Print deck** prints exactly those counts (Print view → *Print* picks the print list or a deck).
+
+### Gallery and proofreading
+☰ → *Gallery and proofreading*: every card in a big grid (fronts, backs or both, with a size slider, search and a deck filter); click a card to open it. The **Proofread** tab lists each card's text with the browser's spell check; plain text can be fixed right there (formatted text is edited on the card).
+
+### Tabletop Simulator
+☰ → *Export for Tabletop Simulator…*: pick a deck (or the print list) and download a zip of deck sheets (10 × 7, up to 69 cards each, max 4096 px) plus the back image — or matching back sheets when backs differ — and step-by-step import instructions.
+
 ### Find and replace
 ☰ → *Find and replace…* (Ctrl/⌘ H): searches every card's text (and, with *Also template text*, the templates' default text). Options for matching capitals and whole words. Untick places you want to keep, click a place to open that card, then **Replace all** — one undo puts everything back.
 
@@ -98,6 +107,6 @@ The **Front / Back** switch above the canvas. Each card picks a front template a
 ☰ → *Export card images…* (or a card's ⋯ → *Export as image…*): this card or all cards, front/back, with/without bleed, PNG / JPG / WebP, 150–600 dpi. Several files download as one zip.
 
 ### Phone, tablet and offline
-- Works on phones and tablets: panels become drawers and bottom sheets; pinch to zoom, two fingers to pan.
+- Works on phones and tablets: panels become drawers and bottom sheets; pinch to zoom, two fingers to pan. On phone, Templates, Decks and Fonts are in the ☰ menu.
 - **Install**: ☰ → *Install app* (when the browser offers it). After the first visit it works fully offline, including PDF export.
 - Themes: ☰ → Light, Dark or Follow system.

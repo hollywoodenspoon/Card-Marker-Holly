@@ -20,6 +20,7 @@ export const DEFAULT_PRINT: FullPrintSettings = {
   gapMm: 0,
   draftGrey: false,
   draftNoArt: false,
+  deckId: null,
   copies: {},
   order: null,
 }

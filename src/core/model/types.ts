@@ -48,6 +48,8 @@ export interface PrintSettings {
   /** Ink-saving draft print. */
   draftGrey?: boolean
   draftNoArt?: boolean
+  /** Print a deck (its counts) instead of the print list's copies. */
+  deckId?: Id | null
   /** Copies to print per card id; missing means 1, 0 leaves the card out. */
   copies?: Record<Id, number>
   /** Custom print order (card ids); null follows the Cards list. */
@@ -70,8 +72,17 @@ export interface Project {
   keywords?: Keyword[]
   /** Number of the first card for `{#}` (default 1). */
   numberStart?: number
+  /** Named decks: how many of each card (e.g. two starter decks). */
+  decks?: Deck[]
   /** Rounded-corner guide for a corner cutter (editor and print preview only, never printed). */
   cornerGuide?: { enabled: boolean; radiusMm: number }
+}
+
+/** A deck: a count per card id (missing = not in the deck). */
+export interface Deck {
+  id: Id
+  name: string
+  counts: Record<Id, number>
 }
 
 /** A word or phrase that gets its own style wherever it appears in card text. */

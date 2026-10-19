@@ -13,6 +13,10 @@ interface UiState {
   imageExport: { cardId: string | null } | null
   keywordsOpen: boolean
   findOpen: boolean
+  galleryOpen: boolean
+  ttsOpen: boolean
+  setTtsOpen: (o: boolean) => void
+  setGalleryOpen: (o: boolean) => void
   setFindOpen: (o: boolean) => void
   setKeywordsOpen: (o: boolean) => void
   setImageExport: (v: UiState['imageExport']) => void
@@ -44,6 +48,10 @@ export const useUi = create<UiState>((set) => ({
   imageExport: null,
   keywordsOpen: false,
   findOpen: false,
+  galleryOpen: false,
+  ttsOpen: false,
+  setTtsOpen: (ttsOpen) => set({ ttsOpen }),
+  setGalleryOpen: (galleryOpen) => set({ galleryOpen }),
   setFindOpen: (findOpen) => set({ findOpen }),
   setKeywordsOpen: (keywordsOpen) => set({ keywordsOpen }),
   setImageExport: (imageExport) => set({ imageExport }),
