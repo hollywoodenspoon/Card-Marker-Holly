@@ -1,5 +1,6 @@
 import { usePasteImages } from '@/ui/actions/usePaste'
 import { useShortcuts } from '@/ui/actions/useShortcuts'
+import { ExportImagesDialog } from '@/ui/export/ExportImagesDialog'
 import { PrintView } from '@/ui/print/PrintView'
 import { useUi } from '@/ui/uiStore'
 import { DesktopShell } from './DesktopShell'
@@ -18,6 +19,7 @@ export function AppShell() {
     <>
       {shell}
       {printOpen && <PrintView layout={layout} />}
+      <ExportImagesDialog />
     </>
   )
 }

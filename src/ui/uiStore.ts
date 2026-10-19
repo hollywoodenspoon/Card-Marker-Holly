@@ -9,6 +9,9 @@ interface UiState {
   phoneSheet: PanelId | 'properties' | 'add' | null
   printOpen: boolean
   setPrintOpen: (o: boolean) => void
+  /** Card image export dialog; `cardId` preselects one card. */
+  imageExport: { cardId: string | null } | null
+  setImageExport: (v: UiState['imageExport']) => void
   /** Layers section of the right pane expanded (remembered per device). */
   layersOpen: boolean
   setLeftTab: (t: PanelId) => void
@@ -34,6 +37,8 @@ export const useUi = create<UiState>((set) => ({
   phoneSheet: null,
   printOpen: false,
   setPrintOpen: (printOpen) => set({ printOpen }),
+  imageExport: null,
+  setImageExport: (imageExport) => set({ imageExport }),
   layersOpen: readLayersOpen(),
   setLeftTab: (leftTab) => set({ leftTab }),
   setLeftOpen: (leftOpen) => set({ leftOpen }),

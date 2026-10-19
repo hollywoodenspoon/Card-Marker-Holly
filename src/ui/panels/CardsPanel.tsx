@@ -1,4 +1,13 @@
-import { ChevronDown, Copy, GripVertical, MoreHorizontal, Plus, Search, Trash2 } from 'lucide-react'
+import {
+  ChevronDown,
+  Copy,
+  GripVertical,
+  Image,
+  MoreHorizontal,
+  Plus,
+  Search,
+  Trash2,
+} from 'lucide-react'
 import { useMemo, useState } from 'react'
 import {
   addCard,
@@ -22,6 +31,7 @@ import {
 import { Input } from '@/ui/components/ui/input'
 import { useReorder } from '@/ui/components/useReorder'
 import { CardThumb as LiveThumb } from '@/ui/canvas/CardThumb'
+import { useUi } from '@/ui/uiStore'
 
 export function CardsPanel({ onPicked }: { onPicked?: () => void }) {
   const cards = useEditor((s) => s.doc?.cards)
@@ -182,6 +192,9 @@ function CardRow({
           <DropdownMenuItem onSelect={() => setRenaming(true)}>Rename</DropdownMenuItem>
           <DropdownMenuItem onSelect={() => duplicateCard(card.id)}>
             <Copy /> Duplicate
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => useUi.getState().setImageExport({ cardId: card.id })}>
+            <Image /> Export as image…
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem danger onSelect={() => deleteCard(card.id)}>

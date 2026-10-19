@@ -85,7 +85,8 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
   - the filled bleed is drawn over the card, so it always follows the card edge, even where a shape already reaches into the bleed
   - only the bleed becomes an image (it is cut off); inside the cut line the card stays vector
   - the image is made with the PDF's own card renderer (on a canvas), so it matches the printed card
-- **Cut marks** (on by default, 4 mm long, 2 mm gap from the bleed edge):
+- **Cut marks** (on by default, 3.5 mm long, 2 mm gap from the bleed edge):
+  - 3.5 mm (not 4) so that 9 portrait ID cards with 3 mm bleed fit on A4 (3 × 92 mm = 276 mm, exactly the space left inside a 5 mm margin)
   - drawn on the outer edges of the grid, one mark per cut line on each side, like a standard gang-up sheet, so they never touch any card or its bleed
   - the space for them is reserved inside the printer margin
   - optional **guide lines** run through every cut line across the printable area
@@ -144,3 +145,14 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 - Importing (Home → Import) always creates a **new** project, so it never overwrites anything. Every stored item gets a new id and all references are rewritten. Element ids are kept, so per-card part toggles and card-layer positions still match.
 - Template files (Templates panel → ⋯ → Export file / Import) carry the template's images, fonts, shared styles and symbol images.
 - Files are versioned (`format`, `version`); anything else is refused with a clear message.
+
+## Card images
+
+- ☰ → **Export card images…**, or a card's ⋯ → **Export as image…** (that card is preselected).
+- Choose this card or all cards; front and/or back; without and/or with bleed; any of PNG, JPG and WebP; 150, 300 or 600 dpi. One file downloads directly; several are saved as one zip (fflate, images stored uncompressed since they already are).
+- Images are drawn by the PDF card renderer, so they match the print, including the bleed fill setting. Sizes are exact: e.g. 54 × 86 mm at 300 dpi = 638 × 1016 px; with 3 mm bleed, 708 × 1086 px.
+- PNG and JPG files carry their dpi, so they open at their real mm size. WebP has no standard dpi field.
+- JPG gets a white background (no transparency); PNG and WebP keep transparent areas.
+- Cards without a back template get no back image; the dialog lists them.
+- Files are named "01 Card name - front (bleed).png"; the number keeps cards in order and keeps duplicate names apart.
+- Browsers that can't write WebP (some Safari versions) show a clear error instead of saving a PNG under a .webp name.
