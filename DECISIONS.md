@@ -76,7 +76,10 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
   - the grid is centred on A4 inside the printer margin plus room for cut marks
   - "Best fit" picks the orientation that fits more cards (ties go to portrait); you can override it
   - cards are never rotated on the sheet
-  - all cards print once each, in list order
+  - **print list** (Print view → Cards to print): every card prints once by default, in Cards-list order
+    - a tick box leaves a card out, a copies count (0–99) prints it several times; copies fill cells next to each other
+    - dragging the list sets a print order of its own; the Cards list is not changed. Cards added later go at the end. "Use Cards list order" drops the custom order.
+    - stored in the project's print settings, so it is undoable and kept in backups
 - **Cut marks** (on by default, 4 mm long, 2 mm gap from the bleed edge):
   - drawn on the outer edges of the grid, one mark per cut line on each side, like a standard gang-up sheet, so they never touch any card or its bleed
   - the space for them is reserved inside the printer margin

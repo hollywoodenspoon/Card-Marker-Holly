@@ -74,11 +74,13 @@ export function importProject(file: unknown, nameSuffix = ''): ProjectBundle {
     templates: new Map<string, string>(),
     assets: new Map<string, string>(),
     presets: new Map<string, string>(),
+    cards: new Map<string, string>(),
   }
   const remap = (m: Map<string, string>, id: string) => m.get(id) ?? id
   for (const t of f.templates ?? []) ids.templates.set(t.id, newId())
   for (const a of f.assets ?? []) ids.assets.set(a.id, newId())
   for (const p of f.stylePresets ?? []) ids.presets.set(p.id, newId())
+  for (const c of f.cards ?? []) ids.cards.set(c.id, newId())
 
   const fixElements = (els: Element[]) =>
     walk(els, (e) => {
@@ -98,6 +100,12 @@ export function importProject(file: unknown, nameSuffix = ''): ProjectBundle {
     createdAt: now,
     updatedAt: now,
   }
+  const print = project.print
+  if (print.copies)
+    print.copies = Object.fromEntries(
+      Object.entries(print.copies).map(([id, n]) => [remap(ids.cards, id), n]),
+    )
+  if (print.order) print.order = print.order.map((id) => remap(ids.cards, id))
   const templates: Template[] = (f.templates ?? []).map((t) => {
     const copy = structuredClone(t) as Template
     copy.id = ids.templates.get(t.id)!
@@ -107,7 +115,7 @@ export function importProject(file: unknown, nameSuffix = ''): ProjectBundle {
   })
   const cards: Card[] = (f.cards ?? []).map((c) => {
     const copy = structuredClone(c) as Card
-    copy.id = newId()
+    copy.id = ids.cards.get(c.id)!
     copy.projectId = pid
     copy.frontTemplateId = c.frontTemplateId ? (ids.templates.get(c.frontTemplateId) ?? null) : null
     copy.backTemplateId = c.backTemplateId ? (ids.templates.get(c.backTemplateId) ?? null) : null

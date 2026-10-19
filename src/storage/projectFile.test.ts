@@ -60,6 +60,7 @@ function sample() {
     sticker,
     createText({ xMm: 0, yMm: 0, wMm: 10, hMm: 5 }, { stylePresetId: 'p1' }),
   )
+  b.project.print = { ...b.project.print, copies: { [card.id]: 3 }, order: [card.id] }
   return {
     doc: {
       project: b.project,
@@ -92,6 +93,8 @@ describe('project files', () => {
     const f = card.fields.Art
     expect(f.kind === 'image' && assetIds.has(f.assetId!)).toBe(true)
     expect(card.fields.Attack).toEqual({ kind: 'count', count: 4 })
+    expect(b.project.print.copies).toEqual({ [card.id]: 3 })
+    expect(b.project.print.order).toEqual([card.id])
     for (const el of [
       ...b.templates.flatMap((t) => flatten(t.elements)),
       ...flatten(card.local.front),

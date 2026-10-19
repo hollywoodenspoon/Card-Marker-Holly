@@ -33,6 +33,10 @@ export interface PrintSettings {
   /** Nudge the backs sheet to compensate printer drift, mm. */
   backOffsetXMm?: number
   backOffsetYMm?: number
+  /** Copies to print per card id; missing means 1, 0 leaves the card out. */
+  copies?: Record<Id, number>
+  /** Custom print order (card ids); null follows the Cards list. */
+  order?: Id[] | null
 }
 
 export interface Project {

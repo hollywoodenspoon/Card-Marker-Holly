@@ -1,4 +1,4 @@
-import type { CardSize, PrintSettings } from '../model/types'
+import type { CardSize, Id, PrintSettings } from '../model/types'
 import { commit } from './editorStore'
 
 /**
@@ -32,4 +32,32 @@ export function setPrintSettings(patch: Partial<PrintSettings>, coalesce?: strin
   commit((d) => {
     d.project.print = { ...d.project.print, ...patch }
   }, coalesce)
+}
+
+// ---------- print list ----------
+
+/** Most copies of one card in a print run. */
+export const MAX_COPIES = 99
+
+const clampCopies = (n: number) =>
+  Math.max(0, Math.min(MAX_COPIES, Math.round(Number.isFinite(n) ? n : 0)))
+
+export function setCopies(cardId: Id, n: number) {
+  commit((d) => {
+    d.project.print.copies = { ...d.project.print.copies, [cardId]: clampCopies(n) }
+  }, 'print:copies:' + cardId)
+}
+
+/** Same copy count for every card (e.g. 1 = all, 0 = none). */
+export function setAllCopies(cardIds: Id[], n: number) {
+  commit((d) => {
+    d.project.print.copies = Object.fromEntries(cardIds.map((id) => [id, clampCopies(n)]))
+  })
+}
+
+/** A custom print order, independent of the Cards list; null follows the list. */
+export function setPrintOrder(order: Id[] | null) {
+  commit((d) => {
+    d.project.print.order = order
+  })
 }

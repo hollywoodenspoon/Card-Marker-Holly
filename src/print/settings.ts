@@ -14,6 +14,8 @@ export const DEFAULT_PRINT: FullPrintSettings = {
   flip: 'long',
   backOffsetXMm: 0,
   backOffsetYMm: 0,
+  copies: {},
+  order: null,
 }
 
 /** Fill in defaults for settings saved by older versions. */

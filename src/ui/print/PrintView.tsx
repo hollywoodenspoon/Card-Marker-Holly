@@ -5,6 +5,7 @@ import {
   ChevronRight,
   Crosshair,
   FileDown,
+  ListChecks,
   Loader2,
   Settings2,
 } from 'lucide-react'
@@ -16,6 +17,7 @@ import { downloadBlob, safeFileName } from '@/ui/actions/download'
 import { Button, IconButton } from '@/ui/components/ui/button'
 import type { LayoutKind } from '@/ui/shell/useLayout'
 import { useUi } from '@/ui/uiStore'
+import { PrintList } from './PrintList'
 import { PrintSettingsForm } from './PrintSettingsForm'
 import { SheetPreview } from './SheetPreview'
 
@@ -41,7 +43,7 @@ export function PrintView({ layout }: { layout: LayoutKind }) {
   const [busy, setBusy] = useState<string | null>(null)
   const [warnings, setWarnings] = useState<string[]>([])
   const [error, setError] = useState<string | null>(null)
-  const [showSettings, setShowSettings] = useState(layout !== 'phone')
+  const [phonePanel, setPhonePanel] = useState<'cards' | 'settings' | null>(null)
   const phone = layout === 'phone'
   const pageCount = job.pages.length
   const current = Math.min(sheet, Math.max(0, pageCount - 1))
@@ -90,8 +92,8 @@ export function PrintView({ layout }: { layout: LayoutKind }) {
         <div className="min-w-0 flex-1">
           <div className="text-sm font-semibold">Print</div>
           <div className="truncate text-xs text-muted-foreground" data-testid="print-summary">
-            {job.sheet.perSheet} per sheet ({job.sheet.orientation}) · {job.cards.length} card
-            {job.cards.length === 1 ? '' : 's'} · {pageCount} sheet{pageCount === 1 ? '' : 's'}
+            {job.sheet.perSheet} per sheet ({job.sheet.orientation}) · {job.copyCount} card
+            {job.copyCount === 1 ? '' : 's'} · {pageCount} sheet{pageCount === 1 ? '' : 's'}
             {withBacks ? ' + backs' : ''}
           </div>
         </div>
@@ -110,6 +112,7 @@ export function PrintView({ layout }: { layout: LayoutKind }) {
       <div className={cn('flex min-h-0 flex-1', phone ? 'flex-col' : 'flex-row')}>
         {!phone && (
           <aside className="w-80 shrink-0 overflow-auto border-r bg-panel">
+            <PrintList perSheet={job.sheet.perSheet} />
             <PrintSettingsForm />
           </aside>
         )}
@@ -172,22 +175,38 @@ export function PrintView({ layout }: { layout: LayoutKind }) {
         </main>
         {phone && (
           <div className="shrink-0 border-t bg-panel">
-            <button
-              type="button"
-              aria-expanded={showSettings}
-              onClick={() => setShowSettings(!showSettings)}
-              className="flex h-12 w-full items-center gap-2 px-4 text-sm font-medium"
-            >
-              <Settings2 className="size-4" /> Print settings
-              <ChevronRight
-                className={cn('ml-auto size-4 transition-transform', showSettings && 'rotate-90')}
-              />
-            </button>
-            {showSettings && (
-              <div className="max-h-[40dvh] overflow-auto border-t">
-                <PrintSettingsForm />
+            {(
+              [
+                ['cards', 'Cards to print', ListChecks],
+                ['settings', 'Print settings', Settings2],
+              ] as const
+            ).map(([id, label, Icon]) => (
+              <div key={id} className="border-b">
+                <button
+                  type="button"
+                  aria-expanded={phonePanel === id}
+                  onClick={() => setPhonePanel(phonePanel === id ? null : id)}
+                  className="flex h-12 w-full items-center gap-2 px-4 text-sm font-medium"
+                >
+                  <Icon className="size-4" /> {label}
+                  <ChevronRight
+                    className={cn(
+                      'ml-auto size-4 transition-transform',
+                      phonePanel === id && 'rotate-90',
+                    )}
+                  />
+                </button>
+                {phonePanel === id && (
+                  <div className="max-h-[40dvh] overflow-auto border-t">
+                    {id === 'cards' ? (
+                      <PrintList perSheet={job.sheet.perSheet} />
+                    ) : (
+                      <PrintSettingsForm />
+                    )}
+                  </div>
+                )}
               </div>
-            )}
+            ))}
             <div className="flex gap-2 p-3">
               <Button variant="outline" className="flex-1" onClick={exportTest} disabled={!!busy}>
                 <Crosshair /> Test page
