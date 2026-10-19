@@ -7,6 +7,7 @@ import {
   translateM,
   type Box,
   type Matrix,
+  type SubPath,
 } from './geometry'
 import { allItems, findItem, newId, newLayer, newPath, type VPath, type VStyle } from './model'
 import { buildShape, shapeById } from './shapes'
@@ -313,6 +314,33 @@ export function setArtboard(width: number, height: number) {
     d.width = Math.max(1, Math.round(width))
     d.height = Math.max(1, Math.round(height))
   }, 'artboard')
+}
+
+/** Shrink (or grow) the artboard to the artwork's bounds plus a margin, moving everything to fit. */
+export function fitArtboardToArt(margin = 0) {
+  const { doc } = useVector.getState()
+  const visible = allItems(doc)
+    .filter((e) => e.layer.visible && !e.item.hidden)
+    .map((e) => e.item)
+  const b = selectionBounds(visible)
+  if (!b || b.w <= 0 || b.h <= 0) return
+  // Strokes reach half their width past the outline.
+  const pad =
+    margin + Math.max(0, ...visible.map((i) => (i.style.stroke ? i.style.strokeWidth / 2 : 0)))
+  const dx = pad - b.x
+  const dy = pad - b.y
+  vcommit((d) => {
+    d.width = Math.max(1, Math.ceil(b.w + 2 * pad))
+    d.height = Math.max(1, Math.ceil(b.h + 2 * pad))
+    for (const l of d.layers)
+      for (const it of l.items) {
+        it.subpaths = transform(it.subpaths as SubPath[], translateM(dx, dy))
+        if (it.shape) {
+          it.shape.box.x += dx
+          it.shape.box.y += dy
+        }
+      }
+  })
 }
 
 /** Add a preset shape in a box, on the active layer. */

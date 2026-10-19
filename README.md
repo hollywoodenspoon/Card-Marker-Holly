@@ -36,6 +36,22 @@ Assumptions and design choices are listed in [DECISIONS.md](DECISIONS.md).
 - Put images in a folder: drag an image onto the folder's name (mouse or pen), or image ⋯ → **Move to folder…** (pick a folder, *No folder*, or make a new one).
 - Folder ⋯: **Upload here**, **Rename**, **Delete folder** (the images stay, they just leave the folder).
 
+### Vector Maker (draw your own shapes and icons)
+Rail → **Vector**, ☰ → *Vector Maker*, or the pen button in the Assets header. It opens a separate drawing board (artboard in pixels, default 512 × 512) that saves into your assets.
+- **Tools** (left; bottom bar on phone), with the same keys as Illustrator:
+  - **V Selection**: click or drag a box to select, drag to move, handles to resize (Shift keeps proportions) and rotate.
+  - **A Direct selection**: drag single points and their handles; drag a box to pick points. A smooth point keeps its handles in line (hold Alt to break them).
+  - **P Pen**: click for a corner point, click and drag for a curve (Alt-drag breaks the handle, Shift snaps to 45°). Click the first point to close the shape; Enter or Esc ends an open path. Click the end of an open path to carry on drawing it. On touch, tick *Break handles* instead of Alt.
+  - **+ / −** add or delete points; **Shift C** turns a point smooth ↔ corner (drag to pull new handles).
+  - **U Shapes**: pick one of 30 presets (rectangles, polygon, star, gear, badge, heart, shield, gem, flame, sword, crown, arrows, speech bubble, frames…) and drag it out (Shift = equal sides, Alt = from the centre), or click for a 100 px one. Shapes with settings (points, sides, teeth, corner radius…) keep them in the right pane until you edit their points.
+  - **H Hand** (or hold Space) pans; Ctrl/⌘ + wheel or pinch zooms.
+- **Combine shapes** (select two or more): *Unite*, *Minus front* (the top shapes cut the bottom one), *Intersect*, *Exclude*, *Divide*. Also *Compound path* (holes where shapes overlap), *Release*, *Reverse direction*.
+- **Right pane**: fill and stroke colour (or none), stroke width, corners and line ends, opacity, exact X / Y / W / H, arrange (front / back), align (to each other, or one object to the artboard), move to layer. With nothing selected: artboard size, *Fit to artwork*, snapping (artboard, points, whole pixels).
+- **Layers**: add, rename (double-click), drag to reorder, hide, lock, opacity; each layer lists its objects (click to select, hide, lock).
+- **Save** → *Save to assets* as **SVG** (stays sharp and vector in the PDF), **PNG** (transparent, 1×/2×/4×) or **JPEG** (with a background colour), into the folder you pick. The layers are kept with the asset: Assets → ⋯ → **Edit in Vector Maker** reopens it, and saving with *Replace* updates every card using it. Uploaded SVGs can be opened the same way.
+- **Download**: SVG, PDF (vector), PNG or JPEG, for use in other programs. The folder button in the top bar opens an SVG file to edit.
+- Shortcuts: Ctrl/⌘ Z / Shift Z undo and redo, Ctrl/⌘ D duplicate, Delete, arrows nudge (Shift = 10 px), Ctrl/⌘ A select all, Ctrl/⌘ S save, Ctrl/⌘ 0 fit.
+
 ### Card size, bleed and safe area
 - Right pane → **Card** (nothing selected): pick a preset or type a size; the two buttons switch portrait / landscape. Presets:
   - **Card games:** ID card 54 × 86 mm, Poker 63.5 × 88.9, Trading card 63 × 88, **Japanese TCG** 59 × 86 (Yu-Gi-Oh!, Cardfight!! Vanguard), Bridge 57 × 89

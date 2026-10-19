@@ -28,6 +28,7 @@ import {
   arrange,
   deleteSelection,
   duplicateSelection,
+  fitArtboardToArt,
   makeCompound,
   moveToLayer,
   pathfinder,
@@ -119,6 +120,9 @@ export function PropsPanel() {
             />
           </Row>
           <div className="flex flex-wrap gap-1.5">
+            <Button size="sm" variant="outline" onClick={() => fitArtboardToArt()}>
+              Fit to artwork
+            </Button>
             {[256, 512, 1024].map((n) => (
               <Button key={n} size="sm" variant="outline" onClick={() => setArtboard(n, n)}>
                 {n} × {n}
