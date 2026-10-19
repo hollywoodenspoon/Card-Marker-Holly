@@ -88,6 +88,8 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 - **Cut marks** (on by default, 3.5 mm long, 2 mm gap from the bleed edge):
   - 3.5 mm (not 4) so that 9 portrait ID cards with 3 mm bleed fit on A4 (3 × 92 mm = 276 mm, exactly the space left inside a 5 mm margin)
   - drawn on the outer edges of the grid, one mark per cut line on each side, like a standard gang-up sheet, so they never touch any card or its bleed
+  - by default (owner's request) each mark runs from the 2 mm gap all the way to the paper edge, so a ruler lines up easily. The printer leaves out the part inside its unprintable margin. The 3.5 mm "Room for marks" is still kept free around the grid, so the card count doesn't change. Turn "Run marks to paper edge" off for short fixed-length marks.
+  - nothing is drawn around each card; corners are left square for a corner-rounding cutter
   - the space for them is reserved inside the printer margin
   - optional **guide lines** run through every cut line across the printable area
 - **Backs:**
@@ -96,6 +98,7 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
   - back contents stay upright, so the flip setting must match the printer's duplex setting
   - back offset X/Y nudges the whole backs page to correct printer drift
   - a card without a back template leaves its back cell empty
+  - **Sheets** (owner's request): "Fronts + backs" (default), "Fronts" or "Backs". Backs-only keeps the mirrored back layout, so it still lines up if fed back through the printer behind a printed fronts sheet. For a full sheet of one card back, set that card's copies in Cards to print. Older projects with backs switched off open as "Fronts".
 - **Alignment test:** a separate 2-page PDF with crosshairs at the corners and centre. The back page has the same crosshairs mirrored, plus ±3 mm scales for reading any offset.
 - **PDF output:**
   - library: jsPDF (RGB), drawn through a small `DrawTarget` interface, so another output (for example CMYK) could be added without touching the card renderer

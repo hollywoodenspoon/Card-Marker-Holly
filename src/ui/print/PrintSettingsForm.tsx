@@ -90,9 +90,16 @@ export function PrintSettingsForm() {
       <Section title="Cutting">
         <Toggle label="Cut marks" checked={p.cutMarks} onChange={(v) => set({ cutMarks: v })} />
         {p.cutMarks && (
+          <Toggle
+            label="Run marks to paper edge"
+            checked={p.markToEdge}
+            onChange={(v) => set({ markToEdge: v })}
+          />
+        )}
+        {p.cutMarks && (
           <Row>
             <NumberField
-              label="Mark length"
+              label={p.markToEdge ? 'Room for marks' : 'Mark length'}
               unit="mm"
               min={1}
               max={15}
@@ -117,17 +124,34 @@ export function PrintSettingsForm() {
           onChange={(v) => set({ guideLines: v })}
         />
         <p className="text-xs text-muted-foreground">
-          Cut marks sit outside the bleed, so they never print on a card. Guide lines run through
-          every cut line.
+          Cut marks sit outside the bleed, so they never print on a card.
+          {p.cutMarks && p.markToEdge
+            ? ' They run to the paper edge; your printer leaves out the part in its margin. “Room for marks” is the space kept free around the cards.'
+            : ''}{' '}
+          Guide lines run through every cut line.
         </p>
       </Section>
       <Section title="Backs">
-        <Toggle
-          label="Print backs"
-          checked={p.includeBacks}
-          onChange={(v) => set({ includeBacks: v })}
-        />
-        {p.includeBacks && (
+        <div className="flex flex-col gap-1">
+          <Label>Sheets</Label>
+          <Tabs
+            value={p.sheets}
+            onValueChange={(v) => set({ sheets: v as PrintSettings['sheets'] })}
+          >
+            <TabsList className="w-full">
+              <TabsTrigger value="both">Fronts + backs</TabsTrigger>
+              <TabsTrigger value="fronts">Fronts</TabsTrigger>
+              <TabsTrigger value="backs">Backs</TabsTrigger>
+            </TabsList>
+          </Tabs>
+          {p.sheets === 'backs' && (
+            <p className="text-xs text-muted-foreground">
+              Backs are laid out mirrored for your flip setting, so this sheet can also be fed back
+              through the printer behind a printed fronts sheet.
+            </p>
+          )}
+        </div>
+        {p.sheets !== 'fronts' && (
           <>
             <div className="flex flex-col gap-1">
               <Label>Double-sided flip (match your printer)</Label>

@@ -2,8 +2,9 @@ import type { BleedFill } from '@/core/model/types'
 import type { RenderNode } from '@/core/render/renderTypes'
 import { bleedRegions } from '../bleedBand'
 import type { PrintJob } from '../job'
+import type { Rect } from '../layout'
 import { CanvasTarget } from './canvasTarget'
-import type { PdfImage } from './drawTarget'
+import type { DrawTarget, PdfImage } from './drawTarget'
 import { renderCard, type PrintResources } from './renderCard'
 
 export interface BleedBandOptions {
@@ -32,9 +33,12 @@ export function bleedBands(job: PrintJob, pxPerMm: number, res: PrintResources) 
 }
 
 /**
- * The bleed around one card, filled from the card's own edge: a canvas the
- * size of the bleed box with the trim area left transparent. It is drawn over
- * the vector card, so only the bleed (which is cut off) becomes an image.
+ * The card with its bleed filled from its own edge, as one opaque canvas the
+ * size of the bleed box. It is drawn over the vector card clipped to the bleed
+ * (see `drawBand`), so only the bleed, which is cut off, becomes an image.
+ * Opaque on purpose: a transparent middle is stored as transparent black, and
+ * PDF viewers that smooth colour and transparency separately then show a dark
+ * line on the cut line.
  */
 export async function renderBleedBand(
   nodes: RenderNode[],
@@ -54,6 +58,7 @@ export async function renderBleedBand(
   band.width = W + 2 * B
   band.height = H + 2 * B
   const ctx = band.getContext('2d')!
+  ctx.drawImage(card, B, B)
   for (const r of bleedRegions(W, H, B, o.mode)) {
     ctx.save()
     ctx.translate(r.dst.x + (r.flipX ? r.dst.w : 0), r.dst.y + (r.flipY ? r.dst.h : 0))
@@ -62,6 +67,33 @@ export async function renderBleedBand(
     ctx.restore()
   }
   return band
+}
+
+/** The bleed box minus the trim, as one path: outer rectangle clockwise, trim counter-clockwise. */
+export function bleedFramePath(
+  t: Pick<DrawTarget, 'moveTo' | 'lineTo' | 'closePath'>,
+  cell: Rect,
+  trim: Rect,
+) {
+  t.moveTo(cell.x, cell.y)
+  t.lineTo(cell.x + cell.w, cell.y)
+  t.lineTo(cell.x + cell.w, cell.y + cell.h)
+  t.lineTo(cell.x, cell.y + cell.h)
+  t.closePath()
+  t.moveTo(trim.x, trim.y)
+  t.lineTo(trim.x, trim.y + trim.h)
+  t.lineTo(trim.x + trim.w, trim.y + trim.h)
+  t.lineTo(trim.x + trim.w, trim.y)
+  t.closePath()
+}
+
+/** Draw a band over a card that is already drawn, only in its bleed. */
+export async function drawBand(t: DrawTarget, img: PdfImage, cell: Rect, trim: Rect, at: Rect) {
+  t.save()
+  bleedFramePath(t, cell, trim)
+  t.clip()
+  await t.image(img, at.x, at.y, at.w, at.h)
+  t.restore()
 }
 
 /** Bleed bands for a print run, made once per card side (copies reuse them). */

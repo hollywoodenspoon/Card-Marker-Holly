@@ -50,3 +50,32 @@ describe('print job pages', () => {
     expect(job.pages).toEqual([[0, 0, 0, 0, 1, 1, 1, 1, 1], [1]])
   })
 })
+
+describe('which sheets print', () => {
+  const { project, templates } = createProject()
+  const t = Object.fromEntries(templates.map((x) => [x.id, x]))
+  const withBack = { ...createCard(project.id, 0, templates[0].id, templates[1].id, 'A'), id: 'A' }
+  const noBack = { ...createCard(project.id, 1, templates[0].id, null, 'B'), id: 'B' }
+  const job = (print: object, cs = [withBack, noBack]) =>
+    buildPrintJob({
+      project: { ...project, print: { ...project.print, ...print } },
+      templates: t,
+      cards: cs,
+      assets: {},
+      fonts: [],
+    })
+
+  it('prints fronts and backs, fronts only, or backs only', () => {
+    expect(job({}).sides).toEqual({ fronts: true, backs: true })
+    expect(job({ sheets: 'fronts' }).sides).toEqual({ fronts: true, backs: false })
+    expect(job({ sheets: 'backs' }).sides).toEqual({ fronts: false, backs: true })
+  })
+
+  it('keeps an older project that had backs switched off on fronts only', () => {
+    expect(job({ includeBacks: false }).sides).toEqual({ fronts: true, backs: false })
+  })
+
+  it('has nothing to print for backs only when no card has a back', () => {
+    expect(job({ sheets: 'backs' }, [noBack]).sides).toEqual({ fronts: false, backs: false })
+  })
+})

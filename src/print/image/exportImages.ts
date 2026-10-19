@@ -11,7 +11,7 @@ import type {
 } from '@/core/model/types'
 import type { RenderNode } from '@/core/render/renderTypes'
 import { resolveCard } from '../job'
-import { BleedBands } from '../pdf/bleedFill'
+import { BleedBands, bleedFramePath } from '../pdf/bleedFill'
 import { CanvasTarget } from '../pdf/canvasTarget'
 import { renderCard } from '../pdf/renderCard'
 import { createPrintResources } from '../pdf/resources'
@@ -81,8 +81,14 @@ export async function renderCardImage(
   await renderCard(new CanvasTarget(ctx), nodes, cell, { x: 0, y: 0, ...o.card }, res)
   ctx.restore()
   if (o.withBleed && B > 0 && bands) {
-    const p = bands.placement({ x: B, y: B, w: W, h: H })
+    const trim = { x: B, y: B, w: W, h: H }
+    const p = bands.placement(trim)
+    ctx.save()
+    ctx.beginPath()
+    bleedFramePath(ctx, { x: 0, y: 0, w: width, h: height }, trim)
+    ctx.clip()
     ctx.drawImage(await bands.canvas(nodes), p.x, p.y, p.w, p.h)
+    ctx.restore()
   }
   return canvas
 }

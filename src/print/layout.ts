@@ -149,24 +149,29 @@ export function trimLines(sheet: Sheet): { xs: number[]; ys: number[] } {
  * four sides, starting `offset` mm away from the bleed edge. They never touch
  * any card's bleed area.
  */
-export function cutMarks(sheet: Sheet, opts: { lengthMm: number; offsetMm: number }): Line[] {
+export function cutMarks(
+  sheet: Sheet,
+  opts: { lengthMm: number; offsetMm: number; toEdge?: boolean },
+): Line[] {
   if (!sheet.cells.length) return []
   const { xs, ys } = trimLines(sheet)
   const g = sheet.grid
   const o = opts.offsetMm
-  const l = opts.lengthMm
   const top = g.y
   const bottom = g.y + g.h
   const left = g.x
   const right = g.x + g.w
+  // A mark starts `offset` from the grid and runs its length, or on to the paper edge.
+  const end = (from: number, dir: -1 | 1, edge: number) =>
+    opts.toEdge ? edge : from + dir * opts.lengthMm
   const lines: Line[] = []
   for (const x of xs) {
-    lines.push({ x1: x, y1: top - o - l, x2: x, y2: top - o })
-    lines.push({ x1: x, y1: bottom + o, x2: x, y2: bottom + o + l })
+    lines.push({ x1: x, y1: end(top - o, -1, 0), x2: x, y2: top - o })
+    lines.push({ x1: x, y1: bottom + o, x2: x, y2: end(bottom + o, 1, sheet.pageH) })
   }
   for (const y of ys) {
-    lines.push({ x1: left - o - l, y1: y, x2: left - o, y2: y })
-    lines.push({ x1: right + o, y1: y, x2: right + o + l, y2: y })
+    lines.push({ x1: end(left - o, -1, 0), y1: y, x2: left - o, y2: y })
+    lines.push({ x1: right + o, y1: y, x2: end(right + o, 1, sheet.pageW), y2: y })
   }
   return lines
 }
