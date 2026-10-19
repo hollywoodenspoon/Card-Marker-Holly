@@ -22,6 +22,7 @@ export function ImageFieldNode({ el, value }: { el: ImageFieldElement; value: Im
   const img = value.assetId ? ctx.assets.getImage(value.assetId) : undefined
   const info = value.assetId ? ctx.assets.getInfo(value.assetId) : undefined
   if (!img || !info) {
+    if (ctx.print) return null // empty art boxes don't print
     return (
       <Group clipFunc={roundedClip(el.wMm, el.hMm, el.radiusMm)}>
         <Rect width={el.wMm} height={el.hMm} fill={el.placeholderColor} />

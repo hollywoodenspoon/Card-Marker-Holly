@@ -4,6 +4,7 @@ import { loadBuiltinFonts } from '@/assets/fonts'
 import { startAutosave } from '@/storage/autosave'
 import { getSetting } from '@/storage/repo'
 import { HomeScreen } from '@/ui/home/HomeScreen'
+import { PwaToast } from '@/ui/pwa/PwaToast'
 import { AppShell } from '@/ui/shell/AppShell'
 import { openProject, setAutosaveFlusher } from './session'
 
@@ -24,5 +25,10 @@ export function App() {
   }, [])
 
   if (!ready) return <div className="h-app bg-background" />
-  return hasDoc ? <AppShell /> : <HomeScreen />
+  return (
+    <>
+      {hasDoc ? <AppShell /> : <HomeScreen />}
+      <PwaToast />
+    </>
+  )
 }

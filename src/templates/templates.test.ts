@@ -16,6 +16,7 @@ import { resolveSide } from './resolve'
 import { saveCardAsTemplate } from './saveCardAsTemplate'
 import { switchTemplate } from './switchTemplate'
 import { migrateFieldRename } from './fields'
+import { detachPreset } from './stylePresets'
 import { exportTemplate, importTemplate } from './templateFile'
 
 const size = { presetId: 'id', widthMm: 86, heightMm: 54 }
@@ -232,6 +233,47 @@ describe('template files', () => {
     )
   })
 
+  it('carries shared styles and symbol images, merging by name', async () => {
+    const t = createText(
+      { xMm: 0, yMm: 0, wMm: 40, hMm: 8 },
+      { defaultText: richTextFromPlain('Deal {fire}') },
+    )
+    t.stylePresetId = 'p1'
+    const tpl = createTemplate('p', 'front', size, 'Spell', [t])
+    const flame = {
+      id: 'fl',
+      projectId: 'p',
+      name: 'flame',
+      mime: 'image/png',
+      blob: new Blob([new Uint8Array([9])]),
+      widthPx: 1,
+      heightPx: 1,
+      isVector: false,
+      tags: ['fire'],
+      createdAt: 0,
+    }
+    const presets = { p1: { id: 'p1', projectId: 'p', name: 'Rules', style: { sizePt: 7 } } }
+    const file = JSON.parse(JSON.stringify(await exportTemplate(tpl, { fl: flame }, {}, presets)))
+    expect(file.assets.map((a: { tags: string[] }) => a.tags)).toEqual([['fire']])
+    // fresh project: preset and symbol are created
+    const a = importTemplate(file, 'q', [])
+    expect(a.stylePresets).toHaveLength(1)
+    expect(a.template.elements[0].type === 'text' && a.template.elements[0].stylePresetId).toBe(
+      a.stylePresets[0].id,
+    )
+    expect(a.assets).toHaveLength(1)
+    // project that already has a "Rules" style and a {fire} symbol: both reused
+    const b = importTemplate(file, 'q', [], {
+      presets: [{ id: 'mine', projectId: 'q', name: 'Rules', style: {} }],
+      assets: [{ ...flame, id: 'myflame', projectId: 'q' }],
+    })
+    expect(b.stylePresets).toHaveLength(0)
+    expect(b.assets).toHaveLength(0)
+    expect(b.template.elements[0].type === 'text' && b.template.elements[0].stylePresetId).toBe(
+      'mine',
+    )
+  })
+
   it('rejects other files', () => {
     expect(() => importTemplate({ hello: 1 }, 'p', [])).toThrow()
   })
@@ -286,5 +328,45 @@ describe('icon rows', () => {
     ).toBe(5)
     const saved = saveCardAsTemplate(card, 'front', tpl, 'X', size)
     expect(saved.elements[0]).toMatchObject({ type: 'iconRow', defaultCount: 5, assetId: 'sword' })
+  })
+})
+
+describe('style presets', () => {
+  it('apply live over the base style, and per-character runs still win', () => {
+    const t = createText({ xMm: 0, yMm: 0, wMm: 40, hMm: 8 }, { name: 'Title' })
+    t.stylePresetId = 'p1'
+    t.defaultText = {
+      paragraphs: [{ runs: [{ text: 'A' }, { text: 'B', style: { color: '#00ff00' } }] }],
+    }
+    const tpl = createTemplate('p', 'front', size, 'T', [t])
+    const card = createCard('p', 1, tpl.id, null)
+    const presets = {
+      p1: {
+        id: 'p1',
+        projectId: 'p',
+        name: 'Heading',
+        style: { fontFamily: 'Alegreya SC', color: '#ff0000' },
+      },
+    }
+    const [n] = resolveSide(tpl, card, 'front', 'card', presets)
+    expect(n.element.type === 'text' && n.element.baseStyle).toMatchObject({
+      fontFamily: 'Alegreya SC',
+      color: '#ff0000',
+    })
+    expect(n.text!.text.paragraphs[0].runs[1].style).toEqual({ color: '#00ff00' })
+    // a missing preset falls back to the base style
+    const [m] = resolveSide(tpl, card, 'front', 'card', {})
+    expect(m.element.type === 'text' && m.element.baseStyle.fontFamily).toBe('Inter')
+  })
+
+  it('deleting a preset bakes its values into linked texts', () => {
+    const t = createText({ xMm: 0, yMm: 0, wMm: 40, hMm: 8 })
+    t.stylePresetId = 'p1'
+    const other = createText({ xMm: 0, yMm: 0, wMm: 40, hMm: 8 })
+    const els = [t, other]
+    detachPreset(els, { id: 'p1', projectId: 'p', name: 'H', style: { sizePt: 20, bold: true } })
+    expect(t.stylePresetId).toBeUndefined()
+    expect(t.baseStyle).toMatchObject({ sizePt: 20, bold: true })
+    expect(other.baseStyle.sizePt).toBe(10)
   })
 })

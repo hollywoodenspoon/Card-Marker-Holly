@@ -4,7 +4,10 @@ import type { Measurer } from './measure'
 import { resolveStyle } from './richtext'
 
 export interface Fragment {
+  /** For symbols, the original `{name}` token. */
   text: string
+  /** Inline symbol: draw this asset instead of the text. */
+  symbolAssetId?: string
   style: TextStyle
   /** Font size actually used, mm (after auto-shrink). */
   sizeMm: number
@@ -45,21 +48,49 @@ export interface LayoutInput {
   width: number
   height: number
   autoShrink?: { enabled: boolean; minPt: number }
+  /** Inline symbols: `{name}` → an asset drawn 1 em high. Unknown names stay text. */
+  symbols?: SymbolLookup
 }
+
+export type SymbolLookup = (name: string) => { assetId: string; aspect: number } | undefined
+
+/** Symbols sit 1 em high with their bottom slightly below the baseline. */
+export const SYMBOL_TOP_EM = 0.82
 
 interface Piece {
   text: string
   style: TextStyle
   space: boolean
+  symbol?: { assetId: string; aspect: number }
 }
 
-/** Split runs into words and whitespace, keeping styles. */
-function pieces(runs: { text: string; style: TextStyle }[]): Piece[] {
+const SYMBOL_RE = /(\{[A-Za-z0-9_-]+\})/
+
+/** Split runs into words, whitespace and inline symbols, keeping styles. */
+function pieces(runs: { text: string; style: TextStyle }[], symbols?: SymbolLookup): Piece[] {
   const out: Piece[] = []
   for (const r of runs) {
-    for (const m of r.text.matchAll(/\s+|[^\s]+/g)) {
-      out.push({ text: m[0], style: r.style, space: /^\s+$/.test(m[0]) })
+    for (const part of r.text.split(SYMBOL_RE)) {
+      if (!part) continue
+      const sym = SYMBOL_RE.test(part) ? symbols?.(part.slice(1, -1)) : undefined
+      if (sym) {
+        out.push({ text: part, style: r.style, space: false, symbol: sym })
+        continue
+      }
+      for (const m of part.matchAll(/\s+|[^\s]+/g))
+        out.push({ text: m[0], style: r.style, space: /^\s+$/.test(m[0]) })
     }
+  }
+  return out
+}
+
+/** Consecutive non-space pieces form one word (they never break apart). */
+function words(ps: Piece[]): Piece[][] {
+  const out: Piece[][] = []
+  for (const p of ps) {
+    const last = out[out.length - 1]
+    if (!p.space && last && !last[0].space) last.push(p)
+    else out.push([p])
   }
   return out
 }
@@ -70,6 +101,8 @@ function layoutOnce(input: LayoutInput, m: Measurer, scale: number) {
     const size = sizeOf(s)
     return m.width(text, s, size) + s.letterSpacingEm * size * [...text].length
   }
+  const pieceWidth = (p: Piece) =>
+    p.symbol ? sizeOf(p.style) * p.symbol.aspect : measure(p.text, p.style)
   const lines: Line[] = []
   let y = 0
   let tooWide = false
@@ -81,7 +114,7 @@ function layoutOnce(input: LayoutInput, m: Measurer, scale: number) {
       text: r.text,
       style: resolveStyle(input.baseStyle, r.style),
     }))
-    const ps = pieces(runs)
+    const ws = words(pieces(runs, input.symbols))
     // Empty paragraph still takes one line at the base (or first run) size.
     const emptyStyle = runs[0]?.style ?? input.baseStyle
 
@@ -98,48 +131,55 @@ function layoutOnce(input: LayoutInput, m: Measurer, scale: number) {
       currentW = 0
     }
 
-    for (const p of ps) {
-      const w = measure(p.text, p.style)
-      const size = sizeOf(p.style)
-      if (p.space) {
+    const frag = (p: Piece): Frag => ({
+      text: p.text,
+      style: p.style,
+      sizeMm: sizeOf(p.style),
+      width: pieceWidth(p),
+      ...(p.symbol ? { symbolAssetId: p.symbol.assetId } : {}),
+    })
+
+    for (const word of ws) {
+      if (word[0].space) {
         if (!current.length) continue // no leading spaces after a wrap
-        current.push({ text: p.text, style: p.style, sizeMm: size, width: w })
-        currentW += w
+        const f = frag(word[0])
+        current.push(f)
+        currentW += f.width
         continue
       }
-      if (currentW + w <= input.width + 1e-6 || !current.length) {
-        if (w > input.width + 1e-6) {
-          // A single word wider than the box: break it by characters.
-          tooWide = true
-          let chunk = ''
-          for (const ch of p.text) {
-            const cw = measure(chunk + ch, p.style)
-            if (currentW + cw > input.width + 1e-6 && (chunk || current.length)) {
-              if (chunk)
-                current.push({
-                  text: chunk,
-                  style: p.style,
-                  sizeMm: size,
-                  width: measure(chunk, p.style),
-                })
-              pushLine()
-              chunk = ch
-            } else chunk += ch
-          }
-          if (chunk) {
-            const cw = measure(chunk, p.style)
-            current.push({ text: chunk, style: p.style, sizeMm: size, width: cw })
-            currentW += cw
-          }
-          continue
+      const frags = word.map(frag)
+      const w = frags.reduce((a, f) => a + f.width, 0)
+      if (currentW + w > input.width + 1e-6 && current.length) pushLine()
+      if (w > input.width + 1e-6 && word.length === 1 && !word[0].symbol) {
+        // A single word wider than the box: break it by characters.
+        const p = word[0]
+        const size = sizeOf(p.style)
+        tooWide = true
+        let chunk = ''
+        for (const ch of p.text) {
+          const cw = measure(chunk + ch, p.style)
+          if (currentW + cw > input.width + 1e-6 && (chunk || current.length)) {
+            if (chunk)
+              current.push({
+                text: chunk,
+                style: p.style,
+                sizeMm: size,
+                width: measure(chunk, p.style),
+              })
+            pushLine()
+            chunk = ch
+          } else chunk += ch
         }
-        current.push({ text: p.text, style: p.style, sizeMm: size, width: w })
-        currentW += w
-      } else {
-        pushLine()
-        current.push({ text: p.text, style: p.style, sizeMm: size, width: w })
-        currentW = w
+        if (chunk) {
+          const cw = measure(chunk, p.style)
+          current.push({ text: chunk, style: p.style, sizeMm: size, width: cw })
+          currentW += cw
+        }
+        continue
       }
+      if (w > input.width + 1e-6) tooWide = true
+      current.push(...frags)
+      currentW += w
     }
     pushLine()
 

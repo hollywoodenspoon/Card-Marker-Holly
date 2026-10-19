@@ -30,6 +30,14 @@ export class BlobAssetResolver implements AssetResolver {
     return a ? { widthPx: a.widthPx, heightPx: a.heightPx, isVector: a.isVector } : undefined
   }
 
+  findSymbol(name: string) {
+    const n = name.toLowerCase()
+    for (const a of Object.values(this.assets))
+      if (a.tags.some((t) => t.toLowerCase() === n))
+        return { assetId: a.id, aspect: a.heightPx ? a.widthPx / a.heightPx : 1 }
+    return undefined
+  }
+
   getUrl(id: string): string | undefined {
     const a = this.assets[id]
     if (!a) return undefined

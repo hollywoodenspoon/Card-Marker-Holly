@@ -13,9 +13,33 @@ export interface CardSize {
   heightMm: number
 }
 
+export type PrintOrientation = 'auto' | 'portrait' | 'landscape'
+export type FlipEdge = 'long' | 'short'
+/** How the bleed is filled when printing: from the card edge, or only what was drawn there. */
+export type BleedFill = 'mirror' | 'stretch' | 'off'
+
+/** Stored per project. Older projects may lack fields; see print/settings.ts. */
 export interface PrintSettings {
   paper: 'A4'
+  /** Unprintable border the printer needs, mm. */
   marginMm: number
+  orientation?: PrintOrientation
+  cutMarks?: boolean
+  markLengthMm?: number
+  /** Gap between the bleed edge and the start of a cut mark, mm. */
+  markOffsetMm?: number
+  guideLines?: boolean
+  includeBacks?: boolean
+  /** Must match the printer's duplex setting. */
+  flip?: FlipEdge
+  /** Nudge the backs sheet to compensate printer drift, mm. */
+  backOffsetXMm?: number
+  backOffsetYMm?: number
+  bleedFill?: BleedFill
+  /** Copies to print per card id; missing means 1, 0 leaves the card out. */
+  copies?: Record<Id, number>
+  /** Custom print order (card ids); null follows the Cards list. */
+  order?: Id[] | null
 }
 
 export interface Project {
@@ -114,6 +138,8 @@ export interface TextElement extends ElementBase {
   type: 'text'
   /** Card values are looked up by this name. */
   fieldName: string
+  /** Linked shared style: its values override `baseStyle` (see templates/resolve). */
+  stylePresetId?: Id
   defaultText: RichText
   baseStyle: TextStyle
   align: TextAlign

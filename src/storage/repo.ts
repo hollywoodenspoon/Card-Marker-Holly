@@ -2,6 +2,7 @@ import type { DocState, LibraryState } from '@/core/editor/editorStore'
 import type { NewProjectBundle } from '@/core/model/factories'
 import type { Project } from '@/core/model/types'
 import { db, type CardMakerDB } from './db'
+import type { ProjectBundle } from './projectFile'
 
 const byId = <T extends { id: string }>(rows: T[]) =>
   Object.fromEntries(rows.map((r) => [r.id, r])) as Record<string, T>
@@ -18,20 +19,37 @@ export async function saveNewProject(b: NewProjectBundle, d: CardMakerDB = db) {
   })
 }
 
+/** Store a complete project (e.g. imported from a backup file). */
+export async function saveProjectBundle(b: ProjectBundle, d: CardMakerDB = db) {
+  await d.transaction(
+    'rw',
+    [d.projects, d.templates, d.cards, d.assets, d.fonts, d.stylePresets],
+    async () => {
+      await d.projects.put(b.project)
+      await d.templates.bulkPut(b.templates)
+      await d.cards.bulkPut(b.cards)
+      await d.stylePresets.bulkPut(b.stylePresets)
+      await d.assets.bulkPut(b.assets)
+      await d.fonts.bulkPut(b.fonts)
+    },
+  )
+}
+
 export async function loadProject(
   id: string,
   d: CardMakerDB = db,
 ): Promise<{ doc: DocState; library: LibraryState } | null> {
   const project = await d.projects.get(id)
   if (!project) return null
-  const [templates, cards, assets, fonts] = await Promise.all([
+  const [templates, cards, assets, fonts, presets] = await Promise.all([
     d.templates.where('projectId').equals(id).toArray(),
     d.cards.where('projectId').equals(id).toArray(),
     d.assets.where('projectId').equals(id).toArray(),
     d.fonts.where('projectId').equals(id).toArray(),
+    d.stylePresets.where('projectId').equals(id).toArray(),
   ])
   return {
-    doc: { project, templates: byId(templates), cards: byId(cards) },
+    doc: { project, templates: byId(templates), cards: byId(cards), stylePresets: byId(presets) },
     library: { assets: byId(assets), fonts: byId(fonts) },
   }
 }

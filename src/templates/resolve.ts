@@ -1,6 +1,15 @@
 import { mergeLayers } from '@/core/model/layering'
 import type { RenderNode } from '@/core/render/renderTypes'
-import type { Card, Element, ImageValue, Side, Template, TextValue } from '@/core/model/types'
+import type {
+  Card,
+  Element,
+  ImageValue,
+  Side,
+  StylePreset,
+  Template,
+  TextElement,
+  TextValue,
+} from '@/core/model/types'
 
 export type ResolveMode = 'card' | 'template'
 
@@ -33,11 +42,20 @@ export function imageValueFor(el: Element & { type: 'imageField' }, card?: Card)
   }
 }
 
+export type Presets = Record<string, StylePreset> | undefined
+
+/** A text element with its linked style preset applied to the base style. */
+export function effectiveText(el: TextElement, presets: Presets): TextElement {
+  const p = el.stylePresetId ? presets?.[el.stylePresetId] : undefined
+  return p ? { ...el, baseStyle: { ...el.baseStyle, ...p.style } } : el
+}
+
 function resolveElements(
   els: Element[],
   source: 'template' | 'card',
   card: Card | undefined,
   mode: ResolveMode,
+  presets: Presets,
 ): RenderNode[] {
   const out: RenderNode[] = []
   for (const el of els) {
@@ -45,11 +63,16 @@ function resolveElements(
     const visible =
       source === 'template' && mode === 'card' ? isVisibleOnCard(el, card) : el.defaultVisible
     if (!visible && mode === 'card') continue
-    const node: RenderNode = { element: el, source, dimmed: !visible }
+    const node: RenderNode = {
+      element: el.type === 'text' ? effectiveText(el, presets) : el,
+      source,
+      dimmed: !visible,
+    }
     if (el.type === 'text') node.text = textValueFor(el, card)
     else if (el.type === 'imageField') node.image = imageValueFor(el, card)
     else if (el.type === 'iconRow') node.count = countValueFor(el, card)
-    else if (el.type === 'group') node.children = resolveElements(el.children, source, card, mode)
+    else if (el.type === 'group')
+      node.children = resolveElements(el.children, source, card, mode, presets)
     out.push(node)
   }
   return out
@@ -69,11 +92,12 @@ export function resolveSide(
   card: Card | undefined,
   side: Side,
   mode: ResolveMode,
+  presets?: Presets,
 ): RenderNode[] {
   if (mode !== 'card' || !card)
-    return template ? resolveElements(template.elements, 'template', card, mode) : []
+    return template ? resolveElements(template.elements, 'template', card, mode, presets) : []
   // Card elements interleave with template parts (each sits below its anchor, or on top).
   return mergeLayers(template?.elements ?? [], card.local[side]).flatMap((l) =>
-    resolveElements([l.el], l.source, card, mode),
+    resolveElements([l.el], l.source, card, mode, presets),
   )
 }

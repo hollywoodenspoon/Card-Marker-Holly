@@ -9,6 +9,7 @@ import {
   Bold,
   Italic,
   Pencil,
+  Plus,
   Underline,
 } from 'lucide-react'
 import { useMemo } from 'react'
@@ -18,6 +19,15 @@ import { updateElement } from '@/core/editor/elementCommands'
 import type { TextElement, TextStyle } from '@/core/model/types'
 import { clearRunStyleKeys } from '@/core/text/richtext'
 import { hasCardValue, resetFieldValue } from '@/templates/fieldCommands'
+import { effectiveText } from '@/templates/resolve'
+import {
+  createStyleFromText,
+  deleteStyle,
+  linkStyle,
+  presetUsage,
+  renameStyle,
+  updateStyle,
+} from '@/templates/stylePresets'
 import { Button, IconButton } from '@/ui/components/ui/button'
 import { Label, NativeSelect } from '@/ui/components/ui/input'
 import { Switch } from '@/ui/components/ui/switch'
@@ -34,12 +44,19 @@ export function TextSection({ el, editable }: { el: TextElement; editable: boole
   const set = (fn: (e: TextElement) => void, key: string) =>
     updateElement(el.id, (d) => fn(d as TextElement), `${key}:${el.id}`)
   /** Change the base style; runs in the default text that set this key follow it again. */
+  const presets = useEditor((s) => s.doc?.stylePresets)
+  const preset = el.stylePresetId ? presets?.[el.stylePresetId] : undefined
+  /** Linked texts edit the shared style; others their own base style. */
   const setStyle = <K extends keyof TextStyle>(key: K, v: TextStyle[K]) =>
+    preset
+      ? updateStyle(preset.id, { [key]: v } as Partial<TextStyle>, `preset-${key}:${preset.id}`)
+      : setOwnStyle(key, v)
+  const setOwnStyle = <K extends keyof TextStyle>(key: K, v: TextStyle[K]) =>
     set((e) => {
       e.baseStyle[key] = v
       e.defaultText = clearRunStyleKeys(e.defaultText, [key])
     }, 'style-' + key)
-  const s = el.baseStyle
+  const s = effectiveText(el, presets).baseStyle
 
   return (
     <>
@@ -51,13 +68,15 @@ export function TextSection({ el, editable }: { el: TextElement; editable: boole
           Double-click (or double-tap) the text on the card to edit. Select words to style them
           individually.
         </p>
+        <SymbolHint />
         {mode === 'card' && !editable && cardHasValue && (
           <Button variant="ghost" size="sm" onClick={() => resetFieldValue(el.id)}>
             Use template default text
           </Button>
         )}
       </Section>
-      <Section title="Default style">
+      <StylePicker el={el} editable={editable} />
+      <Section title={preset ? `Style · ${preset.name}` : 'Default style'}>
         {!editable && (
           <p className="text-xs text-muted-foreground">
             Edit the template to change the layout and default style.
@@ -232,5 +251,116 @@ export function TextSection({ el, editable }: { el: TextElement; editable: boole
         </p>
       </Section>
     </>
+  )
+}
+
+function SymbolHint() {
+  const assets = useEditor((s) => s.library.assets)
+  const names = useMemo(
+    () =>
+      Object.values(assets)
+        .map((a) => a.tags[0])
+        .filter(Boolean)
+        .sort(),
+    [assets],
+  )
+  if (!names.length) return null
+  return (
+    <p className="text-xs text-muted-foreground">
+      Symbols:{' '}
+      {names.map((n) => (
+        <code key={n} className="mr-1 rounded bg-muted px-1 font-mono">{`{${n}}`}</code>
+      ))}
+    </p>
+  )
+}
+
+/** Shared styles: link this text to one, create one from it, rename, detach or delete. */
+function StylePicker({ el, editable }: { el: TextElement; editable: boolean }) {
+  const presets = useEditor((s) => s.doc?.stylePresets)
+  const list = useMemo(
+    () => Object.values(presets ?? {}).sort((a, b) => a.name.localeCompare(b.name)),
+    [presets],
+  )
+  const preset = el.stylePresetId ? presets?.[el.stylePresetId] : undefined
+  const uses = useEditor(() => (preset ? presetUsage(preset.id) : 0))
+  return (
+    <Section title="Shared style">
+      <div className="flex gap-1.5">
+        <NativeSelect
+          aria-label="Shared style"
+          value={preset?.id ?? ''}
+          disabled={!editable}
+          onChange={(e) => linkStyle(el.id, e.target.value || null)}
+        >
+          <option value="">None (own style)</option>
+          {list.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.name}
+            </option>
+          ))}
+        </NativeSelect>
+        <IconButton
+          label="New style from this text"
+          variant="outline"
+          size="icon-sm"
+          disabled={!editable}
+          onClick={() => {
+            const name = prompt(
+              'Name for the new style',
+              preset ? `${preset.name} copy` : 'Heading',
+            )?.trim()
+            if (name) createStyleFromText(el.id, name)
+          }}
+        >
+          <Plus />
+        </IconButton>
+      </div>
+      {preset && (
+        <>
+          <p className="text-xs text-muted-foreground">
+            Changes below update every text using “{preset.name}” ({uses} text
+            {uses === 1 ? '' : 's'}).
+          </p>
+          <div className="flex flex-wrap gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              disabled={!editable}
+              onClick={() => {
+                const name = prompt('Rename style', preset.name)?.trim()
+                if (name) renameStyle(preset.id, name)
+              }}
+            >
+              Rename
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              disabled={!editable}
+              onClick={() => linkStyle(el.id, null)}
+            >
+              Detach
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-danger"
+              disabled={!editable}
+              onClick={() => {
+                if (
+                  confirm(
+                    `Delete the style “${preset.name}”? Texts using it keep their current look.`,
+                  )
+                )
+                  deleteStyle(preset.id)
+              }}
+            >
+              Delete
+            </Button>
+          </div>
+        </>
+      )}
+    </Section>
   )
 }

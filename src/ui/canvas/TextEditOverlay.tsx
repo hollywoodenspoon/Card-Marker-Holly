@@ -3,6 +3,8 @@ import { lazy, Suspense } from 'react'
 import { setView, useEditor } from '@/core/editor/editorStore'
 import { findSurfaceElement } from '@/core/editor/selectors'
 import type { TextElement } from '@/core/model/types'
+import { assetResolver } from '@/assets/assetResolver'
+import { effectiveText } from '@/templates/resolve'
 import { useTextLayout } from '@/core/render/textDraw'
 import { pxPerMm, useViewport } from '@/core/render/viewport'
 import { CSS_PX_PER_MM } from '@/core/units/units'
@@ -21,10 +23,11 @@ const RichTextEditor = lazy(() =>
 export function TextEditOverlay({ phone }: { phone: boolean }) {
   const id = useEditor((s) => s.view.editingTextId)
   const el = useEditor((s) => (id ? findSurfaceElement(s, id) : undefined))
+  const presets = useEditor((s) => s.doc?.stylePresets)
   if (!id || el?.type !== 'text') return null
   return (
     <Suspense fallback={null}>
-      <Overlay key={id} el={el} phone={phone} />
+      <Overlay key={id} el={effectiveText(el, presets)} phone={phone} />
     </Suspense>
   )
 }
@@ -63,7 +66,12 @@ function Overlay({ el, phone }: { el: TextElement; phone: boolean }) {
   const { zoom, panX, panY } = useViewport()
   const text = useTextValue(el.id)
   const version = useRenderVersion()
-  const layout = useTextLayout(el, { kind: 'text', text: text ?? { paragraphs: [] } }, version)
+  const layout = useTextLayout(
+    el,
+    { kind: 'text', text: text ?? { paragraphs: [] } },
+    version,
+    (n) => assetResolver.findSymbol(n),
+  )
   const k = pxPerMm(zoom)
   const stop = (e: React.PointerEvent) => e.stopPropagation()
 

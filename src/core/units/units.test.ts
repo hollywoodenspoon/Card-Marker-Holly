@@ -17,8 +17,8 @@ describe('units', () => {
 })
 
 describe('size presets', () => {
-  it('defaults to the 86 × 54 ID card', () => {
-    expect(presetSize('id')).toEqual({ presetId: 'id', widthMm: 86, heightMm: 54 })
+  it('defaults to the portrait 54 × 86 ID card', () => {
+    expect(presetSize('id')).toEqual({ presetId: 'id', widthMm: 54, heightMm: 86 })
   })
 
   it('swaps dimensions for orientation', () => {
@@ -29,6 +29,7 @@ describe('size presets', () => {
 
   it('matches presets in either orientation', () => {
     expect(matchPreset(54, 86)).toBe('id')
+    expect(matchPreset(86, 54)).toBe('id')
     expect(matchPreset(63, 88)).toBe('tcg')
     expect(matchPreset(70, 120)).toBe('custom')
   })

@@ -1,4 +1,4 @@
-import { Menu, MoreHorizontal, Pencil, Plus, Trash2 } from 'lucide-react'
+import { Download, Menu, MoreHorizontal, Pencil, Plus, Trash2, Upload } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { createAndOpenProject, openProject } from '@/app/session'
 import type { Project } from '@/core/model/types'
@@ -14,6 +14,8 @@ import {
   DropdownMenuTrigger,
 } from '@/ui/components/ui/dropdown'
 import { Input, Label, NativeSelect } from '@/ui/components/ui/input'
+import { exportStoredProject, importProjectFromFile } from '@/ui/actions/projectFileActions'
+import { InstallMenuItem } from '@/ui/pwa/InstallMenuItem'
 import { ThemeMenuItems } from '@/ui/theme/ThemeMenu'
 
 export function HomeScreen() {
@@ -22,7 +24,17 @@ export function HomeScreen() {
   const [renaming, setRenaming] = useState<Project | null>(null)
   const [deleting, setDeleting] = useState<Project | null>(null)
 
+  const [importError, setImportError] = useState<string | null>(null)
   const refresh = () => listProjects().then(setProjects)
+  const doImport = async () => {
+    setImportError(null)
+    try {
+      const id = await importProjectFromFile()
+      if (id) await openProject(id)
+    } catch (e) {
+      setImportError(e instanceof Error ? e.message : String(e))
+    }
+  }
   useEffect(() => {
     void refresh()
   }, [])
@@ -40,12 +52,21 @@ export function HomeScreen() {
             </IconButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            <InstallMenuItem />
             <ThemeMenuItems />
           </DropdownMenuContent>
         </DropdownMenu>
       </header>
 
       <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-8">
+        {importError && (
+          <p
+            role="alert"
+            className="mb-4 rounded-lg border border-danger/40 bg-danger/10 p-3 text-sm text-danger"
+          >
+            Import failed: {importError}
+          </p>
+        )}
         {projects && projects.length === 0 ? (
           <div className="mx-auto mt-10 flex max-w-sm flex-col items-center gap-4 text-center">
             <div className="grid size-16 place-items-center rounded-2xl bg-accent-soft">
@@ -53,7 +74,7 @@ export function HomeScreen() {
             </div>
             <h1 className="text-xl font-semibold">Design your first card</h1>
             <p className="text-sm text-muted-foreground">
-              Start with an 86 × 54 mm card and a ready-made layout. Fill in a name, drop in some
+              Start with a 54 × 86 mm card and a ready-made layout. Fill in a name, drop in some
               art, and you're done. Everything is saved in this browser.
             </p>
             <Button
@@ -65,14 +86,22 @@ export function HomeScreen() {
             <Button variant="ghost" onClick={() => setCreating(true)}>
               Choose a different card size…
             </Button>
+            <Button variant="ghost" onClick={doImport}>
+              <Upload /> Import a project file
+            </Button>
           </div>
         ) : (
           <>
             <div className="mb-5 flex items-center justify-between gap-3">
               <h1 className="text-lg font-semibold">Projects</h1>
-              <Button onClick={() => setCreating(true)}>
-                <Plus /> New project
-              </Button>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={doImport}>
+                  <Upload /> Import
+                </Button>
+                <Button onClick={() => setCreating(true)}>
+                  <Plus /> New project
+                </Button>
+              </div>
             </div>
             <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {projects?.map((p) => (
@@ -100,6 +129,9 @@ export function HomeScreen() {
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onSelect={() => setRenaming(p)}>
                         <Pencil /> Rename
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => void exportStoredProject(p.id)}>
+                        <Download /> Export backup file
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem danger onSelect={() => setDeleting(p)}>

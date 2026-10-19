@@ -25,10 +25,16 @@ export function CanvasHeader({ phone }: { phone: boolean }) {
       </div>
       {mode === 'template' && template && (
         <div className="pointer-events-auto flex max-w-full items-center gap-2 rounded-full border border-accent/40 bg-panel/95 py-1 pr-1 pl-3 text-xs shadow-md backdrop-blur">
-          <span className="truncate">
-            Editing template <b>{template.name}</b> ({template.side}) · {uses} card
-            {uses === 1 ? '' : 's'}
-          </span>
+          {phone ? (
+            <span className="truncate">
+              Template <b>{template.name}</b> · {uses} card{uses === 1 ? '' : 's'}
+            </span>
+          ) : (
+            <span className="truncate">
+              Editing template <b>{template.name}</b> ({template.side}) · {uses} card
+              {uses === 1 ? '' : 's'}
+            </span>
+          )}
           <Button
             size="sm"
             className="h-9 rounded-full md:h-7"
@@ -36,7 +42,7 @@ export function CanvasHeader({ phone }: { phone: boolean }) {
               setView({ mode: 'card', selection: [], editingTextId: null, cropId: null })
             }
           >
-            <ArrowLeft /> Back to card
+            <ArrowLeft /> {phone ? 'Done' : 'Back to card'}
           </Button>
         </div>
       )}

@@ -1,7 +1,7 @@
-import { Home, Menu, PanelLeft, PanelRight, Redo2, Undo2 } from 'lucide-react'
+import { Download, Home, Menu, PanelLeft, PanelRight, Printer, Redo2, Undo2 } from 'lucide-react'
 import { goHome } from '@/app/session'
 import { redo, undo, useEditor } from '@/core/editor/editorStore'
-import { IconButton } from '@/ui/components/ui/button'
+import { Button, IconButton } from '@/ui/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,6 +10,8 @@ import {
   DropdownMenuTrigger,
 } from '@/ui/components/ui/dropdown'
 import type { LayoutKind } from '@/ui/shell/useLayout'
+import { exportOpenProject } from '@/ui/actions/projectFileActions'
+import { InstallMenuItem } from '@/ui/pwa/InstallMenuItem'
 import { ThemeMenuItems } from '@/ui/theme/ThemeMenu'
 import { useUi } from '@/ui/uiStore'
 import { AddMenu } from './AddMenu'
@@ -38,6 +40,9 @@ export function TopBar({ layout }: { layout: LayoutKind }) {
           <div className="flex items-center gap-2 px-2">
             <ModeSwitch />
             <AddMenu />
+            <Button size="sm" variant="outline" onClick={() => useUi.getState().setPrintOpen(true)}>
+              <Printer /> Print
+            </Button>
           </div>
         )}
         <div className="flex-1" />
@@ -66,9 +71,16 @@ function AppMenu() {
         </IconButton>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start">
+        <DropdownMenuItem onSelect={() => useUi.getState().setPrintOpen(true)}>
+          <Printer /> Print / export PDF
+        </DropdownMenuItem>
         <DropdownMenuItem onSelect={() => void goHome()}>
           <Home /> All projects
         </DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => void exportOpenProject()}>
+          <Download /> Export backup file
+        </DropdownMenuItem>
+        <InstallMenuItem />
         <DropdownMenuSeparator />
         <ThemeMenuItems />
       </DropdownMenuContent>

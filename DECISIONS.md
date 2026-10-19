@@ -25,7 +25,8 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 - Two lock flags: `toggleLocked` (can't be hidden per card, from the spec) and `editLocked` (the layers panel lock: can't be selected or moved on the canvas).
 - **Groups** have no transform of their own. Children are stored in card coordinates. A group is a unit for naming, visibility and selection. Groups can be moved and resized (children scale) but not rotated. On the canvas, clicking a child of an already selected group selects that child. Children can also be selected from the layers panel.
 - Thumbnails are **rendered live** from the current template and card (lazily, when scrolled into view), not stored as blobs. They are always up to date with template edits. The `thumbnail` fields in the schema are unused for now.
-- New projects start with an 86 × 54 mm "Basic front" (background, art field, title, rules) and a "Basic back", so a first card can be made in under a minute.
+- **New projects start portrait** (owner's request): the ID card preset is 54 × 86 mm, and the size panel's Portrait/Landscape toggle turns it to 86 × 54. Existing projects keep their size.
+- New projects start with a "Basic front" (background, art field, title, rules) and a "Basic back", so a first card can be made in under a minute.
 - "New card" copies the previous card's templates and part toggles ("use previous card's layout"). The dropdown has a variant with default toggles.
 - Deleting a template moves its cards to another template of the same side. Their field values are kept.
 - Deleting an image that is in use asks for confirmation. Places that used it show an empty box.
@@ -67,3 +68,79 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 - Breakpoints: phone under 768 px, tablet 768–1199 px, desktop 1200 px and up.
 - Phone text editing uses a panel at the top of the canvas instead of a bottom sheet, so the on-screen keyboard doesn't cover it. The card below updates live.
 - The theme setting is saved in `localStorage` and applied before first paint to avoid a flash. It is a device preference, not project data.
+
+## Printing (Shot 2)
+
+- **Sheet layout** (`src/print/layout.ts`, pure and unit-tested):
+  - cell = card + 2 × bleed; cells touch, with no gap between them
+  - the grid is centred on A4 inside the printer margin plus room for cut marks
+  - "Best fit" picks the orientation that fits more cards (ties go to portrait); you can override it
+  - cards are never rotated on the sheet
+  - **print list** (Print view → Cards to print): every card prints once by default, in Cards-list order
+    - a tick box leaves a card out, a copies count (0–99) prints it several times; copies fill cells next to each other
+    - dragging the list sets a print order of its own; the Cards list is not changed. Cards added later go at the end. "Use Cards list order" drops the custom order.
+    - stored in the project's print settings, so it is undoable and kept in backups
+- **Bleed fill** (auto-bleed; default "Mirror edges"):
+  - each finished card is rendered to an image (300 dpi in the PDF, 150 dpi in the preview), and its outer strip is mirrored outward into the bleed. "Stretch edges" repeats the outermost pixel row instead. "As designed" prints only what is drawn in the bleed.
+  - the filled bleed is drawn over the card, so it always follows the card edge, even where a shape already reaches into the bleed
+  - only the bleed becomes an image (it is cut off); inside the cut line the card stays vector
+  - the image is made with the PDF's own card renderer (on a canvas), so it matches the printed card
+- **Cut marks** (on by default, 4 mm long, 2 mm gap from the bleed edge):
+  - drawn on the outer edges of the grid, one mark per cut line on each side, like a standard gang-up sheet, so they never touch any card or its bleed
+  - the space for them is reserved inside the printer margin
+  - optional **guide lines** run through every cut line across the printable area
+- **Backs:**
+  - pages go front 1, back 1, front 2, … so a duplex printer can print them double-sided
+  - each back sits exactly behind its front: a long-edge flip mirrors left/right on a portrait page and top/bottom on a landscape page; a short-edge flip is the opposite
+  - back contents stay upright, so the flip setting must match the printer's duplex setting
+  - back offset X/Y nudges the whole backs page to correct printer drift
+  - a card without a back template leaves its back cell empty
+- **Alignment test:** a separate 2-page PDF with crosshairs at the corners and centre. The back page has the same crosshairs mirrored, plus ±3 mm scales for reading any offset.
+- **PDF output:**
+  - library: jsPDF (RGB), drawn through a small `DrawTarget` interface, so another output (for example CMYK) could be added without touching the card renderer
+  - page size: exact mm (A4 = 595.28 × 841.89 pt)
+  - text: drawn as **vector glyph outlines** with fontkit, from uploaded font files and the bundled Inter / Alegreya / Alegreya SC WOFF2 files, so it looks like the preview without embedding fonts
+    - text in a system font with no file (Georgia, Arial, …) is drawn as a 600 dpi image, and the export lists a warning
+    - bold or italic missing from a font file is imitated (stroke or slant), as the browser does
+  - images:
+    - SVGs stay vector (svg2pdf.js)
+    - PNG and JPEG are embedded at full resolution (PNG Flate-compressed)
+    - WebP is converted to PNG
+  - empty art boxes and icon rows without an icon print nothing, and the print preview matches
+  - low-DPI images are listed as warnings after export
+  - the export libraries load only when you export
+
+## Symbols and shared styles
+
+- **Inline symbols:** any image becomes a symbol when you give it a symbol name (Assets → ⋯ → Symbol name…; stored as the asset's first tag).
+  - Typing `{name}` in any text draws that image inline: 1 em high, with its own width/height ratio, and slightly below the baseline.
+  - Unknown names stay as typed text.
+  - A symbol sticks to the word next to it, so "3{fire}" never wraps apart. Words made of differently styled runs also no longer break apart.
+  - Symbols work the same on the canvas, in the PDF and in auto-shrink.
+- **Shared styles** (the spec's "style presets"):
+  - a style holds font, size, colour, bold, italic, underline and letter spacing
+  - a text linked to a style takes those values over its own base style, live, across every template and card; per-character formatting in the text still wins
+  - while a text is linked, the style controls edit the shared style (and say how many texts use it)
+  - "Detach" unlinks a text and keeps its look; deleting a style does the same for every text that used it
+  - in the text editor, the brush menu applies a style's look to selected words as plain formatting
+- Template files carry the styles and symbol images their texts use. On import, a style with the same name, or a symbol with the same name, already in the project is reused instead of duplicated.
+
+## Phone, touch and offline
+
+- Drags start after 4 px of movement, so a tap selects without nudging.
+- Controls use `touch-action: manipulation` (no double-tap zoom). The canvas has no long-press callout or text selection.
+- Bottom sheets close by swiping the header down. The properties sheet is taller (85 % of the screen).
+- The canvas refits when its width changes a lot (device rotation), not for small changes such as a drawer opening.
+- On phone, the template banner is shortened to "Template ‹name› · n cards" with a "Done" button.
+- **PWA:**
+  - installable, with a manifest and icons at 192, 512 and maskable
+  - the service worker precaches everything, including the on-demand text editor and PDF export code and the bundled fonts, so the editor and PDF export work fully offline
+  - updates install automatically; a small notice says when the app is ready offline or when a new version is available
+  - "Install app" appears in the ☰ menu when the browser offers it
+
+## Backups (project and template files)
+
+- **Project backup** (`.cardproject.json`): the whole project — templates, cards, shared styles, images and fonts (stored inside the file as base64). Export it from the ☰ menu in the editor or from a project's ⋯ menu on the Home screen.
+- Importing (Home → Import) always creates a **new** project, so it never overwrites anything. Every stored item gets a new id and all references are rewritten. Element ids are kept, so per-card part toggles and card-layer positions still match.
+- Template files (Templates panel → ⋯ → Export file / Import) carry the template's images, fonts, shared styles and symbol images.
+- Files are versioned (`format`, `version`); anything else is refused with a clear message.

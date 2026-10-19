@@ -13,10 +13,12 @@ import '@fontsource/alegreya-sc/700.css'
 import '@fontsource/alegreya-sc/400-italic.css'
 import '@fontsource/alegreya-sc/700-italic.css'
 import '@/index.css'
+import { initPwa } from '@/ui/pwa/pwa'
 import { initTheme } from '@/ui/theme/theme'
 import { App } from './App'
 
 initTheme()
+initPwa()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
