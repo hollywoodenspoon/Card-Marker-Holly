@@ -15,7 +15,7 @@ import {
 } from '../layout'
 import type { DrawTarget } from './drawTarget'
 import { JsPdfTarget } from './jsPdfTarget'
-import { bleedBands } from './bleedFill'
+import { bleedBands, drawBand } from './bleedFill'
 import { renderCard } from './renderCard'
 import { createPrintResources } from './resources'
 
@@ -98,14 +98,8 @@ export async function exportCardsPdf(
   const drawCard = async (nodes: RenderNode[], c: { cell: Rect; trim: Rect }) => {
     await renderCard(target, nodes, c.cell, c.trim, res)
     if (!bands) return
-    const img = await bands.pdfImage(nodes)
-    // The band's empty middle sits exactly on the trim; the cell clip trims any rounding.
-    const p = bands.placement(c.trim)
-    target.save()
-    target.rect(c.cell.x, c.cell.y, c.cell.w, c.cell.h)
-    target.clip()
-    await target.image(img, p.x, p.y, p.w, p.h)
-    target.restore()
+    // The band's card area sits exactly on the trim; it only shows in the bleed.
+    await drawBand(target, await bands.pdfImage(nodes), c.cell, c.trim, bands.placement(c.trim))
   }
   const marks = settings.cutMarks
     ? cutMarks(sheet, { lengthMm: settings.markLengthMm, offsetMm: settings.markOffsetMm })

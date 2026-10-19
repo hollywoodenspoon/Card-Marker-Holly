@@ -4,7 +4,7 @@ import { assetResolver } from '@/assets/assetResolver'
 import { StaticNodes } from '@/core/render/StaticCard'
 import type { PrintJob } from '@/print/job'
 import { backCells, cutMarks, guideLines, mirrorLine, type Line as L } from '@/print/layout'
-import type { BleedBands } from '@/print/pdf/bleedFill'
+import { bleedFramePath, type BleedBands } from '@/print/pdf/bleedFill'
 import { useRenderVersion } from '@/ui/canvas/useRenderVersion'
 import { useReadyBands } from './usePreviewBands'
 
@@ -80,7 +80,16 @@ export function SheetPreview({
                 <Group x={c.trim.x} y={c.trim.y}>
                   <StaticNodes nodes={nodes} assets={assetResolver} renderVersion={version} print />
                 </Group>
-                {band && at && <KImage image={band} x={at.x} y={at.y} width={at.w} height={at.h} />}
+                {band && at && (
+                  <Group
+                    clipFunc={(ctx) => {
+                      ctx.beginPath()
+                      bleedFramePath(ctx, c.cell, c.trim)
+                    }}
+                  >
+                    <KImage image={band} x={at.x} y={at.y} width={at.w} height={at.h} />
+                  </Group>
+                )}
               </Group>
             )
           })}
