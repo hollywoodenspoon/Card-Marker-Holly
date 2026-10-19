@@ -2,6 +2,10 @@
 
 Where CLAUDE.md left room, the simplest option that fits it was picked. Each choice is listed here.
 
+## README
+
+- At the owner's request the README also holds a short feature guide ("Features and how to use them"), beyond the install/run/build commands CLAUDE.md asked for. Every feature PR updates it.
+
 ## Stack
 
 - **Canvas: Konva (react-konva).** It works declaratively with React state, has a built-in transformer (resize with locked aspect ratio, rotation handle, rotation snaps, configurable handle size for touch), and uses pointer events. Konva has no per-character text styling, so `src/core/text/` has its own rich-text layout engine (wrapping, alignment, justify, per-run styles, letter spacing, auto-shrink). The engine works in mm with an injectable measurer, so Shot 2's PDF export can reuse the same line layout.
