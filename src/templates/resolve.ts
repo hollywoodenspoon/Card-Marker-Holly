@@ -40,6 +40,11 @@ export function countValueFor(el: Element & { type: 'iconRow' }, card?: Card): n
   return v?.kind === 'count' ? v.count : el.defaultCount
 }
 
+export function greyValueFor(el: Element & { type: 'iconRow' }, card?: Card): number {
+  const v = card?.fields[el.fieldName]
+  return v?.kind === 'count' && v.grey !== undefined ? v.grey : (el.defaultGrey ?? 0)
+}
+
 export function imageValueFor(el: Element & { type: 'imageField' }, card?: Card): ImageValue {
   const v = card?.fields[el.fieldName]
   if (v?.kind === 'image') return { ...v, fit: v.fit ?? el.fit }
@@ -97,8 +102,10 @@ function resolveElements(els: Element[], source: 'template' | 'card', env: Env):
     }
     if (el.type === 'text') node.text = decorateText(textValueFor(el, card), el, env.ctx)
     else if (el.type === 'imageField') node.image = imageValueFor(el, card)
-    else if (el.type === 'iconRow') node.count = countValueFor(el, card)
-    else if (el.type === 'group') node.children = resolveElements(el.children, source, env)
+    else if (el.type === 'iconRow') {
+      node.count = countValueFor(el, card)
+      node.grey = greyValueFor(el, card)
+    } else if (el.type === 'group') node.children = resolveElements(el.children, source, env)
     out.push(node)
   }
   return out

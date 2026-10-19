@@ -69,7 +69,7 @@ Assumptions and design choices are listed in [DECISIONS.md](DECISIONS.md).
 ### Icon rows (stats)
 Add → *Icon row*: the same icon repeated N times, centred in its box (horizontal or vertical). The template sets the icon; each card sets the count.
 
-- **Grey icons for the rest**: Icon row properties → turn it on and set the **total** (e.g. 5). A card with a count of 3 then shows 3 coloured and 2 greyscale icons. *Grey icons go* puts the grey ones on the left or right (row), or at the top or bottom (column).
+- **Grey icons**: each card sets its own number of greyscale icons next to its normal count — in the floating bar under a selected icon row (− **Grey** +) or in Icon row properties (*Grey icons on this card*). E.g. 3 coloured + 2 grey for a 3-of-5 stat. In the template, set the *Default grey icons* and where they go: on the left or right (row), or at the top or bottom (column).
 
 ### Templates
 - **Template / Card** switch (top bar). In **Template** mode you edit the layout every card using it shares; changes show on all those cards straight away.

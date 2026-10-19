@@ -74,7 +74,9 @@ export function ElementNode({ node, inGroup }: { node: RenderNode; inGroup?: boo
         {el.type === 'text' && node.text && <TextNode el={el} value={node.text} />}
         {el.type === 'imageField' && node.image && <ImageFieldNode el={el} value={node.image} />}
         {el.type === 'image' && <ImageNode el={el} />}
-        {el.type === 'iconRow' && <IconRowNode el={el} count={node.count ?? el.defaultCount} />}
+        {el.type === 'iconRow' && (
+          <IconRowNode el={el} count={node.count ?? el.defaultCount} grey={node.grey} />
+        )}
       </Group>
     </Group>
   )

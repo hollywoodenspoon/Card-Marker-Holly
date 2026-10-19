@@ -52,11 +52,11 @@ describe('iconRowLayout', () => {
 })
 
 describe('iconRowSlots', () => {
-  it('fills up to the total with grey icons at the end or start', () => {
-    expect(iconRowSlots(3, {})).toEqual([false, false, false])
-    expect(iconRowSlots(2, { greyTotal: 5 })).toEqual([false, false, true, true, true])
-    expect(iconRowSlots(2, { greyTotal: 4, greyAt: 'start' })).toEqual([true, true, false, false])
-    expect(iconRowSlots(6, { greyTotal: 4 })).toHaveLength(6)
-    expect(iconRowSlots(0, { greyTotal: 2 })).toEqual([true, true])
+  it('puts grey icons after or before the coloured ones', () => {
+    expect(iconRowSlots(3, 0)).toEqual([false, false, false])
+    expect(iconRowSlots(2, 3)).toEqual([false, false, true, true, true])
+    expect(iconRowSlots(2, 2, 'start')).toEqual([true, true, false, false])
+    expect(iconRowSlots(0, 2)).toEqual([true, true])
+    expect(iconRowSlots(1, -1)).toEqual([false])
   })
 })
