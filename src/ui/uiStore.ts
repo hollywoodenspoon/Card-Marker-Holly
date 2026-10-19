@@ -16,6 +16,9 @@ interface UiState {
   galleryOpen: boolean
   ttsOpen: boolean
   unitsOpen: boolean
+  /** Vector Maker; `assetId` opens that asset for editing. */
+  vectorOpen: { assetId: string | null } | null
+  setVectorOpen: (v: UiState['vectorOpen']) => void
   setUnitsOpen: (o: boolean) => void
   setTtsOpen: (o: boolean) => void
   setGalleryOpen: (o: boolean) => void
@@ -67,6 +70,8 @@ export const useUi = create<UiState>((set) => ({
   galleryOpen: false,
   ttsOpen: false,
   unitsOpen: false,
+  vectorOpen: null,
+  setVectorOpen: (vectorOpen) => set({ vectorOpen }),
   setUnitsOpen: (unitsOpen) => set({ unitsOpen }),
   setTtsOpen: (ttsOpen) => set({ ttsOpen }),
   setGalleryOpen: (galleryOpen) => set({ galleryOpen }),

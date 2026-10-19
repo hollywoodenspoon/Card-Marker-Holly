@@ -22,6 +22,8 @@ export function useShortcuts() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (isTyping(e)) return
+      // The Vector Maker has its own shortcuts.
+      if (useUi.getState().vectorOpen) return
       const mod = e.metaKey || e.ctrlKey
       const k = e.key.toLowerCase()
       const run = (fn: () => void) => {
