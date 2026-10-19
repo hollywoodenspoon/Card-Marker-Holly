@@ -156,3 +156,10 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 - Cards without a back template get no back image; the dialog lists them.
 - Files are named "01 Card name - front (bleed).png"; the number keeps cards in order and keeps duplicate names apart.
 - Browsers that can't write WebP (some Safari versions) show a clear error instead of saving a PNG under a .webp name.
+
+## Hosting
+
+- Published on **GitHub Pages** at `/<repo>/` by a GitHub Action on every push to `main`. The tests must pass before it deploys.
+- The base path comes from `BASE_PATH` at build time; local `npm run dev` and `npm run preview` stay at `/`. The PWA manifest and service worker use paths relative to the base, so install and offline work on Pages too.
+- `404.html` is a copy of the app, so a mistyped or old link still opens it.
+- **Projects live in each browser.** The Pages site, `localhost` and each computer or browser keep their own projects. Move a project with ☰ → Export backup file, then Home → Import.

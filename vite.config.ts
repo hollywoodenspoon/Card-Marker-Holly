@@ -5,6 +5,8 @@ import { VitePWA } from 'vite-plugin-pwa'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
+  // GitHub Pages serves the app under /<repo>/; local dev and preview stay at /.
+  base: process.env.BASE_PATH ?? '/',
   plugins: [
     react(),
     tailwindcss(),
@@ -15,8 +17,8 @@ export default defineConfig({
         name: 'Card Maker',
         short_name: 'Card Maker',
         description: 'Design cards and print them on A4 sheets. Works offline.',
-        start_url: '/',
-        scope: '/',
+        start_url: '.',
+        scope: '.',
         display: 'standalone',
         orientation: 'any',
         background_color: '#f6f6f7',
@@ -32,7 +34,7 @@ export default defineConfig({
         // and PDF export chunks and the bundled fonts used for PDF outlines.
         globPatterns: ['**/*.{js,css,html,svg,png,woff2,woff}'],
         maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
-        navigateFallback: '/index.html',
+        navigateFallback: 'index.html',
       },
     }),
   ],

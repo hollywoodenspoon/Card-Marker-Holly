@@ -42,7 +42,7 @@ export function HomeScreen() {
   return (
     <div className="h-app pt-safe pb-safe flex flex-col overflow-auto">
       <header className="flex h-14 shrink-0 items-center gap-2 border-b bg-panel px-3">
-        <img src="/icon.svg" alt="" className="size-7" />
+        <img src={`${import.meta.env.BASE_URL}icon.svg`} alt="" className="size-7" />
         <span className="text-sm font-semibold">Card Maker</span>
         <div className="flex-1" />
         <DropdownMenu>
@@ -70,7 +70,7 @@ export function HomeScreen() {
         {projects && projects.length === 0 ? (
           <div className="mx-auto mt-10 flex max-w-sm flex-col items-center gap-4 text-center">
             <div className="grid size-16 place-items-center rounded-2xl bg-accent-soft">
-              <img src="/icon.svg" alt="" className="size-10" />
+              <img src={`${import.meta.env.BASE_URL}icon.svg`} alt="" className="size-10" />
             </div>
             <h1 className="text-xl font-semibold">Design your first card</h1>
             <p className="text-sm text-muted-foreground">
