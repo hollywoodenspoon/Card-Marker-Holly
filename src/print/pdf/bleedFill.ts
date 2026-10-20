@@ -146,7 +146,20 @@ export class BleedBands {
     p = this.byContent.get(key)
     if (!p) {
       const id = `bleed${this.nextId++}`
-      p = this.canvas(nodes).then(async (c) => {
+      p = this.canvas(nodes).then(async (band) => {
+        // Only the bleed shows (the middle is clipped away under the vector card), so
+        // a flat middle keeps the JPEG small. A few pixels of the card stay at the cut.
+        const c = document.createElement('canvas')
+        c.width = band.width
+        c.height = band.height
+        const ctx = c.getContext('2d')!
+        ctx.drawImage(band, 0, 0)
+        const { W, H, B } = this.px
+        const keep = Math.max(4, Math.round(B / 2))
+        if (W > 4 * keep && H > 4 * keep) {
+          ctx.fillStyle = '#808080'
+          ctx.fillRect(B + keep, B + keep, W - 2 * keep, H - 2 * keep)
+        }
         const blob = await new Promise<Blob>((r) =>
           c.toBlob((b) => r(b!), 'image/jpeg', BAND_QUALITY),
         )

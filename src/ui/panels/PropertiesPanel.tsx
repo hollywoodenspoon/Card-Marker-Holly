@@ -17,13 +17,15 @@ import { TextSection } from './properties/TextSection'
 
 export function PropertiesPanel() {
   const els = useEditor(useShallow(selectedElements))
-  const state = useEditor()
-  if (!state.doc) return null
+  // Narrow subscriptions: the whole store changes on every edit and selection.
+  const hasDoc = useEditor((s) => !!s.doc)
+  const layoutEditable = useEditor((s) => els.every((e) => isLayoutEditable(s, e.id)))
+  if (!hasDoc) return null
 
   if (els.length === 0) return <DocumentProperties />
 
   if (els.length > 1) {
-    const editable = els.every((e) => isLayoutEditable(state, e.id))
+    const editable = layoutEditable
     return (
       <div>
         <Section title={`${els.length} selected`}>
@@ -55,7 +57,7 @@ export function PropertiesPanel() {
   }
 
   const el = els[0]
-  const editable = isLayoutEditable(state, el.id) && !el.editLocked
+  const editable = layoutEditable && !el.editLocked
   return (
     <div>
       <div className="border-b px-4 py-3">

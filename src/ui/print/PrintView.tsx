@@ -20,6 +20,7 @@ import type { LayoutKind } from '@/ui/shell/useLayout'
 import { useUi } from '@/ui/uiStore'
 import { PrintList } from './PrintList'
 import { PrintSettingsForm } from './PrintSettingsForm'
+import { useEscapeToClose } from '@/ui/components/overlay'
 import { usePanZoom } from '@/ui/components/usePanZoom'
 import { ZoomBar } from '@/ui/components/ZoomBar'
 import { SheetPreview } from './SheetPreview'
@@ -28,6 +29,7 @@ import { usePreviewBands } from './usePreviewBands'
 /** Full-screen print view: sheet settings, preview of fronts and mirrored backs, PDF export. */
 export function PrintView({ layout }: { layout: LayoutKind }) {
   const setOpen = useUi((s) => s.setPrintOpen)
+  useEscapeToClose(() => setOpen(false))
   const doc = useEditor((s) => s.doc!)
   const library = useEditor((s) => s.library)
   const job = useMemo(
@@ -89,6 +91,7 @@ export function PrintView({ layout }: { layout: LayoutKind }) {
     <div
       className="h-app pt-safe pb-safe fixed inset-0 z-50 flex flex-col bg-background"
       role="dialog"
+      aria-modal="true"
       aria-label="Print"
     >
       <header className="flex h-14 shrink-0 items-center gap-2 border-b bg-panel px-2 md:h-12">

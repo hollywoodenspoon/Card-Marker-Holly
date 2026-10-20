@@ -25,10 +25,19 @@ export function onFontsChanged(fn: () => void) {
   listeners.add(fn)
   return () => listeners.delete(fn)
 }
+let pending = false
+/** Fonts often load in a burst (opening a project): relayout once per frame, not once per font. */
 function bump() {
-  sharedMeasurer().clear()
-  version++
-  listeners.forEach((l) => l())
+  if (pending) return
+  pending = true
+  const run = () => {
+    pending = false
+    sharedMeasurer().clear()
+    version++
+    listeners.forEach((l) => l())
+  }
+  if (typeof requestAnimationFrame === 'function') requestAnimationFrame(run)
+  else setTimeout(run, 0)
 }
 
 export async function registerFont(font: FontAsset): Promise<boolean> {

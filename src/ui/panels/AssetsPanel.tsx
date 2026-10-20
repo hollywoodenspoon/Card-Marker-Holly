@@ -96,7 +96,8 @@ export function AssetGroups({ onPicked, compact }: { onPicked?: () => void; comp
   }
   const [deleting, setDeleting] = useState<Asset | null>(null)
   const [moving, setMoving] = useState<Asset | null>(null)
-  const doc = useEditor((s) => s.doc)
+  // Only asked while the delete dialog is open (not a subscription to every edit).
+  const doc = deleting ? useEditor.getState().doc : null
   const inUse = deleting && doc ? usedAssetIds(doc).has(deleting.id) : false
   const drag = useAssetDrag()
 

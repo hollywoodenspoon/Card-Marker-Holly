@@ -1,9 +1,9 @@
 import { ArrowLeft, FileDown, Search, X } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 import { renameCard, selectCard } from '@/core/editor/cardCommands'
 import { useEditor } from '@/core/editor/editorStore'
 import { setCopies } from '@/core/editor/projectCommands'
-import type { Card, Deck, Template } from '@/core/model/types'
+import type { Asset, Card, Deck, Template } from '@/core/model/types'
 import { cn } from '@/lib/cn'
 import { copiesOf } from '@/print/printList'
 import { setTemplateForCards } from '@/templates/bulkCommands'
@@ -22,6 +22,7 @@ import { Button, IconButton } from '@/ui/components/ui/button'
 import { Input, NativeSelect } from '@/ui/components/ui/input'
 import { Tabs, TabsList, TabsTrigger } from '@/ui/components/ui/tabs'
 import { MergeForm } from '@/ui/merge/MailMergeDialog'
+import { useEscapeToClose } from '@/ui/components/overlay'
 import { useUi } from '@/ui/uiStore'
 
 const NO_DECKS: Deck[] = []
@@ -31,6 +32,7 @@ export function DataView() {
   const tab = useUi((s) => s.dataView) ?? 'table'
   const setTab = useUi((s) => s.setDataView)
   const close = () => setTab(null)
+  useEscapeToClose(close)
   const doc = useEditor((s) => s.doc!)
   const assets = useEditor((s) => s.library.assets)
   const decks = doc.project.decks ?? NO_DECKS
@@ -48,9 +50,20 @@ export function DataView() {
         ),
     [doc.cards, deck, q],
   )
-  const columns = useMemo(
+  const computed = useMemo(
     () => tableColumns(list, doc.templates, doc.project.merge),
     [list, doc.templates, doc.project.merge],
+  )
+  // Same columns → same array, so typing in a cell doesn't re-render every row.
+  const colKey = JSON.stringify(computed)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const columns = useMemo(() => computed, [colKey])
+  const openCard = useCallback(
+    (c: Card) => {
+      selectCard(c.id)
+      setTab(null)
+    },
+    [setTab],
   )
   const print = doc.project.print
   const ctx: TableContext = useMemo(
@@ -69,6 +82,7 @@ export function DataView() {
     <div
       className="h-app pt-safe pb-safe fixed inset-0 z-50 flex flex-col bg-background"
       role="dialog"
+      aria-modal="true"
       aria-label="Card data"
     >
       <header className="flex shrink-0 flex-wrap items-center gap-2 border-b bg-panel px-2 py-2">
@@ -120,15 +134,7 @@ export function DataView() {
         )}
       </header>
       {tab === 'table' ? (
-        <DataTable
-          list={list}
-          columns={columns}
-          ctx={ctx}
-          onOpen={(c) => {
-            selectCard(c.id)
-            close()
-          }}
-        />
+        <DataTable list={list} columns={columns} ctx={ctx} onOpen={openCard} />
       ) : (
         <main className="min-h-0 flex-1 overflow-auto">
           <div className="mx-auto flex max-w-2xl flex-col gap-3 p-4">
@@ -157,11 +163,22 @@ function DataTable({
   onOpen: (c: Card) => void
 }) {
   // The name column stays first on screen (and sticky), wherever it sits in the export.
-  const shown = [
-    ...columns.filter((c) => c.kind === 'name'),
-    ...columns.filter((c) => c.kind !== 'name'),
-  ]
-  const templates = Object.values(ctx.templates).sort((a, b) => a.createdAt - b.createdAt)
+  const shown = useMemo(
+    () => [
+      ...columns.filter((c) => c.kind === 'name'),
+      ...columns.filter((c) => c.kind !== 'name'),
+    ],
+    [columns],
+  )
+  const templates = useMemo(
+    () => Object.values(ctx.templates).sort((a, b) => a.createdAt - b.createdAt),
+    [ctx.templates],
+  )
+  // Sorted once for every art cell's picker.
+  const assets = useMemo(
+    () => Object.values(ctx.assets).sort((a, b) => a.name.localeCompare(b.name)),
+    [ctx.assets],
+  )
   if (!list.length)
     return <p className="p-8 text-center text-sm text-muted-foreground">No cards to show.</p>
   return (
@@ -187,41 +204,77 @@ function DataTable({
           </tr>
         </thead>
         <tbody>
-          {list.map((card) => {
-            const cells = tableRow(card, columns, ctx)
-            const byKey = new Map(columns.map((c, i) => [c.key, cells[i]]))
-            return (
-              <tr key={card.id} data-testid="data-row">
-                {shown.map((col, i) => (
-                  <td
-                    key={col.key}
-                    className={cn(
-                      'border-r border-b p-1 align-top',
-                      i === 0 && 'sticky left-0 z-[5] bg-panel',
-                      !byKey.get(col.key)!.has && 'bg-muted/60',
-                    )}
-                  >
-                    {i === 0 ? (
-                      <NameCell card={card} onOpen={() => onOpen(card)} />
-                    ) : (
-                      <ValueCell
-                        card={card}
-                        col={col}
-                        cell={byKey.get(col.key)!}
-                        templates={templates}
-                        ctx={ctx}
-                      />
-                    )}
-                  </td>
-                ))}
-              </tr>
-            )
-          })}
+          {list.map((card) => (
+            <DataRow
+              key={card.id}
+              card={card}
+              columns={columns}
+              shown={shown}
+              ctx={ctx}
+              templates={templates}
+              assets={assets}
+              onOpen={onOpen}
+            />
+          ))}
         </tbody>
       </table>
     </main>
   )
 }
+
+/** One card's row. Memoized: typing in one cell re-renders only that card's row. */
+const DataRow = memo(function DataRow({
+  card,
+  columns,
+  shown,
+  ctx,
+  templates,
+  assets,
+  onOpen,
+}: {
+  card: Card
+  columns: TableColumn[]
+  shown: TableColumn[]
+  ctx: TableContext
+  templates: Template[]
+  assets: Asset[]
+  onOpen: (c: Card) => void
+}) {
+  const byKey = useMemo(() => {
+    const cells = tableRow(card, columns, ctx)
+    return new Map(columns.map((c, i) => [c.key, cells[i]]))
+  }, [card, columns, ctx])
+  return (
+    <tr
+      data-testid="data-row"
+      // Rows far off screen skip layout and paint.
+      style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 48px' }}
+    >
+      {shown.map((col, i) => (
+        <td
+          key={col.key}
+          className={cn(
+            'border-r border-b p-1 align-top',
+            i === 0 && 'sticky left-0 z-[5] bg-panel',
+            !byKey.get(col.key)!.has && 'bg-muted/60',
+          )}
+        >
+          {i === 0 ? (
+            <NameCell card={card} onOpen={() => onOpen(card)} />
+          ) : (
+            <ValueCell
+              card={card}
+              col={col}
+              cell={byKey.get(col.key)!}
+              templates={templates}
+              assets={assets}
+            />
+          )}
+        </td>
+      ))}
+    </tr>
+  )
+})
 
 function NameCell({ card, onOpen }: { card: Card; onOpen: () => void }) {
   return (
@@ -254,13 +307,13 @@ function ValueCell({
   col,
   cell,
   templates,
-  ctx,
+  assets,
 }: {
   card: Card
   col: TableColumn
   cell: TableCell
   templates: Template[]
-  ctx: TableContext
+  assets: Asset[]
 }) {
   const label = `${col.label} of ${card.name}`
   if (!cell.has)
@@ -315,7 +368,6 @@ function ValueCell({
   )
   if (col.kind === 'image') {
     const own = card.fields[field]
-    const assets = Object.values(ctx.assets).sort((a, b) => a.name.localeCompare(b.name))
     return (
       <div className="flex w-48 items-center gap-1">
         <NativeSelect

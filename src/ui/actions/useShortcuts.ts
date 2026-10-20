@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { overlayOpen } from '@/ui/components/overlay'
 import { useUi } from '@/ui/uiStore'
 import { redo, setView, undo, useEditor } from '@/core/editor/editorStore'
 import {
@@ -22,8 +23,9 @@ export function useShortcuts() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (isTyping(e)) return
-      // The Vector Maker has its own shortcuts.
-      if (useUi.getState().vectorOpen) return
+      // Not behind a dialog or full-screen view (Print, Gallery, Data, Vector Maker…):
+      // Delete or the arrows there must not change the hidden card.
+      if (useUi.getState().vectorOpen || overlayOpen()) return
       const mod = e.metaKey || e.ctrlKey
       const k = e.key.toLowerCase()
       const run = (fn: () => void) => {

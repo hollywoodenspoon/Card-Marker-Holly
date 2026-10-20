@@ -1,23 +1,21 @@
-import { useEffect, useReducer } from 'react'
+import { useSyncExternalStore } from 'react'
 import { assetResolver } from '@/assets/assetResolver'
-import { onFontsChanged } from '@/assets/fonts'
-import { useEditor } from '@/core/editor/editorStore'
+import { fontsVersion, onFontsChanged } from '@/assets/fonts'
 
-/** A counter that changes whenever images finish decoding or fonts load. */
+const subscribe = (fn: () => void) => {
+  const a = assetResolver.subscribe(fn)
+  const f = onFontsChanged(fn)
+  return () => {
+    a()
+    f()
+  }
+}
+const snapshot = () => assetResolver.version * 100000 + fontsVersion()
+
+/**
+ * A number that changes whenever images finish decoding, the asset list changes
+ * or fonts load (the resolver is kept up to date once, in main.tsx).
+ */
 export function useRenderVersion() {
-  const [v, bump] = useReducer((x: number) => x + 1, 0)
-  const assets = useEditor((s) => s.library.assets)
-  useEffect(() => {
-    assetResolver.setAssets(assets)
-    bump()
-  }, [assets])
-  useEffect(() => {
-    const a = assetResolver.subscribe(bump)
-    const f = onFontsChanged(bump)
-    return () => {
-      a()
-      f()
-    }
-  }, [])
-  return v
+  return useSyncExternalStore(subscribe, snapshot)
 }

@@ -171,6 +171,7 @@ export default function VectorMaker() {
     <div
       className="h-app pt-safe pb-safe fixed inset-0 z-50 flex flex-col bg-background"
       role="dialog"
+      aria-modal="true"
       aria-label="Vector Maker"
     >
       <header className="flex shrink-0 items-center gap-1 border-b bg-panel px-2 py-1.5">
