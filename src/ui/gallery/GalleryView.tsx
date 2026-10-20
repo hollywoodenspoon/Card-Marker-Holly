@@ -1,5 +1,6 @@
 import { ArrowLeft, Search } from 'lucide-react'
 import { memo, useCallback, useMemo, useRef, useState } from 'react'
+import { HelpButton } from '@/help/HelpButton'
 import { selectCard } from '@/core/editor/cardCommands'
 import { useEditor } from '@/core/editor/editorStore'
 import type { Card, Deck, Template } from '@/core/model/types'
@@ -78,6 +79,7 @@ export function GalleryView() {
           <ArrowLeft />
         </IconButton>
         <div className="mr-2 text-sm font-semibold">Gallery</div>
+        <HelpButton topic="gallery" />
         <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)}>
           <TabsList>
             <TabsTrigger value="grid">Cards</TabsTrigger>

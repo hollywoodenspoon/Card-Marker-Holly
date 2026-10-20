@@ -44,7 +44,7 @@ const howTo = (name: string, sheets: number, total: number, unique: boolean) =>
   `Importing "${name}" into Tabletop Simulator
 ==========================================
 
-1. In Tabletop Simulator: Objects > Components > Cards > Custom Deck.
+1. In Tabletop Simulator: Objects > Components > Custom > Deck, then click the table to place it.
 2. Face: choose "${name} faces 1.jpg"${sheets > 1 ? ` (make one deck per sheet: faces 1 to ${sheets})` : ''}.
 3. Back: choose ${unique ? `"${name} backs 1.jpg" (the matching backs sheet) and tick "Unique backs"` : `"${name} back.jpg"`}.
 4. Width 10, Height 7, Number: the number of cards on that sheet (${total} in total; 69 per full sheet).

@@ -32,6 +32,7 @@ import { fromSvg } from '../svg'
 import { PropsPanel } from './PropsPanel'
 import { toast } from '@/ui/components/feedback'
 import { sendEscape, useBackHandler } from '@/ui/components/overlay'
+import { HelpButton } from '@/help/HelpButton'
 import { clearDraft, hasContent, readDraft, writeDraft, type VectorDraft } from '../draft'
 import { SaveDialog } from './SaveDialog'
 import { TraceDialog } from './TraceDialog'
@@ -230,6 +231,7 @@ export default function VectorMaker() {
           <Redo2 />
         </IconButton>
         <div className="flex-1" />
+        <HelpButton topic="vector-basics" />
         {!phone && (
           <>
             <IconButton label="Zoom out" onClick={() => zoomTo(zoom / 1.25)}>

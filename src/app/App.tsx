@@ -3,6 +3,7 @@ import { useEditor } from '@/core/editor/editorStore'
 import { loadBuiltinFonts } from '@/assets/fonts'
 import { startAutosave } from '@/storage/autosave'
 import { folderStore, getBackend } from '@/storage'
+import { HelpHost } from '@/help/HelpHost'
 import { FeedbackHost } from '@/ui/components/FeedbackHost'
 import { ChooseFolder } from '@/ui/home/ChooseFolder'
 import { HomeScreen } from '@/ui/home/HomeScreen'
@@ -45,6 +46,7 @@ export function App() {
         <HomeScreen />
       )}
       <PwaToast />
+      <HelpHost />
       <FeedbackHost />
     </>
   )

@@ -18,7 +18,8 @@
     "desktop:build": "node scripts/desktop.mjs build",
     "desktop:dist": "node scripts/desktop.mjs dist",
     "android:sync": "node scripts/android.mjs sync",
-    "android:apk": "node scripts/android.mjs apk"
+    "android:apk": "node scripts/android.mjs apk",
+    "help:shots": "node scripts/help-screenshots.mjs"
   },
   "dependencies": {
     "@capacitor/android": "8.5.2",
@@ -43,6 +44,7 @@
     "jspdf": "^4.2.1",
     "konva": "^10.9.0",
     "lucide-react": "^1.59.0",
+    "marked": "18.1.0",
     "nanoid": "^6.0.2",
     "papaparse": "^5.7.0",
     "paper": "0.12.18",

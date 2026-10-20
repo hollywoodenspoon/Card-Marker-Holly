@@ -7,6 +7,7 @@ import {
   Library,
   Type,
   TextSearch,
+  CircleHelp,
   FolderOpen,
   Home,
   Image,
@@ -22,6 +23,7 @@ import {
 } from 'lucide-react'
 import { APP_NAME, APP_VERSION } from '@/app/appInfo'
 import { goHome } from '@/app/session'
+import { openHelp } from '@/help/openHelp'
 import { folderStore } from '@/storage'
 import { redo, undo, useEditor } from '@/core/editor/editorStore'
 import { Button, IconButton } from '@/ui/components/ui/button'
@@ -144,6 +146,9 @@ function AppMenu({ phone }: { phone: boolean }) {
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={() => void exportOpenProject()}>
           <Download /> Export backup file
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => openHelp()}>
+          <CircleHelp /> Help
         </DropdownMenuItem>
         <ShowFolderMenuItem />
         <InstallMenuItem />

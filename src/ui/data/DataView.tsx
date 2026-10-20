@@ -1,5 +1,6 @@
 import { ArrowLeft, FileDown, Search, X } from 'lucide-react'
 import { memo, useCallback, useMemo, useState } from 'react'
+import { HelpButton } from '@/help/HelpButton'
 import { renameCard, selectCard } from '@/core/editor/cardCommands'
 import { useEditor } from '@/core/editor/editorStore'
 import { setCopies } from '@/core/editor/projectCommands'
@@ -90,6 +91,7 @@ export function DataView() {
           <ArrowLeft />
         </IconButton>
         <div className="mr-2 text-sm font-semibold">Card data</div>
+        <HelpButton topic="card-data" />
         <Tabs value={tab} onValueChange={(v) => setTab(v as 'table' | 'import')}>
           <TabsList>
             <TabsTrigger value="table">Table</TabsTrigger>

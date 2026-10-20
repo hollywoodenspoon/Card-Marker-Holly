@@ -80,25 +80,31 @@ jobs:
           ELECTRON_SKIP_BINARY_DOWNLOAD: 1
       - run: npm test
       # The key is kept as repo secrets (README → Android app → Signing key).
+      # Without the key, a release goes out without the APK (never with an unsigned one).
       - name: Signing key
+        id: key
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
         run: |
           if [ -n "$ANDROID_KEYSTORE_BASE64" ]; then
             echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
             echo "CM_KEYSTORE=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
+            echo "apk=true" >> "$GITHUB_OUTPUT"
           elif [ "$PUBLISHING" = "true" ]; then
-            echo "::error::The Android signing key secrets are missing. See README → Android app → Signing key."
-            exit 1
+            echo "::warning::Android APK skipped: no signing key yet (README → Android app → Signing key)."
+            echo "apk=false" >> "$GITHUB_OUTPUT"
           else
             echo "::warning::No signing key: this trial APK is signed with a debug key and is not for sharing."
+            echo "apk=true" >> "$GITHUB_OUTPUT"
           fi
-      - run: npm run android:apk
+      - if: steps.key.outputs.apk == 'true'
+        run: npm run android:apk
         env:
           CM_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           CM_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           CM_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-      - uses: actions/upload-artifact@v4
+      - if: steps.key.outputs.apk == 'true'
+        uses: actions/upload-artifact@v4
         with:
           name: android
           path: release/*.apk
@@ -123,5 +129,11 @@ jobs:
           tag="v$(node -p "require('./package.json').version")"
           pre=""
           case "$tag" in *-alpha*|*-beta*|*-rc*) pre="--prerelease" ;; esac
+          notes=.github/release-notes.md
+          # No APK this time (no signing key yet): leave Android out of the notes.
+          if ! ls out/*.apk >/dev/null 2>&1; then
+            grep -v '^- \*\*Android' "$notes" > "$RUNNER_TEMP/notes.md"
+            notes="$RUNNER_TEMP/notes.md"
+          fi
           # Creates the tag on this commit when it does not exist yet.
-          gh release create "$tag" out/* $pre --target "$GITHUB_SHA" --title "$tag" --notes-file .github/release-notes.md
+          gh release create "$tag" out/* $pre --target "$GITHUB_SHA" --title "$tag" --notes-file "$notes"
