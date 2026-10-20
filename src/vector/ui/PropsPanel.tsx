@@ -59,6 +59,16 @@ export function PropsPanel() {
   const first = items[items.length - 1]
   const box = selectionBounds(items)
 
+  const penHint = useVector((s) => s.penHint)
+  const hint = tool === 'pen' && (
+    <p
+      className="mx-4 mt-3 rounded-md bg-accent-soft px-3 py-2 text-xs text-accent"
+      data-testid="pen-hint"
+    >
+      {penHint ?? 'Click for a corner point, drag for a curve.'} Ctrl/⌘: adjust points. Space while
+      dragging: move the point. Backspace: remove the last point. Enter: finish.
+    </p>
+  )
   const toggles = (
     <Section title="Snapping">
       <label className="flex min-h-11 items-center gap-2 text-sm md:min-h-8">
@@ -96,6 +106,7 @@ export function PropsPanel() {
   if (!first || !box)
     return (
       <div>
+        {hint}
         <Section title="Artboard">
           <Row>
             <NumberField
@@ -147,6 +158,7 @@ export function PropsPanel() {
 
   return (
     <div>
+      {hint}
       <Section title={items.length === 1 ? first.name : `${items.length} objects`}>
         <Row>
           <ColorField

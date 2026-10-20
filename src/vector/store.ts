@@ -25,6 +25,8 @@ interface VectorState {
   shapeId: string
   /** Path being drawn with the pen. */
   penPathId: string | null
+  /** What a pen click would do at the pointer (shown as a hint). */
+  penHint: string | null
   /** Touch stand-in for Alt: drag a handle on its own. */
   breakHandles: boolean
   snap: boolean
@@ -51,6 +53,7 @@ export const useVector = create<VectorState>(() => {
     tool: 'select',
     shapeId: 'rect',
     penPathId: null,
+    penHint: null,
     breakHandles: false,
     snap: true,
     pixelGrid: false,

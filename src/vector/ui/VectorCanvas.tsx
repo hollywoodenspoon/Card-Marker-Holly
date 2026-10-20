@@ -24,6 +24,8 @@ import { addShape, selectionBounds } from '../actions'
 import { isSmooth } from '../svgPath'
 import { snapDelta, snapLines, snapPoint, type SnapLines } from './snapping'
 import { useCoarsePointer } from '@/ui/shell/useLayout'
+import { joinSubpaths, PEN_HINTS, penIntent, type PenIntent } from '../pen'
+import { badgeFor, penCursor } from './cursors'
 import { fitView, panBy, setStageSize, toDoc, toScreen, zoomTo } from './viewport'
 
 const ACCENT = '#0e9494'
@@ -49,7 +51,16 @@ type Gesture =
       moved: boolean
     }
   | { kind: 'handle'; ref: AnchorRef; which: 'hin' | 'hout'; mirror: boolean; lines: SnapLines }
-  | { kind: 'penDrag'; ref: AnchorRef; alt: boolean; start: Pt; closing: boolean }
+  | {
+      kind: 'penDrag'
+      ref: AnchorRef
+      alt: boolean
+      start: Pt
+      /** both handles, only the out-handle (dragging from the last point), or the closing curve */
+      mode: 'both' | 'out' | 'closing'
+      /** last pointer position, for Space-to-reposition */
+      prev: Pt
+    }
   | { kind: 'convert'; ref: AnchorRef; start: Pt; moved: boolean }
   | { kind: 'shape'; start: Pt; cur: Pt; shift: boolean; alt: boolean; lines: SnapLines }
 
@@ -60,6 +71,8 @@ export function VectorCanvas() {
   const stageRef = useRef<Konva.Stage>(null)
   const [size, setSize] = useState({ w: 0, h: 0 })
   const [hover, setHover] = useState<Pt | null>(null)
+  const [cursorCss, setCursorCss] = useState<string | null>(null)
+  const lastHover = useRef<Pt | null>(null)
   const [preview, setPreview] = useState<Gesture | null>(null)
   const gesture = useRef<Gesture | null>(null)
   const pointers = useRef(new Map<number, Pt>())
@@ -144,12 +157,13 @@ export function VectorCanvas() {
 
   /** Paths whose anchors are shown (and can be grabbed). */
   const editable = useMemo(() => {
-    const ids = new Set(selection)
+    // The Selection tool shows points only for a single object (many get cluttered).
+    const ids = new Set(tool === 'select' && selection.length > 1 ? [] : selection)
     if (penPathId) ids.add(penPathId)
     return items
       .filter((e) => ids.has(e.item.id) && !e.item.locked && !e.layer.locked)
       .map((e) => e.item)
-  }, [items, selection, penPathId])
+  }, [items, selection, penPathId, tool])
 
   const pointer = (): Pt => {
     const p = stageRef.current?.getPointerPosition() ?? { x: 0, y: 0 }
@@ -249,8 +263,18 @@ export function VectorCanvas() {
     const sp = pointer()
     const p = toDoc(sp)
     const s = useVector.getState()
-    const t = spaceHeld.current || ev.button === 1 ? 'hand' : s.tool
+    let t = spaceHeld.current || ev.button === 1 ? 'hand' : s.tool
     const alt = ev.altKey || s.breakHandles
+    // Ctrl/⌘ with the pen or anchor tools: Direct Selection while held (Illustrator).
+    // Ctrl/⌘-click on empty space ends the path being drawn.
+    if ((ev.ctrlKey || ev.metaKey) && ['pen', 'addAnchor', 'deleteAnchor', 'convert'].includes(t)) {
+      if (hitAnchor(sp, true) || pathAt(e.target)) t = 'direct'
+      else {
+        finishPen()
+        useVector.setState({ selection: [], anchors: [] })
+        return
+      }
+    }
 
     if (t === 'hand') {
       gesture.current = { kind: 'pan', last: { x: ev.clientX, y: ev.clientY } }
@@ -439,79 +463,178 @@ export function VectorCanvas() {
     }
   }
 
+  /** What the pen would do at a screen point. */
+  const penIntentAt = (sp: Pt, alt: boolean): PenIntent => {
+    const s = useVector.getState()
+    return penIntent(
+      s.doc,
+      { penPathId: s.penPathId, selection: s.selection, alt },
+      toDoc(sp),
+      (R + 4) / s.view.zoom,
+    )
+  }
+
+  /** Cursor (and hint) for the pen and anchor tools, from what a click would do. */
+  const updateCursor = (
+    sp: Pt | null,
+    mods: { ctrlKey: boolean; metaKey: boolean; altKey: boolean },
+  ) => {
+    const s = useVector.getState()
+    const t = s.tool
+    let css: string | null = null
+    let hint: string | null = null
+    const anchorTool = t === 'pen' || t === 'addAnchor' || t === 'deleteAnchor' || t === 'convert'
+    if (anchorTool && (mods.ctrlKey || mods.metaKey))
+      css = 'default' // Direct Selection while held
+    else if (t === 'pen') {
+      const intent = sp
+        ? penIntentAt(sp, mods.altKey || s.breakHandles)
+        : ({ kind: s.penPathId ? 'place' : 'new' } as PenIntent)
+      css = penCursor(badgeFor(intent))
+      hint = PEN_HINTS[intent.kind]
+    } else if (t === 'addAnchor') css = penCursor('add')
+    else if (t === 'deleteAnchor') css = penCursor('delete')
+    else if (t === 'convert') css = penCursor('convert')
+    setCursorCss(css)
+    if (s.penHint !== hint) useVector.setState({ penHint: hint })
+  }
+
+  // Modifier keys change the cursor without moving the mouse.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (['Control', 'Meta', 'Alt', 'Shift'].includes(e.key)) updateCursor(lastHover.current, e)
+    }
+    window.addEventListener('keydown', onKey)
+    window.addEventListener('keyup', onKey)
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      window.removeEventListener('keyup', onKey)
+    }
+  })
+  useEffect(() => {
+    updateCursor(lastHover.current, { ctrlKey: false, metaKey: false, altKey: false })
+    // Recompute when the tool or the drawing changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tool, penPathId, doc, selection])
+
   const penDown = (sp: Pt, p: Pt, shift: boolean, alt: boolean) => {
     const s = useVector.getState()
     const lines = snapLines(new Set(s.penPathId ? [s.penPathId] : []))
+    const intent = penIntentAt(sp, alt)
     const drawing = s.penPathId ? findItem(s.doc, s.penPathId) : undefined
-    if (drawing) {
-      const subIdx = drawing.item.subpaths.length - 1
-      const sub = drawing.item.subpaths[subIdx]
-      const first = sub.anchors[0]
-      // Click the first anchor to close the path.
-      if (sub.anchors.length >= 2 && dist(toScreen(first), sp) <= R + 4) {
+    switch (intent.kind) {
+      case 'close': {
+        const first = drawing!.item.subpaths[intent.sub].anchors[0]
         vcommit((d) => {
-          const f = findItem(d, s.penPathId!)!
-          f.item.subpaths[subIdx].closed = true
+          findItem(d, intent.pathId)!.item.subpaths[intent.sub].closed = true
         })
+        const ref = { pathId: intent.pathId, sub: intent.sub, index: 0 }
+        gesture.current = { kind: 'penDrag', ref, alt, start: first, mode: 'closing', prev: p }
+        return
+      }
+      case 'convertLast': {
+        // Click: the next segment starts as a corner. Drag: pull a new out-handle only.
+        const a = drawing!.item.subpaths[intent.sub].anchors[intent.index]
+        commitAnchors(intent.pathId, (subs) => {
+          const next = structuredClone(subs)
+          delete next[intent.sub].anchors[intent.index].hout
+          return next
+        })
+        const ref = { pathId: intent.pathId, sub: intent.sub, index: intent.index }
         gesture.current = {
           kind: 'penDrag',
-          ref: { pathId: drawing.item.id, sub: subIdx, index: 0 },
-          alt,
-          start: first,
-          closing: true,
+          ref,
+          alt: true,
+          start: { x: a.x, y: a.y },
+          mode: 'out',
+          prev: p,
         }
         return
       }
-      const last = sub.anchors[sub.anchors.length - 1]
-      const q = shift ? snap45(last, p) : snapPoint(p, lines)
-      vcommit((d) => {
-        const f = findItem(d, s.penPathId!)!
-        f.item.subpaths[subIdx].anchors.push({ x: q.x, y: q.y })
-      })
-      gesture.current = {
-        kind: 'penDrag',
-        ref: { pathId: drawing.item.id, sub: subIdx, index: sub.anchors.length },
-        alt,
-        start: q,
-        closing: false,
-      }
-      return
-    }
-    // Clicking the end of an open path continues it.
-    for (const it of editable) {
-      for (let si = 0; si < it.subpaths.length; si++) {
-        const sub = it.subpaths[si]
-        if (sub.closed || !sub.anchors.length) continue
-        const endHit = dist(toScreen(sub.anchors[sub.anchors.length - 1]), sp) <= R + 4
-        const startHit = dist(toScreen(sub.anchors[0]), sp) <= R + 4
-        if (!endHit && !startHit) continue
+      case 'join': {
+        const fromId = s.penPathId!
         vcommit((d) => {
-          const f = findItem(d, it.id)!
+          const f = findItem(d, fromId)!
+          const g = findItem(d, intent.pathId)!
+          const ai = f.item.subpaths.length - 1
+          const joined = joinSubpaths(
+            current(f.item.subpaths[ai]) as SubPath,
+            current(g.item.subpaths[intent.sub]) as SubPath,
+            intent.end,
+          )
+          f.item.subpaths[ai] = joined
+          // Take the joined part out of the other path (it is now part of this one).
+          g.item.subpaths.splice(intent.sub, 1)
+          if (!g.item.subpaths.length) g.layer.items.splice(g.index, 1)
+          delete f.item.shape
+        })
+        useVector.setState({ penPathId: null, selection: [fromId], anchors: [] })
+        return
+      }
+      case 'continue': {
+        vcommit((d) => {
+          const f = findItem(d, intent.pathId)!
           const subs = f.item.subpaths
-          // Work on the last subpath, with its open end last.
-          let target = startHit && !endHit ? reverseSub(subs[si]) : subs[si]
-          target = { ...target }
-          subs.splice(si, 1)
+          // Work on the last subpath, with the open end we continue from last.
+          const target =
+            intent.end === 'start'
+              ? reverseSub(current(subs[intent.sub]) as SubPath)
+              : (current(subs[intent.sub]) as SubPath)
+          subs.splice(intent.sub, 1)
           subs.push(target)
           delete f.item.shape
         })
-        useVector.setState({ penPathId: it.id, selection: [it.id], anchors: [] })
+        useVector.setState({ penPathId: intent.pathId, selection: [intent.pathId], anchors: [] })
         return
       }
-    }
-    const q = snapPoint(p, lines)
-    const path = newPath('Path', [{ closed: false, anchors: [{ x: q.x, y: q.y }] }], PEN_STYLE)
-    vcommit((d) => {
-      const layer = d.layers.find((l) => l.id === s.activeLayerId) ?? d.layers[d.layers.length - 1]
-      layer.items.push(path)
-    })
-    useVector.setState({ penPathId: path.id, selection: [path.id], anchors: [] })
-    gesture.current = {
-      kind: 'penDrag',
-      ref: { pathId: path.id, sub: 0, index: 0 },
-      alt,
-      start: q,
-      closing: false,
+      case 'add':
+        commitAnchors(intent.pathId, (subs) =>
+          subs.map((sub, k) => (k === intent.sub ? insertAnchor(sub, intent.seg, intent.t) : sub)),
+        )
+        useVector.setState({
+          anchors: [{ pathId: intent.pathId, sub: intent.sub, index: intent.seg + 1 }],
+        })
+        return
+      case 'delete':
+        commitAnchors(intent.pathId, (subs) =>
+          subs.flatMap((sub, k) =>
+            k === intent.sub ? (removeAnchor(sub, intent.index) ?? []) : [sub],
+          ),
+        )
+        useVector.setState({ anchors: [] })
+        return
+      case 'convert':
+        gesture.current = {
+          kind: 'convert',
+          ref: { pathId: intent.pathId, sub: intent.sub, index: intent.index },
+          start: p,
+          moved: false,
+        }
+        return
+      case 'place': {
+        const subIdx = drawing!.item.subpaths.length - 1
+        const sub = drawing!.item.subpaths[subIdx]
+        const last = sub.anchors[sub.anchors.length - 1]
+        const q = shift ? snap45(last, p) : snapPoint(p, lines)
+        vcommit((d) => {
+          findItem(d, s.penPathId!)!.item.subpaths[subIdx].anchors.push({ x: q.x, y: q.y })
+        })
+        const ref = { pathId: drawing!.item.id, sub: subIdx, index: sub.anchors.length }
+        gesture.current = { kind: 'penDrag', ref, alt, start: q, mode: 'both', prev: p }
+        return
+      }
+      case 'new': {
+        const q = snapPoint(p, lines)
+        const path = newPath('Path', [{ closed: false, anchors: [{ x: q.x, y: q.y }] }], PEN_STYLE)
+        vcommit((d) => {
+          const layer =
+            d.layers.find((l) => l.id === s.activeLayerId) ?? d.layers[d.layers.length - 1]
+          layer.items.push(path)
+        })
+        useVector.setState({ penPathId: path.id, selection: [path.id], anchors: [] })
+        const ref = { pathId: path.id, sub: 0, index: 0 }
+        gesture.current = { kind: 'penDrag', ref, alt, start: q, mode: 'both', prev: p }
+      }
     }
   }
 
@@ -537,7 +660,9 @@ export function VectorCanvas() {
     const p = toDoc(sp)
     const g = gesture.current
     if (!g) {
+      lastHover.current = sp
       if (useVector.getState().tool === 'pen') setHover(p)
+      updateCursor(sp, ev)
       return
     }
     switch (g.kind) {
@@ -623,6 +748,27 @@ export function VectorCanvas() {
       }
       case 'penDrag': {
         const { ref } = g
+        // Space while dragging moves the point being placed (Illustrator).
+        if (spaceHeld.current) {
+          const d = { x: p.x - g.prev.x, y: p.y - g.prev.y }
+          g.prev = p
+          g.start = { x: g.start.x + d.x, y: g.start.y + d.y }
+          commitAnchors(
+            ref.pathId,
+            (subs) => {
+              const next = structuredClone(subs)
+              const a = next[ref.sub]?.anchors[ref.index]
+              if (a) {
+                a.x += d.x
+                a.y += d.y
+              }
+              return next
+            },
+            'pen',
+          )
+          return
+        }
+        g.prev = p
         let h = { x: p.x - g.start.x, y: p.y - g.start.y }
         if (ev.shiftKey) {
           const s = snap45(g.start, p)
@@ -636,10 +782,12 @@ export function VectorCanvas() {
             const next = structuredClone(subs)
             const a = next[ref.sub]?.anchors[ref.index]
             if (!a) return subs
-            if (g.closing) {
+            if (g.mode === 'closing') {
               // Dragging on the first anchor while closing shapes the closing curve.
               a.hin = { x: -h.x, y: -h.y }
               if (!alt) a.hout = { x: h.x, y: h.y }
+            } else if (g.mode === 'out') {
+              a.hout = h
             } else {
               a.hout = h
               if (!alt) a.hin = { x: -h.x, y: -h.y }
@@ -749,7 +897,7 @@ export function VectorCanvas() {
         return next
       })
     }
-    if (g.kind === 'penDrag' && g.closing) useVector.setState({ penPathId: null })
+    if (g.kind === 'penDrag' && g.mode === 'closing') useVector.setState({ penPathId: null })
     if (g.kind === 'shape') {
       let box = shapeBox(g)
       if (box.w * view.zoom < 4 || box.h * view.zoom < 4) {
@@ -905,7 +1053,8 @@ export function VectorCanvas() {
   }
 
   const cursor =
-    tool === 'hand'
+    cursorCss ??
+    (tool === 'hand'
       ? 'grab'
       : tool === 'pen' ||
           tool === 'shape' ||
@@ -913,7 +1062,7 @@ export function VectorCanvas() {
           tool === 'deleteAnchor' ||
           tool === 'convert'
         ? 'crosshair'
-        : 'default'
+        : 'default')
 
   return (
     <div

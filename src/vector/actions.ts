@@ -10,6 +10,7 @@ import {
   type SubPath,
 } from './geometry'
 import { allItems, findItem, newId, newLayer, newPath, type VPath, type VStyle } from './model'
+import { removeLastPoint } from './pen'
 import { buildShape, shapeById } from './shapes'
 import { useVector, vcommit } from './store'
 
@@ -364,4 +365,26 @@ export function addShape(shapeId: string, box: Box) {
     layer.items.push(p)
   })
   useVector.setState({ selection: [p.id], anchors: [] })
+}
+
+/** Backspace while drawing: take back the last point (the path goes when none are left). */
+export function removeLastPenPoint() {
+  const { penPathId } = useVector.getState()
+  if (!penPathId) return
+  let gone = false
+  vcommit((d) => {
+    const f = findItem(d, penPathId)
+    if (!f) return
+    const i = f.item.subpaths.length - 1
+    const next = removeLastPoint(f.item.subpaths[i] as SubPath)
+    if (next) f.item.subpaths[i] = next
+    else {
+      f.item.subpaths.splice(i, 1)
+      if (!f.item.subpaths.length) {
+        f.layer.items.splice(f.index, 1)
+        gone = true
+      }
+    }
+  })
+  if (gone) useVector.setState({ penPathId: null, selection: [] })
 }

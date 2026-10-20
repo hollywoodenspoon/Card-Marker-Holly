@@ -1,6 +1,7 @@
 import {
   ArrowLeft,
   FolderOpen,
+  Wand2,
   Layers,
   Maximize,
   Redo2,
@@ -17,13 +18,19 @@ import { Button, IconButton } from '@/ui/components/ui/button'
 import { Sheet } from '@/ui/components/ui/sheet'
 import { useLayout } from '@/ui/shell/useLayout'
 import { useUi } from '@/ui/uiStore'
-import { deleteSelection, duplicateSelection, transformSelection } from '../actions'
+import {
+  deleteSelection,
+  duplicateSelection,
+  removeLastPenPoint,
+  transformSelection,
+} from '../actions'
 import { translateM } from '../geometry'
 import { newDoc, parseDoc } from '../model'
 import { endVGesture, loadVectorDoc, setTool, useVector, vredo, vundo } from '../store'
 import { fromSvg } from '../svg'
 import { PropsPanel } from './PropsPanel'
 import { SaveDialog } from './SaveDialog'
+import { TraceDialog } from './TraceDialog'
 import { ToolBar } from './ToolBar'
 import { VectorCanvas } from './VectorCanvas'
 import { VLayersPanel } from './VLayersPanel'
@@ -60,6 +67,7 @@ export default function VectorMaker() {
   const canUndo = useVector((s) => s.past.length > 0)
   const canRedo = useVector((s) => s.future.length > 0)
   const [saving, setSaving] = useState(false)
+  const [tracing, setTracing] = useState(false)
   const [sheet, setSheet] = useState<'props' | 'layers' | null>(null)
   const [ready, setReady] = useState(false)
 
@@ -117,8 +125,9 @@ export default function VectorMaker() {
           })),
         )
       if (mod) return
-      if ((k === 'delete' || k === 'backspace') && !useVector.getState().penPathId)
-        return run(deleteSelection)
+      if (k === 'delete' || k === 'backspace')
+        // While drawing, take back the last point (Illustrator); otherwise delete.
+        return run(useVector.getState().penPathId ? removeLastPenPoint : deleteSelection)
       const nudge = e.shiftKey ? 10 : 1
       const arrows: Record<string, [number, number]> = {
         arrowleft: [-nudge, 0],
@@ -196,6 +205,9 @@ export default function VectorMaker() {
             <IconButton label="Open SVG file" onClick={() => void openSvg()}>
               <FolderOpen />
             </IconButton>
+            <Button variant="outline" onClick={() => setTracing(true)}>
+              <Wand2 /> Trace image
+            </Button>
           </>
         )}
         {layout !== 'desktop' && (
@@ -229,13 +241,25 @@ export default function VectorMaker() {
             title="Properties"
             tall
             modal={false}
+            // Above the Vector Maker's own full-screen layer.
+            className="z-[60]"
           >
             <div className="min-h-0 overflow-y-auto">
               <PropsPanel />
               {phone && (
-                <div className="p-3">
+                <div className="flex flex-col gap-2 p-3">
                   <Button variant="outline" className="w-full" onClick={() => void openSvg()}>
                     <FolderOpen /> Open SVG file
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => {
+                      setSheet(null)
+                      setTracing(true)
+                    }}
+                  >
+                    <Wand2 /> Trace image
                   </Button>
                 </div>
               )}
@@ -247,6 +271,8 @@ export default function VectorMaker() {
             side={phone ? 'bottom' : 'right'}
             title="Layers"
             modal={false}
+            // Above the Vector Maker's own full-screen layer.
+            className="z-[60]"
           >
             <div className="min-h-0 overflow-y-auto">
               <VLayersPanel />
@@ -255,6 +281,7 @@ export default function VectorMaker() {
         </>
       )}
       <SaveDialog open={saving} onClose={() => setSaving(false)} />
+      <TraceDialog open={tracing} onClose={() => setTracing(false)} />
     </div>
   )
 }

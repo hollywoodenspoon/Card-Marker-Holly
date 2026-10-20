@@ -1,5 +1,5 @@
 import { ArrowLeft, Search } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { selectCard } from '@/core/editor/cardCommands'
 import { useEditor } from '@/core/editor/editorStore'
 import type { Card, Deck } from '@/core/model/types'
@@ -10,9 +10,14 @@ import { CardThumb } from '@/ui/canvas/CardThumb'
 import { IconButton } from '@/ui/components/ui/button'
 import { Input, Label, NativeSelect } from '@/ui/components/ui/input'
 import { Tabs, TabsList, TabsTrigger } from '@/ui/components/ui/tabs'
+import { usePanZoom } from '@/ui/components/usePanZoom'
+import { ZoomBar } from '@/ui/components/ZoomBar'
 import { useUi } from '@/ui/uiStore'
 
 const NO_DECKS: Deck[] = []
+const DEFAULT_SIZE = 220
+const MIN_SIZE = 80
+const MAX_SIZE = 800
 
 /** All cards in a big grid, or as a text table for proofreading (with spell check). */
 export function GalleryView() {
@@ -23,7 +28,28 @@ export function GalleryView() {
   const [deckId, setDeckId] = useState('')
   const [q, setQ] = useState('')
   const [sides, setSides] = useState<'front' | 'back' | 'both'>('front')
-  const [size, setSize] = useState(220)
+  const [size, setSize] = useState(DEFAULT_SIZE)
+  const mainRef = useRef<HTMLElement>(null)
+  // Card-editor controls: Ctrl/⌘ + wheel or pinch resizes the cards (redrawn sharp,
+  // keeping the spot under the pointer), Space / middle-drag pans.
+  const resize = (f: number, at?: { x: number; y: number }) => {
+    const el = mainRef.current
+    setSize((old) => {
+      const next = Math.round(Math.min(MAX_SIZE, Math.max(MIN_SIZE, old * f)))
+      const k = next / old
+      if (el && at && k !== 1)
+        requestAnimationFrame(() => {
+          el.scrollTop = (el.scrollTop + at.y) * k - at.y
+          el.scrollLeft = (el.scrollLeft + at.x) * k - at.x
+        })
+      return next
+    })
+  }
+  const pz = usePanZoom(mainRef, {
+    onZoom: (f, at) => tab === 'grid' && resize(f, at),
+    onPan: (dx, dy) => mainRef.current?.scrollBy(-dx, -dy),
+    onFit: () => setSize(DEFAULT_SIZE),
+  })
   const deck = decks.find((d) => d.id === deckId)
   const list = useMemo(() => {
     const all = Object.values(cards).sort((a, b) => a.order - b.order)
@@ -96,8 +122,8 @@ export function GalleryView() {
               Size
               <input
                 type="range"
-                min={100}
-                max={480}
+                min={MIN_SIZE}
+                max={MAX_SIZE}
                 step={20}
                 value={size}
                 onChange={(e) => setSize(Number(e.target.value))}
@@ -112,7 +138,16 @@ export function GalleryView() {
           {deck ? ` · ${deck.name}` : ''}
         </span>
       </header>
-      <main className={cn('min-h-0 flex-1 overflow-auto', tab === 'grid' && 'bg-canvas')}>
+      <main
+        ref={mainRef}
+        className={cn(
+          'relative min-h-0 flex-1 overflow-auto',
+          tab === 'grid' && 'touch-pan-y bg-canvas',
+        )}
+        style={{ cursor: pz.cursor }}
+        {...(tab === 'grid' ? pz.handlers : {})}
+        data-testid="gallery-main"
+      >
         {tab === 'grid' ? (
           <ul className="flex flex-wrap content-start gap-4 p-4" aria-label="Cards">
             {list.map((c) => (
@@ -142,6 +177,14 @@ export function GalleryView() {
           <p className="p-8 text-center text-sm text-muted-foreground">No cards to show.</p>
         )}
       </main>
+      {tab === 'grid' && (
+        <ZoomBar
+          className="bottom-[calc(0.75rem+env(safe-area-inset-bottom))]"
+          zoom={size / DEFAULT_SIZE}
+          onZoom={(f) => resize(f)}
+          onFit={() => setSize(DEFAULT_SIZE)}
+        />
+      )}
     </div>
   )
 }
