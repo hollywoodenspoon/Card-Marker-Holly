@@ -30,7 +30,7 @@ jobs:
           - os: ubuntu-latest
             args: --linux AppImage pacman
           - os: windows-latest
-            args: --win portable
+            args: --win  # the targets in electron-builder.yml: Setup (nsis) and portable
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
