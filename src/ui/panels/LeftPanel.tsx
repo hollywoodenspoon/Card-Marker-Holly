@@ -32,7 +32,7 @@ const ACTIONS = [
     run: () => useUi.getState().setGalleryOpen(true),
   },
   {
-    label: 'Images',
+    label: 'Export',
     title: 'Export card images',
     icon: ImageDown,
     run: () => useUi.getState().setImageExport({ cardId: useEditor.getState().view.cardId }),
@@ -58,7 +58,7 @@ const ACTIONS = [
 ]
 
 const railButton =
-  'flex h-14 w-14 shrink-0 flex-col items-center justify-center gap-1 rounded-lg text-[10px] font-medium text-muted-foreground transition-colors hover:bg-muted'
+  'flex h-14 w-14 shrink-0 flex-col items-center justify-center gap-1 rounded-lg text-[11px] font-medium text-muted-foreground transition-colors hover:bg-muted'
 
 /** Vertical icon rail + the active panel, with Assets docked below. Used on desktop and inside the tablet drawer. */
 export function LeftPanel({

@@ -34,6 +34,7 @@ import { Switch } from '@/ui/components/ui/switch'
 import { ColorField, NumberField, Row, Section } from '@/ui/components/fields'
 import { useFontFamilies } from '@/ui/text/useFontFamilies'
 import { useUi } from '@/ui/uiStore'
+import { askConfirm, askText } from '@/ui/components/feedback'
 
 export function TextSection({ el, editable }: { el: TextElement; editable: boolean }) {
   const mode = useEditor((s) => s.view.mode)
@@ -397,11 +398,13 @@ function StylePicker({ el, editable }: { el: TextElement; editable: boolean }) {
           variant="outline"
           size="icon-sm"
           disabled={!editable}
-          onClick={() => {
-            const name = prompt(
-              'Name for the new style',
-              preset ? `${preset.name} copy` : 'Heading',
-            )?.trim()
+          onClick={async () => {
+            const name = await askText({
+              title: 'New style from this text',
+              label: 'Style name',
+              initial: preset ? `${preset.name} copy` : 'Heading',
+              okLabel: 'Create',
+            })
             if (name) createStyleFromText(el.id, name)
           }}
         >
@@ -419,8 +422,13 @@ function StylePicker({ el, editable }: { el: TextElement; editable: boolean }) {
               variant="ghost"
               size="sm"
               disabled={!editable}
-              onClick={() => {
-                const name = prompt('Rename style', preset.name)?.trim()
+              onClick={async () => {
+                const name = await askText({
+                  title: 'Rename style',
+                  label: 'Style name',
+                  initial: preset.name,
+                  okLabel: 'Rename',
+                })
                 if (name) renameStyle(preset.id, name)
               }}
             >
@@ -439,11 +447,14 @@ function StylePicker({ el, editable }: { el: TextElement; editable: boolean }) {
               size="sm"
               className="text-danger"
               disabled={!editable}
-              onClick={() => {
+              onClick={async () => {
                 if (
-                  confirm(
-                    `Delete the style “${preset.name}”? Texts using it keep their current look.`,
-                  )
+                  await askConfirm({
+                    title: `Delete the style “${preset.name}”?`,
+                    description: 'Texts using it keep their current look.',
+                    okLabel: 'Delete',
+                    danger: true,
+                  })
                 )
                   deleteStyle(preset.id)
               }}

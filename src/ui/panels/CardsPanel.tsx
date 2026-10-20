@@ -34,6 +34,7 @@ import { useReorder } from '@/ui/components/useReorder'
 import { CardThumb as LiveThumb } from '@/ui/canvas/CardThumb'
 import { BulkBar } from './BulkBar'
 import { useUi } from '@/ui/uiStore'
+import { deletedToast } from '@/ui/actions/undoToast'
 
 export function CardsPanel({ onPicked }: { onPicked?: () => void }) {
   const cards = useEditor((s) => s.doc?.cards)
@@ -157,8 +158,17 @@ export function CardsPanel({ onPicked }: { onPicked?: () => void }) {
           </li>
         ))}
         {!filtered.length && (
-          <li className="p-4 text-center text-sm text-muted-foreground">
-            {q ? 'No cards match.' : 'No cards yet.'}
+          <li className="flex flex-col items-center gap-2 p-4 text-center text-sm text-muted-foreground">
+            {q ? (
+              'No cards match.'
+            ) : (
+              <>
+                No cards yet.
+                <Button size="sm" onClick={() => addCard()}>
+                  <Plus /> Add your first card
+                </Button>
+              </>
+            )}
           </li>
         )}
       </ul>
@@ -268,7 +278,13 @@ const CardRow = memo(function CardRow({
             <Image /> Export as image…
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem danger onSelect={() => deleteCard(card.id)}>
+          <DropdownMenuItem
+            danger
+            onSelect={() => {
+              deleteCard(card.id)
+              deletedToast(`“${card.name}”`)
+            }}
+          >
             <Trash2 /> Delete
           </DropdownMenuItem>
         </DropdownMenuContent>

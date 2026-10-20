@@ -36,6 +36,7 @@ import {
   DropdownMenuTrigger,
 } from '@/ui/components/ui/dropdown'
 import { Input } from '@/ui/components/ui/input'
+import { askText } from '@/ui/components/feedback'
 import { useUi } from '@/ui/uiStore'
 
 const NO_FOLDERS: string[] = []
@@ -295,19 +296,29 @@ function AssetTile({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem
-              onSelect={() => {
-                const name = prompt('Rename image', a.name)?.trim()
+              onSelect={async () => {
+                const name = await askText({
+                  title: 'Rename image',
+                  label: 'Name',
+                  initial: a.name,
+                  okLabel: 'Rename',
+                })
                 if (name) updateLibrary((l) => void (l.assets[a.id].name = name))
               }}
             >
               <Pencil /> Rename
             </DropdownMenuItem>
             <DropdownMenuItem
-              onSelect={() => {
-                const v = prompt(
-                  'Symbol name — type {name} in any text to show this image inline. Leave empty to remove.',
-                  a.tags[0] ?? a.name.toLowerCase().replace(/[^a-z0-9_-]+/g, ''),
-                )
+              onSelect={async () => {
+                const v = await askText({
+                  title: 'Symbol name',
+                  description:
+                    'Type {name} in any text to show this image there, like an icon. Leave it empty to stop using it as a symbol.',
+                  label: 'Name (letters, numbers, - and _)',
+                  initial: a.tags[0] ?? a.name.toLowerCase().replace(/[^a-z0-9_-]+/g, ''),
+                  okLabel: 'Save',
+                  allowEmpty: true,
+                })
                 if (v === null) return
                 const tag = v
                   .trim()
@@ -351,8 +362,13 @@ function FolderMenu({ folder }: { folder: string }) {
           <Upload /> Upload here
         </DropdownMenuItem>
         <DropdownMenuItem
-          onSelect={() => {
-            const name = prompt('Rename folder', folder)
+          onSelect={async () => {
+            const name = await askText({
+              title: 'Rename folder',
+              label: 'Folder name',
+              initial: folder,
+              okLabel: 'Rename',
+            })
             if (name) renameAssetFolder(folder, name)
           }}
         >

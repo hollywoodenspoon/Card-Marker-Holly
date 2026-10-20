@@ -14,6 +14,7 @@ import { ImageFieldSection, ImageSection } from './properties/ImageSection'
 import { PartSection } from './properties/PartSection'
 import { ShapeSection } from './properties/ShapeSection'
 import { TextSection } from './properties/TextSection'
+import { renameElement } from '@/templates/commands'
 
 export function PropertiesPanel() {
   const els = useEditor(useShallow(selectedElements))
@@ -61,7 +62,20 @@ export function PropertiesPanel() {
   return (
     <div>
       <div className="border-b px-4 py-3">
-        <div className="truncate text-sm font-semibold">{el.name}</div>
+        {/* Rename here (also on touch, where double-clicking a layer is awkward). */}
+        <input
+          key={el.id + el.name}
+          aria-label="Name"
+          defaultValue={el.name}
+          disabled={!editable}
+          onBlur={(e) => {
+            const v = e.target.value.trim()
+            if (v && v !== el.name) renameElement(el.id, v)
+            else e.target.value = el.name
+          }}
+          onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
+          className="-mx-1 h-11 w-full min-w-0 truncate rounded-md border border-transparent bg-transparent px-1 text-sm font-semibold outline-none hover:border-input focus:border-accent disabled:opacity-100 md:h-7"
+        />
         <div className="text-xs text-muted-foreground">{typeLabel(el.type)}</div>
       </div>
       <PartSection el={el} />

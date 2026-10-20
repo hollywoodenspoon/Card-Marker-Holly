@@ -25,11 +25,13 @@ import { usePanZoom } from '@/ui/components/usePanZoom'
 import { ZoomBar } from '@/ui/components/ZoomBar'
 import { SheetPreview } from './SheetPreview'
 import { usePreviewBands } from './usePreviewBands'
+import { notePrintOpened } from '@/ui/onboarding/firstRun'
 
 /** Full-screen print view: sheet settings, preview of fronts and mirrored backs, PDF export. */
 export function PrintView({ layout }: { layout: LayoutKind }) {
   const setOpen = useUi((s) => s.setPrintOpen)
   useEscapeToClose(() => setOpen(false))
+  useEffect(() => notePrintOpened(), [])
   const doc = useEditor((s) => s.doc!)
   const library = useEditor((s) => s.library)
   const job = useMemo(
@@ -174,7 +176,7 @@ export function PrintView({ layout }: { layout: LayoutKind }) {
                     type="button"
                     onClick={() => setSide(s)}
                     className={cn(
-                      'h-10 rounded-md px-3 text-xs font-medium capitalize',
+                      'h-11 rounded-md px-3 text-xs font-medium capitalize md:h-9',
                       side === s && 'bg-accent text-accent-foreground',
                     )}
                   >

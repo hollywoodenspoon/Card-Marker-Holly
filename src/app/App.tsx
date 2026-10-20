@@ -3,6 +3,7 @@ import { useEditor } from '@/core/editor/editorStore'
 import { loadBuiltinFonts } from '@/assets/fonts'
 import { startAutosave } from '@/storage/autosave'
 import { getSetting } from '@/storage/repo'
+import { FeedbackHost } from '@/ui/components/FeedbackHost'
 import { HomeScreen } from '@/ui/home/HomeScreen'
 import { PwaToast } from '@/ui/pwa/PwaToast'
 import { AppShell } from '@/ui/shell/AppShell'
@@ -29,6 +30,7 @@ export function App() {
     <>
       {hasDoc ? <AppShell /> : <HomeScreen />}
       <PwaToast />
+      <FeedbackHost />
     </>
   )
 }

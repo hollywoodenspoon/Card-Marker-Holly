@@ -73,7 +73,12 @@ function CountBar({ id }: { id: string }) {
         <Plus />
       </IconButton>
       <span className="mx-1 h-6 w-px bg-border" aria-hidden />
-      <span className="px-1 text-xs text-muted-foreground">Grey</span>
+      <span
+        className="px-1 text-xs text-muted-foreground"
+        title="Greyed-out icons after the coloured ones"
+      >
+        Grey
+      </span>
       <IconButton
         label="One less grey"
         size="icon-sm"

@@ -24,7 +24,7 @@ const TITLES: Record<string, string> = {
   add: 'Add',
   assets: 'Assets',
   fonts: 'Fonts',
-  properties: 'Properties',
+  properties: 'Edit',
 }
 
 export function PhoneShell() {
@@ -59,8 +59,10 @@ export function PhoneShell() {
         open={phoneSheet !== null}
         onOpenChange={(o) => !o && setPhoneSheet(null)}
         side="bottom"
-        tall={phoneSheet === 'properties'}
         title={phoneSheet ? TITLES[phoneSheet] : ''}
+        // Editing: a lower sheet that leaves the card visible and tappable above it.
+        modal={phoneSheet !== 'properties'}
+        className={phoneSheet === 'properties' ? 'max-h-[55dvh]' : undefined}
       >
         {phoneSheet === 'add' ? (
           <AddGrid onDone={() => setPhoneSheet(null)} />

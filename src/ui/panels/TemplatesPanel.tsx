@@ -40,6 +40,7 @@ import {
   DropdownMenuTrigger,
 } from '@/ui/components/ui/dropdown'
 import { Input } from '@/ui/components/ui/input'
+import { toast } from '@/ui/components/feedback'
 
 export function TemplatesPanel({ onPicked }: { onPicked?: () => void }) {
   const templates = useEditor((s) => s.doc?.templates)
@@ -87,7 +88,9 @@ export function TemplatesPanel({ onPicked }: { onPicked?: () => void }) {
             try {
               await uploadTemplate(f, registerProjectFonts)
             } catch (e) {
-              alert(e instanceof Error ? e.message : 'Could not import this file.')
+              toast(e instanceof Error ? e.message : 'Could not import this file.', {
+                tone: 'error',
+              })
             }
           }}
         >

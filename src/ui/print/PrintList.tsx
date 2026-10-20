@@ -180,7 +180,7 @@ function PrintRow({
           onChange={(e) => setCopies(card.id, e.target.valueAsNumber)}
           onFocus={(e) => e.target.select()}
           aria-label={`Copies of ${card.name}`}
-          className="h-9 w-9 rounded-md border bg-background text-center text-sm tabular-nums [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
+          className="h-11 w-11 rounded-md border md:h-9 md:w-9 bg-background text-center text-sm tabular-nums [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
         />
         <IconButton
           label={`More copies of ${card.name}`}

@@ -1,3 +1,4 @@
+import { askText } from '@/ui/components/feedback'
 import { assetsInFolder, renameInList, uniqueFolderName } from '@/assets/folders'
 import { IMAGE_ACCEPT } from '@/assets/imageAssets'
 import { commit, updateLibrary, useEditor } from '@/core/editor/editorStore'
@@ -61,7 +62,12 @@ export const uploadImages = async (folder?: string) =>
   importImages(await pickFiles(IMAGE_ACCEPT), folder)
 
 /** Ask for a name and add a folder. */
-export function newAssetFolder() {
-  const name = prompt('Folder name', 'New folder')?.trim()
+export async function newAssetFolder() {
+  const name = await askText({
+    title: 'New folder',
+    label: 'Folder name',
+    initial: 'New folder',
+    okLabel: 'Create',
+  })
   if (name) addAssetFolder(name)
 }

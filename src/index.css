@@ -42,7 +42,8 @@
   --foreground: #0b3b3b;
   --panel: #ffffff;
   --muted: #e5fdff;
-  --muted-foreground: #069494;
+  /* #069494 is too light for small text on white; same hue, readable. */
+  --muted-foreground: #057575;
   --border: #a8f5fb;
   --input: #7ee9f2;
   --accent: #ff69b4;

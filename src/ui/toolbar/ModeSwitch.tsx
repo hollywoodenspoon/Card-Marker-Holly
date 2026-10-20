@@ -34,7 +34,7 @@ export function ModeSwitch({ className }: { className?: string }) {
           aria-checked={mode === m}
           onClick={fn}
           className={cn(
-            'h-10 rounded-md px-3 text-xs font-medium text-muted-foreground md:h-7',
+            'h-11 rounded-md px-3 text-xs font-medium text-muted-foreground md:h-7',
             mode === m && 'bg-panel text-foreground shadow-sm',
             mode === m && m === 'template' && 'text-accent',
           )}
