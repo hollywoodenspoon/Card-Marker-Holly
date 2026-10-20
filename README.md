@@ -1,8 +1,8 @@
 # Card Maker
 
-*Card Maker is a working title.* Version **0.1.0-alpha.1** (early alpha).
+*Card Maker is a working title.* Version **0.1.0-alpha.2** (early alpha).
 
-A card editor built with React, TypeScript, Vite and a Konva canvas. It runs as a website (projects stored in the browser) or as a desktop app for Windows and Linux (projects stored as folders of ordinary files). There is no backend, and it works offline.
+A card editor built with React, TypeScript, Vite and a Konva canvas. It runs as a website (projects stored in the browser), or as a desktop app for Windows and Linux and an Android app for phones and tablets (projects stored as folders of ordinary files). There is no backend, and it works offline.
 
 ```bash
 npm install            # install dependencies
@@ -14,11 +14,13 @@ npm run preview        # serve the website build (installable, works offline)
 
 npm run desktop:dev    # desktop app with live reload
 npm run desktop:dist   # desktop packages for this OS in release/ (add e.g. -- --linux AppImage pacman)
+npm run android:sync   # build the web app into the Android project (android/, open it in Android Studio)
+npm run android:apk    # build release/Card-Maker-<version>.apk (needs the Android SDK and JDK 21)
 ```
 
 **Website:** https://hollywoodenspoon.github.io/Card-Marker-Holly/. Every push to `main` rebuilds it (`.github/workflows/pages.yml`). One-time setup: repo Settings → Pages → Source: **GitHub Actions**.
 
-**Desktop releases:** set the version in `package.json` on `main`, then on GitHub open **Actions → Desktop release → Run workflow**. The tag `v<version>` is created for you. Pushing a matching tag works too. `.github/workflows/release.yml` builds the Windows portable exe, the AppImage and the Arch package, and attaches them to a GitHub Release. Alpha and beta versions are published as pre-releases.
+**Releases:** set the version in `package.json` on `main`, then on GitHub open **Actions → Release → Run workflow**. The tag `v<version>` is created for you. Pushing a matching tag works too. `.github/workflows/release.yml` builds the Windows portable exe, the AppImage, the Arch package and the Android APK, and attaches them to a GitHub Release. Alpha and beta versions are published as pre-releases.
 
 **Versioning:** `0.1.0-alpha.N` while in early alpha, then `-beta.N`, then `1.0.0` when v1 is done.
 
@@ -62,6 +64,28 @@ A small *Make your first card* checklist on the canvas ticks these steps off as 
   - portable exe: in a `Card Maker data` folder next to the exe, so nothing goes into AppData
   - Linux: in `~/.config/card-maker`
 - The app never goes online. ☰ shows the version.
+
+### Android app (phones and tablets)
+- **Install:** download `Card-Maker-….apk` from *Releases* on the phone or tablet (Android 7 or newer) and open it. Android asks to allow **Install unknown apps** for the browser or file manager once. Updates install over the old version.
+- **First start:** you pick the folder for your projects. Tap **Documents**, make a folder named *Card Maker* with the new-folder button, then **Use this folder**. Projects are saved there in the same folder format as on the desktop (`project.json`, `images/`, `fonts/`), so you can copy one to a computer (USB, or a sync app) and back. Home → ☰ → **Projects folder…** changes the folder later; **Open folder** adds a project folder from elsewhere.
+- **Back button:** closes the open sheet or view first, then goes from the editor to Home.
+- **Saving:** automatic, also when you switch to another app.
+- **Exports** (PDF, images, Tabletop Simulator, CSV) open Android's **Save to** screen.
+- **Deleting a project folder** (Home → ⋯ → Remove…, tick the box) deletes it from the device: Android folders have no Trash.
+- The app has no internet permission at all; it works fully offline.
+
+#### Signing key (one time, for the person publishing releases)
+Android installs an update only if it is signed with the same key, so releases are signed with one key kept as GitHub secrets. On your computer (CachyOS: `sudo pacman -S jdk-openjdk` if `keytool` is missing):
+1. `keytool -genkeypair -v -keystore card-maker.jks -alias cardmaker -keyalg RSA -keysize 4096 -validity 36500` (choose a password, answer the questions).
+2. `base64 -w0 card-maker.jks > card-maker.jks.txt`
+3. In the repo on GitHub: **Settings → Secrets and variables → Actions → New repository secret**, add:
+   - `ANDROID_KEYSTORE_BASE64`: the contents of `card-maker.jks.txt`
+   - `ANDROID_KEYSTORE_PASSWORD`: the keystore password
+   - `ANDROID_KEY_ALIAS`: `cardmaker`
+   - `ANDROID_KEY_PASSWORD`: the key password (the same one unless you chose another)
+4. Keep `card-maker.jks` and its password safe (e.g. a password manager plus a backup). If it is lost, the next release can't update installed apps: everyone has to uninstall once (their project folders stay).
+
+Without the secrets, test runs of the Release workflow still build an APK signed with a temporary debug key, and publishing a release stops with a message.
 
 ### Left pane
 - The rail on the left (desktop, and the tablet's left drawer) has the panels **Templates, Cards, Decks, Fonts**, then quick buttons: **Print**, **Gallery** (gallery and proofreading), **Images** (export card images), **Keywords** and **Data** (card data table, CSV export and mail merge). These are also in the ☰ menu.

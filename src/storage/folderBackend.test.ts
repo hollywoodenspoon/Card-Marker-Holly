@@ -192,6 +192,43 @@ describe('folder backend', () => {
     expect(JSON.parse(text(files.get('/data/settings.json'))).projectsDir).toBeUndefined()
   })
 
+  it('recovers from project.json.tmp or .bak when project.json is missing or damaged', async () => {
+    const { bridge, files } = memoryFs()
+    const b = folderBackend(bridge)
+    const bundle = createProject('Crash')
+    await b.saveBundle({ ...bundle, stylePresets: [], assets: [], fonts: [] })
+    const dir = '/home/me/Documents/Card Maker/Crash'
+    const good = files.get(`${dir}/${PROJECT_FILE}`)!
+    // Stopped mid-save on Android: the old file was moved to .bak, the new one is still .tmp.
+    files.delete(`${dir}/${PROJECT_FILE}`)
+    files.set(`${dir}/${PROJECT_FILE}.tmp`, good)
+    expect((await b.listProjects())[0].missing).toBe(false)
+    const fromTmp = await b.loadProject(bundle.project.id)
+    expect(fromTmp!.doc.project.id).toBe(bundle.project.id)
+    expect(fromTmp!.warnings?.[0]).toMatch(/restored from project\.json\.tmp/)
+    // A damaged project.json and a half-written .tmp: the .bak is used.
+    files.set(`${dir}/${PROJECT_FILE}`, new TextEncoder().encode('{"format": "card-ma'))
+    files.set(`${dir}/${PROJECT_FILE}.tmp`, new TextEncoder().encode('{'))
+    files.set(`${dir}/${PROJECT_FILE}.bak`, good)
+    expect((await b.loadProject(bundle.project.id))!.warnings?.[0]).toMatch(/project\.json\.bak/)
+    // Nothing readable at all: the error says so.
+    files.set(`${dir}/${PROJECT_FILE}.bak`, new TextEncoder().encode('x'))
+    await expect(b.loadProject(bundle.project.id)).rejects.toThrow(/damaged/)
+  })
+
+  it('asks for a projects folder first when the platform needs one (Android)', async () => {
+    const { bridge, files } = memoryFs()
+    const b = folderBackend({ ...bridge, needsProjectsFolder: true })
+    expect(await b.hasProjectsDir()).toBe(false)
+    files.set('/sd/Card Maker/.keep', new Uint8Array())
+    await b.setProjectsDir('/sd/Card Maker')
+    expect(await b.hasProjectsDir()).toBe(true)
+    // Access lost (folder gone): ask again.
+    files.delete('/sd/Card Maker/.keep')
+    expect(await b.hasProjectsDir()).toBe(false)
+    expect(await folderBackend(bridge).hasProjectsDir()).toBe(true)
+  })
+
   it('makes safe folder names', () => {
     expect(folderName('a/b\\c:d*e?"f"<g>|h')).toBe('a b c d e f g h')
     expect(folderName('  ..dots.. ')).toBe('dots')

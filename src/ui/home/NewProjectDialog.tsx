@@ -1,6 +1,7 @@
 import { RectangleHorizontal, RectangleVertical } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { createAndOpenProject } from '@/app/session'
+import { pathLabel } from '@/platform/desktop'
 import { folderStore } from '@/storage'
 import { folderName } from '@/storage/folderBackend'
 import type { Orientation } from '@/core/model/types'
@@ -171,7 +172,7 @@ function ProjectLocation({ name }: { name: string }) {
   return (
     <div className="flex items-center gap-2 text-xs text-muted-foreground">
       <span className="min-w-0 flex-1 break-all">
-        Saved in {dir}/{folderName(name.trim() || 'Untitled')}
+        Saved in {pathLabel(dir)}/{folderName(name.trim() || 'Untitled')}
       </span>
       <Button
         variant="outline"

@@ -36,3 +36,38 @@ export function useEscapeToClose(close: () => void) {
     return () => window.removeEventListener('keydown', onKey)
   }, [])
 }
+
+const backHandlers: (() => void)[] = []
+
+/**
+ * Android's Back button: the innermost open view that registered here handles it
+ * (views that don't close on Escape, like the Vector Maker). Others get an Escape.
+ */
+export function useBackHandler(onBack: () => void) {
+  const fn = useRef(onBack)
+  useEffect(() => {
+    fn.current = onBack
+  })
+  useEffect(() => {
+    const h = () => fn.current()
+    backHandlers.push(h)
+    return () => {
+      backHandlers.splice(backHandlers.indexOf(h), 1)
+    }
+  }, [])
+}
+
+export const topBackHandler = (): (() => void) | undefined => backHandlers.at(-1)
+
+/** Send Escape to whatever has focus (dialogs, sheets and full-screen views close on it). */
+export function sendEscape() {
+  const target = document.activeElement ?? document.body
+  target.dispatchEvent(
+    new KeyboardEvent('keydown', {
+      key: 'Escape',
+      code: 'Escape',
+      bubbles: true,
+      cancelable: true,
+    }),
+  )
+}

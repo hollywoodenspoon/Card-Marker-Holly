@@ -8,8 +8,9 @@ import { defineConfig } from 'vitest/config'
 const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8')) as {
   version: string
 }
-// The desktop app (Electron) serves the same build from disk and needs no service worker.
-const desktop = process.env.VITE_TARGET === 'desktop'
+// The desktop (Electron) and Android (Capacitor) apps serve the same build from
+// their own files and need no service worker.
+const nativeApp = ['desktop', 'android'].includes(process.env.VITE_TARGET ?? '')
 
 export default defineConfig({
   define: { __APP_VERSION__: JSON.stringify(pkg.version) },
@@ -19,7 +20,7 @@ export default defineConfig({
     react(),
     tailwindcss(),
     VitePWA({
-      disable: desktop,
+      disable: nativeApp,
       registerType: 'autoUpdate',
       includeAssets: ['icon.svg', 'apple-touch-icon.png'],
       manifest: {

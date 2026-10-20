@@ -1,10 +1,18 @@
 /**
- * The desktop app's bridge to the file system (electron/preload.ts puts it on
- * `window.cardMaker`). The web build has no bridge and stores everything in
- * the browser.
+ * The native apps' bridge to real folders, on `window.cardMaker`: the desktop app
+ * (electron/preload.ts) and the Android app (src/platform/android.ts). The web
+ * build has no bridge and stores everything in the browser.
  */
 export interface DesktopBridge {
   platform: string
+  /** The file manager can open a folder (desktop). Default true. */
+  canReveal?: boolean
+  /** Deleted project folders go to the Trash / Recycle Bin. Default true. */
+  hasTrash?: boolean
+  /** Projects need a folder chosen first (Android); desktop defaults to Documents. */
+  needsProjectsFolder?: boolean
+  /** A readable name for a path (Android's are virtual, e.g. /tree/0/My Game). */
+  label?(path: string): string
   /** userData: app settings; documents: the user's Documents folder. */
   paths(): Promise<{ userData: string; documents: string }>
   /** File bytes, or null when the file does not exist. */
@@ -25,7 +33,7 @@ export interface DesktopBridge {
   /** "Save as" dialog; resolves to the chosen path, or null when cancelled. */
   saveFile(name: string, data: Uint8Array): Promise<string | null>
   reveal(path: string): Promise<void>
-  /** Called when the window is about to close; the app saves, then calls `done`. */
+  /** Called when the window is about to close or the app goes to the background; the app saves. */
   onBeforeClose(fn: () => Promise<void>): void
 }
 
@@ -49,3 +57,6 @@ export const joinPath = (...parts: string[]) =>
 
 /** One spelling per folder: forward slashes, no trailing slash. */
 export const normPath = (p: string) => p.replace(/\\/g, '/').replace(/(?<=.)\/+$/, '')
+
+/** How to show a path to the user. */
+export const pathLabel = (p: string) => desktop()?.label?.(p) ?? p

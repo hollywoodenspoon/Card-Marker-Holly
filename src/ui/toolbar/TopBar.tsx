@@ -161,7 +161,7 @@ function AppMenu({ phone }: { phone: boolean }) {
 /** Desktop app: open the project's folder in the file manager. */
 function ShowFolderMenuItem() {
   const folders = folderStore()
-  if (!folders) return null
+  if (!folders || folders.bridge.canReveal === false) return null
   return (
     <DropdownMenuItem
       onSelect={async () => {
