@@ -22,6 +22,7 @@ export interface ConfirmAsk {
   title: string
   description?: string
   okLabel?: string
+  cancelLabel?: string
   danger?: boolean
   resolve: (v: boolean) => void
 }

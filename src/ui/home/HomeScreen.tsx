@@ -15,6 +15,7 @@ import { useEffect, useState } from 'react'
 import { APP_NAME, APP_VERSION } from '@/app/appInfo'
 import { openProject } from '@/app/session'
 import { openHelp } from '@/help/openHelp'
+import { UpdateMenuItems } from '@/ui/desktop/UpdateMenuItems'
 import { pathLabel } from '@/platform/desktop'
 import { folderStore, getBackend } from '@/storage'
 import type { ProjectEntry } from '@/storage/backend'
@@ -117,6 +118,7 @@ export function HomeScreen() {
             <DropdownMenuItem onSelect={() => openHelp()}>
               <CircleHelp /> Help
             </DropdownMenuItem>
+            <UpdateMenuItems />
             <InstallMenuItem />
             <ThemeMenuItems />
           </DropdownMenuContent>

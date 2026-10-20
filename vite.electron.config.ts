@@ -10,6 +10,8 @@ const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 
 export default defineConfig({
   define: { __APP_VERSION__: JSON.stringify(pkg.version) },
   publicDir: false,
+  // Bundle electron-updater and its helpers in, so the app ships without node_modules.
+  ssr: { noExternal: true },
   build: {
     ssr: true,
     outDir: 'dist-electron',

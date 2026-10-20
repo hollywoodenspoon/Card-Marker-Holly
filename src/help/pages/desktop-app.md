@@ -6,7 +6,9 @@ The desktop app is the same Card Maker as the website, but your projects are sav
 
 Download the app from the project's [Releases page](https://github.com/hollywoodenspoon/Card-Marker-Holly/releases). Pick the file for your system:
 
-- **Windows**: the file ending in `-portable.exe`. There is nothing to install: put it anywhere (for example a _Card Maker_ folder on your desktop) and double-click it.
+- **Windows**, two choices:
+  - **`Card-Maker-Setup-….exe`** (recommended): double-click it and it installs in a few seconds, for you only, without admin rights. It can update itself.
+  - **`…-portable.exe`**: there is nothing to install. Put it anywhere (for example a _Card Maker_ folder on your desktop or a USB stick) and double-click it.
 - **Linux**: the file ending in `.AppImage`. Make it executable (right-click → **Properties** and tick the option to allow running it as a program, or `chmod +x` in a terminal), then double-click it.
 - **Arch Linux and CachyOS**: the file ending in `.pkg.tar.xz`. Install it with `sudo pacman -U` followed by the file name.
 
@@ -14,9 +16,23 @@ Download the app from the project's [Releases page](https://github.com/hollywood
 
 The first time you start the Windows app, Windows may show a blue box saying **Windows protected your PC**. This happens because the app isn't signed with a paid certificate. Click **More info**, then **Run anyway**. Windows remembers your choice for that file.
 
-### Updating
+### Updates
 
-The app doesn't update itself. When a new version comes out, download it from the Releases page and use it instead of the old one. Your projects are separate from the app, so they're all still there.
+The first time you start the app, it asks **Check for updates automatically?**
+
+- **Yes, check**: at each start the app asks GitHub (where the downloads live) whether a newer version exists. Nothing else is sent: no projects, no names, no tracking.
+- **No, stay offline**: the app never goes online, as before.
+
+Change it any time in ☰: **Automatic update checks** turns checking on or off, and **Check for updates** checks right now.
+
+What happens when there's a new version depends on which download you use:
+
+- **Windows Setup and the Linux AppImage** download it in the background and say **Version … is ready**. It installs when you close the app, or press **Restart now** (☰ also shows **Restart to update**). Your work is saved first.
+- **The portable `.exe` and the Arch package** can't replace themselves. They say **Version … is out** with a **Download** button that opens the Releases page. For the Arch package, install the new file with `sudo pacman -U`.
+
+Your projects are separate from the app, so updating never touches them.
+
+> **Note:** Versions before 0.1.0-alpha.2 can't update themselves. Download a newer version by hand once; from then on it's automatic.
 
 > **Note:** The Windows app keeps its settings and Recent list in a folder called **Card Maker data** next to the `.exe`. If you move the `.exe`, move that folder with it. Nothing goes into AppData.
 

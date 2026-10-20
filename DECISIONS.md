@@ -329,3 +329,13 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 - **Touch screens get a small edit bar** over the canvas whenever something is selected: **Select several** (taps then add or remove parts, since fingers have no Shift key), **Duplicate** and **Delete** (only for parts that can be changed here: a card's own layers, or template parts in Template mode). In Select several, a tap on a selected part takes it out, but pressing it to drag keeps the selection, so several parts can be moved together. Esc or **Done** ends it. The flag lives in the editor view state (`multiSelect`).
 - **Mail merge and Find and replace** show an **Undo** button next to their "Done" message. The card editor's shortcuts are paused while these are open, so the old "Undo with Ctrl+Z" hint didn't work there.
 - **Vector Maker mirroring:** **Flip horizontal** / **Flip vertical** in Arrange and align (Shift+H / Shift+V), mirroring about the centre of the selection. Dragging a side of the selection box past the opposite side now turns the shape over (Konva's transformer flipping), and the result is baked into the path like any other transform.
+
+## Desktop updates
+
+- **Opt-in.** At first start the app asks once ("Check for updates automatically?"). The answer is kept in `updates.json` in the app's data folder; ☰ has **Check for updates** and **Automatic update checks**. With checks off, nothing changes: every request stays blocked.
+- **Network allowlist, main process only:** with checks on, requests from the main process (never the page) may reach `github.com`, `api.github.com` and `*.githubusercontent.com` over https (`electron/updateHosts.ts`, tested). The page's Content-Security-Policy still blocks all outside connections.
+- **electron-updater 6.8.10** (pinned), bundled into `main.cjs`, so the app still ships without `node_modules`. It reads `latest.yml` / `latest-linux.yml` from the GitHub release, which the Release workflow now uploads with the blockmaps.
+- **Which copies update themselves:** the Windows installer (new: NSIS one-click, per user, no admin) and the AppImage download in the background and install on quit or **Restart now** (the page saves first). The portable exe and the Arch package can't replace themselves; they read the public `releases.atom` feed (no API rate limit) and offer a **Download** link. The portable exe stays, as a second Windows download.
+- **Pre-releases** count while the running version is one (alpha, beta, rc), so alpha testers get the next alpha.
+- **Unsigned:** Windows updates work without code signing; SmartScreen may still warn once per new installer download.
+- **Versions before 0.1.0-alpha.2 have no updater;** they need one manual download.

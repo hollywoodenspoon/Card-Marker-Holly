@@ -14,6 +14,17 @@ const bridge: DesktopBridge = {
   pickFolder: (opts) => ipcRenderer.invoke('dialog:pickFolder', opts),
   saveFile: (name, data) => ipcRenderer.invoke('dialog:save', name, data),
   reveal: (p) => ipcRenderer.invoke('shell:reveal', p),
+  updates: {
+    get: () => ipcRenderer.invoke('updates:get'),
+    set: (enabled) => ipcRenderer.invoke('updates:set', enabled),
+    check: () => ipcRenderer.invoke('updates:check'),
+    install: () => ipcRenderer.invoke('updates:install'),
+    openReleases: (url) => ipcRenderer.invoke('updates:openReleases', url),
+    onEvent(fn) {
+      ipcRenderer.removeAllListeners('updates:event')
+      ipcRenderer.on('updates:event', (_e, ev) => fn(ev))
+    },
+  },
   onBeforeClose(fn) {
     ipcRenderer.removeAllListeners('app:before-close')
     ipcRenderer.on('app:before-close', () => {

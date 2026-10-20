@@ -16,6 +16,8 @@ import {
 } from 'electron'
 import { APP_NAME } from '../src/app/appInfo'
 import { AllowedRoots, isInside } from './paths'
+import { isUpdateHost } from './updateHosts'
+import { initUpdates, updatesEnabled } from './updater'
 
 /**
  * The desktop app: the same build as the website, served from disk, with a
@@ -214,7 +216,11 @@ function serveApp() {
   })
 }
 
-/** Nothing leaves the computer: block every request that is not the app itself. */
+/**
+ * Nothing leaves the computer: block every request that is not the app itself.
+ * The one exception, only when the user turned updates on: the main process (never
+ * the page) may ask GitHub for new versions.
+ */
 function stayOffline() {
   const s = session.defaultSession
   s.webRequest.onBeforeRequest((d, cb) => {
@@ -222,7 +228,8 @@ function stayOffline() {
       /^(app|data|blob|devtools):/.test(d.url) ||
       // The app's own files, read by the app:// handler.
       (d.url.startsWith('file:') && isInside(distDir, fileURLToPath(d.url))) ||
-      (!!devUrl && /^(https?|wss?):\/\/(localhost|127\.0\.0\.1)(:\d+)?\//.test(d.url))
+      (!!devUrl && /^(https?|wss?):\/\/(localhost|127\.0\.0\.1)(:\d+)?\//.test(d.url)) ||
+      (!d.webContentsId && isUpdateHost(d.url) && updatesEnabled() === true)
     cb({ cancel: !ok })
   })
   s.setPermissionRequestHandler((_wc, permission, cb) =>
@@ -231,6 +238,22 @@ function stayOffline() {
 }
 
 let mainWindow: BrowserWindow | null = null
+// Set once the page has saved for an update install, so closing doesn't wait again.
+let savedForUpdate = false
+
+/** Let the page finish saving (up to 5 s). */
+function saveBeforeQuit(win: BrowserWindow): Promise<void> {
+  return new Promise((resolve) => {
+    const done = () => {
+      clearTimeout(t)
+      ipcMain.removeListener('app:close-ready', done)
+      resolve()
+    }
+    const t = setTimeout(done, 5000)
+    ipcMain.once('app:close-ready', done)
+    win.webContents.send('app:before-close')
+  })
+}
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -273,7 +296,7 @@ function createWindow() {
   // Let the page finish saving before the window goes away.
   let closing = false
   win.on('close', (e) => {
-    if (closing) return
+    if (closing || savedForUpdate) return
     e.preventDefault()
     closing = true
     const done = () => {
@@ -303,6 +326,13 @@ if (!app.requestSingleInstanceLock()) {
     stayOffline()
     serveApp()
     registerIpc(() => mainWindow)
+    initUpdates(
+      () => mainWindow,
+      async () => {
+        if (mainWindow) await saveBeforeQuit(mainWindow)
+        savedForUpdate = true
+      },
+    )
     createWindow()
   })
 }
