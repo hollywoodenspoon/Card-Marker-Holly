@@ -1,5 +1,6 @@
 import {
   Download,
+  FolderCog,
   FolderOpen,
   FolderSearch,
   Menu,
@@ -12,6 +13,7 @@ import {
 import { useEffect, useState } from 'react'
 import { APP_NAME, APP_VERSION } from '@/app/appInfo'
 import { openProject } from '@/app/session'
+import { pathLabel } from '@/platform/desktop'
 import { folderStore, getBackend } from '@/storage'
 import type { ProjectEntry } from '@/storage/backend'
 import { Button, IconButton } from '@/ui/components/ui/button'
@@ -78,6 +80,16 @@ export function HomeScreen() {
       fail('Could not use this folder', e)
     }
   }
+  const changeProjectsFolder = async () => {
+    if (!folders) return
+    const dir = await folders.bridge.pickFolder({
+      title: 'Where should new projects go?',
+      defaultPath: await folders.projectsDir(),
+    })
+    if (!dir) return
+    await folders.setProjectsDir(dir)
+    toast(`New projects go to ${pathLabel(dir)}`)
+  }
   useEffect(() => {
     void refresh()
   }, [])
@@ -95,6 +107,11 @@ export function HomeScreen() {
             </IconButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            {folders && (
+              <DropdownMenuItem onSelect={() => void changeProjectsFolder()}>
+                <FolderCog /> Projects folder…
+              </DropdownMenuItem>
+            )}
             <InstallMenuItem />
             <ThemeMenuItems />
           </DropdownMenuContent>
@@ -162,7 +179,7 @@ export function HomeScreen() {
                   <button
                     type="button"
                     onClick={() => void open(p)}
-                    title={p.location}
+                    title={p.location && pathLabel(p.location)}
                     className="flex min-h-14 min-w-0 flex-1 flex-col items-start justify-center text-left"
                   >
                     <span className="w-full truncate text-sm font-medium">{p.name}</span>
@@ -179,7 +196,7 @@ export function HomeScreen() {
                     )}
                     {p.location && (
                       <span className="w-full truncate text-xs text-muted-foreground">
-                        {p.location}
+                        {pathLabel(p.location)}
                       </span>
                     )}
                   </button>
@@ -199,7 +216,7 @@ export function HomeScreen() {
                           <DropdownMenuItem onSelect={() => setRenaming(p)}>
                             <Pencil /> Rename
                           </DropdownMenuItem>
-                          {folders && p.location && (
+                          {folders && p.location && folders.bridge.canReveal !== false && (
                             <DropdownMenuItem
                               onSelect={() => void folders.bridge.reveal(p.location!)}
                             >
@@ -268,9 +285,11 @@ export function HomeScreen() {
                 onChange={(e) => setDeleteFiles(e.target.checked)}
               />
               <span>
-                Also delete the folder and everything in it
+                {folders.bridge.hasTrash === false
+                  ? 'Also delete the folder and everything in it from this device'
+                  : 'Also move the folder to the Trash'}
                 <span className="block text-xs break-all text-muted-foreground">
-                  {deleting.location}
+                  {pathLabel(deleting.location)}
                 </span>
               </span>
             </label>

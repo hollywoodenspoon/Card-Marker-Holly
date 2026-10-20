@@ -94,7 +94,9 @@ export function familyFromFileName(name: string): string {
     .trim()
 }
 
-export const FONT_ACCEPT = '.ttf,.otf,font/ttf,font/otf'
+// Android's file picker goes by type, and font files often have generic ones there.
+export const FONT_ACCEPT =
+  '.ttf,.otf,font/ttf,font/otf,font/sfnt,application/x-font-ttf,application/x-font-otf,application/font-sfnt,application/vnd.ms-opentype,application/octet-stream'
 
 /** Read an uploaded TTF/OTF into a FontAsset. */
 export async function readFontFile(file: File, projectId: string): Promise<FontAsset> {

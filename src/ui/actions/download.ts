@@ -23,7 +23,10 @@ async function saveWithDialog(
     const path = await bridge.saveFile(name, new Uint8Array(await blob.arrayBuffer()))
     if (path)
       toast(`Saved ${path.split(/[\\/]/).pop()}`, {
-        action: { label: 'Show in folder', run: () => void bridge.reveal(path) },
+        action:
+          bridge.canReveal === false
+            ? undefined
+            : { label: 'Show in folder', run: () => void bridge.reveal(path) },
       })
   } catch (e) {
     toast(`Could not save the file: ${e instanceof Error ? e.message : String(e)}`, {

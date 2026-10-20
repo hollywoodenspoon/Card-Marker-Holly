@@ -292,3 +292,23 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
   - Internal ids stay fixed: the app id, the IndexedDB name, the `cardmaker.*` keys and the file formats.
   - Versions follow `0.1.0-alpha.N`, then `-beta.N`, then `1.0.0`. The Release workflow refuses a tag that doesn't match `package.json`, and marks alpha, beta and rc versions as pre-releases.
 - **Android** is next: Capacitor, reusing the storage interface.
+
+## Android app
+
+- **Capacitor 8.5.2** (pinned) wraps the same web build (`VITE_TARGET=android`, no service worker) in Android's WebView, which is Chromium, so cards and PDFs come out as on desktop. `android/` is committed as Capacitor expects; `npm run android:sync` copies the build in.
+- **Real folders, through Android's folder picker (Storage Access Framework).** A small native plugin (`android/.../FoldersPlugin.java`, Java like the rest of the generated project) gives the same file API as the desktop app (`src/platform/android.ts`), so the folder storage (`src/storage/folderBackend.ts`) and format are shared and project folders move between phone and PC.
+  - Paths are virtual: `/tree/N/...` inside the N-th picked folder (its access is kept across restarts), `/app/...` the app's private storage (settings.json, written atomically).
+  - SAF can't replace a file in one step, so project.json is saved as: write `project.json.tmp`, move the old file to `.bak`, rename `.tmp`. Opening a project now falls back to `.tmp`, then `.bak`, when project.json is missing or damaged (on every platform), with a message.
+  - Folder providers that can't rename (some cloud folders) get the file written in place.
+  - Document ids are cached per path to keep lookups fast.
+  - Deleting a project folder is permanent on Android (no Trash), and the dialog says so. "Show in folder" is hidden: Android has no way to open a file manager at a folder.
+- **First start asks for the projects folder** (the picker opens in Documents). If access to it is lost (e.g. the folder was deleted), it asks again.
+- **No INTERNET permission** (removed from the manifest): the app's files are served from inside the APK, so it is offline at the system level.
+- **Back button:** an open dialog or sheet closes first (Escape), then a full-screen view (views like the Vector Maker that don't close on Escape register their own handler), then the editor goes Home, then the app closes.
+- **Saving** also runs whenever the app goes to the background (Android may stop it there without warning).
+- **System bars** follow the app theme (Capacitor's SystemBars); the layout already uses safe-area insets.
+- **versionCode** (`scripts/versionCode.mjs`, tested): major·1 000 000 + minor·10 000 + patch·100 + stage, where alpha.N = N, beta.N = 40+N, rc.N = 80+N, final = 99. Every later version gets a larger code, as Android requires for updates. versionName is the package.json version.
+- **Signing:** releases are signed with the owner's key from repo secrets; trial runs without the secrets use the debug key, and a publishing run without them stops. `allowBackup` is off (Android's cloud backup would restore folder permissions that no longer work).
+- **Large heap** is requested, since big PDF exports can need a lot of memory on phones.
+- **Font picking:** the font file filter lists the generic types Android often gives font files, so .ttf / .otf aren't greyed out in the picker.
+- **Testing:** the plugin's behaviour is covered by an in-memory stand-in (unit tests, and dev builds can run the Android code path in a normal browser via `window.__fakeAndroidFolders`). The APK itself is built in GitHub Actions; this project's development environment has no Android SDK or emulator.

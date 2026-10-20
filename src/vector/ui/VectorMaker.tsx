@@ -31,6 +31,7 @@ import { endVGesture, loadVectorDoc, setTool, useVector, vredo, vundo } from '..
 import { fromSvg } from '../svg'
 import { PropsPanel } from './PropsPanel'
 import { toast } from '@/ui/components/feedback'
+import { sendEscape, useBackHandler } from '@/ui/components/overlay'
 import { clearDraft, hasContent, readDraft, writeDraft, type VectorDraft } from '../draft'
 import { SaveDialog } from './SaveDialog'
 import { TraceDialog } from './TraceDialog'
@@ -121,6 +122,9 @@ export default function VectorMaker() {
     }
     useUi.getState().setVectorOpen(null)
   }
+
+  // Android Back: finish the path being drawn first, then leave.
+  useBackHandler(() => (useVector.getState().penPathId ? sendEscape() : close()))
 
   const openSvg = async () => {
     const [f] = await pickFiles('.svg,image/svg+xml', false)

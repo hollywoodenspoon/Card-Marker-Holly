@@ -75,3 +75,7 @@ export function useThemeSetting(): ThemeSetting {
 export function useIsDark(): boolean {
   return useSyncExternalStore(subscribe, isDark)
 }
+
+/** Whether dark is applied now, and a way to hear about changes (outside React). */
+export const isDarkTheme = isDark
+export const onThemeChange = subscribe

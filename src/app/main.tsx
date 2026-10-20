@@ -20,8 +20,12 @@ import { initPwa } from '@/ui/pwa/pwa'
 import { initTheme } from '@/ui/theme/theme'
 import { App } from './App'
 import { flushSaves } from './session'
+import { isAndroidApp } from './isAndroidApp'
 
 initTheme()
+// Android app: folders and system integration before anything reads storage.
+if (isAndroidApp() || (import.meta.env.DEV && '__fakeAndroidFolders' in window))
+  (await import('./androidSetup')).setupAndroid()
 initPwa()
 // Desktop app: finish writing the project folder before the window closes.
 desktop()?.onBeforeClose(flushSaves)

@@ -30,6 +30,8 @@ interface SettingsFile {
 export interface FolderStore extends StorageBackend {
   kind: 'folder'
   projectsDir(): Promise<string>
+  /** False on Android until a folder for projects has been chosen (or its access was lost). */
+  hasProjectsDir(): Promise<boolean>
   setProjectsDir(dir: string): Promise<void>
   /** Add an existing project folder to the list. Resolves to its id. */
   addFolder(dir: string): Promise<string>
@@ -40,6 +42,7 @@ export interface FolderStore extends StorageBackend {
 }
 
 const dec = new TextDecoder()
+const RECOVERY_ORDER = [PROJECT_FILE, `${PROJECT_FILE}.tmp`, `${PROJECT_FILE}.bak`]
 
 /** Turn a project name into a folder name that works on Windows, macOS and Linux. */
 export const folderName = (name: string) =>
@@ -160,22 +163,54 @@ export function folderBackend(fs: DesktopBridge): FolderStore {
     await remember(dir, file.project)
   }
 
+  /**
+   * project.json, or, when it is missing or damaged (the app stopped mid-save),
+   * the newest good copy: project.json.tmp (written in full before the swap), then .bak.
+   */
+  async function readProjectFile(dir: string) {
+    let firstError: unknown = null
+    for (const name of RECOVERY_ORDER) {
+      const bytes = await fs.readFile(joinPath(dir, name))
+      if (!bytes) continue
+      try {
+        return { file: parseFolderFile(dec.decode(bytes)), from: name }
+      } catch (e) {
+        firstError ??= e
+      }
+    }
+    if (firstError) throw firstError
+    return null
+  }
+
+  const hasProjectFile = async (dir: string) => {
+    for (const name of RECOVERY_ORDER) if (await fs.exists(joinPath(dir, name))) return true
+    return false
+  }
+
   async function readFolder(dir: string): Promise<LoadedProject | null> {
-    const bytes = await fs.readFile(joinPath(dir, PROJECT_FILE))
-    if (!bytes) return null
-    const f = parseFolderFile(dec.decode(bytes))
+    const read = await readProjectFile(dir)
+    if (!read) return null
+    const f = read.file
     const loaded = await fromFolderFile(f, (rel) => fs.readFile(joinPath(dir, rel)))
     written.clear()
     for (const a of Object.values(loaded.library.assets))
       written.set(a.id, { path: assetFile(a), blob: a.blob })
     for (const ft of Object.values(loaded.library.fonts))
       written.set(ft.id, { path: fontFile(ft), blob: ft.blob })
-    const warnings = loaded.missing.length
-      ? [
-          `${loaded.missing.length} file${loaded.missing.length === 1 ? ' is' : 's are'} missing from the project folder: ${loaded.missing.join(', ')}`,
-        ]
-      : undefined
-    return { doc: loaded.doc, library: loaded.library, warnings }
+    const warnings: string[] = []
+    if (read.from !== PROJECT_FILE)
+      warnings.push(
+        `${PROJECT_FILE} could not be read, so the project was restored from ${read.from}. The next save writes ${PROJECT_FILE} again.`,
+      )
+    if (loaded.missing.length)
+      warnings.push(
+        `${loaded.missing.length} file${loaded.missing.length === 1 ? ' is' : 's are'} missing from the project folder: ${loaded.missing.join(', ')}`,
+      )
+    return {
+      doc: loaded.doc,
+      library: loaded.library,
+      warnings: warnings.length ? warnings : undefined,
+    }
   }
 
   const backend: FolderStore = {
@@ -183,6 +218,11 @@ export function folderBackend(fs: DesktopBridge): FolderStore {
     bridge: fs,
     projectsDir,
     locationOf,
+    async hasProjectsDir() {
+      const s = await readSettings()
+      if (!fs.needsProjectsFolder) return true
+      return !!s.projectsDir && (await fs.exists(s.projectsDir).catch(() => false))
+    },
     async setProjectsDir(dir) {
       await saveSettings((s) => (s.projectsDir = normPath(dir)))
     },
@@ -192,7 +232,7 @@ export function folderBackend(fs: DesktopBridge): FolderStore {
       return Promise.all(
         recent.map(async (r) => ({
           ...r,
-          missing: !(await fs.exists(joinPath(r.location, PROJECT_FILE))),
+          missing: !(await hasProjectFile(r.location)),
         })),
       )
     },
