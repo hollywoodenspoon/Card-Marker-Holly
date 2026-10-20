@@ -7,7 +7,9 @@ const files = import.meta.glob('./pages/*.md', {
   eager: true,
 }) as Record<string, string>
 
-export const pageSource = (id: string): string | undefined => files[`./pages/${id}.md`]
+/** A page's Markdown, with Windows line endings (from some checkouts or editors) made plain. */
+export const pageSource = (id: string): string | undefined =>
+  files[`./pages/${id}.md`]?.replace(/\r\n?/g, '\n')
 
 export const pageIds = () => Object.keys(files).map((f) => f.replace(/^\.\/pages\/|\.md$/g, ''))
 
