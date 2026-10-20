@@ -20,7 +20,7 @@ npm run android:apk    # build release/Card-Maker-<version>.apk (needs the Andro
 
 **Website:** https://hollywoodenspoon.github.io/Card-Marker-Holly/. Every push to `main` rebuilds it (`.github/workflows/pages.yml`). One-time setup: repo Settings → Pages → Source: **GitHub Actions**.
 
-**Releases:** set the version in `package.json` on `main`, then on GitHub open **Actions → Release → Run workflow**. The tag `v<version>` is created for you. Pushing a matching tag works too. `.github/workflows/release.yml` builds the Windows portable exe, the AppImage, the Arch package and the Android APK, and attaches them to a GitHub Release. Alpha and beta versions are published as pre-releases.
+**Releases:** set the version in `package.json` on `main`, then on GitHub open **Actions → Release → Run workflow**. The tag `v<version>` is created for you. Pushing a matching tag works too. `.github/workflows/release.yml` builds the Windows portable exe, the AppImage, the Arch package and the Android APK, and attaches them to a GitHub Release. Alpha and beta versions are published as pre-releases. Until the Android signing secrets are added (see *Android app → Signing key*), releases are published without the APK.
 
 **Versioning:** `0.1.0-alpha.N` while in early alpha, then `-beta.N`, then `1.0.0` when v1 is done.
 
