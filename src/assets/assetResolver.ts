@@ -23,6 +23,7 @@ export class BlobAssetResolver implements AssetResolver {
       }
     }
     this.assets = assets
+    this.emit()
   }
 
   getInfo(id: string) {
@@ -87,8 +88,21 @@ export class BlobAssetResolver implements AssetResolver {
     }
   }
 
+  /** Changes whenever pictures finish decoding or the asset list changes. */
+  version = 0
+  private pending = false
+
+  /** Pictures decode in bursts: tell listeners once per frame, not once per picture. */
   private emit() {
-    this.listeners.forEach((l) => l())
+    if (this.pending) return
+    this.pending = true
+    const run = () => {
+      this.pending = false
+      this.version++
+      this.listeners.forEach((l) => l())
+    }
+    if (typeof requestAnimationFrame === 'function') requestAnimationFrame(run)
+    else setTimeout(run, 0)
   }
 }
 

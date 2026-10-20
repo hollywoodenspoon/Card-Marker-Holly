@@ -23,6 +23,7 @@ import {
 } from '@/ui/components/ui/dropdown'
 import { Input, NativeSelect } from '@/ui/components/ui/input'
 import { useUi } from '@/ui/uiStore'
+import { deletedToast } from '@/ui/actions/undoToast'
 
 const NO_DECKS: Deck[] = []
 
@@ -102,6 +103,7 @@ export function DecksPanel() {
                 danger
                 onSelect={() => {
                   deleteDeck(deck.id)
+                  deletedToast(`Deck “${deck.name}”`)
                   setOpenId(null)
                 }}
               >

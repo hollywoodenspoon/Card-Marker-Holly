@@ -1,4 +1,4 @@
-import { Eye, EyeOff, Magnet, Maximize, Minus, Plus } from 'lucide-react'
+import { Magnet, Maximize, Minus, Plus, Scan, SquareDashed } from 'lucide-react'
 import { useMemo } from 'react'
 import { assetResolver } from '@/assets/assetResolver'
 import { CardStage } from '@/core/render/CardStage'
@@ -23,6 +23,7 @@ import { CanvasHeader } from './CanvasHeader'
 import { SelectionActions } from './SelectionActions'
 import { TextEditOverlay } from './TextEditOverlay'
 import { useRenderVersion } from './useRenderVersion'
+import { FirstSteps } from '@/ui/onboarding/FirstSteps'
 
 export function CanvasArea({ layout }: { layout: LayoutKind }) {
   const doc = useEditor((s) => s.doc)
@@ -121,6 +122,7 @@ export function CanvasArea({ layout }: { layout: LayoutKind }) {
         </div>
       )}
       <CanvasHeader phone={layout === 'phone'} />
+      <FirstSteps phone={layout === 'phone'} />
       <TextEditOverlay phone={layout === 'phone'} />
       <SelectionActions />
       <ViewControls compact={layout === 'phone'} />
@@ -168,7 +170,8 @@ function ViewControls({ compact }: { compact: boolean }) {
         active={showOverlay}
         onClick={() => setView({ showOverlay: !showOverlay })}
       >
-        {showOverlay ? <Eye /> : <EyeOff />}
+        {/* Not the eye: that means show / hide a layer. */}
+        {showOverlay ? <Scan /> : <SquareDashed />}
       </IconButton>
       <IconButton
         label={snapping ? 'Turn snapping off' : 'Turn snapping on'}

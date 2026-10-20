@@ -12,6 +12,7 @@ import { ColorField } from '@/ui/components/fields'
 import { rasterize, safeName, toPdf, type RasterFormat } from '../exportFiles'
 import { useVector } from '../store'
 import { toSvg } from '../svg'
+import { askText } from '@/ui/components/feedback'
 
 type Format = 'svg' | RasterFormat
 const NO_FOLDERS: string[] = []
@@ -60,7 +61,12 @@ function SaveForm({ onClose }: { onClose: () => void }) {
     try {
       let target = folder
       if (folder === '__new') {
-        const n = prompt('Folder name', 'Vectors')?.trim()
+        const n = await askText({
+          title: 'New folder',
+          label: 'Folder name',
+          initial: 'Vectors',
+          okLabel: 'Create',
+        })
         if (!n) return
         target = addAssetFolder(n)
       }

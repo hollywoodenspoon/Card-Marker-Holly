@@ -1,6 +1,7 @@
 import {
   ArrowLeft,
   FolderOpen,
+  MoreHorizontal,
   Wand2,
   Layers,
   Maximize,
@@ -29,12 +30,20 @@ import { newDoc, parseDoc } from '../model'
 import { endVGesture, loadVectorDoc, setTool, useVector, vredo, vundo } from '../store'
 import { fromSvg } from '../svg'
 import { PropsPanel } from './PropsPanel'
+import { toast } from '@/ui/components/feedback'
+import { clearDraft, hasContent, readDraft, writeDraft, type VectorDraft } from '../draft'
 import { SaveDialog } from './SaveDialog'
 import { TraceDialog } from './TraceDialog'
 import { ToolBar } from './ToolBar'
 import { VectorCanvas } from './VectorCanvas'
 import { VLayersPanel } from './VLayersPanel'
 import { fitView, zoomTo } from './viewport'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/ui/components/ui/dropdown'
 
 const isTyping = (e: KeyboardEvent) => {
   const t = e.target as HTMLElement | null
@@ -70,20 +79,46 @@ export default function VectorMaker() {
   const [tracing, setTracing] = useState(false)
   const [sheet, setSheet] = useState<'props' | 'layers' | null>(null)
   const [ready, setReady] = useState(false)
+  const projectId = useEditor((s) => s.doc?.project.id ?? '')
+  // A drawing left unsaved last time (offered when starting a new one).
+  const [draft, setDraft] = useState<VectorDraft | null>(null)
 
   useEffect(() => {
     void openFor(req?.assetId ?? null).then(() => {
+      const d = readDraft(projectId)
+      // Offer the draft when starting fresh, or when it belongs to the asset being opened.
+      if (d && hasContent(d.doc) && (req?.assetId ?? null) === d.assetId) setDraft(d)
       setReady(true)
       requestAnimationFrame(fitView)
     })
-  }, [req?.assetId])
+  }, [req?.assetId, projectId])
+
+  // Keep the drawing as a draft while there are unsaved changes.
+  useEffect(() => {
+    let t: ReturnType<typeof setTimeout> | undefined
+    const unsub = useVector.subscribe((s, prev) => {
+      if (s.doc === prev.doc && s.dirty === prev.dirty) return
+      clearTimeout(t)
+      t = setTimeout(() => {
+        const v = useVector.getState()
+        if (v.dirty && hasContent(v.doc))
+          writeDraft(projectId, { doc: v.doc, assetId: v.assetId, savedAt: Date.now() })
+        else if (!v.dirty) clearDraft(projectId)
+      }, 600)
+    })
+    return () => {
+      clearTimeout(t)
+      unsub()
+    }
+  }, [projectId])
 
   const close = () => {
-    if (
-      useVector.getState().dirty &&
-      !confirm('Close the Vector Maker? Changes that are not saved to assets will be lost.')
-    )
-      return
+    const v = useVector.getState()
+    if (v.dirty && hasContent(v.doc)) {
+      // Nothing is lost: the drawing stays as a draft until it's saved or discarded.
+      writeDraft(projectId, { doc: v.doc, assetId: v.assetId, savedAt: Date.now() })
+      toast('Your drawing is kept as a draft. Open the Vector Maker to carry on.')
+    }
     useUi.getState().setVectorOpen(null)
   }
 
@@ -94,7 +129,7 @@ export default function VectorMaker() {
       loadVectorDoc(fromSvg(await f.text()))
       requestAnimationFrame(fitView)
     } catch (e) {
-      alert(e instanceof Error ? e.message : String(e))
+      toast(e instanceof Error ? e.message : String(e), { tone: 'error' })
     }
   }
 
@@ -171,6 +206,7 @@ export default function VectorMaker() {
     <div
       className="h-app pt-safe pb-safe fixed inset-0 z-50 flex flex-col bg-background"
       role="dialog"
+      aria-modal="true"
       aria-label="Vector Maker"
     >
       <header className="flex shrink-0 items-center gap-1 border-b bg-panel px-2 py-1.5">
@@ -220,10 +256,61 @@ export default function VectorMaker() {
             </IconButton>
           </>
         )}
+        {phone && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <IconButton label="More">
+                <MoreHorizontal />
+              </IconButton>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onSelect={() => void openSvg()}>
+                <FolderOpen /> Open SVG file
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setTracing(true)}>
+                <Wand2 /> Trace image
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={fitView}>
+                <Maximize /> Fit artboard
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
         <Button onClick={() => setSaving(true)}>
           <Save /> Save
         </Button>
       </header>
+      {draft && (
+        <div
+          className="flex shrink-0 flex-wrap items-center gap-2 border-b bg-accent-soft px-3 py-2 text-sm"
+          data-testid="draft-banner"
+        >
+          <span className="min-w-0 flex-1">
+            You have an unsaved drawing from {new Date(draft.savedAt).toLocaleString()}.
+          </span>
+          <Button
+            size="sm"
+            onClick={() => {
+              loadVectorDoc(draft.doc, draft.assetId)
+              useVector.setState({ dirty: true })
+              setDraft(null)
+              requestAnimationFrame(fitView)
+            }}
+          >
+            Carry on with it
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => {
+              clearDraft(projectId)
+              setDraft(null)
+            }}
+          >
+            Discard
+          </Button>
+        </div>
+      )}
       <div className="flex min-h-0 flex-1">
         {!phone && <ToolBar />}
         {ready && <VectorCanvas />}
@@ -246,23 +333,6 @@ export default function VectorMaker() {
           >
             <div className="min-h-0 overflow-y-auto">
               <PropsPanel />
-              {phone && (
-                <div className="flex flex-col gap-2 p-3">
-                  <Button variant="outline" className="w-full" onClick={() => void openSvg()}>
-                    <FolderOpen /> Open SVG file
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => {
-                      setSheet(null)
-                      setTracing(true)
-                    }}
-                  >
-                    <Wand2 /> Trace image
-                  </Button>
-                </div>
-              )}
             </div>
           </Sheet>
           <Sheet

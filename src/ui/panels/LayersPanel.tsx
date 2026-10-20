@@ -67,7 +67,7 @@ export function LayersPanel({ embedded }: { embedded?: boolean }) {
 
 const Empty = () => (
   <p className="px-4 py-2 text-sm text-muted-foreground">
-    No layers yet. Add text, an image or a shape.
+    No layers yet. Use <b>Add</b> in the top bar for text, an image or a shape.
   </p>
 )
 
@@ -188,19 +188,19 @@ function LayerRow({
             {...handle}
             aria-label={`Drag to reorder ${el.name}`}
             role="button"
-            className="grid h-full w-6 shrink-0 place-items-center text-muted-foreground"
+            className="grid h-full w-8 shrink-0 place-items-center text-muted-foreground md:w-6"
           >
             <GripVertical className="size-3.5" />
           </span>
         ) : (
-          <span className="w-6 shrink-0" />
+          <span className="w-8 shrink-0 md:w-6" />
         )}
         {el.type === 'group' ? (
           <button
             type="button"
             aria-label={open ? 'Collapse group' : 'Expand group'}
             onClick={() => setOpen(!open)}
-            className="grid size-6 shrink-0 place-items-center"
+            className="grid size-11 shrink-0 place-items-center md:size-6"
           >
             <ChevronRight className={cn('size-3.5 transition-transform', open && 'rotate-90')} />
           </button>
@@ -260,21 +260,30 @@ function LayerRow({
             </span>
           )}
         </button>
-        <IconButton
-          label={visible ? `Hide ${el.name}` : `Show ${el.name}`}
-          size="icon-sm"
-          disabled={!canToggle}
-          title={!canToggle ? 'This part is always shown' : undefined}
-          onClick={() => toggleVisibility(el.id)}
-        >
-          {visible ? <Eye /> : <EyeOff />}
-        </IconButton>
+        {canToggle ? (
+          <IconButton
+            label={visible ? `Hide ${el.name}` : `Show ${el.name}`}
+            size="icon-sm"
+            onClick={() => toggleVisibility(el.id)}
+          >
+            {visible ? <Eye /> : <EyeOff />}
+          </IconButton>
+        ) : (
+          // A disabled button can't show a tooltip, and touch has none: say it plainly.
+          <span
+            className="grid size-11 shrink-0 place-items-center text-muted-foreground/50 md:size-8"
+            title="This part is always shown (set in the template)"
+            aria-label={`${el.name} is always shown`}
+          >
+            <Eye className="size-4" />
+          </span>
+        )}
         {editable && (
           <IconButton
             label={el.editLocked ? `Unlock ${el.name}` : `Lock ${el.name}`}
             size="icon-sm"
             onClick={() => toggleEditLock(el.id)}
-            className={cn(!el.editLocked && 'text-muted-foreground/60')}
+            className={cn(!el.editLocked && 'text-muted-foreground')}
           >
             {el.editLocked ? <Lock /> : <LockOpen />}
           </IconButton>

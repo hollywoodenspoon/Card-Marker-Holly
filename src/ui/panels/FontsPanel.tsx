@@ -4,6 +4,7 @@ import { BUILTIN_FONTS, unregisterFont } from '@/assets/fonts'
 import { updateLibrary, useEditor } from '@/core/editor/editorStore'
 import { uploadFonts } from '@/ui/actions/fontActions'
 import { Button, IconButton } from '@/ui/components/ui/button'
+import { askConfirm } from '@/ui/components/feedback'
 
 export function FontsPanel() {
   const fonts = useEditor((s) => s.library.fonts)
@@ -46,7 +47,16 @@ export function FontsPanel() {
               <IconButton
                 label={`Delete ${f.fileName}`}
                 size="icon-sm"
-                onClick={() => {
+                onClick={async () => {
+                  // Fonts are not in the undo history, so ask first.
+                  const ok = await askConfirm({
+                    title: `Delete the font “${f.family}”?`,
+                    description:
+                      'Texts using it fall back to the default font. This cannot be undone.',
+                    okLabel: 'Delete',
+                    danger: true,
+                  })
+                  if (!ok) return
                   unregisterFont(f.id)
                   updateLibrary((l) => void delete l.fonts[f.id])
                 }}

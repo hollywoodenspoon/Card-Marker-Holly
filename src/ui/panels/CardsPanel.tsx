@@ -9,7 +9,7 @@ import {
   Search,
   Trash2,
 } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   addCard,
   deleteCard,
@@ -34,6 +34,7 @@ import { useReorder } from '@/ui/components/useReorder'
 import { CardThumb as LiveThumb } from '@/ui/canvas/CardThumb'
 import { BulkBar } from './BulkBar'
 import { useUi } from '@/ui/uiStore'
+import { deletedToast } from '@/ui/actions/undoToast'
 
 export function CardsPanel({ onPicked }: { onPicked?: () => void }) {
   const cards = useEditor((s) => s.doc?.cards)
@@ -41,13 +42,6 @@ export function CardsPanel({ onPicked }: { onPicked?: () => void }) {
   const [q, setQ] = useState('')
   // Select mode: tick several cards and change them together.
   const [picked, setPicked] = useState<Set<string> | null>(null)
-  const togglePicked = (id: string) =>
-    setPicked((p) => {
-      const n = new Set(p)
-      if (n.has(id)) n.delete(id)
-      else n.add(id)
-      return n
-    })
   const list = useMemo(
     () => (cards ? Object.values(cards).sort((a, b) => a.order - b.order) : []),
     [cards],
@@ -56,6 +50,22 @@ export function CardsPanel({ onPicked }: { onPicked?: () => void }) {
   const { handleProps, rowRef, dragging } = useReorder((from, to) =>
     moveCard(filtered[from].id, to),
   )
+  // One stable click handler for every row, so rows that didn't change don't re-render.
+  const pickState = useRef({ picked, onPicked })
+  useEffect(() => {
+    pickState.current = { picked, onPicked }
+  })
+  const pick = useCallback((id: string) => {
+    if (pickState.current.picked)
+      return setPicked((p) => {
+        const n = new Set(p)
+        if (n.has(id)) n.delete(id)
+        else n.add(id)
+        return n
+      })
+    selectCard(id)
+    pickState.current.onPicked?.()
+  }, [])
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -135,15 +145,12 @@ export function CardsPanel({ onPicked }: { onPicked?: () => void }) {
             {dragging && dragging.over === i && dragging.from !== i && <DropLine />}
             <CardRow
               card={c}
+              index={i}
               active={picked ? picked.has(c.id) : c.id === currentId}
-              handle={q || picked ? undefined : handleProps(i)}
+              handleProps={q || picked ? undefined : handleProps}
               dragged={dragging?.from === i}
               checked={picked ? picked.has(c.id) : undefined}
-              onPick={() => {
-                if (picked) return togglePicked(c.id)
-                selectCard(c.id)
-                onPicked?.()
-              }}
+              onPick={pick}
             />
             {dragging && i === filtered.length - 1 && dragging.over === filtered.length && (
               <DropLine />
@@ -151,8 +158,17 @@ export function CardsPanel({ onPicked }: { onPicked?: () => void }) {
           </li>
         ))}
         {!filtered.length && (
-          <li className="p-4 text-center text-sm text-muted-foreground">
-            {q ? 'No cards match.' : 'No cards yet.'}
+          <li className="flex flex-col items-center gap-2 p-4 text-center text-sm text-muted-foreground">
+            {q ? (
+              'No cards match.'
+            ) : (
+              <>
+                No cards yet.
+                <Button size="sm" onClick={() => addCard()}>
+                  <Plus /> Add your first card
+                </Button>
+              </>
+            )}
           </li>
         )}
       </ul>
@@ -168,23 +184,27 @@ export function CardsPanel({ onPicked }: { onPicked?: () => void }) {
 
 const DropLine = () => <div className="mx-2 h-0.5 rounded bg-accent" />
 
-function CardRow({
+const CardRow = memo(function CardRow({
   card,
+  index,
   active,
-  onPick,
-  handle,
+  onPick: pickId,
+  handleProps,
   dragged,
   checked,
 }: {
   card: Card
+  index: number
   active: boolean
-  onPick: () => void
-  handle?: ReturnType<ReturnType<typeof useReorder>['handleProps']>
+  onPick: (id: string) => void
+  handleProps?: ReturnType<typeof useReorder>['handleProps']
   dragged?: boolean
   /** Select mode: shown as a tick box. */
   checked?: boolean
 }) {
   const [renaming, setRenaming] = useState(false)
+  const handle = handleProps?.(index)
+  const onPick = () => pickId(card.id)
   return (
     <div
       className={cn(
@@ -258,11 +278,17 @@ function CardRow({
             <Image /> Export as image…
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem danger onSelect={() => deleteCard(card.id)}>
+          <DropdownMenuItem
+            danger
+            onSelect={() => {
+              deleteCard(card.id)
+              deletedToast(`“${card.name}”`)
+            }}
+          >
             <Trash2 /> Delete
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
   )
-}
+})

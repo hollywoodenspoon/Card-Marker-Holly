@@ -22,6 +22,8 @@ Assumptions and design choices are listed in [DECISIONS.md](DECISIONS.md).
 2. Click **Card name** on the card and type. Double-click the grey art box to pick a picture.
 3. Press **Print** (top bar) → **Export PDF**. Everything saves by itself ("Saved" in the top bar).
 
+A small *Make your first card* checklist on the canvas ticks these steps off as you go (close it with ✕).
+
 ### Projects and backups
 - **Home screen** (☰ → All projects): open, rename, delete projects; **Import** a backup.
 - **Backup file**: ☰ → *Export backup file* saves the whole project (cards, templates, images, fonts) as one `.cardproject.json`. Import always creates a new project, so nothing is overwritten.
@@ -59,6 +61,8 @@ Rail → **Vector**, ☰ → *Vector Maker*, or the pen button in the Assets hea
 - **Download**: SVG, PDF (vector), PNG or JPEG, for use in other programs. The folder button in the top bar opens an SVG file to edit.
 - **Trace image** (top bar; on phone in Properties): turns a picture (an uploaded image or a file) into editable shapes, one per colour, on a new layer. Set the number of colours, detail, smoothing and speck removal, and whether to drop the background; the preview updates as you go. Best for logos, icons, line art and flat art; photos become many small shapes (fewer colours and more smoothing help).
 - Shortcuts: Ctrl/⌘ Z / Shift Z undo and redo, Ctrl/⌘ D duplicate, Delete, arrows nudge (Shift = 10 px), Ctrl/⌘ A select all, Ctrl/⌘ S save, Ctrl/⌘ 0 fit.
+- **Drafts**: the drawing you're working on is kept in this browser until you save it to assets. Close the Vector Maker any time; next time it offers to *Carry on with it*.
+- Layers and objects: click a name again to rename it (also on touch). On a phone, ⋯ in the top bar has *Open SVG file*, *Trace image* and *Fit artboard*.
 
 ### Card size, bleed and safe area
 - Right pane → **Card** (nothing selected): pick a preset or type a size; the two buttons switch portrait / landscape. Presets:
@@ -72,7 +76,9 @@ Rail → **Vector**, ☰ → *Vector Maker*, or the pen button in the Assets hea
 ### Canvas basics
 - **Zoom**: buttons bottom-right, Ctrl/⌘ + mouse wheel, or pinch on touch. **Pan**: space + drag, middle mouse, or two fingers.
 - **Snapping** to card edges, guides and other parts (magnet button). Drag from a ruler to make a **guide**; drag it back to remove it.
-- **Layers** (right pane, or the Layers tab on phone): drag to reorder, eye to show/hide, lock, double-click to rename.
+- **Layers** (right pane, or the Layers tab on phone): drag to reorder, eye to show/hide, lock, double-click to rename (or edit the name at the top of the right pane, which also works on touch).
+- **Deleting** acts straight away and shows a message with **Undo** (cards, decks, layers). Fonts ask first, as they can't be undone.
+- **Esc** closes Print, Gallery and Card data. The card editor's keys (Delete, arrows…) only act on the card when no other view or dialog is open.
 - **Shortcuts**: Ctrl/⌘ Z undo, Ctrl/⌘ Shift Z or Y redo, Ctrl/⌘ D duplicate, Delete, arrows nudge (Shift = 5 mm), Ctrl/⌘ G group, Ctrl/⌘ Shift G ungroup, Ctrl/⌘ 0 fit, Ctrl/⌘ H find and replace.
 
 ### Adding things
@@ -141,7 +147,7 @@ Rail → **Data** (or ☰ → *Card data*) shows every card as a spreadsheet-sty
 4. Choose **Update existing** (cards made earlier from the same row are updated) or **Add as new**, check the issues list, then **Run merge**. One undo removes the whole merge.
 
 ### Printing (PDF)
-**Print** (top bar; on phone ☰ → *Print / export PDF*) shows each sheet's fronts and mirrored backs.
+**Print** (top bar; on phone ☰ → *Print / export PDF*) shows each sheet's fronts and mirrored backs. The rail's **Export** button (below Print) exports card images.
 - **Cards to print**: tick boxes, copies (− / +), drag to set the print order; *All* / *None*.
 - **Sheet**: paper (A4, A3, A5, US Letter, US Legal), orientation (Best fit picks the most cards per sheet), printer margin, bleed, and **gap between cards** (0 = cards touch and share cut lines; a gap lets you cut each card on its own).
 - **Bleed fill**: *Mirror edges* (default) fills the bleed from each card's own edge, so a slightly off cut never shows white; *Stretch edges*; or *As designed*.

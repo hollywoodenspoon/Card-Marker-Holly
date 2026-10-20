@@ -1,8 +1,8 @@
 import { ArrowLeft, Search } from 'lucide-react'
-import { useMemo, useRef, useState } from 'react'
+import { memo, useCallback, useMemo, useRef, useState } from 'react'
 import { selectCard } from '@/core/editor/cardCommands'
 import { useEditor } from '@/core/editor/editorStore'
-import type { Card, Deck } from '@/core/model/types'
+import type { Card, Deck, Template } from '@/core/model/types'
 import { cn } from '@/lib/cn'
 import { setCardText } from '@/templates/fieldCommands'
 import { proofFields } from '@/templates/proofread'
@@ -10,6 +10,7 @@ import { CardThumb } from '@/ui/canvas/CardThumb'
 import { IconButton } from '@/ui/components/ui/button'
 import { Input, Label, NativeSelect } from '@/ui/components/ui/input'
 import { Tabs, TabsList, TabsTrigger } from '@/ui/components/ui/tabs'
+import { useEscapeToClose } from '@/ui/components/overlay'
 import { usePanZoom } from '@/ui/components/usePanZoom'
 import { ZoomBar } from '@/ui/components/ZoomBar'
 import { useUi } from '@/ui/uiStore'
@@ -22,6 +23,7 @@ const MAX_SIZE = 800
 /** All cards in a big grid, or as a text table for proofreading (with spell check). */
 export function GalleryView() {
   const close = () => useUi.getState().setGalleryOpen(false)
+  useEscapeToClose(close)
   const cards = useEditor((s) => s.doc!.cards)
   const decks = useEditor((s) => s.doc!.project.decks) ?? NO_DECKS
   const [tab, setTab] = useState<'grid' | 'proof'>('grid')
@@ -59,15 +61,16 @@ export function GalleryView() {
         (!q || c.name.toLowerCase().includes(q.toLowerCase())),
     )
   }, [cards, deck, q])
-  const open = (c: Card) => {
+  const open = useCallback((c: Card) => {
     selectCard(c.id)
-    close()
-  }
+    useUi.getState().setGalleryOpen(false)
+  }, [])
 
   return (
     <div
       className="h-app pt-safe pb-safe fixed inset-0 z-50 flex flex-col bg-background"
       role="dialog"
+      aria-modal="true"
       aria-label="Gallery"
     >
       <header className="flex shrink-0 flex-wrap items-center gap-2 border-b bg-panel px-2 py-2">
@@ -198,43 +201,58 @@ function Proofread({ list, onOpen }: { list: Card[]; onOpen: (c: Card) => void }
         formatting is edited on the card (click its name). Grey text is the template default.
       </p>
       {list.map((c) => (
-        <section key={c.id} className="rounded-lg border bg-panel p-3">
-          <div className="mb-2 flex items-center gap-2">
-            <CardThumb card={c} side="front" heightPx={40} />
-            <button
-              type="button"
-              className="text-sm font-semibold hover:underline"
-              onClick={() => onOpen(c)}
-            >
-              {c.name}
-            </button>
-          </div>
-          <div className="flex flex-col gap-2">
-            {proofFields(c, templates).map((f) => (
-              <div key={f.field} className="flex flex-col gap-1">
-                <Label htmlFor={`pf-${c.id}-${f.field}`}>
-                  {f.field}
-                  {f.side === 'back' ? ' (back)' : ''}
-                  {!f.editable ? ' · formatted' : ''}
-                </Label>
-                <textarea
-                  id={`pf-${c.id}-${f.field}`}
-                  spellCheck
-                  rows={Math.min(6, Math.max(1, f.text.split('\n').length))}
-                  readOnly={!f.editable}
-                  defaultValue={f.own ? f.text : ''}
-                  placeholder={f.own ? '' : f.text}
-                  onChange={(e) => setCardText(c.id, f.field, e.target.value)}
-                  className={cn(
-                    'w-full resize-y rounded-md border border-input bg-background p-2 text-base outline-none focus-visible:border-accent md:text-sm',
-                    !f.editable && 'text-muted-foreground',
-                  )}
-                />
-              </div>
-            ))}
-          </div>
-        </section>
+        <ProofSection key={c.id} card={c} templates={templates} onOpen={onOpen} />
       ))}
     </div>
   )
 }
+
+/** One card's text. Memoized: typing re-renders only the card being edited. */
+const ProofSection = memo(function ProofSection({
+  card: c,
+  templates,
+  onOpen,
+}: {
+  card: Card
+  templates: Record<string, Template>
+  onOpen: (c: Card) => void
+}) {
+  return (
+    <section className="rounded-lg border bg-panel p-3">
+      <div className="mb-2 flex items-center gap-2">
+        <CardThumb card={c} side="front" heightPx={40} />
+        <button
+          type="button"
+          className="text-sm font-semibold hover:underline"
+          onClick={() => onOpen(c)}
+        >
+          {c.name}
+        </button>
+      </div>
+      <div className="flex flex-col gap-2">
+        {proofFields(c, templates).map((f) => (
+          <div key={f.field} className="flex flex-col gap-1">
+            <Label htmlFor={`pf-${c.id}-${f.field}`}>
+              {f.field}
+              {f.side === 'back' ? ' (back)' : ''}
+              {!f.editable ? ' · formatted' : ''}
+            </Label>
+            <textarea
+              id={`pf-${c.id}-${f.field}`}
+              spellCheck
+              rows={Math.min(6, Math.max(1, f.text.split('\n').length))}
+              readOnly={!f.editable}
+              defaultValue={f.own ? f.text : ''}
+              placeholder={f.own ? '' : f.text}
+              onChange={(e) => setCardText(c.id, f.field, e.target.value)}
+              className={cn(
+                'w-full resize-y rounded-md border border-input bg-background p-2 text-base outline-none focus-visible:border-accent md:text-sm',
+                !f.editable && 'text-muted-foreground',
+              )}
+            />
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+})

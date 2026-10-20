@@ -5,6 +5,7 @@ import { IconButton } from '@/ui/components/ui/button'
 import { useReorder } from '@/ui/components/useReorder'
 import { addLayer, deleteLayer, moveLayer, updateItem, updateLayer } from '../actions'
 import { selectPaths, useVector } from '../store'
+import { askText } from '@/ui/components/feedback'
 
 /** Layers (top first) with their objects; drag the grip to reorder layers. */
 export function VLayersPanel() {
@@ -49,7 +50,7 @@ export function VLayersPanel() {
                 <button
                   type="button"
                   aria-label={`Move ${l.name}`}
-                  className="flex size-8 shrink-0 cursor-grab touch-none items-center justify-center text-muted-foreground"
+                  className="flex size-11 shrink-0 cursor-grab md:size-8 touch-none items-center justify-center text-muted-foreground"
                   {...handleProps(i)}
                 >
                   <GripVertical className="size-4" />
@@ -58,7 +59,7 @@ export function VLayersPanel() {
                   type="button"
                   aria-label={open ? `Collapse ${l.name}` : `Expand ${l.name}`}
                   aria-expanded={open}
-                  className="flex size-8 shrink-0 items-center justify-center text-muted-foreground"
+                  className="flex size-11 shrink-0 items-center md:size-8 justify-center text-muted-foreground"
                   onClick={() =>
                     setClosed(open ? [...closed, l.id] : closed.filter((x) => x !== l.id))
                   }
@@ -70,12 +71,18 @@ export function VLayersPanel() {
                 <button
                   type="button"
                   className="min-h-11 min-w-0 flex-1 truncate text-left text-sm font-medium md:min-h-8"
-                  onClick={() => useVector.setState({ activeLayerId: l.id })}
-                  onDoubleClick={() => {
-                    const name = prompt('Layer name', l.name)?.trim()
+                  onClick={async () => {
+                    // Tap the active layer's name again to rename it (works on touch too).
+                    if (l.id !== active) return useVector.setState({ activeLayerId: l.id })
+                    const name = await askText({
+                      title: 'Rename layer',
+                      label: 'Layer name',
+                      initial: l.name,
+                      okLabel: 'Rename',
+                    })
                     if (name) updateLayer(l.id, { name })
                   }}
-                  title="Click to draw on this layer; double-click to rename"
+                  title="Click to draw on this layer; click again to rename"
                 >
                   {l.name}
                 </button>
@@ -135,12 +142,21 @@ export function VLayersPanel() {
                           'min-h-11 min-w-0 flex-1 truncate text-left text-sm md:min-h-7',
                           it.hidden && 'text-muted-foreground',
                         )}
-                        onClick={(e) => {
+                        title="Click to select; click again to rename"
+                        onClick={async (e) => {
                           useVector.setState({ activeLayerId: l.id })
-                          selectPaths(e.shiftKey ? [...new Set([...selection, it.id])] : [it.id])
-                        }}
-                        onDoubleClick={() => {
-                          const name = prompt('Name', it.name)?.trim()
+                          const only = selection.length === 1 && selection[0] === it.id
+                          if (!only || e.shiftKey)
+                            return selectPaths(
+                              e.shiftKey ? [...new Set([...selection, it.id])] : [it.id],
+                            )
+                          // Tap the selected object's name again to rename it.
+                          const name = await askText({
+                            title: 'Rename object',
+                            label: 'Name',
+                            initial: it.name,
+                            okLabel: 'Rename',
+                          })
                           if (name) updateItem(it.id, { name })
                         }}
                       >

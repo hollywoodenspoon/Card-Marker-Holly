@@ -12,6 +12,7 @@ import {
 } from '@/templates/bulkCommands'
 import { Button, IconButton } from '@/ui/components/ui/button'
 import { Input, Label, NativeSelect } from '@/ui/components/ui/input'
+import { deletedToast } from '@/ui/actions/undoToast'
 
 /** Actions for the cards chosen in select mode. */
 export function BulkBar({ ids, onDone }: { ids: Id[]; onDone: (keep?: Id[]) => void }) {
@@ -166,6 +167,7 @@ export function BulkBar({ ids, onDone }: { ids: Id[]; onDone: (keep?: Id[]) => v
             variant="danger"
             onClick={() => {
               deleteCards(ids)
+              deletedToast(`${ids.length} card${ids.length === 1 ? '' : 's'}`)
               setConfirmDelete(false)
               onDone([])
             }}
