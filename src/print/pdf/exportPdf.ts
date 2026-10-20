@@ -136,6 +136,8 @@ export async function exportCardsPdf(
     await draw()
     doc.compatAPI()
     onProgress?.(++done, total)
+    // Let the page paint (progress text) and stay responsive between pages.
+    await new Promise((r) => setTimeout(r, 0))
   }
 
   for (const indices of job.pages) {

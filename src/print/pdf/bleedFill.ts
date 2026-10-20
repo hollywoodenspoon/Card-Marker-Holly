@@ -96,10 +96,17 @@ export async function drawBand(t: DrawTarget, img: PdfImage, cell: Rect, trim: R
   t.restore()
 }
 
-/** Bleed bands for a print run, made once per card side (copies reuse them). */
+/** JPEG quality of the bands: they are cut off, so this only has to look right at the cut. */
+const BAND_QUALITY = 0.92
+
+/**
+ * Bleed bands for a print run, made once per card side. Copies reuse them, and
+ * so do cards whose side looks exactly the same (often every back).
+ */
 export class BleedBands {
   private canvases = new WeakMap<RenderNode[], Promise<HTMLCanvasElement>>()
-  private pngs = new WeakMap<RenderNode[], Promise<PdfImage>>()
+  private images = new WeakMap<RenderNode[], Promise<PdfImage>>()
+  private byContent = new Map<string, Promise<PdfImage>>()
   private nextId = 0
   readonly px: { W: number; H: number; B: number }
 
@@ -127,24 +134,34 @@ export class BleedBands {
     return p
   }
 
-  /** The band as a PNG with transparency, for the PDF. */
+  /**
+   * The band for the PDF. It is opaque, so it is a JPEG: the browser encodes it
+   * natively and jsPDF embeds JPEG data as is (a PNG would be decoded and
+   * re-compressed in JavaScript, which made exports slow).
+   */
   pdfImage(nodes: RenderNode[]): Promise<PdfImage> {
-    let p = this.pngs.get(nodes)
+    let p = this.images.get(nodes)
+    if (p) return p
+    const key = JSON.stringify(nodes)
+    p = this.byContent.get(key)
     if (!p) {
       const id = `bleed${this.nextId++}`
       p = this.canvas(nodes).then(async (c) => {
-        const blob = await new Promise<Blob>((r) => c.toBlob((b) => r(b!), 'image/png'))
+        const blob = await new Promise<Blob>((r) =>
+          c.toBlob((b) => r(b!), 'image/jpeg', BAND_QUALITY),
+        )
         return {
           kind: 'raster',
           id,
-          format: 'PNG',
+          format: 'JPEG',
           data: new Uint8Array(await blob.arrayBuffer()),
           widthPx: c.width,
           heightPx: c.height,
         }
       })
-      this.pngs.set(nodes, p)
+      this.byContent.set(key, p)
     }
+    this.images.set(nodes, p)
     return p
   }
 }
