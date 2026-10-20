@@ -1,8 +1,19 @@
-import { Download, Menu, MoreHorizontal, Pencil, Plus, Trash2, Upload } from 'lucide-react'
+import {
+  Download,
+  FolderOpen,
+  FolderSearch,
+  Menu,
+  MoreHorizontal,
+  Pencil,
+  Plus,
+  Trash2,
+  Upload,
+} from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { APP_NAME, APP_VERSION } from '@/app/appInfo'
 import { openProject } from '@/app/session'
-import type { Project } from '@/core/model/types'
-import { deleteProject, listProjects, renameProject } from '@/storage/repo'
+import { folderStore, getBackend } from '@/storage'
+import type { ProjectEntry } from '@/storage/backend'
 import { Button, IconButton } from '@/ui/components/ui/button'
 import { Dialog, DialogContent } from '@/ui/components/ui/dialog'
 import {
@@ -13,19 +24,26 @@ import {
   DropdownMenuTrigger,
 } from '@/ui/components/ui/dropdown'
 import { Input } from '@/ui/components/ui/input'
+import { toast } from '@/ui/components/feedback'
 import { NewProjectDialog } from './NewProjectDialog'
 import { exportStoredProject, importProjectFromFile } from '@/ui/actions/projectFileActions'
 import { InstallMenuItem } from '@/ui/pwa/InstallMenuItem'
 import { ThemeMenuItems } from '@/ui/theme/ThemeMenu'
 
+const fail = (what: string, e: unknown) =>
+  toast(`${what}: ${e instanceof Error ? e.message : String(e)}`, { tone: 'error' })
+
 export function HomeScreen() {
-  const [projects, setProjects] = useState<Project[] | null>(null)
+  const [projects, setProjects] = useState<ProjectEntry[] | null>(null)
   const [creating, setCreating] = useState(false)
-  const [renaming, setRenaming] = useState<Project | null>(null)
-  const [deleting, setDeleting] = useState<Project | null>(null)
+  const [renaming, setRenaming] = useState<ProjectEntry | null>(null)
+  const [deleting, setDeleting] = useState<ProjectEntry | null>(null)
+  const [deleteFiles, setDeleteFiles] = useState(false)
+  // Desktop app: projects are folders on disk.
+  const folders = folderStore()
 
   const [importError, setImportError] = useState<string | null>(null)
-  const refresh = () => listProjects().then(setProjects)
+  const refresh = () => getBackend().listProjects().then(setProjects)
   const doImport = async () => {
     setImportError(null)
     try {
@@ -33,6 +51,31 @@ export function HomeScreen() {
       if (id) await openProject(id)
     } catch (e) {
       setImportError(e instanceof Error ? e.message : String(e))
+    }
+  }
+  const openFolder = async () => {
+    if (!folders) return
+    const dir = await folders.bridge.pickFolder({
+      title: 'Open a project folder',
+      defaultPath: await folders.projectsDir(),
+    })
+    if (!dir) return
+    try {
+      await openProject(await folders.addFolder(dir))
+    } catch (e) {
+      fail('Could not open this folder', e)
+    }
+  }
+  const open = async (p: ProjectEntry) => {
+    if (!p.missing) return void (await openProject(p.id))
+    if (!folders) return
+    const dir = await folders.bridge.pickFolder({ title: `Where is “${p.name}” now?` })
+    if (!dir) return
+    try {
+      await folders.relocate(p.id, dir)
+      await openProject(p.id)
+    } catch (e) {
+      fail('Could not use this folder', e)
     }
   }
   useEffect(() => {
@@ -43,7 +86,7 @@ export function HomeScreen() {
     <div className="h-app pt-safe pb-safe flex flex-col overflow-auto">
       <header className="flex h-14 shrink-0 items-center gap-2 border-b bg-panel px-3">
         <img src={`${import.meta.env.BASE_URL}icon.svg`} alt="" className="size-7" />
-        <span className="text-sm font-semibold">Card Maker</span>
+        <span className="text-sm font-semibold">{APP_NAME}</span>
         <div className="flex-1" />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -75,11 +118,19 @@ export function HomeScreen() {
             <h1 className="text-xl font-semibold">Design your first card</h1>
             <p className="text-sm text-muted-foreground">
               Pick a card size and you get a ready-made layout. Fill in a name, drop in some art,
-              and you're done. Everything is saved in this browser.
+              and you're done.{' '}
+              {folders
+                ? 'Each project is saved as a folder of ordinary files on this computer.'
+                : 'Everything is saved in this browser.'}
             </p>
             <Button onClick={() => setCreating(true)} className="w-full sm:w-auto">
               <Plus /> Start a new project
             </Button>
+            {folders && (
+              <Button variant="ghost" onClick={openFolder}>
+                <FolderOpen /> Open a project folder
+              </Button>
+            )}
             <Button variant="ghost" onClick={doImport}>
               <Upload /> Import a project file
             </Button>
@@ -88,7 +139,12 @@ export function HomeScreen() {
           <>
             <div className="mb-5 flex items-center justify-between gap-3">
               <h1 className="text-lg font-semibold">Projects</h1>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap justify-end gap-2">
+                {folders && (
+                  <Button variant="outline" onClick={openFolder}>
+                    <FolderOpen /> Open folder
+                  </Button>
+                )}
                 <Button variant="outline" onClick={doImport}>
                   <Upload /> Import
                 </Button>
@@ -105,14 +161,27 @@ export function HomeScreen() {
                 >
                   <button
                     type="button"
-                    onClick={() => openProject(p.id)}
+                    onClick={() => void open(p)}
+                    title={p.location}
                     className="flex min-h-14 min-w-0 flex-1 flex-col items-start justify-center text-left"
                   >
                     <span className="w-full truncate text-sm font-medium">{p.name}</span>
-                    <span className="text-xs text-muted-foreground">
-                      {p.defaultSize.widthMm} × {p.defaultSize.heightMm} mm · edited{' '}
-                      {new Date(p.updatedAt).toLocaleDateString()}
-                    </span>
+                    {p.missing ? (
+                      <span className="text-xs text-danger">
+                        Folder not found · click to locate it
+                      </span>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">
+                        {p.defaultSize &&
+                          `${p.defaultSize.widthMm} × ${p.defaultSize.heightMm} mm · `}
+                        edited {new Date(p.updatedAt).toLocaleDateString()}
+                      </span>
+                    )}
+                    {p.location && (
+                      <span className="w-full truncate text-xs text-muted-foreground">
+                        {p.location}
+                      </span>
+                    )}
                   </button>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -121,15 +190,40 @@ export function HomeScreen() {
                       </IconButton>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onSelect={() => setRenaming(p)}>
-                        <Pencil /> Rename
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onSelect={() => void exportStoredProject(p.id)}>
-                        <Download /> Export backup file
-                      </DropdownMenuItem>
+                      {p.missing ? (
+                        <DropdownMenuItem onSelect={() => void open(p)}>
+                          <FolderSearch /> Locate folder…
+                        </DropdownMenuItem>
+                      ) : (
+                        <>
+                          <DropdownMenuItem onSelect={() => setRenaming(p)}>
+                            <Pencil /> Rename
+                          </DropdownMenuItem>
+                          {folders && p.location && (
+                            <DropdownMenuItem
+                              onSelect={() => void folders.bridge.reveal(p.location!)}
+                            >
+                              <FolderOpen /> Show in folder
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuItem
+                            onSelect={() =>
+                              void exportStoredProject(p.id).catch((e) => fail('Export failed', e))
+                            }
+                          >
+                            <Download /> Export backup file
+                          </DropdownMenuItem>
+                        </>
+                      )}
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem danger onSelect={() => setDeleting(p)}>
-                        <Trash2 /> Delete
+                      <DropdownMenuItem
+                        danger
+                        onSelect={() => {
+                          setDeleteFiles(false)
+                          setDeleting(p)
+                        }}
+                      >
+                        <Trash2 /> {folders ? 'Remove…' : 'Delete'}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -139,22 +233,48 @@ export function HomeScreen() {
           </>
         )}
       </main>
+      <footer className="shrink-0 px-4 pb-3 text-center text-xs text-muted-foreground">
+        {APP_NAME} {APP_VERSION}
+      </footer>
 
       <NewProjectDialog open={creating} onOpenChange={setCreating} />
       <RenameDialog
         project={renaming}
         onClose={() => setRenaming(null)}
         onDone={async (name) => {
-          if (renaming) await renameProject(renaming.id, name)
+          if (renaming)
+            await getBackend()
+              .renameProject(renaming.id, name)
+              .catch((e) => fail('Rename failed', e))
           setRenaming(null)
           void refresh()
         }}
       />
       <Dialog open={!!deleting} onOpenChange={(o) => !o && setDeleting(null)}>
         <DialogContent
-          title="Delete project?"
-          description={`“${deleting?.name}” and all its cards, templates, images and fonts will be removed from this browser.`}
+          title={folders ? 'Remove project?' : 'Delete project?'}
+          description={
+            folders
+              ? `“${deleting?.name}” is taken off this list. Its folder stays on disk unless you tick the box.`
+              : `“${deleting?.name}” and all its cards, templates, images and fonts will be removed from this browser.`
+          }
         >
+          {folders && deleting?.location && !deleting.missing && (
+            <label className="flex min-h-11 items-start gap-2 text-sm md:min-h-8">
+              <input
+                type="checkbox"
+                className="mt-0.5 size-4 accent-accent"
+                checked={deleteFiles}
+                onChange={(e) => setDeleteFiles(e.target.checked)}
+              />
+              <span>
+                Also delete the folder and everything in it
+                <span className="block text-xs break-all text-muted-foreground">
+                  {deleting.location}
+                </span>
+              </span>
+            </label>
+          )}
           <div className="flex justify-end gap-2">
             <Button variant="secondary" onClick={() => setDeleting(null)}>
               Cancel
@@ -162,12 +282,15 @@ export function HomeScreen() {
             <Button
               variant="danger"
               onClick={async () => {
-                if (deleting) await deleteProject(deleting.id)
+                if (deleting)
+                  await getBackend()
+                    .deleteProject(deleting.id, { deleteFiles })
+                    .catch((e) => fail('Could not delete', e))
                 setDeleting(null)
                 void refresh()
               }}
             >
-              Delete
+              {folders && !deleteFiles ? 'Remove from list' : 'Delete'}
             </Button>
           </div>
         </DialogContent>
@@ -181,7 +304,7 @@ function RenameDialog({
   onClose,
   onDone,
 }: {
-  project: Project | null
+  project: ProjectEntry | null
   onClose: () => void
   onDone: (name: string) => void
 }) {

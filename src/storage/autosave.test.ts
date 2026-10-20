@@ -4,6 +4,7 @@ import { closeDoc, commit, openDoc, useEditor } from '@/core/editor/editorStore'
 import { createProject } from '@/core/model/factories'
 import { startAutosave } from './autosave'
 import { CardMakerDB } from './db'
+import { dexieBackend } from './dexieBackend'
 import { loadProject, saveNewProject } from './repo'
 
 let n = 0
@@ -18,7 +19,7 @@ describe('autosave', () => {
     expect(loaded).not.toBeNull()
     openDoc(loaded!.doc, loaded!.library)
 
-    const saver = startAutosave(useEditor, { delayMs: 10, database })
+    const saver = startAutosave(useEditor, { delayMs: 10, backend: dexieBackend(database) })
     const cardId = bundle.cards[0].id
     commit((d) => {
       d.cards[cardId].name = 'Renamed'
@@ -39,7 +40,7 @@ describe('autosave', () => {
     await saveNewProject(bundle, database)
     const loaded = await loadProject(bundle.project.id, database)
     openDoc(loaded!.doc, loaded!.library)
-    const saver = startAutosave(useEditor, { delayMs: 10, database })
+    const saver = startAutosave(useEditor, { delayMs: 10, backend: dexieBackend(database) })
     commit((d) => {
       delete d.cards[bundle.cards[0].id]
     })

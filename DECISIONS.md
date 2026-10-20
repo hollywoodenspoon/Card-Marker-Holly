@@ -257,3 +257,38 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 - **Phone**: the Edit (properties) sheet is lower (55 %) and non-modal, so the card stays visible and tappable. Touch targets brought to 44 px where they were smaller (layer handles and group arrows, Vector layer buttons, print copies, mode switch, print tabs).
 - **Names**: the rail's card-image export is labelled *Export*; the phone Edit tab opens *Edit*; the bleed / safe-area toggle no longer uses the eye (which means show / hide a layer). Bubblegum's secondary text is darker for contrast; rail labels are 11 px.
 - **Vector Maker** keeps a draft per project in the browser while there are unsaved changes; closing doesn't ask any more.
+
+## Desktop app (0.1.0-alpha.1)
+
+- **Electron, not Tauri.** Electron ships the same Chromium everywhere, so cards, fonts and PDFs come out identical on Windows, Linux and (later) Android. Tauri would use WebKitGTK on Linux, which renders differently. The cost is size: about 95 MB for the Arch package and 125 MB for the AppImage.
+- **Electron 44.5.1 and electron-builder 26.15.3 are pinned exactly** (both releases were weeks old when picked).
+- **Storage behind one interface** (`src/storage/backend.ts`). The website keeps IndexedDB (`dexieBackend`). The desktop app uses project folders (`folderBackend`) through a small bridge (`src/platform/desktop.ts`, `electron/preload.ts`). Autosave computes the same per-row changes for both.
+- **Folder format** (`src/storage/folderFormat.ts`, format `card-maker-folder` version 1):
+  - `project.json` holds everything except the files. It is pretty-printed and is always fully rewritten, atomically: temp file, fsync, then rename. The previous copy is kept as `project.json.bak`.
+  - Pictures and fonts are separate files named by id, written only when they change and deleted only after `project.json` no longer points at them.
+  - A missing picture file keeps its entry (with a warning when opening), so saving never drops it.
+  - Thumbnails are not stored (they are drawn live).
+- **A copied project folder** whose id is already in the list gets a new id when opened, so both copies can be open in turn.
+- **Renaming a project** changes its name, not its folder's name.
+- **No file watching:** editing `project.json` by hand while the project is open gets overwritten by the next save.
+- **Settings:**
+  - The Recent list, the projects folder and the last-open project live in `settings.json` in the app's data folder. Theme and units stay in the page's local storage, which lives in that same data folder.
+  - The portable exe sets that data folder to `Card Maker data` next to the exe (`PORTABLE_EXECUTABLE_DIR`). Linux uses `~/.config/card-maker`.
+  - The folder names are fixed rather than taken from the product name. The projects folder is saved when first created. So renaming the app never moves anyone's data.
+- **Safety:**
+  - The page is served from a custom `app://` scheme with a strict Content-Security-Policy.
+  - Every request that isn't the app's own files is blocked, so it never goes online.
+  - Node is off in the page (context isolation and sandbox on).
+  - The main process only reads and writes inside the data folder, the projects folder, listed projects and folders the user picked, checked on real paths so links can't escape.
+  - Deleting a project folder needs a `project.json` inside, and goes to the Trash / Recycle Bin rather than being erased.
+- **The app's own zoom only.** Page zoom and the default menu are off, so Ctrl + / − / wheel reach the app. F12 or Ctrl+Shift+I opens developer tools for bug reports.
+- **Closing the window** waits (up to 5 s) for the last autosave to finish.
+- **Windows:** a single portable exe, at the owner's request. It unpacks itself to a temp folder on each start, so it starts a few seconds slower than an installed app. It isn't code-signed (a yearly cost), so SmartScreen warns once.
+- **Linux:** an AppImage plus a pacman package with Arch dependency names (`gtk3 nss alsa-lib libxtst xdg-utils`). electron-builder's default list includes packages Arch no longer has.
+- **No auto-updater.** New versions come from GitHub Releases.
+- **The website build** is unchanged and keeps its service worker. The desktop build (`VITE_TARGET=desktop`) has none.
+- **Name and version:**
+  - "Card Maker" is a working title. The display name lives in `src/app/appInfo.ts`, `electron-builder.yml` (productName), `index.html` and the PWA manifest in `vite.config.ts`.
+  - Internal ids stay fixed: the app id, the IndexedDB name, the `cardmaker.*` keys and the file formats.
+  - Versions follow `0.1.0-alpha.N`, then `-beta.N`, then `1.0.0`. The Release workflow refuses a tag that doesn't match `package.json`, and marks alpha, beta and rc versions as pre-releases.
+- **Android** is next: Capacitor, reusing the storage interface.

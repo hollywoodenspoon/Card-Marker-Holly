@@ -1,0 +1,47 @@
+# Desktop packages: `npm run desktop:dist` (or the Release workflow).
+# productName is the working title; change it together with APP_NAME in src/app/appInfo.ts.
+# appId stays fixed so a rename never loses settings.
+appId: io.github.hollywoodenspoon.cardmaker
+productName: Card Maker
+copyright: Copyright © 2026 hollywoodenspoon
+
+directories:
+  output: release
+
+# Everything is bundled by Vite, so the app needs no node_modules at all.
+files:
+  - dist/**/*
+  - dist-electron/**/*
+  - package.json
+  - '!node_modules/**/*'
+asar: true
+# No auto-updater: new versions are downloaded from GitHub Releases.
+publish: null
+
+linux:
+  target:
+    - AppImage
+    - pacman
+  category: Graphics
+  icon: public/pwa-512.png
+  maintainer: hollywoodenspoon
+  synopsis: Design cards and print them on A4 sheets
+  artifactName: card-maker-${version}-${arch}.${ext}
+
+# Arch / CachyOS names for what the bundled Electron needs from the system.
+pacman:
+  artifactName: card-maker-${version}-${arch}.pkg.tar.xz
+  depends:
+    - gtk3
+    - nss
+    - alsa-lib
+    - libxtst
+    - xdg-utils
+
+win:
+  target: portable
+  icon: public/pwa-512.png
+
+# One self-contained exe: no installer, no admin rights; data stays next to it.
+portable:
+  artifactName: Card-Maker-${version}-portable.exe

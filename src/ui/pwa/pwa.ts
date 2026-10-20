@@ -23,7 +23,8 @@ let updateSW: ((reload?: boolean) => Promise<void>) | null = null
 
 /** Register the service worker (offline support) and listen for the install prompt. */
 export function initPwa() {
-  if (typeof window === 'undefined') return
+  // The desktop app is already installed and offline; it has no service worker.
+  if (typeof window === 'undefined' || window.cardMaker) return
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault()
     installEvent = e as InstallPromptEvent
