@@ -386,6 +386,8 @@ export interface Asset {
   tags: string[]
   /** Folder in the Assets panel (by name); none = top level. */
   folder?: string
+  /** Editable Vector Maker document (JSON) this picture was made from. */
+  vectorDoc?: string
   createdAt: number
 }
 

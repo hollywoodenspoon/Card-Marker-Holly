@@ -15,6 +15,7 @@ import {
   Printer,
   Redo2,
   Undo2,
+  PenTool,
   Ruler,
   Sheet,
 } from 'lucide-react'
@@ -122,6 +123,9 @@ function AppMenu({ phone }: { phone: boolean }) {
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={() => useUi.getState().setKeywordsOpen(true)}>
           <Highlighter /> Keywords…
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => useUi.getState().setVectorOpen({ assetId: null })}>
+          <PenTool /> Vector Maker
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={() => useUi.getState().setDataView('table')}>
           <Sheet /> Card data (table, CSV, mail merge)

@@ -3,6 +3,7 @@ import {
   FolderPlus,
   LayoutGrid,
   ImageDown,
+  PenTool,
   Printer,
   Sheet,
   Highlighter,
@@ -41,6 +42,12 @@ const ACTIONS = [
     title: 'Keywords',
     icon: Highlighter,
     run: () => useUi.getState().setKeywordsOpen(true),
+  },
+  {
+    label: 'Vector',
+    title: 'Vector Maker: draw shapes and icons',
+    icon: PenTool,
+    run: () => useUi.getState().setVectorOpen({ assetId: null }),
   },
   {
     label: 'Data',
@@ -141,6 +148,13 @@ function AssetsDock() {
             )}
           />
         </button>
+        <IconButton
+          label="New vector"
+          size="icon-sm"
+          onClick={() => useUi.getState().setVectorOpen({ assetId: null })}
+        >
+          <PenTool />
+        </IconButton>
         <IconButton label="New folder" size="icon-sm" onClick={newAssetFolder}>
           <FolderPlus />
         </IconButton>

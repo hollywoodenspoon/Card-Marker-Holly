@@ -6,6 +6,7 @@ import {
   FolderPlus,
   MoreHorizontal,
   Pencil,
+  PenTool,
   Trash2,
   Upload,
 } from 'lucide-react'
@@ -35,6 +36,7 @@ import {
   DropdownMenuTrigger,
 } from '@/ui/components/ui/dropdown'
 import { Input } from '@/ui/components/ui/input'
+import { useUi } from '@/ui/uiStore'
 
 const NO_FOLDERS: string[] = []
 
@@ -47,6 +49,13 @@ export function AssetsPanel({ onPicked }: { onPicked?: () => void }) {
           <Button variant="outline" className="flex-1" onClick={() => uploadImages()}>
             <Upload /> Upload images
           </Button>
+          <IconButton
+            label="New vector"
+            variant="outline"
+            onClick={() => useUi.getState().setVectorOpen({ assetId: null })}
+          >
+            <PenTool />
+          </IconButton>
           <IconButton label="New folder" variant="outline" onClick={newAssetFolder}>
             <FolderPlus />
           </IconButton>
@@ -312,6 +321,11 @@ function AssetTile({
             <DropdownMenuItem onSelect={onMove}>
               <FolderInput /> Move to folder…
             </DropdownMenuItem>
+            {(a.isVector || a.vectorDoc) && (
+              <DropdownMenuItem onSelect={() => useUi.getState().setVectorOpen({ assetId: a.id })}>
+                <PenTool /> Edit in Vector Maker
+              </DropdownMenuItem>
+            )}
             <DropdownMenuSeparator />
             <DropdownMenuItem danger onSelect={onDelete}>
               <Trash2 /> Delete
