@@ -1,6 +1,7 @@
+import { Undo2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { selectCard } from '@/core/editor/cardCommands'
-import { commit, useEditor } from '@/core/editor/editorStore'
+import { commit, undo, useEditor } from '@/core/editor/editorStore'
 import {
   findMatches,
   findPattern,
@@ -56,7 +57,7 @@ function FindForm({ onClose }: { onClose: () => void }) {
         opts,
       )
     })
-    setDone(`Replaced ${n} time${n === 1 ? '' : 's'}. Undo with Ctrl+Z (or the undo button).`)
+    setDone(`Replaced ${n} time${n === 1 ? '' : 's'}.`)
     setSkip(new Set())
   }
   const open = (m: Match) => {
@@ -142,8 +143,19 @@ function FindForm({ onClose }: { onClose: () => void }) {
         </ul>
       )}
       {done && (
-        <p role="status" className="text-sm text-accent">
+        <p role="status" className="flex items-center gap-2 text-sm text-accent">
           {done}
+          {/* Shortcuts are paused while this is open, so undo is a button here. */}
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              undo()
+              setDone(null)
+            }}
+          >
+            <Undo2 /> Undo
+          </Button>
         </p>
       )}
       <div className="flex items-center justify-between gap-2">

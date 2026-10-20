@@ -53,6 +53,7 @@ New shapes take the colours you used last.
 
 - The four arrange buttons bring the selection to the front, forward, backward or to the back.
 - The six align buttons line objects up with each other. With one object selected, they align it to the artboard (for example, centre it).
+- **Flip horizontal** and **Flip vertical** mirror the selection in place ([[Shift+H]] and [[Shift+V]]). You can also drag a side handle of the selection box past the opposite side: the shape turns over as you go.
 - **Layer** moves the selection to another layer.
 - **Path** has **Duplicate**, **Reverse direction** and **Delete**.
 

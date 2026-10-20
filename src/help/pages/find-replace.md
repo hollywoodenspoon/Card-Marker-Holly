@@ -31,7 +31,7 @@ Every place starts ticked. Untick any you want to keep as they are. Click a plac
 2. Press **Replace all**.
 3. A message says how many were replaced.
 
-If the result isn't what you wanted, press [[Ctrl+Z]] or the undo button: everything goes back in one step.
+If the result isn't what you wanted, press **Undo** next to the message, or later [[Ctrl+Z]] in the editor: everything goes back in one step.
 
 The replacement keeps the formatting of the text it replaces, so a bold word stays bold.
 

@@ -28,7 +28,7 @@ Press **Add** in the top bar (on a phone, **Add** in the bottom bar) and pick wh
 
 ## Select, rename and reorder
 
-- Click a row to select that part on the card. [[Shift]]-click or [[Ctrl]]-click to select several.
+- Click a row to select that part on the card. [[Shift]]-click or [[Ctrl]]-click to select several. On a touch screen, press **Select several** in the bar over the canvas, then tap the parts (see [Touch gestures](help:touch#selecting-several-parts-duplicating-and-deleting)).
 - Double-click a name to rename it, or edit the name at the top of the properties (easier on touch). Clear names like _Rarity gem_ or _Flavor text_ help when you have many parts.
 - Drag the grip to change the order. In **Layout** → **Arrange** you can also use **Bring to front**, **Bring forward**, **Send backward** and **Send to back**.
 

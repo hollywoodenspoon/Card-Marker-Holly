@@ -18,6 +18,13 @@ Card Maker works with fingers, a pen or a mouse on every screen size. On touch s
 
 Putting a second finger down cancels a drag the first finger started, so you can always switch to zooming.
 
+## Selecting several parts, duplicating and deleting
+
+When something is selected on a touch screen, a small bar floats above the bottom of the canvas:
+
+- **Select several** turns on adding: each tap adds a part to the selection, or takes it out again, and the bar counts them. Press **Done** to go back to normal taps. Move, align or group them as with one part.
+- **Duplicate** and **Delete** (the copy and bin buttons) act on the selected parts. They show for parts you can change here: a card's own layers, or template parts in **Template** mode. After a delete, the message at the bottom has **Undo**.
+
 Pictures keep their proportions when you resize them by touch. For an exact or stretched size, type **Width** and **Height** in the **Layout** section of the **Edit** sheet.
 
 ## Editing text on a phone

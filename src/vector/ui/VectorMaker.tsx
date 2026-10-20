@@ -24,6 +24,7 @@ import {
   duplicateSelection,
   removeLastPenPoint,
   transformSelection,
+  flipSelection,
 } from '../actions'
 import { translateM } from '../geometry'
 import { newDoc, parseDoc } from '../model'
@@ -181,6 +182,8 @@ export default function VectorMaker() {
         return
       }
       if (e.shiftKey && k === 'c') return run(() => setTool('convert'))
+      if (e.shiftKey && k === 'h') return run(() => flipSelection('horizontal'))
+      if (e.shiftKey && k === 'v') return run(() => flipSelection('vertical'))
       const keys: Record<string, Parameters<typeof setTool>[0]> = {
         v: 'select',
         a: 'direct',

@@ -1143,7 +1143,7 @@ export function VectorCanvas() {
               anchorStroke={ACCENT}
               anchorSize={touch ? 18 : 9}
               rotateAnchorOffset={touch ? 32 : 22}
-              flipEnabled={false}
+              flipEnabled
               onTransformEnd={onTransformEnd}
             />
           </Layer>

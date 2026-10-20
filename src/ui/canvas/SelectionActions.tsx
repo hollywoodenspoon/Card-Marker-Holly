@@ -1,5 +1,6 @@
-import { Crop, ImageUp, Minus, Plus, RotateCcw } from 'lucide-react'
+import { Copy, Crop, ImageUp, ListChecks, Minus, Plus, RotateCcw, Trash2 } from 'lucide-react'
 import { setView, useEditor } from '@/core/editor/editorStore'
+import { deleteSelection, duplicateSelection } from '@/core/editor/elementCommands'
 import { findSurfaceElement, isLayoutEditable } from '@/core/editor/selectors'
 import {
   currentCount,
@@ -11,20 +12,82 @@ import {
 } from '@/templates/fieldCommands'
 import { chooseIconFor, chooseImageFor } from '@/ui/actions/imageActions'
 import { Button, IconButton } from '@/ui/components/ui/button'
+import { deletedToast } from '@/ui/actions/undoToast'
 import { useImageValue } from '@/ui/panels/properties/useFieldValues'
+import { useCoarsePointer } from '@/ui/shell/useLayout'
 
+const STACK =
+  'absolute bottom-20 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-2 md:bottom-16'
 const BAR =
-  'absolute bottom-20 left-1/2 z-10 flex -translate-x-1/2 items-center gap-1 rounded-xl border bg-panel/95 p-1 shadow-md backdrop-blur md:bottom-16'
+  'flex max-w-[calc(100vw-1rem)] items-center gap-1 rounded-xl border bg-panel/95 p-1 shadow-md backdrop-blur'
 
-/** Quick actions for a selected art box or icon row, floating over the canvas on every layout. */
+/**
+ * Quick actions floating over the canvas: for a selected art box or icon row,
+ * and on touch screens (no Delete key, no Shift-click) select several,
+ * duplicate and delete.
+ */
 export function SelectionActions() {
   const id = useEditor((s) => (s.view.selection.length === 1 ? s.view.selection[0] : null))
   const type = useEditor((s) => (id ? findSurfaceElement(s, id)?.type : undefined))
   const editingText = useEditor((s) => !!s.view.editingTextId)
-  if (!id || editingText) return null
-  if (type === 'imageField') return <Bar id={id} />
-  if (type === 'iconRow') return <CountBar id={id} />
-  return null
+  const count = useEditor((s) => s.view.selection.length)
+  const multi = useEditor((s) => s.view.multiSelect)
+  const touch = useCoarsePointer()
+  if (editingText) return null
+  const typeBar =
+    id && type === 'imageField' ? (
+      <Bar id={id} />
+    ) : id && type === 'iconRow' ? (
+      <CountBar id={id} />
+    ) : null
+  const editBar = touch && (count > 0 || multi) ? <EditBar /> : null
+  if (!typeBar && !editBar) return null
+  return (
+    <div className={STACK} onPointerDown={(e) => e.stopPropagation()}>
+      {editBar}
+      {typeBar}
+    </div>
+  )
+}
+
+/** Select several, Duplicate and Delete, for fingers. */
+function EditBar() {
+  const count = useEditor((s) => s.view.selection.length)
+  const multi = useEditor((s) => s.view.multiSelect)
+  // Template parts can't be deleted or copied on a card, only in template mode.
+  const editable = useEditor((s) => s.view.selection.filter((x) => isLayoutEditable(s, x)).length)
+  const remove = () => {
+    const before = useEditor.getState().doc
+    deleteSelection()
+    if (useEditor.getState().doc !== before) deletedToast(count === 1 ? 'Layer' : `${count} layers`)
+  }
+  return (
+    <div className={BAR} data-testid="edit-bar">
+      <Button
+        size="sm"
+        variant={multi ? 'default' : 'ghost'}
+        aria-pressed={multi}
+        onClick={() => setView({ multiSelect: !multi })}
+      >
+        <ListChecks /> {multi ? 'Done' : 'Select several'}
+      </Button>
+      {multi && (
+        <span className="px-1 text-xs text-muted-foreground" aria-live="polite">
+          {count} selected
+        </span>
+      )}
+      {editable > 0 && (
+        <>
+          <IconButton label="Duplicate" size="icon-sm" variant="ghost" onClick={duplicateSelection}>
+            <Copy />
+          </IconButton>
+          <IconButton label="Delete" size="icon-sm" variant="ghost" onClick={remove}>
+            <Trash2 />
+          </IconButton>
+        </>
+      )}
+    </div>
+  )
 }
 
 /** − count + for icon rows, so stats are quick to set on each card. */
@@ -39,7 +102,7 @@ function CountBar({ id }: { id: string }) {
   const canSetIcon = useEditor((s) => isLayoutEditable(s, id))
   const overridden = useEditor(() => hasCardValue(id))
   return (
-    <div className={BAR} onPointerDown={(e) => e.stopPropagation()}>
+    <div className={BAR}>
       {noIcon && canSetIcon && (
         <Button size="sm" onClick={() => void chooseIconFor(id)}>
           <ImageUp /> Choose icon
@@ -125,7 +188,7 @@ function Bar({ id }: { id: string }) {
   const overridden = useEditor(() => hasCardValue(id))
   const has = !!value?.assetId
   return (
-    <div className={BAR} onPointerDown={(e) => e.stopPropagation()}>
+    <div className={BAR}>
       <Button size="sm" onClick={() => void chooseImageFor(id)}>
         <ImageUp /> {has ? 'Replace image' : 'Choose image'}
       </Button>

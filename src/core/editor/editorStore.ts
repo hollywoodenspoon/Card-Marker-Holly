@@ -44,6 +44,8 @@ export interface ViewState {
   cropId: Id | null
   showOverlay: boolean
   snapping: boolean
+  /** Taps add to / remove from the selection (touch screens have no Shift key). */
+  multiSelect: boolean
 }
 
 export interface EditorState {
@@ -64,6 +66,7 @@ export const initialView: ViewState = {
   cropId: null,
   showOverlay: true,
   snapping: true,
+  multiSelect: false,
 }
 
 export const useEditor = create<EditorState>(() => ({

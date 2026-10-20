@@ -1,6 +1,6 @@
-import { FileSpreadsheet, Loader2, Upload } from 'lucide-react'
+import { FileSpreadsheet, Loader2, Undo2, Upload } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import { useEditor } from '@/core/editor/editorStore'
+import { undo, useEditor } from '@/core/editor/editorStore'
 import { currentCard } from '@/core/editor/selectors'
 import { walk } from '@/core/model/tree'
 import type { FieldElement, Id, MergeSettings, Template } from '@/core/model/types'
@@ -158,9 +158,7 @@ export function MergeForm({ onClose }: { onClose: () => void }) {
     setMergeSettings(settings)
     const r = runMerge(plan)
     setEdits({})
-    setDone(
-      `Done: ${r.added} card${r.added === 1 ? '' : 's'} added, ${r.updated} updated. Undo with Ctrl+Z (or the undo button).`,
-    )
+    setDone(`Done: ${r.added} card${r.added === 1 ? '' : 's'} added, ${r.updated} updated.`)
   }
 
   const colInput = (
@@ -427,8 +425,19 @@ export function MergeForm({ onClose }: { onClose: () => void }) {
           </ul>
         )}
         {done && (
-          <p role="status" className="text-sm text-accent">
+          <p role="status" className="flex items-center gap-2 text-sm text-accent">
             {done}
+            {/* Shortcuts are paused while this is open, so undo is a button here. */}
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                undo()
+                setDone(null)
+              }}
+            >
+              <Undo2 /> Undo
+            </Button>
           </p>
         )}
         <div className="flex items-center justify-between gap-3">

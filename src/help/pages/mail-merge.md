@@ -55,7 +55,7 @@ Cards with no name column are called _Row 2_, _Row 3_ and so on.
 
 Problems are listed before you run, with the row number. For example: no image with that name, a number column holding words, or a template name that doesn't exist. Fix the sheet and choose the file again, or run anyway and the problem cells are left out.
 
-> **Tip:** The whole merge is one undo step. Back in the editor, press [[Ctrl+Z]] (⌘ on Mac) to remove it all.
+> **Tip:** The whole merge is one undo step. Press **Undo** next to the _Done_ message to remove it all, or later [[Ctrl+Z]] (⌘ on Mac) back in the editor.
 
 > **Tip:** Combine mail merge with **Show only when…** rules, for example to show a gold gem only when the Rarity column says _Rare_. See [Turning parts on and off](help:part-toggles).
 
