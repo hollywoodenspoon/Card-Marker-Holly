@@ -157,12 +157,13 @@ export function VectorCanvas() {
 
   /** Paths whose anchors are shown (and can be grabbed). */
   const editable = useMemo(() => {
-    const ids = new Set(selection)
+    // The Selection tool shows points only for a single object (many get cluttered).
+    const ids = new Set(tool === 'select' && selection.length > 1 ? [] : selection)
     if (penPathId) ids.add(penPathId)
     return items
       .filter((e) => ids.has(e.item.id) && !e.item.locked && !e.layer.locked)
       .map((e) => e.item)
-  }, [items, selection, penPathId])
+  }, [items, selection, penPathId, tool])
 
   const pointer = (): Pt => {
     const p = stageRef.current?.getPointerPosition() ?? { x: 0, y: 0 }
