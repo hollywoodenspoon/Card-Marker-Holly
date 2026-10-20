@@ -20,6 +20,7 @@ import {
   PenTool,
   Ruler,
   Sheet,
+  Swords,
 } from 'lucide-react'
 import { APP_NAME, APP_VERSION } from '@/app/appInfo'
 import { goHome } from '@/app/session'
@@ -102,6 +103,9 @@ function AppMenu({ phone }: { phone: boolean }) {
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={() => useUi.getState().setGalleryOpen(true)}>
           <LayoutGrid /> Gallery and proofreading
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => useUi.getState().setPlaytestOpen(true)}>
+          <Swords /> Playtest
         </DropdownMenuItem>
         {phone && (
           <>

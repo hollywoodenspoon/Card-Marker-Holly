@@ -339,3 +339,14 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 - **Pre-releases** count while the running version is one (alpha, beta, rc), so alpha testers get the next alpha.
 - **Unsigned:** Windows updates work without code signing; SmartScreen may still warn once per new installer download.
 - **Versions before 0.1.0-alpha.2 have no updater;** they need one manual download.
+
+## Playtest (step 1: a table played by hand)
+
+- **Requested by the owner**, beyond the original feature list: a playtesting module for their game, Adventure Scuffle!, and for **other games they design later** (possibly board games). Step 1 is a table you play by hand; rules and a computer opponent come later.
+- **Game setups are data**, not code (`src/playtest/setup.ts`): seats, zones (`grid`, `stack`, `row`, `area`, each per player or shared, sized in mm), card states (a name and a turn), tokens, counters (with an optional winning value), phases, coin and dice, and where each player's deck is dealt. The engine and views know nothing about a particular game. Two built-in setups: **Adventure Scuffle! — Mutual Reveal** and **Simple board game**, both sized from the project's card size (a grid slot fits a card turned sideways). Setups made by the user will live in `Project.games` (an optional field, remapped when a project file is imported); the setup editor is the next PR.
+- **Every move is a plain action** applied by a pure reducer (`src/playtest/actions.ts`, using immer). The random number generator is seeded and its state is part of the table, so a list of actions replays a game exactly. This gives undo/redo, the game log, and what a rules engine (legal actions) and an AI (simulating games) will need. `observe()` already removes what a player can't see.
+- **Who sees what:** a zone is `public` (face-down cards known to their owner), `owner` (a hand) or `hidden` (a deck: nobody). *View as* a player applies it for hot-seat play; *Everyone* (playing all sides yourself) shows face-down cards dimmed.
+- **Facing seats:** with two players, the top player's area is turned 180°, so both front lines face each other and "same row, opposite column" is straight across. Cards themselves stay upright to be readable.
+- **A drop on an occupied slot swaps** the two cards (the game swaps a lot); a card going into a pile or a row is turned upright and its tokens go back to the tray.
+- **Card pictures** are drawn once per game with the PDF renderer (the same pixels as print) at 200 dpi, as JPEG object URLs freed when the view closes. The table itself is plain HTML positioned in mm × zoom, not Konva, which keeps drag and drop, rotation and accessibility simple.
+- **Not saved:** a game stays while the project is open (closing and reopening Playtest continues it) and ends with *New game* or another project. Saving games can come with the rules engine.

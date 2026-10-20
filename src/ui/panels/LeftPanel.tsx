@@ -9,6 +9,7 @@ import {
   Sheet,
   Highlighter,
   Upload,
+  Swords,
 } from 'lucide-react'
 import { useEditor } from '@/core/editor/editorStore'
 import { openHelp } from '@/help/openHelp'
@@ -32,6 +33,12 @@ const ACTIONS = [
     title: 'Gallery and proofreading',
     icon: LayoutGrid,
     run: () => useUi.getState().setGalleryOpen(true),
+  },
+  {
+    label: 'Playtest',
+    title: 'Playtest: play your game on a virtual table',
+    icon: Swords,
+    run: () => useUi.getState().setPlaytestOpen(true),
   },
   {
     label: 'Export',

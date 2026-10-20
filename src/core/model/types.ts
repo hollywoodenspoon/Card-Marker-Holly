@@ -1,4 +1,5 @@
 import type { UnitSettings } from '../units/units'
+import type { GameSetup } from '@/playtest/setup'
 /**
  * Document model. All geometry is in millimetres; font sizes are in points.
  * Nothing here knows about storage, rendering libraries, or the UI.
@@ -81,6 +82,8 @@ export interface Project {
   units?: UnitSettings
   /** Asset folder names in display order (keeps empty folders). */
   assetFolders?: string[]
+  /** Playtest table setups made for this project (the built-in ones are not stored). */
+  games?: GameSetup[]
 }
 
 /** A deck: a count per card id (missing = not in the deck). */

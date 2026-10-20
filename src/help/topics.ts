@@ -220,13 +220,19 @@ export const HELP_TOPICS: HelpTopic[] = [
     id: 'tabletop-simulator',
     title: 'Tabletop Simulator',
     section: 'Output',
-    keywords: 'tts deck sheet custom deck playtest',
+    keywords: 'tts deck sheet custom deck online',
   },
   {
     id: 'gallery',
     title: 'Gallery and proofreading',
     section: 'Output',
     keywords: 'overview proofread spelling review',
+  },
+  {
+    id: 'playtest',
+    title: 'Playtest',
+    section: 'Output',
+    keywords: 'play test game table board tokens score dice coin hot seat',
   },
   // Reference
   {
@@ -284,6 +290,7 @@ export const HELP_SHOTS = [
   'vector-save',
   'gallery',
   'proofread',
+  'playtest',
   'print',
   'print-settings',
   'card-images',

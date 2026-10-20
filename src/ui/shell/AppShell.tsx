@@ -17,6 +17,7 @@ import { useLayout } from './useLayout'
 
 // The Vector Maker (and paper.js) download only when it is opened.
 const VectorMaker = lazy(() => import('@/vector/ui/VectorMaker'))
+const PlaytestView = lazy(() => import('@/ui/playtest/PlaytestView'))
 
 export function AppShell() {
   const layout = useLayout()
@@ -26,6 +27,7 @@ export function AppShell() {
   const galleryOpen = useUi((s) => s.galleryOpen)
   const dataOpen = useUi((s) => !!s.dataView)
   const vectorOpen = useUi((s) => !!s.vectorOpen)
+  const playtestOpen = useUi((s) => s.playtestOpen)
   const shell =
     layout === 'phone' ? <PhoneShell /> : layout === 'tablet' ? <TabletShell /> : <DesktopShell />
   return (
@@ -36,6 +38,11 @@ export function AppShell() {
       {vectorOpen && (
         <Suspense fallback={null}>
           <VectorMaker />
+        </Suspense>
+      )}
+      {playtestOpen && (
+        <Suspense fallback={null}>
+          <PlaytestView layout={layout} />
         </Suspense>
       )}
       {printOpen && <PrintView layout={layout} />}
