@@ -18,7 +18,7 @@ npm run desktop:dist   # desktop packages for this OS in release/ (add e.g. -- -
 
 **Website:** https://hollywoodenspoon.github.io/Card-Marker-Holly/. Every push to `main` rebuilds it (`.github/workflows/pages.yml`). One-time setup: repo Settings → Pages → Source: **GitHub Actions**.
 
-**Desktop releases:** set the version in `package.json`, then push a matching tag, e.g. `git tag v0.1.0-alpha.1 && git push origin v0.1.0-alpha.1`. `.github/workflows/release.yml` builds the Windows portable exe, the AppImage and the Arch package, and attaches them to a GitHub Release. Alpha and beta versions are published as pre-releases.
+**Desktop releases:** set the version in `package.json` on `main`, then on GitHub open **Actions → Desktop release → Run workflow**. The tag `v<version>` is created for you. Pushing a matching tag works too. `.github/workflows/release.yml` builds the Windows portable exe, the AppImage and the Arch package, and attaches them to a GitHub Release. Alpha and beta versions are published as pre-releases.
 
 **Versioning:** `0.1.0-alpha.N` while in early alpha, then `-beta.N`, then `1.0.0` when v1 is done.
 
