@@ -1,17 +1,26 @@
 # Card Maker
 
-Browser-based card editor (React + TypeScript + Vite, Konva canvas). Everything is stored locally in IndexedDB; there is no backend.
+*Card Maker is a working title.* Version **0.1.0-alpha.1** (early alpha).
+
+A card editor built with React, TypeScript, Vite and a Konva canvas. It runs as a website (projects stored in the browser) or as a desktop app for Windows and Linux (projects stored as folders of ordinary files). There is no backend, and it works offline.
 
 ```bash
-npm install      # install dependencies
-npm run dev      # start the dev server at http://localhost:5173
-npm run build    # type-check and build to dist/
-npm test         # run unit tests (Vitest)
-npm run lint     # ESLint
-npm run preview  # serve the production build (installable, works offline)
+npm install            # install dependencies
+npm run dev            # website dev server at http://localhost:5173
+npm run build          # type-check and build the website to dist/
+npm test               # unit tests (Vitest)
+npm run lint           # ESLint
+npm run preview        # serve the website build (installable, works offline)
+
+npm run desktop:dev    # desktop app with live reload
+npm run desktop:dist   # desktop packages for this OS in release/ (add e.g. -- --linux AppImage pacman)
 ```
 
-Live version: https://hollywoodenspoon.github.io/Card-Marker-Holly/ — every push to `main` rebuilds it (`.github/workflows/pages.yml`). One-time setup: repo Settings → Pages → Source: **GitHub Actions**.
+**Website:** https://hollywoodenspoon.github.io/Card-Marker-Holly/. Every push to `main` rebuilds it (`.github/workflows/pages.yml`). One-time setup: repo Settings → Pages → Source: **GitHub Actions**.
+
+**Desktop releases:** set the version in `package.json`, then push a matching tag, e.g. `git tag v0.1.0-alpha.1 && git push origin v0.1.0-alpha.1`. `.github/workflows/release.yml` builds the Windows portable exe, the AppImage and the Arch package, and attaches them to a GitHub Release. Alpha and beta versions are published as pre-releases.
+
+**Versioning:** `0.1.0-alpha.N` while in early alpha, then `-beta.N`, then `1.0.0` when v1 is done.
 
 Assumptions and design choices are listed in [DECISIONS.md](DECISIONS.md).
 
@@ -27,7 +36,32 @@ A small *Make your first card* checklist on the canvas ticks these steps off as 
 ### Projects and backups
 - **Home screen** (☰ → All projects): open, rename, delete projects; **Import** a backup.
 - **Backup file**: ☰ → *Export backup file* saves the whole project (cards, templates, images, fonts) as one `.cardproject.json`. Import always creates a new project, so nothing is overwritten.
-- Projects live in the browser you made them in. To move work between computers, export a backup and import it on the other one.
+- On the **website**, projects live in the browser you made them in. To move work between computers, or into the desktop app, export a backup and import it on the other side.
+
+### Desktop app (Windows and Linux)
+- **Download** it from the repo's *Releases* page:
+  - **Windows:** `Card-Maker-…-portable.exe`. It's one file with nothing to install; double-click it. The first time, Windows may say "Windows protected your PC" (the app isn't code-signed): click **More info → Run anyway**.
+  - **Linux:** the `.AppImage`. Make it executable (`chmod +x`, or Properties → Allow executing), then run it.
+  - **Arch / CachyOS:** install the `.pkg.tar.xz` with `sudo pacman -U card-maker-….pkg.tar.xz`.
+- **Each project is a folder** of ordinary files, by default in `Documents/Card Maker/<project name>/`:
+  ```
+  project.json      cards, templates, styles, and which pictures and fonts are used
+  project.json.bak  the version before the last save
+  images/           your uploaded pictures, unchanged (PNG, JPG, WebP, SVG)
+  fonts/            your uploaded fonts
+  ```
+  Saving is automatic. It writes to a temporary file first and then swaps it in, so a crash or power cut never leaves a half-written project. Copy the folder to back it up, or to move it to another computer or a USB stick.
+- **Home screen extras:**
+  - **Open folder** adds a project folder from anywhere.
+  - Each project shows where it lives. ⋯ → **Show in folder** opens it in your file manager.
+  - **Remove…** takes a project off the list. Tick the box to also move its folder to the Trash / Recycle Bin.
+  - A project whose folder was moved shows *Folder not found*: click it and point to the new place.
+- **New project** shows where its folder will go. **Change…** picks another place for new projects.
+- **Exports** (PDF, images, Tabletop Simulator, CSV, vectors) open a normal **Save as** dialog; the message afterwards has **Show in folder**.
+- **Settings and the Recent list** are kept with the app:
+  - portable exe: in a `Card Maker data` folder next to the exe, so nothing goes into AppData
+  - Linux: in `~/.config/card-maker`
+- The app never goes online. ☰ shows the version.
 
 ### Left pane
 - The rail on the left (desktop, and the tablet's left drawer) has the panels **Templates, Cards, Decks, Fonts**, then quick buttons: **Print**, **Gallery** (gallery and proofreading), **Images** (export card images), **Keywords** and **Data** (card data table, CSV export and mail merge). These are also in the ☰ menu.

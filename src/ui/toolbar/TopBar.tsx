@@ -7,6 +7,7 @@ import {
   Library,
   Type,
   TextSearch,
+  FolderOpen,
   Home,
   Image,
   Menu,
@@ -19,7 +20,9 @@ import {
   Ruler,
   Sheet,
 } from 'lucide-react'
+import { APP_NAME, APP_VERSION } from '@/app/appInfo'
 import { goHome } from '@/app/session'
+import { folderStore } from '@/storage'
 import { redo, undo, useEditor } from '@/core/editor/editorStore'
 import { Button, IconButton } from '@/ui/components/ui/button'
 import {
@@ -142,10 +145,32 @@ function AppMenu({ phone }: { phone: boolean }) {
         <DropdownMenuItem onSelect={() => void exportOpenProject()}>
           <Download /> Export backup file
         </DropdownMenuItem>
+        <ShowFolderMenuItem />
         <InstallMenuItem />
         <DropdownMenuSeparator />
         <ThemeMenuItems />
+        <DropdownMenuSeparator />
+        <div className="px-2 py-1.5 text-xs text-muted-foreground">
+          {APP_NAME} {APP_VERSION}
+        </div>
       </DropdownMenuContent>
     </DropdownMenu>
+  )
+}
+
+/** Desktop app: open the project's folder in the file manager. */
+function ShowFolderMenuItem() {
+  const folders = folderStore()
+  if (!folders) return null
+  return (
+    <DropdownMenuItem
+      onSelect={async () => {
+        const id = useEditor.getState().doc?.project.id
+        const dir = id && (await folders.locationOf(id))
+        if (dir) await folders.bridge.reveal(dir)
+      }}
+    >
+      <FolderOpen /> Show project folder
+    </DropdownMenuItem>
   )
 }

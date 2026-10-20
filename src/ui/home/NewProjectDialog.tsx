@@ -1,6 +1,8 @@
 import { RectangleHorizontal, RectangleVertical } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { createAndOpenProject } from '@/app/session'
+import { folderStore } from '@/storage'
+import { folderName } from '@/storage/folderBackend'
 import type { Orientation } from '@/core/model/types'
 import { DEFAULT_PRESET_ID, orientationOf, presetSize, withOrientation } from '@/core/units/presets'
 import { formatSize, type UnitSettings } from '@/core/units/units'
@@ -146,6 +148,7 @@ function NewProjectForm({ onCancel }: { onCancel: () => void }) {
             </span>
           </div>
         </div>
+        <ProjectLocation name={name} />
         <div className="flex justify-end gap-2">
           <Button variant="secondary" onClick={onCancel}>
             Cancel
@@ -154,5 +157,37 @@ function NewProjectForm({ onCancel }: { onCancel: () => void }) {
         </div>
       </form>
     </UnitsContext.Provider>
+  )
+}
+
+/** Desktop app: where the new project's folder goes, with a way to change it. */
+function ProjectLocation({ name }: { name: string }) {
+  const folders = folderStore()
+  const [dir, setDir] = useState<string | null>(null)
+  useEffect(() => {
+    void folders?.projectsDir().then(setDir)
+  }, [folders])
+  if (!folders || !dir) return null
+  return (
+    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+      <span className="min-w-0 flex-1 break-all">
+        Saved in {dir}/{folderName(name.trim() || 'Untitled')}
+      </span>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={async () => {
+          const picked = await folders.bridge.pickFolder({
+            title: 'Where should new projects go?',
+            defaultPath: dir,
+          })
+          if (!picked) return
+          await folders.setProjectsDir(picked)
+          setDir(picked)
+        }}
+      >
+        Change…
+      </Button>
+    </div>
   )
 }

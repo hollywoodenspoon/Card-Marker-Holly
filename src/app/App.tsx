@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useEditor } from '@/core/editor/editorStore'
 import { loadBuiltinFonts } from '@/assets/fonts'
 import { startAutosave } from '@/storage/autosave'
-import { getSetting } from '@/storage/repo'
+import { getBackend } from '@/storage'
 import { FeedbackHost } from '@/ui/components/FeedbackHost'
 import { HomeScreen } from '@/ui/home/HomeScreen'
 import { PwaToast } from '@/ui/pwa/PwaToast'
@@ -18,7 +18,7 @@ export function App() {
     setAutosaveFlusher(saver.flush)
     void (async () => {
       await loadBuiltinFonts()
-      const last = await getSetting<string | null>('lastProjectId')
+      const last = await getBackend().getSetting<string | null>('lastProjectId')
       if (last) await openProject(last)
       setReady(true)
     })()

@@ -1,6 +1,6 @@
 import { useEditor } from '@/core/editor/editorStore'
 import { exportProject, importProject } from '@/storage/projectFile'
-import { loadProject, saveProjectBundle } from '@/storage/repo'
+import { getBackend } from '@/storage'
 import { downloadBlob, safeFileName } from './download'
 import { pickFiles } from './imageActions'
 
@@ -19,7 +19,7 @@ export async function exportOpenProject() {
 
 /** Download a backup of a stored project (from the Home screen). */
 export async function exportStoredProject(id: string) {
-  const loaded = await loadProject(id)
+  const loaded = await getBackend().loadProject(id)
   if (loaded) await save(await exportProject(loaded.doc, loaded.library))
 }
 
@@ -34,6 +34,6 @@ export async function importProjectFromFile(): Promise<string | undefined> {
     throw new Error('This file is not valid JSON.')
   }
   const bundle = importProject(data)
-  await saveProjectBundle(bundle)
+  await getBackend().saveBundle(bundle)
   return bundle.project.id
 }

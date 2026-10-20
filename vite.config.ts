@@ -1,16 +1,25 @@
+import { readFileSync } from 'node:fs'
 import { fileURLToPath, URL } from 'node:url'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import { defineConfig } from 'vitest/config'
 
+const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8')) as {
+  version: string
+}
+// The desktop app (Electron) serves the same build from disk and needs no service worker.
+const desktop = process.env.VITE_TARGET === 'desktop'
+
 export default defineConfig({
+  define: { __APP_VERSION__: JSON.stringify(pkg.version) },
   // GitHub Pages serves the app under /<repo>/; local dev and preview stay at /.
   base: process.env.BASE_PATH ?? '/',
   plugins: [
     react(),
     tailwindcss(),
     VitePWA({
+      disable: desktop,
       registerType: 'autoUpdate',
       includeAssets: ['icon.svg', 'apple-touch-icon.png'],
       manifest: {
@@ -47,6 +56,6 @@ export default defineConfig({
   },
   test: {
     environment: 'node',
-    include: ['src/**/*.test.ts'],
+    include: ['src/**/*.test.ts', 'electron/**/*.test.ts'],
   },
 })
