@@ -49,6 +49,7 @@ Some choices are about how you like to work, so they're kept on this device (in 
 ## Desktop and Android apps
 
 - **Projects folder**: where new projects go. On the Home screen, ☰ → **Projects folder…**. In the desktop app, the **New project** box also has **Change…**.
+- **Automatic update checks** and **Check for updates** (desktop app, in ☰): see [Desktop app](help:desktop-app#updates).
 - In the desktop app, settings and the Recent list are stored with the app: in **Card Maker data** next to the Windows `.exe`, or in `~/.config/card-maker` on Linux.
 
 ## Install and version

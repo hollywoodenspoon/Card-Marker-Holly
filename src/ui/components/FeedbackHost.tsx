@@ -29,7 +29,7 @@ export function FeedbackHost() {
             ) : (
               <div className="flex justify-end gap-2">
                 <Button variant="secondary" onClick={() => close(false)}>
-                  Cancel
+                  {ask.cancelLabel ?? 'Cancel'}
                 </Button>
                 <Button
                   variant={ask.danger ? 'danger' : 'default'}

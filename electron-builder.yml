@@ -15,8 +15,12 @@ files:
   - package.json
   - '!node_modules/**/*'
 asar: true
-# No auto-updater: new versions are downloaded from GitHub Releases.
-publish: null
+# Updates come from GitHub Releases (only when the user turns them on). CI builds with
+# --publish never and the Release workflow uploads the files, including latest*.yml.
+publish:
+  provider: github
+  owner: hollywoodenspoon
+  repo: Card-Marker-Holly
 
 linux:
   target:
@@ -39,9 +43,18 @@ pacman:
     - xdg-utils
 
 win:
-  target: portable
+  target:
+    - nsis
+    - portable
   icon: public/pwa-512.png
 
+# The installer updates itself: per user (no admin rights), installs in a few seconds.
+nsis:
+  oneClick: true
+  perMachine: false
+  artifactName: Card-Maker-Setup-${version}.exe
+
 # One self-contained exe: no installer, no admin rights; data stays next to it.
+# It can't replace itself, so it only says when a new version is out.
 portable:
   artifactName: Card-Maker-${version}-portable.exe

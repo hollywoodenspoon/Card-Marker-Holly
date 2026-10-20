@@ -44,7 +44,7 @@ A small *Make your first card* checklist on the canvas ticks these steps off as 
 
 ### Desktop app (Windows and Linux)
 - **Download** it from the repo's *Releases* page:
-  - **Windows:** `Card-Maker-…-portable.exe`. It's one file with nothing to install; double-click it. The first time, Windows may say "Windows protected your PC" (the app isn't code-signed): click **More info → Run anyway**.
+  - **Windows:** `Card-Maker-Setup-….exe` installs for you only (no admin rights) and updates itself; `Card-Maker-…-portable.exe` is one file with nothing to install. The first time, Windows may say "Windows protected your PC" (the app isn't code-signed): click **More info → Run anyway**.
   - **Linux:** the `.AppImage`. Make it executable (`chmod +x`, or Properties → Allow executing), then run it.
   - **Arch / CachyOS:** install the `.pkg.tar.xz` with `sudo pacman -U card-maker-….pkg.tar.xz`.
 - **Each project is a folder** of ordinary files, by default in `Documents/Card Maker/<project name>/`:
@@ -65,7 +65,7 @@ A small *Make your first card* checklist on the canvas ticks these steps off as 
 - **Settings and the Recent list** are kept with the app:
   - portable exe: in a `Card Maker data` folder next to the exe, so nothing goes into AppData
   - Linux: in `~/.config/card-maker`
-- The app never goes online. ☰ shows the version.
+- **Updates:** at first start the app asks whether to check for updates. With checks on, it asks GitHub once per start and nothing else; the Setup exe and the AppImage install new versions themselves, the portable exe and the Arch package say when one is out. With checks off it never goes online. ☰ has **Check for updates** and **Automatic update checks**, and shows the version.
 
 ### Android app (phones and tablets)
 - **Install:** download `Card-Maker-….apk` from *Releases* on the phone or tablet (Android 7 or newer) and open it. Android asks to allow **Install unknown apps** for the browser or file manager once. Updates install over the old version.

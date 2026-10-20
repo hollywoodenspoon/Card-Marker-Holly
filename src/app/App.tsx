@@ -4,6 +4,7 @@ import { loadBuiltinFonts } from '@/assets/fonts'
 import { startAutosave } from '@/storage/autosave'
 import { folderStore, getBackend } from '@/storage'
 import { HelpHost } from '@/help/HelpHost'
+import { initUpdates } from '@/ui/desktop/updates'
 import { FeedbackHost } from '@/ui/components/FeedbackHost'
 import { ChooseFolder } from '@/ui/home/ChooseFolder'
 import { HomeScreen } from '@/ui/home/HomeScreen'
@@ -22,6 +23,8 @@ export function App() {
     setAutosaveFlusher(saver.flush)
     void (async () => {
       await loadBuiltinFonts()
+      // Desktop app: update setting (asks once, after the app is on screen).
+      setTimeout(() => void initUpdates(), 1500)
       const folders = folderStore()
       if (folders && !(await folders.hasProjectsDir())) {
         setNeedsFolder(true)

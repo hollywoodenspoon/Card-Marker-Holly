@@ -24,6 +24,7 @@ import {
 import { APP_NAME, APP_VERSION } from '@/app/appInfo'
 import { goHome } from '@/app/session'
 import { openHelp } from '@/help/openHelp'
+import { UpdateMenuItems } from '@/ui/desktop/UpdateMenuItems'
 import { folderStore } from '@/storage'
 import { redo, undo, useEditor } from '@/core/editor/editorStore'
 import { Button, IconButton } from '@/ui/components/ui/button'
@@ -151,6 +152,7 @@ function AppMenu({ phone }: { phone: boolean }) {
           <CircleHelp /> Help
         </DropdownMenuItem>
         <ShowFolderMenuItem />
+        <UpdateMenuItems />
         <InstallMenuItem />
         <DropdownMenuSeparator />
         <ThemeMenuItems />

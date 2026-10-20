@@ -33,8 +33,31 @@ export interface DesktopBridge {
   /** "Save as" dialog; resolves to the chosen path, or null when cancelled. */
   saveFile(name: string, data: Uint8Array): Promise<string | null>
   reveal(path: string): Promise<void>
+  /** Desktop app updates from GitHub Releases (absent on Android). */
+  updates?: DesktopUpdates
   /** Called when the window is about to close or the app goes to the background; the app saves. */
   onBeforeClose(fn: () => Promise<void>): void
+}
+
+export type UpdateEvent =
+  | { type: 'checking' }
+  | { type: 'none' }
+  | { type: 'available'; version: string; url: string }
+  | { type: 'downloading'; version: string; percent?: number }
+  | { type: 'ready'; version: string }
+  | { type: 'error'; message: string }
+
+export interface DesktopUpdates {
+  /** enabled: null until the user was asked. auto: this copy can install updates itself. */
+  get(): Promise<{ enabled: boolean | null; mode: 'auto' | 'notify'; version: string }>
+  set(enabled: boolean): Promise<void>
+  /** Check now (turns updates on). */
+  check(): Promise<void>
+  /** Restart into the downloaded version. */
+  install(): Promise<void>
+  /** Open the release page in the browser. */
+  openReleases(url?: string): Promise<void>
+  onEvent(fn: (e: UpdateEvent) => void): void
 }
 
 declare global {
