@@ -20,6 +20,8 @@ import type { LayoutKind } from '@/ui/shell/useLayout'
 import { useUi } from '@/ui/uiStore'
 import { PrintList } from './PrintList'
 import { PrintSettingsForm } from './PrintSettingsForm'
+import { usePanZoom } from '@/ui/components/usePanZoom'
+import { ZoomBar } from '@/ui/components/ZoomBar'
 import { SheetPreview } from './SheetPreview'
 import { usePreviewBands } from './usePreviewBands'
 
@@ -247,9 +249,32 @@ function Previews({
   phone: boolean
   withBacks: boolean
 }) {
-  const ref = useRef<HTMLDivElement>(null)
   const bands = usePreviewBands(job)
   const [size, setSize] = useState({ w: 0, h: 0 })
+  // Zoom is relative to "fit"; x / y pan the sheets from the centre.
+  const [view, setView] = useState({ zoom: 1, x: 0, y: 0 })
+  // The sheets are redrawn at the new size once a zoom gesture settles (sharp);
+  // in between, a CSS scale keeps it smooth.
+  const [drawn, setDrawn] = useState(1)
+  useEffect(() => {
+    const t = setTimeout(() => setDrawn(view.zoom), 150)
+    return () => clearTimeout(t)
+  }, [view.zoom])
+  const fit = () => setView({ zoom: 1, x: 0, y: 0 })
+  const zoomBy = (f: number, at?: { x: number; y: number }) =>
+    setView((v) => {
+      const zoom = Math.min(8, Math.max(0.25, v.zoom * f))
+      const k = zoom / v.zoom
+      // Keep the point under the pointer in place (offsets are from the centre).
+      const c = at ? { x: at.x - size.w / 2, y: at.y - size.h / 2 } : { x: 0, y: 0 }
+      return { zoom, x: c.x - (c.x - v.x) * k, y: c.y - (c.y - v.y) * k }
+    })
+  const ref = useRef<HTMLDivElement>(null)
+  const pz = usePanZoom(ref, {
+    onZoom: zoomBy,
+    onPan: (dx, dy) => setView((v) => ({ ...v, x: v.x + dx, y: v.y + dy })),
+    onFit: fit,
+  })
   useEffect(() => {
     const el = ref.current
     if (!el) return
@@ -267,27 +292,45 @@ function Previews({
   // Both sides side by side on wider screens; phones show one at a time.
   const shown = (['front', 'back'] as const).filter((x) => (x === 'front' ? fronts : withBacks))
   const sides = phone && shown.length === 2 ? [side] : shown
+  const shownW = Math.round(w * drawn)
   return (
     <div
       ref={ref}
-      className="flex min-h-0 flex-1 items-center justify-center gap-6 overflow-hidden"
+      className="relative flex min-h-0 flex-1 touch-none items-center justify-center overflow-hidden"
+      style={{ cursor: pz.cursor }}
       data-testid="print-preview"
+      {...pz.handlers}
     >
-      {w > 0 &&
-        job.pages.length > 0 &&
-        sides.map((s) => (
-          <figure key={s} className="flex flex-col items-center gap-1.5">
-            <div
-              className="shadow-xl"
-              style={job.settings.draftGrey ? { filter: 'grayscale(1)' } : undefined}
-            >
-              <SheetPreview job={job} sheetIndex={sheet} side={s} widthPx={w} bands={bands} />
-            </div>
-            <figcaption className="text-xs text-white/90">
-              {s === 'front' ? 'Fronts' : `Backs (mirrored, ${job.settings.flip}-edge flip)`}
-            </figcaption>
-          </figure>
-        ))}
+      <div
+        className="flex shrink-0 items-center justify-center gap-6"
+        style={{
+          transform: `translate(${view.x}px, ${view.y}px) scale(${view.zoom / drawn})`,
+        }}
+        data-testid="print-sheets"
+      >
+        {w > 0 &&
+          job.pages.length > 0 &&
+          sides.map((s) => (
+            <figure key={s} className="flex flex-col items-center gap-1.5">
+              <div
+                className="shadow-xl"
+                style={job.settings.draftGrey ? { filter: 'grayscale(1)' } : undefined}
+              >
+                <SheetPreview
+                  job={job}
+                  sheetIndex={sheet}
+                  side={s}
+                  widthPx={shownW}
+                  bands={bands}
+                />
+              </div>
+              <figcaption className="text-xs text-white/90">
+                {s === 'front' ? 'Fronts' : `Backs (mirrored, ${job.settings.flip}-edge flip)`}
+              </figcaption>
+            </figure>
+          ))}
+      </div>
+      <ZoomBar zoom={view.zoom} onZoom={(f) => zoomBy(f)} onFit={fit} />
     </div>
   )
 }

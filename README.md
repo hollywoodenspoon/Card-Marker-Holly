@@ -41,7 +41,14 @@ Rail → **Vector**, ☰ → *Vector Maker*, or the pen button in the Assets hea
 - **Tools** (left; bottom bar on phone), with the same keys as Illustrator:
   - **V Selection**: click or drag a box to select, drag to move, handles to resize (Shift keeps proportions) and rotate.
   - **A Direct selection**: drag single points and their handles; drag a box to pick points. A smooth point keeps its handles in line (hold Alt to break them).
-  - **P Pen**: click for a corner point, click and drag for a curve (Alt-drag breaks the handle, Shift snaps to 45°). Click the first point to close the shape; Enter or Esc ends an open path. Click the end of an open path to carry on drawing it. On touch, tick *Break handles* instead of Alt.
+  - **P Pen**, like Illustrator's. The pen cursor shows what a click will do:
+    - empty space: click for a corner point, click and drag for a curve. Alt-drag breaks the handle; Shift snaps to 45°.
+    - ○ over the first point closes the path (drag to shape the closing curve).
+    - ^ over the point you just placed: click so the next segment starts as a corner, or drag out a new handle on its own.
+    - over another open path's end: joins the two into one path. / over an open end: carries on drawing it.
+    - + / − over a selected path's outline or point: adds or deletes a point.
+    - Hold **Space** while dragging to move the point you're placing. Hold **Ctrl/⌘** to adjust points and handles (Direct Selection) without leaving the pen; Ctrl/⌘-click on empty space ends the path. **Backspace** takes back the last point. **Enter** / **Esc** finish.
+    - On touch, tick *Break handles* in the right pane instead of holding Alt. The hint at the top of the right pane says what a tap will do.
   - **+ / −** add or delete points; **Shift C** turns a point smooth ↔ corner (drag to pull new handles).
   - **U Shapes**: pick one of 30 presets (rectangles, polygon, star, gear, badge, heart, shield, gem, flame, sword, crown, arrows, speech bubble, frames…) and drag it out (Shift = equal sides, Alt = from the centre), or click for a 100 px one. Shapes with settings (points, sides, teeth, corner radius…) keep them in the right pane until you edit their points.
   - **H Hand** (or hold Space) pans; Ctrl/⌘ + wheel or pinch zooms.
@@ -50,6 +57,7 @@ Rail → **Vector**, ☰ → *Vector Maker*, or the pen button in the Assets hea
 - **Layers**: add, rename (double-click), drag to reorder, hide, lock, opacity; each layer lists its objects (click to select, hide, lock).
 - **Save** → *Save to assets* as **SVG** (stays sharp and vector in the PDF), **PNG** (transparent, 1×/2×/4×) or **JPEG** (with a background colour), into the folder you pick. The layers are kept with the asset: Assets → ⋯ → **Edit in Vector Maker** reopens it, and saving with *Replace* updates every card using it. Uploaded SVGs can be opened the same way.
 - **Download**: SVG, PDF (vector), PNG or JPEG, for use in other programs. The folder button in the top bar opens an SVG file to edit.
+- **Trace image** (top bar; on phone in Properties): turns a picture (an uploaded image or a file) into editable shapes, one per colour, on a new layer. Set the number of colours, detail, smoothing and speck removal, and whether to drop the background; the preview updates as you go. Best for logos, icons, line art and flat art; photos become many small shapes (fewer colours and more smoothing help).
 - Shortcuts: Ctrl/⌘ Z / Shift Z undo and redo, Ctrl/⌘ D duplicate, Delete, arrows nudge (Shift = 10 px), Ctrl/⌘ A select all, Ctrl/⌘ S save, Ctrl/⌘ 0 fit.
 
 ### Card size, bleed and safe area
@@ -110,6 +118,8 @@ The **Front / Back** switch above the canvas. Each card picks a front template a
 **Decks** tab (on phone: ☰ → *Decks*): *New deck*, then − / + per card for how many of each it holds (e.g. two starter decks). ⋯ renames, duplicates or deletes a deck. **Print deck** prints exactly those counts (Print view → *Print* picks the print list or a deck).
 
 ### Gallery and proofreading
+The gallery and the print preview use the card editor's controls: hold **Space** or the **middle mouse button** and drag to pan, **Ctrl/⌘ + wheel** (or pinch) to zoom, Ctrl/⌘ 0 to fit, plus the − % + buttons bottom right. In the gallery, zooming makes the cards bigger.
+
 ☰ → *Gallery and proofreading*: every card in a big grid (fronts, backs or both, with a size slider, search and a deck filter); click a card to open it. The **Proofread** tab lists each card's text with the browser's spell check; plain text can be fixed right there (formatted text is edited on the card).
 
 ### Tabletop Simulator
