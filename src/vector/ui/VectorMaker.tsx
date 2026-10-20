@@ -17,7 +17,12 @@ import { Button, IconButton } from '@/ui/components/ui/button'
 import { Sheet } from '@/ui/components/ui/sheet'
 import { useLayout } from '@/ui/shell/useLayout'
 import { useUi } from '@/ui/uiStore'
-import { deleteSelection, duplicateSelection, transformSelection } from '../actions'
+import {
+  deleteSelection,
+  duplicateSelection,
+  removeLastPenPoint,
+  transformSelection,
+} from '../actions'
 import { translateM } from '../geometry'
 import { newDoc, parseDoc } from '../model'
 import { endVGesture, loadVectorDoc, setTool, useVector, vredo, vundo } from '../store'
@@ -117,8 +122,9 @@ export default function VectorMaker() {
           })),
         )
       if (mod) return
-      if ((k === 'delete' || k === 'backspace') && !useVector.getState().penPathId)
-        return run(deleteSelection)
+      if (k === 'delete' || k === 'backspace')
+        // While drawing, take back the last point (Illustrator); otherwise delete.
+        return run(useVector.getState().penPathId ? removeLastPenPoint : deleteSelection)
       const nudge = e.shiftKey ? 10 : 1
       const arrows: Record<string, [number, number]> = {
         arrowleft: [-nudge, 0],
