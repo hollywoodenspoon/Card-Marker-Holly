@@ -41,8 +41,8 @@ export default defineConfig({
       },
       workbox: {
         // Everything the app needs offline, including the on-demand text editor
-        // and PDF export chunks and the bundled fonts used for PDF outlines.
-        globPatterns: ['**/*.{js,css,html,svg,png,woff2,woff}'],
+        // and PDF export chunks, the bundled fonts used for PDF outlines and the Help pictures.
+        globPatterns: ['**/*.{js,css,html,svg,png,webp,woff2,woff}'],
         maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
         navigateFallback: 'index.html',
       },

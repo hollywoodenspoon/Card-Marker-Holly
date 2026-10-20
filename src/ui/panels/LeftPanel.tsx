@@ -1,5 +1,6 @@
 import {
   ChevronDown,
+  CircleHelp,
   FolderPlus,
   LayoutGrid,
   ImageDown,
@@ -10,6 +11,7 @@ import {
   Upload,
 } from 'lucide-react'
 import { useEditor } from '@/core/editor/editorStore'
+import { openHelp } from '@/help/openHelp'
 import { cn } from '@/lib/cn'
 import { IconButton } from '@/ui/components/ui/button'
 import { useUi } from '@/ui/uiStore'
@@ -55,6 +57,12 @@ const ACTIONS = [
     icon: Sheet,
     run: () => useUi.getState().setDataView('table'),
   },
+  {
+    label: 'Help',
+    title: 'Help: how everything works (F1)',
+    icon: CircleHelp,
+    run: () => openHelp(),
+  },
 ]
 
 const railButton =
@@ -73,7 +81,7 @@ export function LeftPanel({
   // A tab that left the rail (Assets, from older sessions) falls back to Cards.
   const shown = LEFT_PANELS.some((p) => p.id === tab) ? tab : 'cards'
   return (
-    <div className={cn('flex min-h-0', className)}>
+    <div className={cn('flex min-h-0 min-w-0', className)}>
       <nav
         aria-label="Panels"
         className="flex w-16 shrink-0 flex-col items-center gap-1 overflow-y-auto border-r py-2"

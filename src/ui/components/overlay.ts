@@ -12,9 +12,25 @@ const isField = (el: Element | null) =>
   !!el &&
   ((el as HTMLElement).isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName))
 
+const escapeStack: { current: () => void }[] = []
+
+function onEscapeKey(e: KeyboardEvent) {
+  if (e.key !== 'Escape' || e.defaultPrevented) return
+  if (document.querySelector('[role="dialog"][data-state="open"]')) return
+  const top = escapeStack.at(-1)
+  if (!top) return
+  if (isField(document.activeElement)) {
+    ;(document.activeElement as HTMLElement).blur()
+    return
+  }
+  e.preventDefault()
+  top.current()
+}
+
 /**
- * Escape closes a full-screen view. Escape in a text box first just leaves
- * the box; a dialog opened on top of the view handles Escape itself.
+ * Escape closes a full-screen view: only the one on top (Help opened over
+ * Print closes Help). Escape in a text box first just leaves the box; a dialog
+ * opened on top of the view handles Escape itself.
  */
 export function useEscapeToClose(close: () => void) {
   const fn = useRef(close)
@@ -22,18 +38,12 @@ export function useEscapeToClose(close: () => void) {
     fn.current = close
   })
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape' || e.defaultPrevented) return
-      if (document.querySelector('[role="dialog"][data-state="open"]')) return
-      if (isField(document.activeElement)) {
-        ;(document.activeElement as HTMLElement).blur()
-        return
-      }
-      e.preventDefault()
-      fn.current()
+    if (!escapeStack.length) window.addEventListener('keydown', onEscapeKey)
+    escapeStack.push(fn)
+    return () => {
+      escapeStack.splice(escapeStack.indexOf(fn), 1)
+      if (!escapeStack.length) window.removeEventListener('keydown', onEscapeKey)
     }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
   }, [])
 }
 

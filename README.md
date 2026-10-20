@@ -24,6 +24,8 @@ npm run android:apk    # build release/Card-Maker-<version>.apk (needs the Andro
 
 **Versioning:** `0.1.0-alpha.N` while in early alpha, then `-beta.N`, then `1.0.0` when v1 is done.
 
+**Help:** the full user guide is inside the app: ☰ → **Help**, the **Help** button on the left rail, or **F1**. Its pages are Markdown files in `src/help/pages/` (one per topic in `src/help/topics.ts`); `npm run help:shots` retakes the screenshots in `public/help/` from a demo project.
+
 Assumptions and design choices are listed in [DECISIONS.md](DECISIONS.md).
 
 ## Features and how to use them

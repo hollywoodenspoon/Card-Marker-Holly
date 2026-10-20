@@ -19,6 +19,9 @@ interface UiState {
   /** Vector Maker; `assetId` opens that asset for editing. */
   vectorOpen: { assetId: string | null } | null
   setVectorOpen: (v: UiState['vectorOpen']) => void
+  /** Help, at a page (and a heading on it); null when closed. */
+  help: { topic: string; anchor?: string } | null
+  setHelp: (h: UiState['help']) => void
   setUnitsOpen: (o: boolean) => void
   setTtsOpen: (o: boolean) => void
   setGalleryOpen: (o: boolean) => void
@@ -71,6 +74,8 @@ export const useUi = create<UiState>((set) => ({
   ttsOpen: false,
   unitsOpen: false,
   vectorOpen: null,
+  help: null,
+  setHelp: (help) => set({ help }),
   setVectorOpen: (vectorOpen) => set({ vectorOpen }),
   setUnitsOpen: (unitsOpen) => set({ unitsOpen }),
   setTtsOpen: (ttsOpen) => set({ ttsOpen }),

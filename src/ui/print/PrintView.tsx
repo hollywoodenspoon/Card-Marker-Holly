@@ -10,6 +10,7 @@ import {
   Settings2,
 } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { HelpButton } from '@/help/HelpButton'
 import { useEditor } from '@/core/editor/editorStore'
 import { buildPrintJob, type PrintJob } from '@/print/job'
 import { paperOf } from '@/print/paper'
@@ -100,6 +101,7 @@ export function PrintView({ layout }: { layout: LayoutKind }) {
         <IconButton label="Back to editor" onClick={() => setOpen(false)}>
           <ArrowLeft />
         </IconButton>
+        <HelpButton topic="printing" className="order-last" />
         <div className="min-w-0 flex-1">
           <div className="text-sm font-semibold">Print</div>
           <div className="truncate text-xs text-muted-foreground" data-testid="print-summary">

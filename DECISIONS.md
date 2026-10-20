@@ -312,3 +312,14 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 - **Large heap** is requested, since big PDF exports can need a lot of memory on phones.
 - **Font picking:** the font file filter lists the generic types Android often gives font files, so .ttf / .otf aren't greyed out in the picker.
 - **Testing:** the plugin's behaviour is covered by an in-memory stand-in (unit tests, and dev builds can run the Android code path in a normal browser via `window.__fakeAndroidFolders`). The APK itself is built in GitHub Actions; this project's development environment has no Android SDK or emulator.
+
+## In-app Help
+
+- **The guide lives inside the app** (☰ → Help, the rail's Help button, F1 anywhere, **?** in the editor, and a ? button in Print, Gallery, Card data and the Vector Maker that opens the matching page), so it works offline in every version. The README's feature list stays as a short overview.
+- **Pages are Markdown** (`src/help/pages/<id>.md`), listed in `src/help/topics.ts`, rendered with **marked 18.1.0** (pinned). A few additions: `[[Ctrl+Z]]` key caps, `help:page#heading` links handled in-app, `> **Tip:**` / `> **Note:**` callouts, and screenshots by id. Raw HTML in a page is shown as text, never run. The whole Help (pages, renderer, view) is one lazily loaded chunk (~64 kB gzipped), so start-up is unchanged.
+- **Search** is a small in-house scorer (title > keywords > text, every word must match), with no index library.
+- **Screenshots** come from `scripts/help-screenshots.mjs`, which builds a demo project (generated art in `scripts/help-demo/`, six cards via a real mail merge) in the running app and saves WebP pictures to `public/help/` (≈0.9 MB, precached for offline use). Re-run it after UI changes; a test fails if a page shows a picture that doesn't exist or a listed picture is unused.
+- **Checks** (`src/help/topics.test.ts`): one page per topic, exact titles, every `help:` link and `#anchor` exists, only known pictures, no HTML, and the shortcuts page mentions every Ctrl+letter shortcut in the editor code.
+- **Escape closes only the top-most view** now (a small stack in `src/ui/components/overlay.ts`), so Escape in Help opened over Print closes Help. Help also registers for Android's Back button.
+- **Help sits above full-screen views** (z-index 70) but below dialogs; F1 closes the export dialogs first, since a dialog can't have a view on top of it.
+- **Found while writing the pages:** the left pane could grow wider than its column (cut-off buttons in the Decks panel with long card names); fixed with `min-w-0`. The Tabletop Simulator "How to import.txt" named the wrong menu path; it now says Objects → Components → Custom → Deck.

@@ -12,6 +12,7 @@ import {
 } from '@/core/editor/elementCommands'
 import { surfaceElements } from '@/core/editor/selectors'
 import { fitToScreen, zoomIn, zoomOut } from '@/core/render/viewport'
+import { openHelp } from '@/help/openHelp'
 import { deletedToast } from './undoToast'
 
 function isTyping(e: KeyboardEvent) {
@@ -47,6 +48,7 @@ export function useShortcuts() {
               .map((x) => x.id),
           ),
         )
+      if (e.key === '?' && !mod) return run(() => openHelp())
       if (mod && (k === '=' || k === '+')) return run(zoomIn)
       if (mod && k === '-') return run(zoomOut)
       if (mod && k === '0') return run(() => fitToScreen())
