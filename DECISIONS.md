@@ -323,3 +323,9 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 - **Escape closes only the top-most view** now (a small stack in `src/ui/components/overlay.ts`), so Escape in Help opened over Print closes Help. Help also registers for Android's Back button.
 - **Help sits above full-screen views** (z-index 70) but below dialogs; F1 closes the export dialogs first, since a dialog can't have a view on top of it.
 - **Found while writing the pages:** the left pane could grow wider than its column (cut-off buttons in the Decks panel with long card names); fixed with `min-w-0`. The Tabletop Simulator "How to import.txt" named the wrong menu path; it now says Objects → Components → Custom → Deck.
+
+## Touch editing, undo in dialogs, Vector Maker mirroring
+
+- **Touch screens get a small edit bar** over the canvas whenever something is selected: **Select several** (taps then add or remove parts, since fingers have no Shift key), **Duplicate** and **Delete** (only for parts that can be changed here: a card's own layers, or template parts in Template mode). In Select several, a tap on a selected part takes it out, but pressing it to drag keeps the selection, so several parts can be moved together. Esc or **Done** ends it. The flag lives in the editor view state (`multiSelect`).
+- **Mail merge and Find and replace** show an **Undo** button next to their "Done" message. The card editor's shortcuts are paused while these are open, so the old "Undo with Ctrl+Z" hint didn't work there.
+- **Vector Maker mirroring:** **Flip horizontal** / **Flip vertical** in Arrange and align (Shift+H / Shift+V), mirroring about the centre of the selection. Dragging a side of the selection box past the opposite side now turns the shape over (Konva's transformer flipping), and the result is baked into the path like any other transform.

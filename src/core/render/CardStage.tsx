@@ -80,6 +80,9 @@ export function CardStage(props: CardStageProps) {
     marquee: { x: number; y: number; additive: boolean } | null
   }>({ pointers: new Map(), pinch: null, pan: null, marquee: null })
   const spaceDown = useRef(false)
+  // "Select several" (touch): a tap on a selected part takes it out, but pressing it
+  // to drag the whole selection must not, so the removal waits for a tap.
+  const pendingDeselect = useRef<{ id: string; x: number; y: number } | null>(null)
 
   // ---------- sizing ----------
   useEffect(() => {
@@ -196,10 +199,13 @@ export function CardStage(props: CardStageProps) {
         if (gesture.current.pinch || spaceDown.current || e.evt.button === 1) return
         e.cancelBubble = true
         const s = useEditor.getState()
-        const additive = e.evt.shiftKey || e.evt.metaKey || e.evt.ctrlKey
+        const additive = e.evt.shiftKey || e.evt.metaKey || e.evt.ctrlKey || s.view.multiSelect
         // Clicking inside an already-selected group drills into the child.
         const target = drillTarget(e.target, id, s.view.selection)
-        if (additive) {
+        const keys = e.evt.shiftKey || e.evt.metaKey || e.evt.ctrlKey
+        if (additive && !keys && s.view.selection.includes(target)) {
+          pendingDeselect.current = { id: target, x: e.evt.clientX, y: e.evt.clientY }
+        } else if (additive) {
           const sel = s.view.selection.includes(target)
             ? s.view.selection.filter((x) => x !== target)
             : [...s.view.selection, target]
@@ -442,6 +448,10 @@ export function CardStage(props: CardStageProps) {
 
   const onPointerUp = (e: React.PointerEvent) => {
     const g = gesture.current
+    const pd = pendingDeselect.current
+    pendingDeselect.current = null
+    if (pd && Math.hypot(e.clientX - pd.x, e.clientY - pd.y) < 6)
+      select(useEditor.getState().view.selection.filter((x) => x !== pd.id))
     g.pointers.delete(e.pointerId)
     if (g.pointers.size < 2) g.pinch = null
     if (g.pointers.size === 0) g.pan = null
@@ -470,7 +480,8 @@ export function CardStage(props: CardStageProps) {
     if (g.pinch || g.pan) return
     // Empty canvas: clear selection; with a mouse, start a marquee.
     if (e.target === e.target.getStage() || e.target.name() === 'backdrop') {
-      const additive = e.evt.shiftKey || e.evt.metaKey || e.evt.ctrlKey
+      const additive =
+        e.evt.shiftKey || e.evt.metaKey || e.evt.ctrlKey || useEditor.getState().view.multiSelect
       if (!additive) select([])
       if (e.evt.pointerType === 'mouse' && e.evt.button === 0) {
         const p = localPoint(e.evt)

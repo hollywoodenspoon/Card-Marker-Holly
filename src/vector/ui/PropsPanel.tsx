@@ -1,4 +1,6 @@
 import {
+  FlipHorizontal2,
+  FlipVertical2,
   AlignCenterHorizontal,
   AlignCenterVertical,
   AlignEndHorizontal,
@@ -40,6 +42,7 @@ import {
   setSelectionBox,
   setShapeParam,
   setStyle,
+  flipSelection,
 } from '../actions'
 import { findItem } from '../model'
 import { shapeById } from '../shapes'
@@ -384,6 +387,14 @@ export function PropsPanel() {
           <IconButton label="Align bottom" variant="outline" onClick={() => align('bottom')}>
             <AlignEndHorizontal />
           </IconButton>
+        </div>
+        <div className="grid grid-cols-2 gap-1">
+          <Button variant="outline" size="sm" onClick={() => flipSelection('horizontal')}>
+            <FlipHorizontal2 /> Flip horizontal
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => flipSelection('vertical')}>
+            <FlipVertical2 /> Flip vertical
+          </Button>
         </div>
         <p className="text-xs text-muted-foreground">
           {items.length === 1

@@ -62,7 +62,9 @@ export function useShortcuts() {
             deletedToast(n === 1 ? 'Layer' : `${n} layers`)
         })
       if (k === 'escape')
-        return run(() => setView({ selection: [], editingTextId: null, cropId: null }))
+        return run(() =>
+          setView({ selection: [], editingTextId: null, cropId: null, multiSelect: false }),
+        )
       const step = e.shiftKey ? 5 : 0.5
       if (k === 'arrowleft') return run(() => nudgeSelection(-step, 0))
       if (k === 'arrowright') return run(() => nudgeSelection(step, 0))

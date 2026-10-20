@@ -100,6 +100,7 @@ Shortcuts don't act while you're typing in a box. The card editor's keys also st
 | [[Ctrl+Z]]                     | Undo                                            |
 | [[Ctrl+Shift+Z]] or [[Ctrl+Y]] | Redo                                            |
 | [[Ctrl+D]]                     | Duplicate                                       |
+| [[Shift+H]] / [[Shift+V]]      | Flip horizontal / flip vertical                 |
 | [[Delete]] or [[Backspace]]    | Delete; while drawing, take back the last point |
 | [[Ctrl+A]]                     | Select all (visible, unlocked)                  |
 | [[Ctrl+S]]                     | Save                                            |

@@ -50,6 +50,15 @@ export function transformSelection(m: Matrix, coalesce?: string, ids = sel()) {
   }, coalesce)
 }
 
+/** Mirror the selection in place, about the centre of its bounding box. */
+export function flipSelection(axis: 'horizontal' | 'vertical') {
+  const b = selectionBounds()
+  if (!b) return
+  const cx = b.x + b.w / 2
+  const cy = b.y + b.h / 2
+  transformSelection(axis === 'horizontal' ? [-1, 0, 0, 1, 2 * cx, 0] : [1, 0, 0, -1, 0, 2 * cy])
+}
+
 /** Resize / move the selection to a new bounding box (X, Y, W, H fields). */
 export function setSelectionBox(next: Partial<Box>) {
   const b = selectionBounds()
