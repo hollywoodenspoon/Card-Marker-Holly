@@ -23,12 +23,22 @@ export function bandPx(o: BleedBandOptions) {
   }
 }
 
-/** Bands for a job at this resolution, or null when the bleed is drawn as designed. */
-export function bleedBands(job: PrintJob, pxPerMm: number, res: PrintResources) {
+/**
+ * Bands for one card size of a job at this resolution, or null when the bleed
+ * is drawn as designed. `card` defaults to the job's first size group.
+ */
+export function bleedBands(
+  job: PrintJob,
+  pxPerMm: number,
+  res: PrintResources,
+  card = job.groups[0]?.card ?? {
+    w: job.project.defaultSize.widthMm,
+    h: job.project.defaultSize.heightMm,
+  },
+) {
   const mode = job.settings.bleedFill
   const bleedMm = job.project.bleedMm
   if (mode === 'off' || bleedMm <= 0) return null
-  const card = { w: job.project.defaultSize.widthMm, h: job.project.defaultSize.heightMm }
   return new BleedBands({ card, bleedMm, mode, pxPerMm }, res)
 }
 
@@ -103,11 +113,12 @@ const BAND_QUALITY = 0.92
  * Bleed bands for a print run, made once per card side. Copies reuse them, and
  * so do cards whose side looks exactly the same (often every back).
  */
+let nextBandId = 0
+
 export class BleedBands {
   private canvases = new WeakMap<RenderNode[], Promise<HTMLCanvasElement>>()
   private images = new WeakMap<RenderNode[], Promise<PdfImage>>()
   private byContent = new Map<string, Promise<PdfImage>>()
-  private nextId = 0
   readonly px: { W: number; H: number; B: number }
 
   constructor(
@@ -145,7 +156,8 @@ export class BleedBands {
     const key = JSON.stringify(nodes)
     p = this.byContent.get(key)
     if (!p) {
-      const id = `bleed${this.nextId++}`
+      // Unique across instances: one PDF holds the bands of every card size.
+      const id = `bleed${nextBandId++}`
       p = this.canvas(nodes).then(async (band) => {
         // Only the bleed shows (the middle is clipped away under the vector card), so
         // a flat middle keeps the JPEG small. A few pixels of the card stay at the cut.

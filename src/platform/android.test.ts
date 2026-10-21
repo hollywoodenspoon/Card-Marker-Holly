@@ -21,7 +21,11 @@ function fakePlugin() {
       return { path: trees.at(-1)!, label: 'Documents/Hearthside Cardworks' }
     },
     roots: async () => ({
-      roots: trees.map((path) => ({ path, label: 'Documents/Hearthside Cardworks', granted: true })),
+      roots: trees.map((path) => ({
+        path,
+        label: 'Documents/Hearthside Cardworks',
+        granted: true,
+      })),
     }),
     async read({ path }) {
       check(path)

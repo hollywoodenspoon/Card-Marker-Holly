@@ -65,7 +65,7 @@ export async function exportGamePack(
   for (const [i, card] of cards.entries()) {
     const ft = card.frontTemplateId ? templates[card.frontTemplateId] : undefined
     const bt = card.backTemplateId ? templates[card.backTemplateId] : undefined
-    const size = ft?.size ?? def
+    const size = ft?.size ?? bt?.size ?? def
     const sides = resolveCard(card, ft, bt, input.stylePresets, cardContext(project, byId, card.id))
     const opts = {
       card: { w: size.widthMm, h: size.heightMm },
@@ -90,7 +90,11 @@ export async function exportGamePack(
     projectId: project.id,
     exportedAt: Date.now(),
     appVersion,
-    cardSize: { w: def.widthMm, h: def.heightMm },
+    // Built-in tables are laid out for the largest card, so every size fits.
+    cardSize: out.reduce((m, c) => (c.w * c.h > m.w * m.h ? { w: c.w, h: c.h } : m), {
+      w: out[0].w,
+      h: out[0].h,
+    }),
     cards: out,
     decks: (project.decks ?? []).map((d) => ({ name: d.name, counts: d.counts })),
   })

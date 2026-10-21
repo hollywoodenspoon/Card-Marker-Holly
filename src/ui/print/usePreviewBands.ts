@@ -11,16 +11,20 @@ const PREVIEW_PX_PER_MM = 150 / 25.4
  * The renderer loads on demand; null while loading or when the bleed is drawn
  * as designed.
  */
-export function usePreviewBands(job: PrintJob): BleedBands | null {
+export function usePreviewBands(
+  job: PrintJob,
+  card: { w: number; h: number } | undefined,
+): BleedBands | null {
   const [bands, setBands] = useState<BleedBands | null>(null)
   const { bleedFill } = job.settings
-  const { bleedMm, defaultSize } = job.project
+  const { bleedMm } = job.project
   const fontKey = job.fonts.map((f) => f.id).join()
   useEffect(() => {
     let live = true
     void Promise.all([import('@/print/pdf/bleedFill'), import('@/print/pdf/resources')]).then(
       ([{ bleedBands }, { createPrintResources }]) => {
-        if (live) setBands(bleedBands(job, PREVIEW_PX_PER_MM, createPrintResources(job)))
+        if (live)
+          setBands(bleedBands(job, PREVIEW_PX_PER_MM, createPrintResources(job), card) ?? null)
       },
     )
     return () => {
@@ -28,7 +32,7 @@ export function usePreviewBands(job: PrintJob): BleedBands | null {
     }
     // Rebuild only when something that changes the bands changes, not on every job.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bleedFill, bleedMm, defaultSize.widthMm, defaultSize.heightMm, job.assets, fontKey])
+  }, [bleedFill, bleedMm, card?.w, card?.h, job.assets, fontKey])
   return bands
 }
 

@@ -169,9 +169,12 @@ export function importTemplate(
     }
   })
   const now = Date.now()
+  // The anchored back belongs to the other project; the importer picks one here.
+  const { backId: _back, ...rest } = structuredClone(f.template)
   return {
     template: {
-      ...structuredClone(f.template),
+      ...rest,
+      edited: true,
       id: newId(),
       projectId,
       elements,

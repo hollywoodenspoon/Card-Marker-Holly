@@ -15,6 +15,8 @@ export interface TtsResult {
   name: string
   cards: number
   sheets: number
+  /** One deck per card size. */
+  decks: number
   uniqueBacks: boolean
 }
 
@@ -57,7 +59,8 @@ first (Tabletop Simulator: Modding > Cloud Manager) or use links to hosted image
 
 /**
  * Deck sheets for Tabletop Simulator: 10 × 7 grids of card fronts (69 cards
- * per sheet), plus one shared back image or matching back sheets. Copies come
+ * per sheet), plus one shared back image or matching back sheets. Each card
+ * size is its own deck. Copies come
  * from a deck's counts or the print list.
  */
 export async function exportTts(
@@ -72,64 +75,78 @@ export async function exportTts(
     project: { ...project, print: { ...project.print, deckId, draftNoArt: false } },
   })
   // Copies in print order (independent of whether cards fit the paper).
-  const slots = printSlots(job.cards)
-  if (!slots.length) throw new Error('No cards to export. Add cards to the deck or the print list.')
-  const card = { w: project.defaultSize.widthMm, h: project.defaultSize.heightMm }
-  const px = ttsCardPx(card)
+  const count = printSlots(job.cards).length
+  if (!count) throw new Error('No cards to export. Add cards to the deck or the print list.')
   const res = createPrintResources(input)
-  const opts = { card, bleedMm: 0, withBleed: false, dpi: px.dpi, opaque: true }
-  const unique = !sharedBack(job.cards, input.templates)
-  const cache = new Map<string, HTMLCanvasElement>()
-  const image = async (i: number, side: 'front' | 'back') => {
-    const key = `${i}:${side}`
-    let c = cache.get(key)
-    if (!c) {
-      const pc = job.cards[i]
-      const nodes = side === 'front' ? pc.front : (pc.back ?? [])
-      c = await renderCardImage(nodes, opts, res, null)
-      cache.set(key, c)
-    }
-    return c
-  }
-  const sheets = ttsSheets(slots)
-  const total = sheets.length * (unique ? 2 : 1) + (unique ? 0 : 1)
-  let done = 0
-  const sheet = async (cardsOnSheet: number[], side: 'front' | 'back') => {
-    const canvas = document.createElement('canvas')
-    canvas.width = TTS_COLS * px.w
-    canvas.height = TTS_ROWS * px.h
-    const ctx = canvas.getContext('2d')!
-    ctx.fillStyle = '#ffffff'
-    ctx.fillRect(0, 0, canvas.width, canvas.height)
-    for (const [slot, i] of cardsOnSheet.entries()) {
-      const p = ttsSlotPos(slot, px)
-      ctx.drawImage(await image(i, side), p.x, p.y, px.w, px.h)
-    }
-    // Last slot: the face shown while a card is hidden (its back).
-    const last = ttsSlotPos(TTS_COLS * TTS_ROWS - 1, px)
-    ctx.drawImage(await image(cardsOnSheet[0], 'back'), last.x, last.y, px.w, px.h)
-    onProgress?.(++done, total)
-    return toJpeg(canvas)
-  }
-
   const base = project.name.replace(/[^\w\- ]+/g, '').trim() || 'cards'
-  const name = job.deck ? `${base} - ${job.deck.name.replace(/[^\w\- ]+/g, '').trim()}` : base
+  const named = job.deck ? `${base} - ${job.deck.name.replace(/[^\w\- ]+/g, '').trim()}` : base
+  // One deck per card size: Tabletop Simulator decks have one card shape.
+  const decks = job.groups.map((g) => {
+    const cards = g.cards.map((i) => job.cards[i])
+    const slots = printSlots(cards).map((k) => g.cards[k])
+    const name = job.groups.length > 1 ? `${named} ${g.card.w}x${g.card.h}mm` : named
+    return { card: g.card, slots, name, unique: !sharedBack(cards, input.templates) }
+  })
+  const deckSheets = decks.map((d) => ttsSheets(d.slots))
+  const total = decks.reduce(
+    (n, d, k) => n + deckSheets[k].length * (d.unique ? 2 : 1) + (d.unique ? 0 : 1),
+    0,
+  )
+  let done = 0
   const files: Record<string, [Uint8Array, { level: 0 }]> = {}
-  for (const [n, s] of sheets.entries()) {
-    files[`${name} faces ${n + 1}.jpg`] = [await sheet(s, 'front'), { level: 0 }]
-    if (unique) files[`${name} backs ${n + 1}.jpg`] = [await sheet(s, 'back'), { level: 0 }]
+  const notes: string[] = []
+  for (const [k, d] of decks.entries()) {
+    const { card, slots, name, unique } = d
+    const px = ttsCardPx(card)
+    const opts = { card, bleedMm: 0, withBleed: false, dpi: px.dpi, opaque: true }
+    const cache = new Map<string, HTMLCanvasElement>()
+    const image = async (i: number, side: 'front' | 'back') => {
+      const key = `${i}:${side}`
+      let c = cache.get(key)
+      if (!c) {
+        const pc = job.cards[i]
+        const nodes = side === 'front' ? pc.front : (pc.back ?? [])
+        c = await renderCardImage(nodes, opts, res, null)
+        cache.set(key, c)
+      }
+      return c
+    }
+    const sheet = async (cardsOnSheet: number[], side: 'front' | 'back') => {
+      const canvas = document.createElement('canvas')
+      canvas.width = TTS_COLS * px.w
+      canvas.height = TTS_ROWS * px.h
+      const ctx = canvas.getContext('2d')!
+      ctx.fillStyle = '#ffffff'
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+      for (const [slot, i] of cardsOnSheet.entries()) {
+        const p = ttsSlotPos(slot, px)
+        ctx.drawImage(await image(i, side), p.x, p.y, px.w, px.h)
+      }
+      // Last slot: the face shown while a card is hidden (its back).
+      const last = ttsSlotPos(TTS_COLS * TTS_ROWS - 1, px)
+      ctx.drawImage(await image(cardsOnSheet[0], 'back'), last.x, last.y, px.w, px.h)
+      onProgress?.(++done, total)
+      return toJpeg(canvas)
+    }
+    const sheets = deckSheets[k]
+    for (const [n, s] of sheets.entries()) {
+      files[`${name} faces ${n + 1}.jpg`] = [await sheet(s, 'front'), { level: 0 }]
+      if (unique) files[`${name} backs ${n + 1}.jpg`] = [await sheet(s, 'back'), { level: 0 }]
+    }
+    if (!unique) {
+      files[`${name} back.jpg`] = [await toJpeg(await image(slots[0], 'back')), { level: 0 }]
+      onProgress?.(++done, total)
+    }
+    notes.push(howTo(name, sheets.length, slots.length, unique))
   }
-  if (!unique) {
-    files[`${name} back.jpg`] = [await toJpeg(await image(slots[0], 'back')), { level: 0 }]
-    onProgress?.(++done, total)
-  }
-  const text = new TextEncoder().encode(howTo(name, sheets.length, slots.length, unique))
+  const text = new TextEncoder().encode(notes.join('\n\n'))
   const zip = zipSync({ ...files, 'How to import.txt': text })
   return {
     blob: new Blob([zip as Uint8Array<ArrayBuffer>], { type: 'application/zip' }),
-    name: `${name} - Tabletop Simulator.zip`,
-    cards: slots.length,
-    sheets: sheets.length,
-    uniqueBacks: unique,
+    name: `${named} - Tabletop Simulator.zip`,
+    cards: count,
+    sheets: deckSheets.reduce((n, x) => n + x.length, 0),
+    decks: decks.length,
+    uniqueBacks: decks.some((d) => d.unique),
   }
 }

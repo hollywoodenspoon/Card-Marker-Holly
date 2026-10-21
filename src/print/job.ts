@@ -24,13 +24,26 @@ export interface PrintCard {
   back: RenderNode[] | null
 }
 
+/** Cards of one size, printed on their own sheets with their own grid. */
+export interface PrintGroup {
+  card: { w: number; h: number }
+  sheet: Sheet
+  /** Indices into `cards`, in print order. */
+  cards: number[]
+}
+
 export interface PrintJob {
   project: Project
   settings: FullPrintSettings
+  /** The first size group's sheet (the project's default size when nothing prints). */
   sheet: Sheet
+  /** One per card size, in the order the sizes first appear in the print list. */
+  groups: PrintGroup[]
   cards: PrintCard[]
   /** Indices into `cards` for each cell of each sheet (a card repeats for copies). */
   pages: number[][]
+  /** Index into `groups` for each page. */
+  pageGroup: number[]
   /** Total cards printed, copies included. */
   copyCount: number
   /** The deck being printed, if any (otherwise the print list). */
@@ -81,11 +94,15 @@ export function resolveCard(
   return nodes
 }
 
-/** Sheet layout input from the project and its print settings. */
-export function sheetInput(project: Project, settings: FullPrintSettings): SheetInput {
+/** Sheet layout input from the project and its print settings, for one card size. */
+export function sheetInput(
+  project: Project,
+  settings: FullPrintSettings,
+  card = { w: project.defaultSize.widthMm, h: project.defaultSize.heightMm },
+): SheetInput {
   return {
     paper: paperOf(settings.paper),
-    card: { w: project.defaultSize.widthMm, h: project.defaultSize.heightMm },
+    card,
     bleedMm: project.bleedMm,
     marginMm: settings.marginMm,
     orientation: settings.orientation,
@@ -95,6 +112,41 @@ export function sheetInput(project: Project, settings: FullPrintSettings): Sheet
     gapMm: settings.gapMm,
   }
 }
+
+/** A card's printed size: its front template's, else its back's, else the project default. */
+export function cardSizeOf(project: Project, templates: Record<string, Template>, card: Card) {
+  const t =
+    (card.frontTemplateId && templates[card.frontTemplateId]) ||
+    (card.backTemplateId && templates[card.backTemplateId]) ||
+    undefined
+  const size = t ? t.size : project.defaultSize
+  return { w: size.widthMm, h: size.heightMm }
+}
+
+/** Cards grouped by size, each group with its own sheet layout. */
+function sizeGroups(
+  project: Project,
+  settings: FullPrintSettings,
+  templates: Record<string, Template>,
+  cards: PrintCard[],
+): PrintGroup[] {
+  const groups = new Map<string, PrintGroup>()
+  cards.forEach((c, i) => {
+    const size = cardSizeOf(project, templates, c.card)
+    const key = `${size.w}x${size.h}`
+    let g = groups.get(key)
+    if (!g) {
+      g = { card: size, sheet: computeSheet(sheetInput(project, settings, size)), cards: [] }
+      groups.set(key, g)
+    }
+    g.cards.push(i)
+  })
+  return [...groups.values()]
+}
+
+/** The sheet layout of one page of the job. */
+export const pageSheet = (job: PrintJob, page: number): Sheet =>
+  job.groups[job.pageGroup[page]]?.sheet ?? job.sheet
 
 /** Everything needed to preview or export the print sheets, from the open project. */
 export function buildPrintJob(input: {
@@ -106,7 +158,6 @@ export function buildPrintJob(input: {
   stylePresets?: Record<string, StylePreset>
 }): PrintJob {
   const settings = normalizePrint(input.project.print)
-  const sheet = computeSheet(sheetInput(input.project, settings))
   const byId = Object.fromEntries(input.cards.map((c) => [c.id, c]))
   const deck = settings.deckId
     ? input.project.decks?.find((d) => d.id === settings.deckId)
@@ -126,14 +177,25 @@ export function buildPrintJob(input: {
         back: sides.back && stripArt(sides.back),
       }
     })
-  const slots = printSlots(cards)
+  const groups = sizeGroups(input.project, settings, input.templates, cards)
+  const pages: number[][] = []
+  const pageGroup: number[] = []
+  groups.forEach((g, gi) => {
+    const slots = printSlots(g.cards.map((i) => cards[i]))
+    for (const page of paginate(slots.length, g.sheet.perSheet)) {
+      pages.push(page.map((k) => g.cards[slots[k]]))
+      pageGroup.push(gi)
+    }
+  })
   return {
     project: input.project,
     settings,
-    sheet,
+    sheet: groups[0]?.sheet ?? computeSheet(sheetInput(input.project, settings)),
+    groups,
     cards,
-    pages: paginate(slots.length, sheet.perSheet).map((page) => page.map((i) => slots[i])),
-    copyCount: slots.length,
+    pages,
+    pageGroup,
+    copyCount: cards.reduce((n, c) => n + c.copies, 0),
     deck,
     sides: {
       fronts: settings.sheets !== 'backs',

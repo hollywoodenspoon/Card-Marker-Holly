@@ -2,6 +2,7 @@ import { FileDown, Loader2 } from '@/ui/icons'
 import { useState } from 'react'
 import { useEditor } from '@/core/editor/editorStore'
 import type { Side } from '@/core/model/types'
+import { cardSizeOf } from '@/print/job'
 import {
   IMAGE_FORMATS,
   imagePx,
@@ -60,7 +61,9 @@ function ExportForm({ cardId, onDone }: { cardId: string | null; onDone: () => v
 
   const chosen = o.all || !one ? cards : [one]
   const { project } = doc
-  const size = { w: project.defaultSize.widthMm, h: project.defaultSize.heightMm }
+  const size = chosen[0]
+    ? cardSizeOf(project, doc.templates, chosen[0])
+    : { w: project.defaultSize.widthMm, h: project.defaultSize.heightMm }
   const count = chosen.length * o.sides.length * o.bleeds.length * o.formats.length
   const px = (withBleed: boolean) => imagePx(size, project.bleedMm, withBleed, o.dpi)
 

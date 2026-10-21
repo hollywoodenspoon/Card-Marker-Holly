@@ -11,15 +11,14 @@ import { Button, IconButton } from '@/ui/components/ui/button'
 import { Label, NativeSelect } from '@/ui/components/ui/input'
 import { useReorder } from '@/ui/components/useReorder'
 
-/** Which cards print, how many of each, and in what order. */
-export function PrintList({ perSheet }: { perSheet: number }) {
+/** Which cards print, how many of each, and in what order. `sheets` = pages of fronts. */
+export function PrintList({ sheets }: { sheets: number }) {
   const cards = useEditor((s) => s.doc!.cards)
   const print = useEditor((s) => s.doc!.project.print)
   const decks = useEditor((s) => s.doc!.project.decks)
   const deck = print.deckId ? decks?.find((d) => d.id === print.deckId) : undefined
   const entries = useMemo(() => printEntries(Object.values(cards), print), [cards, print])
   const total = entries.reduce((n, e) => n + e.copies, 0)
-  const sheets = perSheet > 0 ? Math.ceil(total / perSheet) : 0
   const ids = entries.map((e) => e.card.id)
   const { handleProps, rowRef, dragging } = useReorder((from, to) =>
     setPrintOrder(movedOrder(entries, from, to)),
@@ -45,7 +44,7 @@ export function PrintList({ perSheet }: { perSheet: number }) {
 
   if (deck) {
     const n = deckSize(deck)
-    const sh = perSheet > 0 ? Math.ceil(n / perSheet) : 0
+    const sh = sheets
     return (
       <section className="border-b px-4 py-3" aria-label="Cards to print">
         {source}

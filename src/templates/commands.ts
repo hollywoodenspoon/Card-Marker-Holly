@@ -16,7 +16,8 @@ import { setPartVisibility } from './overrides'
 import { isVisibleOnCard } from './resolve'
 import { fieldDefaults, ruleHolds } from './rules'
 import { saveCardAsTemplate } from './saveCardAsTemplate'
-import { switchTemplate } from './switchTemplate'
+import { anchorOf, pickAnchor, sameSize } from './sizeGroups'
+import { backFits, switchTemplate } from './switchTemplate'
 import { exportTemplate, importTemplate } from './templateFile'
 
 /**
@@ -82,7 +83,10 @@ export function newTemplate(side: Side) {
   if (!s.doc) return
   const { project } = s.doc
   const names = Object.values(s.doc.templates).map((t) => t.name)
-  const size = project.defaultSize
+  // A new front matches the current card's back and is anchored to it.
+  const card = currentCard(s)
+  const cardBack = card?.backTemplateId ? s.doc.templates[card.backTemplateId] : undefined
+  const size = side === 'front' && cardBack ? cardBack.size : project.defaultSize
   const b = project.bleedMm
   const t = createTemplate(
     project.id,
@@ -96,7 +100,13 @@ export function newTemplate(side: Side) {
       ),
     ],
   )
-  commit((d) => void (d.templates[t.id] = t))
+  const anchor =
+    side === 'front' && pickAnchor(project, s.doc.templates, t, cardBack ? [cardBack.id] : [])
+  if (anchor) t.backId = anchor.back.id
+  commit((d) => {
+    if (anchor && anchor.created) d.templates[anchor.created.id] = anchor.created
+    d.templates[t.id] = t
+  })
   editTemplate(t.id)
   return t.id
 }
@@ -130,40 +140,74 @@ export function renameTemplate(id: string, name: string) {
   })
 }
 
-/** Delete a template. Cards using it move to another template of the same side (or none). */
+/**
+ * Delete a template. Cards using it move to another template of the same side
+ * (or none); a deleted back's fronts are anchored to another back, of the same
+ * size when there is one.
+ */
 export function deleteTemplate(id: string) {
   const s = useEditor.getState()
   const t = s.doc?.templates[id]
   if (!s.doc || !t) return
-  const replacement = Object.values(s.doc.templates)
+  const others = Object.values(s.doc.templates)
     .filter((x) => x.side === t.side && x.id !== id)
-    .sort((a, b) => a.createdAt - b.createdAt)[0]
+    .sort((a, b) => a.createdAt - b.createdAt)
+  const replacement = others.find((x) => sameSize(x.size, t.size)) ?? others[0]
   commit((d) => {
     delete d.templates[id]
+    if (t.side === 'back')
+      for (const f of Object.values(d.templates))
+        if (f.backId === id) {
+          if (replacement) f.backId = replacement.id
+          else delete f.backId
+        }
     for (const c of Object.values(d.cards)) {
-      if (c.frontTemplateId === id) switchTemplate(c, 'front', replacement?.id ?? null)
-      if (c.backTemplateId === id) switchTemplate(c, 'back', replacement?.id ?? null)
+      if (c.frontTemplateId === id) switchTemplate(c, 'front', replacement?.id ?? null, d.templates)
+      if (c.backTemplateId === id)
+        switchTemplate(
+          c,
+          'back',
+          anchorOf(d.templates, c.frontTemplateId)?.id ?? replacement?.id ?? null,
+        )
     }
   })
   if (s.view.templateId === id) setView({ mode: 'card', templateId: null, selection: [] })
 }
 
-/** Use a template for one side of the current card. */
-export function applyTemplate(templateId: string, cardId = useEditor.getState().view.cardId) {
-  const t = useEditor.getState().doc?.templates[templateId]
-  if (!t || !cardId) return
+/**
+ * Use a template for one side of the current card. A back must match the
+ * front's size; returns 'size' (and changes nothing) when it doesn't.
+ */
+export function applyTemplate(
+  templateId: string,
+  cardId = useEditor.getState().view.cardId,
+): 'ok' | 'size' | undefined {
+  const s = useEditor.getState()
+  const t = s.doc?.templates[templateId]
+  const card = cardId ? s.doc?.cards[cardId] : undefined
+  if (!s.doc || !t || !cardId || !card) return
+  if (t.side === 'back' && !backFits(s.doc.templates, card, templateId)) return 'size'
   commit((d) => {
     const c = d.cards[cardId]
-    if (c) switchTemplate(c, t.side, templateId)
+    if (c) switchTemplate(c, t.side, templateId, d.templates)
   })
   setView({ side: t.side, mode: 'card', selection: [] })
+  return 'ok'
 }
 
-/** Use a back template for every card in the deck. */
+/**
+ * Use a back template for every card in the deck whose front has the same
+ * size. Returns how many cards kept their back because of a different size.
+ */
 export function applyBackToAll(templateId: string) {
+  let skipped = 0
   commit((d) => {
-    for (const c of Object.values(d.cards)) switchTemplate(c, 'back', templateId)
+    for (const c of Object.values(d.cards)) {
+      if (backFits(d.templates, c, templateId)) switchTemplate(c, 'back', templateId)
+      else skipped++
+    }
   })
+  return skipped
 }
 
 export function saveCurrentCardAsTemplate(name: string) {
@@ -258,13 +302,15 @@ export async function uploadTemplate(file: File, registerFonts: (f: FontAsset[])
   )
   const names = Object.values(s.doc.templates).map((t) => t.name)
   template.name = uniqueName(template.name, names)
-  template.size = { ...s.doc.project.defaultSize }
+  const anchor = template.side === 'front' && pickAnchor(s.doc.project, s.doc.templates, template)
   await registerFonts(fonts)
   updateLibrary((l) => {
     for (const a of assets) l.assets[a.id] = a
     for (const f of fonts) l.fonts[f.id] = f
   })
+  if (anchor) template.backId = anchor.back.id
   commit((d) => {
+    if (anchor && anchor.created) d.templates[anchor.created.id] = anchor.created
     d.templates[template.id] = template
     for (const p of stylePresets) d.stylePresets[p.id] = p
     if (keywords.length) d.project.keywords = [...(d.project.keywords ?? []), ...keywords]

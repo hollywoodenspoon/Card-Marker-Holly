@@ -12,7 +12,7 @@ import {
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { HelpButton } from '@/help/HelpButton'
 import { useEditor } from '@/core/editor/editorStore'
-import { buildPrintJob, type PrintJob } from '@/print/job'
+import { buildPrintJob, pageSheet, type PrintJob } from '@/print/job'
 import { paperOf } from '@/print/paper'
 import { cn } from '@/lib/cn'
 import { downloadBlob, safeFileName } from '@/ui/actions/download'
@@ -58,6 +58,7 @@ export function PrintView({ layout }: { layout: LayoutKind }) {
   const current = Math.min(sheet, Math.max(0, pageCount - 1))
   const { fronts, backs: withBacks } = job.sides
   const nothing = !fronts && !withBacks
+  const tooBig = job.groups.filter((g) => !g.sheet.perSheet)
   const fileKind = fronts && withBacks ? 'cards' : fronts ? 'fronts' : 'backs'
 
   const exportCards = async () => {
@@ -105,7 +106,10 @@ export function PrintView({ layout }: { layout: LayoutKind }) {
         <div className="min-w-0 flex-1">
           <div className="text-sm font-semibold">Print</div>
           <div className="truncate text-xs text-muted-foreground" data-testid="print-summary">
-            {job.sheet.perSheet} per sheet ({job.sheet.orientation}) · {job.copyCount} card
+            {job.groups.length > 1
+              ? `${job.groups.length} card sizes`
+              : `${job.sheet.perSheet} per sheet (${job.sheet.orientation})`}{' '}
+            · {job.copyCount} card
             {job.copyCount === 1 ? '' : 's'} · {pageCount} sheet{pageCount === 1 ? '' : 's'}
             {fronts && withBacks ? ' + backs' : fronts ? ' · fronts only' : ' · backs only'}
           </div>
@@ -125,22 +129,23 @@ export function PrintView({ layout }: { layout: LayoutKind }) {
       <div className={cn('flex min-h-0 flex-1', phone ? 'flex-col' : 'flex-row')}>
         {!phone && (
           <aside className="w-80 shrink-0 overflow-auto border-r bg-panel">
-            <PrintList perSheet={job.sheet.perSheet} />
-            <PrintSettingsForm />
+            <PrintList sheets={pageCount} />
+            <PrintSettingsForm sizes={job.groups.map((g) => g.card)} />
           </aside>
         )}
         <main className="flex min-h-0 min-w-0 flex-1 flex-col bg-canvas">
-          {(error || warnings.length > 0 || job.sheet.perSheet === 0 || nothing) && (
+          {(error || warnings.length > 0 || tooBig.length > 0 || nothing) && (
             <div
               className="m-3 flex flex-col gap-1 rounded-lg border bg-panel p-3 text-sm"
               role="status"
             >
               {nothing && <p className="text-danger">None of these cards has a back template.</p>}
-              {job.sheet.perSheet === 0 && (
-                <p className="text-danger">
-                  The card doesn't fit on {paperOf(job.settings.paper).label} with these margins.
+              {tooBig.map((g) => (
+                <p key={`${g.card.w}x${g.card.h}`} className="text-danger">
+                  {g.card.w} × {g.card.h} mm cards don't fit on {paperOf(job.settings.paper).label}{' '}
+                  with these margins.
                 </p>
-              )}
+              ))}
               {error && <p className="text-danger">Export failed: {error}</p>}
               {warnings.map((w) => (
                 <p key={w} className="flex gap-1.5 text-warning">
@@ -215,9 +220,9 @@ export function PrintView({ layout }: { layout: LayoutKind }) {
                 {phonePanel === id && (
                   <div className="max-h-[40dvh] overflow-auto border-t">
                     {id === 'cards' ? (
-                      <PrintList perSheet={job.sheet.perSheet} />
+                      <PrintList sheets={pageCount} />
                     ) : (
-                      <PrintSettingsForm />
+                      <PrintSettingsForm sizes={job.groups.map((g) => g.card)} />
                     )}
                   </div>
                 )}
@@ -256,7 +261,8 @@ function Previews({
   phone: boolean
   withBacks: boolean
 }) {
-  const bands = usePreviewBands(job)
+  const group = job.groups[job.pageGroup[sheet]]
+  const bands = usePreviewBands(job, group?.card)
   const [size, setSize] = useState({ w: 0, h: 0 })
   // Zoom is relative to "fit"; x / y pan the sheets from the centre.
   const [view, setView] = useState({ zoom: 1, x: 0, y: 0 })
@@ -291,7 +297,8 @@ function Previews({
   }, [])
   const fronts = job.sides.fronts
   const count = !phone && fronts && withBacks ? 2 : 1
-  const aspect = job.sheet.pageW / job.sheet.pageH
+  const layout = pageSheet(job, sheet)
+  const aspect = layout.pageW / layout.pageH
   const gap = 24
   const labelH = 22
   const maxW = (size.w - gap * (count + 1)) / count
@@ -333,6 +340,7 @@ function Previews({
               </div>
               <figcaption className="text-xs text-white/90">
                 {s === 'front' ? 'Fronts' : `Backs (mirrored, ${job.settings.flip}-edge flip)`}
+                {job.groups.length > 1 && group && ` · ${group.card.w} × ${group.card.h} mm`}
               </figcaption>
             </figure>
           ))}

@@ -6,17 +6,27 @@ import { cloneWithNewIds, findElement, uniqueName } from '@/core/model/tree'
 import type { Card, Id, Side } from '@/core/model/types'
 import { setPartVisibility } from './overrides'
 import { fieldDefaults, ruleHolds } from './rules'
-import { switchTemplate } from './switchTemplate'
+import { backFits, switchTemplate } from './switchTemplate'
 
-/** Use one template for one side of every chosen card (values carry over by field name). */
+/**
+ * Use one template for one side of every chosen card (values carry over by
+ * field name). A new front brings its anchored back; a back is only used on
+ * cards whose front has the same size. Returns how many cards were skipped.
+ */
 export function setTemplateForCards(ids: Id[], side: Side, templateId: Id | null) {
+  let skipped = 0
   commit((d) => {
     for (const id of ids) {
       const c = d.cards[id]
       if (!c) continue
-      switchTemplate(c, side, templateId)
+      if (side === 'back' && templateId && !backFits(d.templates, c, templateId)) {
+        skipped++
+        continue
+      }
+      switchTemplate(c, side, templateId, d.templates)
     }
   })
+  return skipped
 }
 
 /**

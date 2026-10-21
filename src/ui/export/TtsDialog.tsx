@@ -78,7 +78,8 @@ function TtsForm({ onDone }: { onDone: () => void }) {
       </div>
       <p className="text-sm text-muted-foreground" data-testid="tts-summary">
         {count} card{count === 1 ? '' : 's'} · {Math.max(1, Math.ceil(count / 69))} sheet
-        {count > 69 ? 's' : ''}. Cards with different backs get matching back sheets.
+        {count > 69 ? 's' : ''}. Cards with different backs get matching back sheets; each card size
+        becomes its own deck.
       </p>
       {error && (
         <p role="alert" className="text-sm text-danger">

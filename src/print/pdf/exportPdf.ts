@@ -93,10 +93,15 @@ export async function exportCardsPdf(
   job: PrintJob,
   onProgress?: (done: number, total: number) => void,
 ): Promise<ExportResult> {
-  const { sheet, settings } = job
+  const { settings } = job
   const warnings = new Set<string>()
-  if (!sheet.perSheet) throw new Error('The card does not fit on the page with these settings.')
-  const doc = newDoc(sheet)
+  if (!job.groups.length) throw new Error('There are no cards to print.')
+  const tooBig = job.groups.find((g) => !g.sheet.perSheet)
+  if (tooBig)
+    throw new Error(
+      `${tooBig.card.w} × ${tooBig.card.h} mm cards do not fit on the page with these settings.`,
+    )
+  const doc = newDoc(job.groups[0].sheet)
   const res = createPrintResources(job, (family) =>
     warnings.add(
       `“${family}” has no font file, so its text is printed as a 600 dpi image. Upload the font to keep it vector.`,
@@ -104,32 +109,43 @@ export async function exportCardsPdf(
   )
   const pdf = new JsPdfTarget(doc, drawSvg)
   const target: DrawTarget = settings.draftGrey ? new GreyTarget(pdf) : pdf
-  const bands = bleedBands(job, BLEED_DPI / 25.4, res)
-  const drawCard = async (nodes: RenderNode[], c: { cell: Rect; trim: Rect }) => {
-    await renderCard(target, nodes, c.cell, c.trim, res)
-    if (!bands) return
-    // The band's card area sits exactly on the trim; it only shows in the bleed.
-    await drawBand(target, await bands.pdfImage(nodes), c.cell, c.trim, bands.placement(c.trim))
-  }
-  const marks = settings.cutMarks
-    ? cutMarks(sheet, {
-        lengthMm: settings.markLengthMm,
-        offsetMm: settings.markOffsetMm,
-        toEdge: settings.markToEdge,
-      })
-    : []
-  const guides = settings.guideLines ? guideLines(sheet) : []
-  const backs = backCells(sheet, settings.flip, {
-    x: settings.backOffsetXMm,
-    y: settings.backOffsetYMm,
+  const off = { x: settings.backOffsetXMm, y: settings.backOffsetYMm }
+  // Marks, guides, mirrored cells and bleed bands for each size group.
+  const layouts = job.groups.map((g) => {
+    const { sheet } = g
+    const marks = settings.cutMarks
+      ? cutMarks(sheet, {
+          lengthMm: settings.markLengthMm,
+          offsetMm: settings.markOffsetMm,
+          toEdge: settings.markToEdge,
+        })
+      : []
+    const guides = settings.guideLines ? guideLines(sheet) : []
+    const mirrored = (lines: Line[]) => lines.map((l) => mirrorLine(l, sheet, settings.flip, off))
+    return {
+      sheet,
+      marks,
+      guides,
+      backMarks: mirrored(marks),
+      backGuides: mirrored(guides),
+      backs: backCells(sheet, settings.flip, off),
+      bands: bleedBands(job, BLEED_DPI / 25.4, res, g.card),
+    }
   })
+  type Layout = (typeof layouts)[number]
+  const drawCard = async (l: Layout, nodes: RenderNode[], c: { cell: Rect; trim: Rect }) => {
+    await renderCard(target, nodes, c.cell, c.trim, res)
+    if (!l.bands) return
+    // The band's card area sits exactly on the trim; it only shows in the bleed.
+    await drawBand(target, await l.bands.pdfImage(nodes), c.cell, c.trim, l.bands.placement(c.trim))
+  }
   const { fronts, backs: withBacks } = job.sides
   if (!fronts && !withBacks) throw new Error('None of these cards has a back.')
   const total = job.pages.length * ((fronts ? 1 : 0) + (withBacks ? 1 : 0))
   let done = 0
   let first = true
 
-  const page = async (draw: () => Promise<void>) => {
+  const page = async (sheet: Sheet, draw: () => Promise<void>) => {
     if (!first) doc.addPage(pageFormat(sheet), sheet.orientation)
     first = false
     doc.advancedAPI()
@@ -140,31 +156,27 @@ export async function exportCardsPdf(
     await new Promise((r) => setTimeout(r, 0))
   }
 
-  for (const indices of job.pages) {
+  for (const [p, indices] of job.pages.entries()) {
+    const l = layouts[job.pageGroup[p]]
     if (fronts)
-      await page(async () => {
+      await page(l.sheet, async () => {
         for (const [slot, i] of indices.entries()) {
-          const c = sheet.cells[slot]
-          await drawCard(job.cards[i].front, c)
+          await drawCard(l, job.cards[i].front, l.sheet.cells[slot])
           lowDpi(job, job.cards[i].front, i, warnings)
         }
-        if (guides.length) strokeLines(target, guides, GUIDE_WIDTH_MM)
-        if (marks.length) strokeLines(target, marks, MARK_WIDTH_MM)
+        if (l.guides.length) strokeLines(target, l.guides, GUIDE_WIDTH_MM)
+        if (l.marks.length) strokeLines(target, l.marks, MARK_WIDTH_MM)
       })
     if (withBacks)
-      await page(async () => {
+      await page(l.sheet, async () => {
         for (const [slot, i] of indices.entries()) {
           const back = job.cards[i].back
           if (!back) continue
-          const c = backs[slot]
-          await drawCard(back, c)
+          await drawCard(l, back, l.backs[slot])
           lowDpi(job, back, i, warnings)
         }
-        const off = { x: settings.backOffsetXMm, y: settings.backOffsetYMm }
-        const mirrored = (lines: Line[]) =>
-          lines.map((l) => mirrorLine(l, sheet, settings.flip, off))
-        if (guides.length) strokeLines(target, mirrored(guides), GUIDE_WIDTH_MM)
-        if (marks.length) strokeLines(target, mirrored(marks), MARK_WIDTH_MM)
+        if (l.backGuides.length) strokeLines(target, l.backGuides, GUIDE_WIDTH_MM)
+        if (l.backMarks.length) strokeLines(target, l.backMarks, MARK_WIDTH_MM)
       })
   }
   const blob = doc.output('blob')

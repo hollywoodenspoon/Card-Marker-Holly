@@ -4,12 +4,8 @@ import { setAllCopies } from '@/core/editor/projectCommands'
 import { useEditor } from '@/core/editor/editorStore'
 import { flatten } from '@/core/model/tree'
 import type { Id, Side } from '@/core/model/types'
-import {
-  deleteCards,
-  duplicateCards,
-  setPartOnCards,
-  setTemplateForCards,
-} from '@/templates/bulkCommands'
+import { deleteCards, duplicateCards, setPartOnCards } from '@/templates/bulkCommands'
+import { templateForCards } from '@/ui/actions/templateUse'
 import { Button, IconButton } from '@/ui/components/ui/button'
 import { Input, Label, NativeSelect } from '@/ui/components/ui/input'
 import { deletedToast } from '@/ui/actions/undoToast'
@@ -68,7 +64,7 @@ export function BulkBar({ ids, onDone }: { ids: Id[]; onDone: (keep?: Id[]) => v
             id="bulk-front"
             disabled={disabled}
             value=""
-            onChange={(e) => e.target.value && setTemplateForCards(ids, 'front', e.target.value)}
+            onChange={(e) => e.target.value && templateForCards(ids, 'front', e.target.value)}
           >
             <option value="">Change…</option>
             {fronts.map((t) => (
@@ -86,7 +82,7 @@ export function BulkBar({ ids, onDone }: { ids: Id[]; onDone: (keep?: Id[]) => v
             value=""
             onChange={(e) =>
               e.target.value &&
-              setTemplateForCards(ids, 'back', e.target.value === '-' ? null : e.target.value)
+              templateForCards(ids, 'back', e.target.value === '-' ? null : e.target.value)
             }
           >
             <option value="">Change…</option>

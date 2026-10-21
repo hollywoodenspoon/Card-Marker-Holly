@@ -4,6 +4,7 @@ import { sortedCards } from '@/core/editor/selectors'
 import { getBackend } from '@/storage'
 import { toast } from '@/ui/components/feedback'
 import { registerProjectFonts } from '@/assets/fonts'
+import { migrateAnchors } from '@/templates/sizeGroups'
 
 /** Opening, creating and closing projects: glue between storage and the editor store. */
 
@@ -30,6 +31,19 @@ export async function openProject(id: string): Promise<boolean> {
     return false
   }
   if (!loaded) return false
+  const { doc } = loaded
+  const anchored = migrateAnchors(doc.project, doc.templates, Object.values(doc.cards))
+  if (anchored.length) {
+    const none = { put: [], del: [] }
+    await backend.writeChanges(loaded, {
+      projectChanged: false,
+      templates: { put: anchored, del: [] },
+      cards: none,
+      stylePresets: none,
+      assets: none,
+      fonts: none,
+    })
+  }
   await registerProjectFonts(Object.values(loaded.library.fonts))
   openDoc(loaded.doc, loaded.library)
   const first = sortedCards(useEditor.getState())[0]
