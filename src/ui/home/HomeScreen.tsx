@@ -99,7 +99,7 @@ export function HomeScreen() {
 
   return (
     <div className="h-app pt-safe pb-safe flex flex-col overflow-auto">
-      <header className="flex h-14 shrink-0 items-center gap-2 border-b bg-panel px-3">
+      <header className="app-topbar flex h-14 shrink-0 items-center gap-2 border-b bg-panel px-3">
         <img src={`${import.meta.env.BASE_URL}icon.svg`} alt="" className="size-7" />
         <span className="text-sm font-semibold">{APP_NAME}</span>
         <div className="flex-1" />

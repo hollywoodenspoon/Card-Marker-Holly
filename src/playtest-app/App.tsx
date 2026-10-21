@@ -5,6 +5,7 @@ import { FeedbackHost } from '@/ui/components/FeedbackHost'
 import { toast } from '@/ui/components/feedback'
 import { PwaToast } from '@/ui/pwa/PwaToast'
 import { useLayout } from '@/ui/shell/useLayout'
+import { ThemePicker } from '@/ui/theme/ThemeMenu'
 import { HowToPlay } from './HowToPlay'
 import { Library } from './Library'
 import { GameView } from './table/GameView'
@@ -86,6 +87,7 @@ export function App() {
       <HowToPlay open={help} onClose={() => setHelp(false)} />
       <PwaToast />
       <FeedbackHost />
+      <ThemePicker />
     </>
   )
 }

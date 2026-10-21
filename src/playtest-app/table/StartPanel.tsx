@@ -126,8 +126,8 @@ export function StartPanel() {
           })}
         {decks.length === 0 && setup.deal && (
           <p className="text-xs text-muted-foreground">
-            Tip: make a deck for each player in Hearthside Cardworks' Decks panel, then export the game pack
-            again, to choose exactly which cards they play with.
+            Tip: make a deck for each player in Hearthside Cardworks' Decks panel, then export the
+            game pack again, to choose exactly which cards they play with.
           </p>
         )}
         {errors.length > 0 && (

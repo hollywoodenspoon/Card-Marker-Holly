@@ -4,6 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import type { Plugin } from 'vite'
+import { themesCss } from './scripts/themesCss.ts'
 import { defineConfig } from 'vitest/config'
 
 const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8')) as {
@@ -12,6 +13,16 @@ const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 
 // The desktop (Electron) and Android (Capacitor) apps serve the same build from
 // their own files and need no service worker.
 const nativeApp = ['desktop', 'android'].includes(process.env.VITE_TARGET ?? '')
+
+/** `import 'virtual:themes.css'`: the colour themes, generated from src/ui/theme/themes.json. */
+const themes = (): Plugin => ({
+  name: 'themes-css',
+  resolveId: (id) => (id === 'virtual:themes.css' ? '\0themes.css' : undefined),
+  load: (id) => (id === '\0themes.css' ? themesCss() : undefined),
+  handleHotUpdate: ({ file, server }) => {
+    if (file.endsWith('themes.json')) server.moduleGraph.invalidateAll()
+  },
+})
 
 /** The Playtest page keeps only its own manifest (the PWA plugin adds Hearthside Cardworks' to every page). */
 const playtestManifest = (): Plugin => ({
@@ -33,6 +44,7 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
+    themes(),
     VitePWA({
       disable: nativeApp,
       registerType: 'autoUpdate',
@@ -45,8 +57,8 @@ export default defineConfig({
         scope: '.',
         display: 'standalone',
         orientation: 'any',
-        background_color: '#f6f6f7',
-        theme_color: '#0e9494',
+        background_color: '#10131b',
+        theme_color: '#10131b',
         icons: [
           { src: 'pwa-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'pwa-512.png', sizes: '512x512', type: 'image/png' },

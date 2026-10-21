@@ -52,7 +52,7 @@ export function TopBar({ layout }: { layout: LayoutKind }) {
   const canRedo = useEditor((s) => s.canRedo)
   const phone = layout === 'phone'
   return (
-    <header className="pt-safe pl-safe pr-safe flex shrink-0 items-center border-b bg-panel">
+    <header className="app-topbar pt-safe pl-safe pr-safe flex shrink-0 items-center border-b bg-panel">
       <div className="flex h-14 min-w-0 flex-1 items-center gap-1 px-2 md:h-12">
         {layout === 'tablet' && (
           <IconButton label="Open panels" onClick={() => setLeftOpen(true)}>

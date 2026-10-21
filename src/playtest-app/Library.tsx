@@ -85,7 +85,7 @@ export function Library({ onOpen, onHelp }: { onOpen: (id: string) => void; onHe
         void importFiles(e.dataTransfer.files)
       }}
     >
-      <header className="flex shrink-0 items-center gap-2 border-b bg-panel px-3 py-2">
+      <header className="app-topbar flex shrink-0 items-center gap-2 border-b bg-panel px-3 py-2">
         <img src={`${import.meta.env.BASE_URL}playtest/icon.svg`} alt="" className="size-7" />
         <h1 className="text-sm font-semibold">{PLAYTEST_NAME}</h1>
         <span className="flex-1" />
@@ -139,8 +139,9 @@ export function Library({ onOpen, onHelp }: { onOpen: (id: string) => void; onHe
               <p className="mb-2 font-medium text-foreground">No game packs yet</p>
               <ol className="list-decimal space-y-1 pl-5">
                 <li>
-                  In Hearthside Cardworks, press <span className="font-medium text-foreground">Playtest</span>{' '}
-                  in the left rail (or ☰ → Playtest).
+                  In Hearthside Cardworks, press{' '}
+                  <span className="font-medium text-foreground">Playtest</span> in the left rail (or
+                  ☰ → Playtest).
                 </li>
                 <li>
                   Choose <span className="font-medium text-foreground">Playtest now</span> to open
