@@ -1,6 +1,7 @@
 import { MoreHorizontal } from '@/ui/icons'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { other } from '@/adventure/state'
+import { statsAt } from '@/adventure/stats'
 import { pieceId } from '@/adventure/table'
 import { cn } from '@/lib/cn'
 import { seenBy } from '@/playtest/actions'
@@ -67,6 +68,19 @@ export function TableCanvas({ onOpenZone }: { onOpenZone: (key: string) => void 
     const opp = other(st.seat)
     return new Set(picks.map((i) => pieceId(opp, rules.players[opp].field[i].card ?? '')))
   }, [rules, picks])
+  // Face-up field cards whose Attack or Defense differs from print, with the values now.
+  const badges = useMemo(() => {
+    const out: Record<string, string> = {}
+    if (!rules) return out
+    for (const seat of [0, 1] as const)
+      rules.players[seat].field.forEach((f, slot) => {
+        if (!f.card || !f.faceUp) return
+        const v = statsAt(rules, seat, slot)
+        const c = rules.cards[f.card]
+        if (c && (v.a !== c.a || v.d !== c.d)) out[pieceId(seat, f.card)] = `A${v.a} D${v.d}`
+      })
+    return out
+  }, [rules])
   const pack = usePack()
   const faces = pack.faces
   const defaultSize = pack.info.cardSize
@@ -444,6 +458,7 @@ export function TableCanvas({ onOpenZone }: { onOpenZone: (key: string) => void 
               selected={selected?.kind === 'piece' && selected.id === b.id}
               picked={state.last.picked === b.id || pickedIds.has(b.id)}
               hint={!!hint?.pieces.has(b.id)}
+              badge={badges[b.id]}
               tokens={onPiece[b.id] ?? []}
               tokenDefs={setup.tokens}
               tokenColor={tokenColor}

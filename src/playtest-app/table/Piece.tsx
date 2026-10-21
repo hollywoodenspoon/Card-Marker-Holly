@@ -112,6 +112,7 @@ export const PieceView = memo(function PieceView({
   selected,
   picked,
   hint,
+  badge,
   tokens,
   tokenDefs,
   tokenColor,
@@ -130,6 +131,8 @@ export const PieceView = memo(function PieceView({
   picked: boolean
   /** The rules let the player to act use it now. */
   hint?: boolean
+  /** A short note on the card, such as its Attack and Defense after abilities. */
+  badge?: string
   tokens: TokenInst[]
   tokenDefs: TokenDef[]
   tokenColor: (t: TokenInst) => string
@@ -171,6 +174,14 @@ export const PieceView = memo(function PieceView({
           title="Face down: only its owner knows it"
         >
           <EyeOff className="size-3" />
+        </span>
+      )}
+      {badge && (
+        <span
+          className="pointer-events-none absolute right-0.5 bottom-0.5 rounded bg-black/75 px-1 text-[10px] font-semibold text-white tabular-nums"
+          data-testid="piece-badge"
+        >
+          {badge}
         </span>
       )}
       {tokens.length > 0 && (

@@ -34,7 +34,16 @@ The bar at the bottom says whose turn it is and what to do. Cards you may use no
 
 With **two players, one device**, a screen asks you to pass the device whenever the other player must act. Press the button only when the right player holds it. The view menu at the top can switch to **Everyone sees all** at any time.
 
-Card abilities are not active yet: cards play with their printed Attack, Defense and Fighting Spirit. Undo works move by move, and the game log names every card that is revealed. A ⚑ in the log marks something the rules don't settle yet, such as a player left with no attacking card.
+**Card abilities** work as the cards say (the rules follow the v2 rulebook):
+
+- **Field and Support Abilities:** when it's your turn to respond, the bar lists the abilities you can use now. A Field Ability can be used by any of your face-up Ready cards, which then turns ability-active.
+- **Flip Abilities** happen by themselves when the card is revealed.
+- **Battle Abilities** happen when the card is revealed as Fighting Spirit. The Fighting Spirit buttons show what each card would add now. Rest-zone cards whose condition is met are listed too.
+- **Choices**, such as a target or a card to rest, are asked in the bar. The cards you can pick glow, so you can tap one on the table instead. When there is only one possible choice, it is made for you.
+- A field card whose Attack or Defense is changed by an ability shows its current values in a small badge.
+- The card zoom shows the ability text. A card whose code the rules engine doesn't know yet says so and plays with its stats.
+
+Undo works move by move, and the game log names every card that is revealed. A ⚑ in the log marks something the rules don't settle yet, such as a player left with no attacking card.
 
 ## Building decks
 
@@ -112,4 +121,4 @@ The **game log** lists everything that happened, such as "Spatial Witch: Attacki
 
 ## What's next
 
-Card abilities and a computer opponent are planned for later versions.
+A computer opponent, and games of bot against bot to watch, are planned next.

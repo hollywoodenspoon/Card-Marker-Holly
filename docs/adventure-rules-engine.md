@@ -4,17 +4,18 @@ The Mutual Reveal rules as code, in `src/adventure/`. It is plain TypeScript wit
 
 ## Files
 
-| File         | What it holds                                                        |
-| ------------ | -------------------------------------------------------------------- |
-| `cards.ts`   | `AsCard`: a card's values read from the pack's `_AS` fields          |
-| `deck.ts`    | Free Company check: 12 different cards, at most 1 Ace                |
-| `board.ts`   | The 2 × 3 field: slot numbers, neighbours, mirrored positions, names |
-| `state.ts`   | `AsState`, the whole game as plain data                              |
-| `engine.ts`  | `createGame`, `legalMoves`, `apply`, `prompt`                        |
-| `stats.ts`   | Card values and Engagement totals                                    |
-| `observe.ts` | `observeAs`: the game as one player may know it                      |
-| `table.ts`   | `toTable`: draws a game on the Hearthside Table setup                |
-| `fixtures/`  | Test cards and saved scripted games (JSON)                           |
+| File         | What it holds                                                                            |
+| ------------ | ---------------------------------------------------------------------------------------- |
+| `cards.ts`   | `AsCard`: a card's values read from the pack's `_AS` fields                              |
+| `deck.ts`    | Free Company check: 12 different cards, at most 1 Ace                                    |
+| `board.ts`   | The 2 × 3 field: slot numbers, neighbours, mirrored positions, names                     |
+| `state.ts`   | `AsState`, the whole game as plain data                                                  |
+| `engine.ts`  | `createGame`, `legalMoves`, `apply`, `prompt`                                            |
+| `stats.ts`   | Card values and Engagement totals                                                        |
+| `observe.ts` | `observeAs`: the game as one player may know it                                          |
+| `table.ts`   | `toTable`: draws a game on the Hearthside Table setup                                    |
+| `effects/`   | Card abilities: `types.ts`, `helpers.ts` (keywords), `cards.ts` (by code), `registry.ts` |
+| `fixtures/`  | Test cards (basic and The First Quest), random games, saved scripted games (JSON)        |
 
 ## The field
 
@@ -29,35 +30,39 @@ Neighbours are orthogonal only. The mirrored position is the same row and the op
 
 ## State
 
-- `players[0|1]`: `field` (6 slots of `{card, faceUp, state}`), `support`, `rest`, `spent` (Fighting Spirit used this round), `points`, `mainAttacker` (a slot, or null).
+- `players[0|1]`: `field` (6 slots of `{card, faceUp, state}`), `support`, `rest`, `spent` (Fighting Spirit used this round), `points`, `mainAttacker` (a slot, or null), and `round` flags set by abilities: `attackUnbound`, `used` (once-per-round abilities), `extra` (extra attackers).
 - Card state: `ready`, `attacking`, `defending` or `ability`.
 - `initiative`, `round`, and `phase` (`setup`, `skirmish`, `combat`, `regroup` or `over`).
 - `step`: the decision waiting now, and who makes it.
 - `skirmish`: the reveals made so far, and who made the last one.
-- `queue`: the Engagements still to fight, by attacking seat. `engagement`: the current one, holding each side's Fighting Spirit cards and passes. `results`: this round's outcomes.
+- `queue`: the Engagements still to fight, by attacking seat. `engagement`: the current one, holding each side's Fighting Spirit (`{card, value, from}`, the value fixed at reveal), the passes, and the coin cards tried. `results`: this round's outcomes.
+- `pending`: the ability being resolved (its context, the answers so far, and where the game goes on afterwards). `flips`: Flip Abilities still to trigger from the last reveal.
 - `seed`: the random generator's state (mulberry32 in `src/playtest/rng.ts`).
 - `log`: readable entries. `flag: true` marks a case the rules don't settle.
 
 ## Steps and moves
 
-| Step                                                      | Who                                                                    | Moves                                                                                                                   |
-| --------------------------------------------------------- | ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `place` (from `support` at setup, from `rest` at Regroup) | the initiative player, then the other                                  | `place {card, slot}`, `unplace {slot}`, `placeRandom`, then `done` once the field is full or the pool is empty          |
-| `reveal` (count 2, then 1)                                | alternating, the initiative player first                               | `reveal {slots}`, on the opponent's face-down cards. A pair must be adjacent; a single must be next to a revealed card. |
-| `respond`                                                 | the owner of the revealed cards; `final` goes to the initiative player | `pass`. Ability responses are added with the card effects. Skipped automatically when there is nothing but pass.        |
-| `first`                                                   | the initiative player                                                  | `first {attacker}`                                                                                                      |
-| `fs`                                                      | alternating, the initiative player first                               | `fs {card}` from Support, or `pass` (locks that player's total for this Engagement)                                     |
-| `over`                                                    | nobody                                                                 | none                                                                                                                    |
+| Step                                                      | Who                                                                    | Moves                                                                                                                                |
+| --------------------------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `place` (from `support` at setup, from `rest` at Regroup) | the initiative player, then the other                                  | `place {card, slot}`, `unplace {slot}`, `placeRandom`, then `done` once the field is full or the pool is empty                       |
+| `reveal` (count 2, then 1)                                | alternating, the initiative player first                               | `reveal {slots}`, on the opponent's face-down cards. A pair must be adjacent; a single must be next to a revealed card.              |
+| `respond`                                                 | the owner of the revealed cards; `final` goes to the initiative player | `ability {card}` (a Field Ability of a face-up Ready card, or a Support Ability), or `pass`. Skipped when there is nothing but pass. |
+| `choose`                                                  | whoever the ability asks                                               | `choose {id}`, one of the step's options                                                                                             |
+| `first`                                                   | the initiative player                                                  | `first {attacker}`                                                                                                                   |
+| `fs`                                                      | alternating, the initiative player first                               | `fs {card}` from Support, `fs {card, from: 'rest'}` (a Rest Ability), or `pass` (locks that player's total for this Engagement)      |
+| `over`                                                    | nobody                                                                 | none                                                                                                                                 |
 
 `apply` checks the move against `legalMoves` and returns the same state when it is illegal. After a move it runs every step that needs no decision: skipped responses, an automatic pass for a player with an empty Support, and placement when there is nothing to place.
 
 ## Round flow
 
-1. **Skirmish:** the initiative player reveals a pair, then the other player does. After that, single reveals alternate, and a player with nothing left to reveal is skipped. The initiative player gets a final response.
-2. **Assignment:** on each field, cards in the `ability` state are set aside. Ready cards are sorted by Fate Number: the lower `floor(n / 2)` attack and the rest defend. The lowest attacker is the Main Attacker. With no attacker, that player's Engagement scores nothing and is flagged.
+1. **Skirmish:** the initiative player reveals a pair, then the other player does. After that, single reveals alternate, and a player with nothing left to reveal is skipped. The Flip Abilities of revealed cards trigger before each response. The initiative player gets a final response.
+2. **Assignment:** on each field, cards in the `ability` state are set aside. Extra attackers (`round.extra`) are left out of the split. The other Ready cards are sorted by Fate Number: the lower `floor(n / 2)` attack and the rest defend. The extra attackers then join the attackers, and the lowest-Fate attacker is the Main Attacker. With no attacker, that player's Engagement scores nothing and is flagged.
 3. **Combat:** if both players have an attacker, the initiative player picks the first Engagement.
-   - Attack is the Main Attacker plus the attacking cards next to it.
-   - Defense is the defending cards on or next to the mirrored target.
+   - Attack is the Main Attacker plus the attacking cards next to it (every attacker with Attack Unbound).
+   - Defense is the defending cards on or next to the mirrored target (every defender with Defense Unbound).
+   - Card values come from `statsAt`: the printed values, changed by the card's Inherent `stat` while it is face up.
+   - A Battle Ability resolves right after its card is revealed as Fighting Spirit.
    - With no defender there, the attacker scores at once.
    - Otherwise Fighting Spirit alternates until both players have passed. The higher total scores 1 point, and a tie scores nothing. Reaching 4 points wins at once.
 4. **Regroup:**
@@ -66,10 +71,39 @@ Neighbours are orthogonal only. The mirrored position is the same row and the op
    - Each player refills the empty positions from their rest zone, face down.
    - Initiative passes and the round number goes up.
 
+## Card abilities
+
+Each card's rules live in `effects/cards.ts` under its code (`Code_AS`). A card without an entry plays with its printed stats. An entry may have:
+
+- `stat(s, seat, slot, {a, d})`: Inherent A/D changes while face up on the field.
+- `fs(s, seat, engagement, printed)`: the Fighting Spirit value at reveal. `fsCoin` sets it by a coin instead.
+- `field`, `support`, `flip` and `battle`: abilities (below). `restFs`: Fighting Spirit from the rest zone, with a condition, a bonus and an optional coin.
+- Flags:
+  - `fieldProof`: not a target of opponent Field Abilities.
+  - `fixed`: not moved by opponent abilities.
+  - `defenseUnbound(s, seat)`
+  - `runaway`: goes to Support instead of resting.
+  - `copies`: can't be copied.
+
+An ability is `{name, optional?, can?, plan, apply, keep?}`.
+
+- `plan(io)` only reads the state. It asks its choices with `io.pick(seat, prompt, options)`, which returns the answer.
+- The engine runs `plan` again after every answer, replaying the answers given so far.
+  - When an answer is missing, it stops on a `choose` step.
+  - A choice with one option is answered without asking, and isn't stored.
+  - A choice with no options means the ability can't go on: nothing happens.
+- Once `plan` finishes, `apply(d, ctx, plan)` changes the state once. Randomness (coins, random cards) happens only in `apply`.
+- Then the Field Ability's card turns ability-active, or the Support card rests unless `keep` says otherwise, and the game goes on (`pending.after`).
+- An ability is offered only if `can` holds and a trial `plan`, taking the first option of every choice, completes.
+
+Rest costs (`restCost`) pick Support cards one at a time. Cards already promised to a cost in the same plan (`io.reserved`) are excluded, so a copied ability that has its own cost can't pay twice with one card. Resting always goes through `rest()`, which sends a Runaway Familiar to Support instead.
+
 ## Hidden information
 
 `observeAs(state, seat)` replaces the opponent's Support cards and face-down field cards with `"?"` and zeroes the seed. A bot is only given this view.
 
 ## Replaying games
 
-`fixtures/games/*.json` holds `{format, cards, names, decks, seed, moves, expect: {winner, points, round, log}}`. The cards are `basicCards()` from `fixtures/basic.ts`: card `i` has Fate `100 + 20i`. A port should replay every fixture and match the log line for line. `AS_WRITE_FIXTURES=1 npx vitest run src/adventure` writes them again after a deliberate rules change.
+`fixtures/games/*.json` holds `{format, cards, names, decks, seed, moves, expect: {winner, points, round, log}}`. The cards are `basicCards()` from `fixtures/basic.ts` (no abilities): card `i` has Fate `100 + 20i`. A port should replay every fixture and match the log line for line. `AS_WRITE_FIXTURES=1 npx vitest run src/adventure` writes them again after a deliberate rules change.
+
+The card ability tests (`effects/cards.test.ts`) build small boards from `fixtures/firstQuest.ts`, the 45 cards with ids `tfq01` to `tfq45`. `fixtures/randomGame.ts` plays random legal moves from a seed. A port can use it the same way, to check that games always end and no card is lost.

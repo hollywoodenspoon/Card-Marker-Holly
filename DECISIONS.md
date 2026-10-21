@@ -432,12 +432,55 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 - **Edits show at once and are saved behind them** (a small zustand store), so quick taps never work on an outdated copy of the deck.
 - **Start panel:** decks built here are listed first ("Your decks"), then the pack's decks; a saved deck that breaks a rule shows its first problem. With the rules on, illegal decks are refused.
 
-## Hearthside Table: Adventure Scuffle rules engine (stats only)
+## Hearthside Table: Adventure Scuffle rules engine
 
 - **A separate rules module** (`src/adventure/`: `state.ts`, `engine.ts`, `stats.ts`, `observe.ts`, `table.ts`), pure TypeScript and plain data. `legalMoves(state)` and `apply(state, move)` are the only way to play, for the UI now and the bot later. The generic table engine (`src/playtest/`) is unchanged; a rules game is drawn on it with `toTable`. Described for the Godot port in `docs/adventure-rules-engine.md`.
 - **Rule calls confirmed with the owner:** the initiative player reveals Fighting Spirit first in each Engagement; a pass locks that player's total for that Engagement only; with no defender on or next to the attacked position the attacker scores without Fighting Spirit; at Regroup each player chooses which rest-zone cards refill which positions; a player left with no attacker plays no Engagement (0 points), and the log flags it (⚑) because the rules don't cover it.
 - **Assumptions (simplest reading of the rulebook):** initiative is random at the start (the rulebook's "winner chooses to take or give" is left out); the initiative player places first, at setup and at Regroup; after the opening pairs, single reveals alternate starting with the initiative player, and a player with nothing left to reveal is skipped; if no adjacent face-down pair is left, a single card is revealed instead; the defender scores when their total is higher.
-- **Cards play with their printed stats.** Abilities, response options and Rest Ability windows have hooks (`responseMoves`, `stats.ts`) and arrive in the next step; until then every response is skipped.
+- **Responses with nothing to use are skipped** automatically.
 - **Hot-seat** uses the table's existing view: the view follows the player to act, behind a hand-over screen. Undo stays available (move by move), even though it can show the other player's last move.
 - **Saved games** keep the rules state and its undo history in the `games` row (an optional `rules` field, so no database version bump).
 - **Scripted games** are saved as JSON in `src/adventure/fixtures/games/` (decks, seed, moves, expected log and score), so a port can replay them and prove it plays the same.
+
+## Hearthside Table: card abilities (The First Quest)
+
+- **The rules follow the owner's answers, written up as the v2 rulebook** (`Playtest_Rulebook_MutualReveal (v2).md`), and the v2 card list, which changes five texts:
+  - TFQ-01 Crimson Duelist: "May not be the target of an opponent's Field Ability."
+  - TFQ-08 Spatial Witch and TFQ-16 Azure Assassin: "ready card".
+  - TFQ-11 Mission Handler: the +1 A is dropped.
+  - TFQ-29 Grave Acolyte: "Return a Grave card from your rest zone to your Support" with its Discount.
+- **Abilities are code, registered by `Code_AS`** in `src/adventure/effects/cards.ts`. They use the keyword helpers in `effects/helpers.ts`, never the printed text. A card whose code isn't registered plays with its stats, and the card zoom says so.
+- **An ability declares its parts:**
+  - an Inherent `stat`
+  - a Battle `fs` value
+  - `field`, `support`, `flip` or `battle` abilities
+  - `restFs`
+  - flags: `fieldProof`, `fixed`, `defenseUnbound`, `runaway`, `copies`
+- **Choices are re-runnable plans.** `plan(io)` only reads the state and asks through `io.pick`. It runs again after each answer, then `apply` changes the state once. That makes each choice an ordinary move (`{t:'choose', id}`), so undo, saving, replays and the bot all work the same way.
+  - A choice with a single option is made without asking.
+  - "You may" abilities first ask whether to use them.
+  - An ability is offered only if a trial run finds an answer to every choice.
+- **The owner's calls, as built:**
+  - Field Abilities can be used in any later response, by face-up Ready cards.
+  - Flip Abilities are mandatory, and the card stays Ready.
+  - Rest N is paid from Support, by the player's choice. A Runaway Familiar can't pay, since that would make the cost free.
+  - Inherent abilities apply anywhere, and field checks count face-up cards only. Necromancer's Defense Unbound applies on the field only.
+  - An archetype is "name contains the word", and a card never counts itself.
+  - Rest-zone Fighting Spirit cards stay in the rest zone, and each can be used once per Engagement.
+  - Won and Lost mean scored, this round only.
+  - A swapped-in card keeps the replaced card's face.
+  - Howling Barbarian is an extra attacker.
+  - Strategic Vanguard's switched-in card becomes the Main Attacker when the Main Attacker switches.
+  - Decoy Ninja's Ready card becomes the Fighting Spirit, at its printed value.
+- **My calls where the text was still open:**
+  - **Grave Acolyte's Discount** is checked after the returned card has left. It needs another Grave card still resting, otherwise it could be used in every response for free.
+  - **Battle conditions** are checked once, at reveal: Strike counts Ghoulish cards revealed earlier in that Engagement.
+  - **"Second Engagement"** means the second Engagement actually fought this round.
+  - **Doppelganger Thief** pays its Rest 2 and then the copied ability's own cost.
+  - **Crimson Duelist and Ranger of the Tower** are protected only once face up (known).
+  - **Rianz Sentinel's** shown card is written in the shared game log.
+- **Hidden information:** the log names a chosen position and its card only if that card is face up. Choice buttons show only to the player choosing.
+- **Tests:**
+  - One test per card or group of cards (`effects/cards.test.ts`).
+  - The First Quest cards as test data (`fixtures/firstQuest.ts`).
+  - 200 random-move games over four legal decks, which check that every game ends and no card is lost or duplicated (`selfplay.test.ts`).

@@ -70,9 +70,7 @@ export function Tracker({ phone }: { phone: boolean }) {
         <span className="text-sm tabular-nums" data-testid="playtest-phase">
           Round {rules.round} · <span className="font-semibold">{PHASE_NAMES[rules.phase]}</span>
         </span>
-        <span className="text-xs text-muted-foreground">
-          Rules on · card abilities are not active yet
-        </span>
+        <span className="text-xs text-muted-foreground">Rules on</span>
       </div>
     )
   return (

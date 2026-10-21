@@ -2,13 +2,18 @@ import { produce, type Draft } from 'immer'
 import { nextInt, shuffle } from '@/playtest/rng'
 import type { AsCard } from './cards'
 import { ADJACENT_PAIRS, neighbours, SLOTS, slotName } from './board'
+import { log, rest, coin } from './effects/helpers'
+import { rulesOf } from './effects/registry'
+import type { Ability, Ctx, Option, PlanIO } from './effects/types'
 import { engagementSides, engagementTotals, fightingSpirit } from './stats'
 import {
   cardName,
   emptySlot,
+  newRound,
   other,
   POINTS_TO_WIN,
   SEATS,
+  type After,
   type AsState,
   type PlayerState,
   type Seat,
@@ -28,7 +33,12 @@ export type Move =
   | { t: 'reveal'; slots: number[] }
   | { t: 'pass' }
   | { t: 'first'; attacker: Seat }
-  | { t: 'fs'; card: string }
+  /** Fighting Spirit from Support, or from the rest zone when a Rest Ability allows it. */
+  | { t: 'fs'; card: string; from?: 'rest' }
+  /** Use a Field or Support Ability in a response. */
+  | { t: 'ability'; card: string }
+  /** Answer a choice inside an ability. */
+  | { t: 'choose'; id: string }
 
 export interface NewGame {
   cards: AsCard[]
@@ -39,10 +49,6 @@ export interface NewGame {
 }
 
 type D = Draft<AsState>
-
-function log(d: D, text: string, flag?: boolean) {
-  d.log.push(flag ? { n: d.log.length + 1, text, flag } : { n: d.log.length + 1, text })
-}
 
 const nameOf = (d: D | AsState, seat: Seat) => d.players[seat].name
 
@@ -57,6 +63,7 @@ export function createGame({ cards, decks, names, seed }: NewGame): AsState {
     points: 0,
     mainAttacker: null,
     spent: [],
+    round: newRound(),
   })
   const state: AsState = {
     v: 1,
@@ -70,6 +77,8 @@ export function createGame({ cards, decks, names, seed }: NewGame): AsState {
     queue: [],
     engagement: null,
     results: [],
+    pending: null,
+    flips: [],
     seed: s,
     winner: null,
     log: [],
@@ -98,9 +107,173 @@ export function revealOptions(s: AsState, seat: Seat, count: 1 | 2): number[][] 
   return (next.length ? next : down).map((i) => [i])
 }
 
-/** Abilities a player may use in a response. Card abilities arrive in a later version. */
-export function responseMoves(_s: AsState, _seat: Seat): Move[] {
-  return []
+// ---- Abilities ----
+
+class Ask {
+  constructor(
+    readonly seat: Seat,
+    readonly prompt: string,
+    readonly options: Option[],
+  ) {}
+}
+class NoChoice {}
+
+/** Could the ability go through now? (Its condition, and a first answer to every choice.) */
+export function usable(s: AsState, ab: Ability, ctx: Ctx): boolean {
+  if (ab.can && !ab.can(s, ctx)) return false
+  const io: PlanIO = {
+    s,
+    ctx,
+    reserved: [],
+    pick: (_seat, _prompt, options) => {
+      if (!options.length) throw new NoChoice()
+      return options[0].id
+    },
+  }
+  try {
+    ab.plan(io)
+    return true
+  } catch (e) {
+    if (e instanceof NoChoice) return false
+    throw e
+  }
+}
+
+/** The ability a card has for a way of using it. */
+const abilityOf = (s: AsState, ctx: Ctx): Ability | undefined => rulesOf(s, ctx.card)?.[ctx.mode]
+
+/** Field and Support Abilities a player may use in a response. */
+export function responseMoves(s: AsState, seat: Seat): Move[] {
+  const p = s.players[seat]
+  const out: Move[] = []
+  for (const f of p.field) {
+    if (!f.card || !f.faceUp || f.state !== 'ready') continue
+    const ab = rulesOf(s, f.card)?.field
+    if (ab && usable(s, ab, { owner: seat, card: f.card, mode: 'field' }))
+      out.push({ t: 'ability', card: f.card })
+  }
+  for (const card of p.support) {
+    const ab = rulesOf(s, card)?.support
+    if (ab && usable(s, ab, { owner: seat, card, mode: 'support' }))
+      out.push({ t: 'ability', card })
+  }
+  return out
+}
+
+/** Rest-zone cards a player may use for Fighting Spirit now. */
+export function restFsCards(s: AsState, seat: Seat): string[] {
+  const e = s.engagement
+  if (!e) return []
+  return s.players[seat].rest.filter((card) => {
+    const r = rulesOf(s, card)?.restFs
+    return (
+      r &&
+      !e.fs[seat].some((x) => x.card === card) &&
+      !(r.coin && e.tried.includes(card)) &&
+      r.can(s, seat, card)
+    )
+  })
+}
+
+/** What a card would add as Fighting Spirit now (null: a coin decides). */
+export function fsPreview(s: AsState, seat: Seat, card: string, from?: 'rest'): number | null {
+  const r = rulesOf(s, card)
+  const printed = fightingSpirit(s, seat, card)
+  if (from === 'rest') return r?.restFs?.coin ? null : printed + (r?.restFs?.bonus ?? 0)
+  if (r?.fsCoin) return null
+  return r?.fs && s.engagement ? r.fs(s, seat, s.engagement, printed) : printed
+}
+
+/** The ability a response move would use, for its button. */
+export function abilityName(s: AsState, seat: Seat, card: string): string {
+  const onField = s.players[seat].field.some((f) => f.card === card)
+  return rulesOf(s, card)?.[onField ? 'field' : 'support']?.name ?? 'Ability'
+}
+
+function startEffect(d: D, ctx: Ctx, after: After) {
+  d.pending = { ctx, source: ctx.card, answers: [], after }
+  resume(d)
+}
+
+/** Run the pending ability as far as its answers go: ask the next choice, or resolve it. */
+function resume(d: D) {
+  const p = d.pending!
+  const ab = abilityOf(d, p.ctx)
+  const finish = () => {
+    d.pending = null
+    if (!d.winner) continueAfter(d, p.after)
+  }
+  if (!ab) return finish()
+  let i = 0
+  const io: PlanIO = {
+    s: d,
+    ctx: p.ctx,
+    reserved: [],
+    pick(seat, prompt, options) {
+      if (!options.length) throw new NoChoice()
+      // A single option is taken without asking (and isn't stored, so replays line up).
+      if (options.length === 1) return options[0].id
+      if (i < p.answers.length) return p.answers[i++]
+      throw new Ask(seat, prompt, options)
+    },
+  }
+  let plan: unknown
+  try {
+    if (ab.optional) {
+      const use = io.pick(p.ctx.owner, `${cardName(d, p.ctx.card)}: ${ab.name}?`, [
+        { id: 'use', label: 'Use it' },
+        { id: 'decline', label: "Don't use it" },
+      ])
+      if (use === 'decline') return finish()
+    }
+    plan = ab.plan(io)
+  } catch (e) {
+    if (e instanceof Ask) {
+      d.step = { k: 'choose', seat: e.seat, prompt: e.prompt, options: e.options }
+      return
+    }
+    if (e instanceof NoChoice) {
+      log(d, `${cardName(d, p.ctx.card)}: nothing to target, so nothing happens.`)
+      return finish()
+    }
+    throw e
+  }
+  ab.apply(d, p.ctx, plan)
+  const { owner, card, mode } = p.ctx
+  const own = d.players[owner]
+  if (mode === 'field') {
+    const f = own.field.find((x) => x.card === card)
+    if (f) f.state = 'ability'
+  } else if (mode === 'support' && own.support.includes(card) && !ab.keep?.(d, p.ctx))
+    rest(d, owner, card)
+  finish()
+}
+
+function continueAfter(d: D, after: After) {
+  switch (after.k) {
+    case 'flips': {
+      while (d.flips.length) {
+        const { owner, card } = d.flips.shift()!
+        const ab = rulesOf(d, card)?.flip
+        const onField = d.players[owner].field.some((f) => f.card === card && f.faceUp)
+        if (!ab || !onField) continue
+        log(d, `Flip Ability: ${cardName(d, card)}: ${ab.name}.`)
+        if (ab.can && !ab.can(d, { owner, card, mode: 'flip' })) {
+          log(d, `${cardName(d, card)}: nothing to target, so nothing happens.`)
+          continue
+        }
+        return startEffect(d, { owner, card, mode: 'flip' }, after)
+      }
+      d.step = { k: 'respond', seat: after.respond, final: false }
+      return
+    }
+    case 'nextReveal':
+      return nextReveal(d)
+    case 'assign':
+      return assign(d)
+    case 'fsTurn':
+      return nextFsTurn(d, after.seat)
+  }
 }
 
 export function legalMoves(s: AsState): Move[] {
@@ -123,10 +296,16 @@ export function legalMoves(s: AsState): Move[] {
       return revealOptions(s, st.seat, st.count).map((slots) => ({ t: 'reveal', slots }))
     case 'respond':
       return [...responseMoves(s, st.seat), { t: 'pass' }]
+    case 'choose':
+      return st.options.map((o) => ({ t: 'choose', id: o.id }))
     case 'first':
       return s.queue.map((attacker) => ({ t: 'first', attacker }))
     case 'fs':
-      return [...s.players[st.seat].support.map((card): Move => ({ t: 'fs', card })), { t: 'pass' }]
+      return [
+        ...s.players[st.seat].support.map((card): Move => ({ t: 'fs', card })),
+        ...restFsCards(s, st.seat).map((card): Move => ({ t: 'fs', card, from: 'rest' })),
+        { t: 'pass' },
+      ]
   }
 }
 
@@ -203,8 +382,42 @@ function play(d: D, m: Move) {
       )
       d.skirmish.reveals++
       d.skirmish.last = seat
-      d.step = { k: 'respond', seat: opp, final: false }
-      return
+      // Flip Abilities of the revealed cards trigger first, then the response.
+      d.flips = slots.flatMap((i) =>
+        field[i].card && rulesOf(d, field[i].card!)?.flip
+          ? [{ owner: opp, card: field[i].card! }]
+          : [],
+      )
+      return continueAfter(d, { k: 'flips', respond: opp })
+    }
+    case 'ability': {
+      if (st.k !== 'respond') return
+      const onField = p.field.some((f) => f.card === m.card)
+      const mode = onField ? 'field' : 'support'
+      const ab = rulesOf(d, m.card)?.[mode]
+      log(
+        d,
+        onField
+          ? `${p.name} uses ${cardName(d, m.card)}'s Field Ability: ${ab?.name}.`
+          : `${p.name} reveals ${cardName(d, m.card)} from their Support: ${ab?.name}.`,
+      )
+      return startEffect(
+        d,
+        { owner: seat, card: m.card, mode },
+        st.final ? { k: 'assign' } : { k: 'nextReveal' },
+      )
+    }
+    case 'choose': {
+      if (st.k !== 'choose' || !d.pending) return
+      // Logged as everyone may know it: a field position, and its card only if face up.
+      const o = st.options.find((x) => x.id === m.id)
+      if (o && o.slot !== undefined && o.seat !== undefined && st.options.length > 1) {
+        const f = d.players[o.seat].field[o.slot]
+        const what = f.card && f.faceUp ? cardName(d, f.card) : 'a face-down card'
+        log(d, `${p.name} chooses ${what} (${nameOf(d, o.seat)}'s ${slotName(o.slot)}).`)
+      }
+      d.pending.answers.push(m.id)
+      return resume(d)
     }
     case 'pass':
       if (st.k === 'respond') return st.final ? assign(d) : nextReveal(d)
@@ -221,14 +434,40 @@ function play(d: D, m: Move) {
     case 'fs': {
       const e = d.engagement
       if (!e) return
-      p.support.splice(p.support.indexOf(m.card), 1)
-      e.fs[seat].push(m.card)
-      p.spent.push(m.card)
+      const r = rulesOf(d, m.card)
+      const printed = fightingSpirit(d, seat, m.card)
+      let value: number
+      if (m.from === 'rest') {
+        const rf = r!.restFs!
+        if (rf.coin) {
+          e.tried.push(m.card)
+          const heads = coin(d)
+          log(d, `${p.name} flips a coin for ${cardName(d, m.card)}: ${heads ? 'Heads' : 'Tails'}.`)
+          if (!heads) return nextFsTurn(d, seat)
+        }
+        value = printed + rf.bonus
+        e.fs[seat].push({ card: m.card, value, from: 'rest' })
+      } else {
+        if (r?.fsCoin) {
+          const heads = coin(d)
+          value = heads ? r.fsCoin.heads : r.fsCoin.tails
+          log(d, `${cardName(d, m.card)}: coin flip, ${heads ? 'Heads' : 'Tails'}.`)
+        } else value = r?.fs ? r.fs(d, seat, e, printed) : printed
+        p.support.splice(p.support.indexOf(m.card), 1)
+        e.fs[seat].push({ card: m.card, value, from: 'support' })
+        p.spent.push(m.card)
+      }
       const t = engagementTotals(d, e)
       log(
         d,
-        `${p.name} reveals ${cardName(d, m.card)} as Fighting Spirit (+${fightingSpirit(d, seat, m.card)}). Attack ${t.attack} vs Defense ${t.defense}.`,
+        `${p.name} reveals ${cardName(d, m.card)}${m.from === 'rest' ? ' from the rest zone' : ''} as Fighting Spirit (+${value}). Attack ${t.attack} vs Defense ${t.defense}.`,
       )
+      const battle = r?.battle
+      const ctx: Ctx = { owner: seat, card: m.card, mode: 'battle' }
+      if (m.from !== 'rest' && battle && usable(d, battle, ctx)) {
+        if (!battle.optional) log(d, `Battle Ability: ${cardName(d, m.card)}: ${battle.name}.`)
+        return startEffect(d, ctx, { k: 'fsTurn', seat })
+      }
       return nextFsTurn(d, seat)
     }
   }
@@ -241,7 +480,7 @@ function advance(d: D) {
     if (st.k === 'respond' && responseMoves(d, st.seat).length === 0) {
       if (st.final) assign(d)
       else nextReveal(d)
-    } else if (st.k === 'fs' && d.engagement && d.players[st.seat].support.length === 0) {
+    } else if (st.k === 'fs' && d.engagement && legalMoves(d).length === 1) {
       d.engagement.passed[st.seat] = true
       log(d, `${nameOf(d, st.seat)} has no Support left and passes.`)
       nextFsTurn(d, st.seat)
@@ -273,6 +512,7 @@ function startSkirmish(d: D) {
   d.phase = 'skirmish'
   d.skirmish = { reveals: 0, last: null }
   d.results = []
+  for (const p of d.players) p.round = newRound()
   log(d, `Round ${d.round}: Skirmish. ${nameOf(d, d.initiative)} has the initiative.`)
   nextReveal(d)
 }
@@ -300,17 +540,20 @@ function nextReveal(d: D) {
 function assign(d: D) {
   for (const seat of SEATS) {
     const p = d.players[seat]
-    const ready = p.field
-      .flatMap((f, i) => (f.card && f.state === 'ready' ? [i] : []))
-      .sort(
-        (a, b) => (d.cards[p.field[a].card!]?.fate ?? 0) - (d.cards[p.field[b].card!]?.fate ?? 0),
-      )
-    const attackers = Math.floor(ready.length / 2)
-    ready.forEach((i, k) => (p.field[i].state = k < attackers ? 'attacking' : 'defending'))
-    p.mainAttacker = attackers ? ready[0] : null
+    const fate = (i: number) => d.cards[p.field[i].card!]?.fate ?? 0
+    const byFate = (a: number, b: number) => fate(a) - fate(b)
+    const all = p.field.flatMap((f, i) => (f.card && f.state === 'ready' ? [i] : []))
+    // Extra attackers (Howling Barbarian) stay out of the split, then join the attackers.
+    const extra = all.filter((i) => p.round.extra.includes(p.field[i].card!))
+    const ready = all.filter((i) => !extra.includes(i)).sort(byFate)
+    const n = Math.floor(ready.length / 2)
+    ready.forEach((i, k) => (p.field[i].state = k < n ? 'attacking' : 'defending'))
+    for (const i of extra) p.field[i].state = 'attacking'
+    const attacking = [...ready.slice(0, n), ...extra].sort(byFate)
+    p.mainAttacker = attacking[0] ?? null
     // Named in Fate order, so the Main Attacker comes first.
-    const atk = ready.slice(0, attackers).map((i) => cardName(d, p.field[i].card))
-    const def = ready.slice(attackers).map((i) => cardName(d, p.field[i].card))
+    const atk = attacking.map((i) => cardName(d, p.field[i].card))
+    const def = ready.slice(n).map((i) => cardName(d, p.field[i].card))
     log(
       d,
       `${p.name}: Main Attacker ${atk.length ? `${atk[0]} (${slotName(p.mainAttacker!)})` : 'none'}` +
@@ -358,7 +601,7 @@ function nextEngagement(d: D) {
     d,
     `${label} Engagement: ${nameOf(d, attacker)}'s ${cardName(d, main)} attacks ${slotName(sides.target)}${target ? ` (${cardName(d, target)})` : ''}.`,
   )
-  d.engagement = { attacker, fs: [[], []], passed: [false, false] }
+  d.engagement = { attacker, fs: [[], []], passed: [false, false], tried: [] }
   const t = engagementTotals(d, d.engagement)
   if (sides.defenders.length === 0) {
     d.engagement = null
@@ -418,9 +661,7 @@ function regroup(d: D) {
   d.phase = 'regroup'
   for (const seat of SEATS) {
     const p = d.players[seat]
-    p.rest.push(...p.spent, ...p.support)
-    p.spent = []
-    p.support = []
+    for (const c of [...p.spent, ...p.support]) rest(d, seat, c)
     p.field.forEach((f, i) => {
       if (!f.card || f.state === 'ready') return
       p.support.push(f.card)
@@ -455,7 +696,11 @@ export function prompt(s: AsState): string {
         : `${who}: reveal a card on ${opp}'s field${s.skirmish.reveals >= 2 ? ', next to a revealed one' : ''}.`
     }
     case 'respond':
-      return `${who}: respond with an ability, or pass.`
+      return st.final
+        ? `${who}: final response. Use an ability, or pass.`
+        : `${who}: respond with an ability, or pass.`
+    case 'choose':
+      return `${who}: ${st.prompt.replace(/^Choose/, 'choose')}`
     case 'first':
       return `${who}: choose which Engagement goes first.`
     case 'fs': {
