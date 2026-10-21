@@ -149,7 +149,11 @@ const ownSwapIn: Ability<[number, string]> = {
   },
 }
 
-/** Maneuver: swap the position of a [word] card on your field with another card on your field. */
+/**
+ * Maneuver: swap the position of a [word] card on your field with another card
+ * on your field. The card may move itself (owner's ruling). A face-down [word]
+ * card may be chosen by showing it to the opponent; it stays face down.
+ */
 function maneuver(word: string): Ability<[number, number]> {
   return {
     name: `Swap a ${word} card with another of your field cards`,
@@ -160,9 +164,10 @@ function maneuver(word: string): Ability<[number, number]> {
         io.pick(
           own,
           `Choose a ${word} card on your field.`,
-          faceUp(io.s, own)
-            .filter((x) => x.card !== io.ctx.card && nameHas(io.s, x.card, word))
-            .map((x) => slotOption(io.s, own, x.slot, own)),
+          field
+            .map((_, i) => i)
+            .filter((i) => field[i].card && nameHas(io.s, field[i].card!, word))
+            .map((i) => slotOption(io.s, own, i, own)),
         ),
       )
       const b = slotFromId(
@@ -178,9 +183,16 @@ function maneuver(word: string): Ability<[number, number]> {
       return [a, b]
     },
     apply(d, ctx, [a, b]) {
+      const p = d.players[ctx.owner]
+      const moved = p.field[a]
+      if (!moved.faceUp)
+        log(
+          d,
+          `${p.name} shows the face-down ${cardName(d, moved.card)} at ${slotName(a)}, a ${word} card; it stays face down.`,
+        )
       log(
         d,
-        `${cardName(d, ctx.card)}: ${d.players[ctx.owner].name}'s ${slotName(a)} and ${slotName(b)} cards swap places.`,
+        `${cardName(d, ctx.card)}: ${p.name}'s ${slotName(a)} and ${slotName(b)} cards swap places.`,
       )
       swapSlots(d, { seat: ctx.owner, slot: a }, { seat: ctx.owner, slot: b })
     },

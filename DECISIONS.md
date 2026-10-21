@@ -485,6 +485,12 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
   - The First Quest cards as test data (`fixtures/firstQuest.ts`).
   - 200 random-move games over the three premade decks and a Bonus Card test mix, which check that every game ends and no card is lost or duplicated (`selfplay.test.ts`).
 
+## Maneuver (Ghoulish Trickster, Grave Reclaimer)
+
+- **A Maneuver card may move itself:** it is a card of its own archetype (owner's ruling). This is an exception to "never counts itself".
+- **A face-down card of the archetype may be the one moved.** Its owner shows it to the opponent to prove the archetype, and it stays face down. The game log names it, so both players know it.
+- **The point** is to set up the field to look like one attack, then move the likely Main Attacker (the lowest Fate Ready card) to hit the opponent's weakest position. The bots don't plan this yet, so their numbers undervalue these cards.
+
 ## Hearthside Table: bots and balance runs
 
 - **Three levels in `src/adventure/bot/`**, all choosing from `legalMoves`:

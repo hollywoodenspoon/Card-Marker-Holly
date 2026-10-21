@@ -424,10 +424,13 @@ describe('Field Abilities (responses)', () => {
 
   it('TFQ-30 Grave Reclaimer: Maneuver (Grave)', () => {
     let s = use(board({ field: [30, 26, 7] }, {}), 30)
+    s = pick(s, 1)
     s = pick(s, 2)
     expect(s.players[0].field.map((f) => f.card).slice(0, 3)).toEqual([fq(30), fq(7), fq(26)])
-    // No other face-up Grave card: it can't be used.
-    expect(canUse(board({ field: [30, 7] }, {}), 0, 30)).toBe(false)
+    // It may move itself: with no other Grave card, it swaps with any card.
+    s = use(board({ field: [30, 7] }, {}), 30)
+    s = pick(s, 1)
+    expect(s.players[0].field.map((f) => f.card).slice(0, 2)).toEqual([fq(7), fq(30)])
   })
 
   it('TFQ-31 Grave Keeper: Rest 1, an opponent ready card turns ability-active', () => {
@@ -568,11 +571,23 @@ describe('Flip Abilities', () => {
     expect(s.players[0].mainAttacker).toBe(0)
   })
 
-  it('TFQ-39 Ghoulish Trickster: Maneuver (Ghoulish)', () => {
+  it('TFQ-39 Ghoulish Trickster: Maneuver (Ghoulish), itself or a shown face-down Ghoulish card', () => {
     let s = reveal(39, { field: [null, 32, 7] }, {})
+    s = pick(s, 1)
     s = pick(s, 2)
     expect(s.players[0].field[1].card).toBe(fq(7))
     expect(s.players[0].field[2].card).toBe(fq(32))
+    // Alone, it moves itself.
+    s = reveal(39, { field: [null, 7] }, {})
+    s = pick(s, 1)
+    expect(s.players[0].field[0].card).toBe(fq(7))
+    expect(s.players[0].field[1]).toMatchObject({ card: fq(39), faceUp: true })
+    // A face-down Ghoulish card is shown to prove it, and stays face down.
+    s = reveal(39, { field: [null, 7, 32], down: [2] }, {})
+    s = pick(s, 2)
+    s = pick(s, 1)
+    expect(s.players[0].field[1]).toMatchObject({ card: fq(32), faceUp: false })
+    expect(s.log.some((l) => /shows the face-down Ghoulish Assassin/.test(l.text))).toBe(true)
   })
 
   it('TFQ-45 Wildcard Wanderer: swap a field card with a Support card (Ready)', () => {
