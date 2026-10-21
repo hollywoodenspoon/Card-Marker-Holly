@@ -48,6 +48,15 @@ describe('setups', () => {
     expect(adjacent(f, 4).sort()).toEqual([1, 3, 5])
   })
 
+  it('lines the two fields up, with each Rest zone on its own side', () => {
+    const lay = tableLayout(setup)
+    const at = (key: string) => lay.zones.find((z) => z.key === key)!
+    expect(at(field(1)).x).toBeCloseTo(at(field(0)).x)
+    expect(at(field(1)).w).toBeCloseTo(at(field(0)).w)
+    expect(at(zoneKey('rest', 0)).x).toBeGreaterThan(at(field(0)).x)
+    expect(at(zoneKey('rest', 1)).x).toBeLessThan(at(field(1)).x)
+  })
+
   it('turns the top seat around so the front lines face each other', () => {
     const lay = tableLayout(setup)
     const top = lay.zones.find((z) => z.key === field(1))!

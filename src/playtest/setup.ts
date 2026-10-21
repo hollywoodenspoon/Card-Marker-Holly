@@ -321,7 +321,11 @@ export function adventureScuffle(card: Size): GameSetup {
   const fieldH = cell * 2
   const sideW = Math.max(card.w, card.h) + GAP * 2
   const supportH = card.h + GAP * 2
-  const seatW = fieldW + GAP * 3 + sideW
+  // Symmetric around the field (an empty strip on the left as wide as the Rest
+  // zone on the right), so the turned top seat's field lands exactly over yours
+  // and its Rest zone on the other side.
+  const fieldX = GAP * 2 + sideW
+  const seatW = fieldX + fieldW + GAP + sideW + GAP
   const seatH = LABEL + fieldH + GAP + LABEL + supportH + GAP
   return {
     id: 'preset:adventure-scuffle',
@@ -340,7 +344,7 @@ export function adventureScuffle(card: Size): GameSetup {
         name: 'Field',
         kind: 'grid',
         perSeat: true,
-        x: GAP,
+        x: fieldX,
         y: LABEL,
         w: fieldW,
         h: fieldH,
@@ -357,7 +361,7 @@ export function adventureScuffle(card: Size): GameSetup {
         name: 'Rest zone',
         kind: 'stack',
         perSeat: true,
-        x: GAP * 2 + fieldW,
+        x: fieldX + fieldW + GAP,
         y: LABEL,
         w: sideW,
         h: fieldH,
@@ -495,22 +499,3 @@ export function simpleBoard(card: Size): GameSetup {
 
 /** Built-in setups, sized for the project's cards. */
 export const presets = (card: Size): GameSetup[] => [adventureScuffle(card), simpleBoard(card)]
-
-/** The same setup with its picture and card references renamed (for a copied project). */
-export function remapSetup(s: GameSetup, asset: (id: Id) => Id, card: (id: Id) => Id): GameSetup {
-  return {
-    ...s,
-    zones: s.zones.map((z) =>
-      z.background
-        ? {
-            ...z,
-            background: {
-              ...(z.background.assetId && { assetId: asset(z.background.assetId) }),
-              ...(z.background.cardId && { cardId: card(z.background.cardId) }),
-            },
-          }
-        : z,
-    ),
-    tokens: s.tokens.map((t) => (t.assetId ? { ...t, assetId: asset(t.assetId) } : t)),
-  }
-}

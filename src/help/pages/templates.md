@@ -27,6 +27,8 @@ Each field has a **Field name** (in the **Template part** section of the propert
 
 Two parts on one template with the same field name show the same value. Renaming a field keeps the values on the cards.
 
+A field's **layer name and field name are always the same**: rename it in the Layers panel or in the Field name box, and both change. This makes field names good labels for data that other tools read, such as the Playtest app. Short, unique names work best, for example `A_AS` for Attack, `D_AS` for Defense and `FS_AS` for Fighting Spirit.
+
 What a field shows before a card fills it in is its default: the template's text, **Default art** or **Default count**.
 
 ## The template library

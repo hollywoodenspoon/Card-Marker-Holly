@@ -6,4 +6,6 @@
  * keys, the "card-maker-folder" format), so a rename never loses anything.
  */
 export const APP_NAME = 'Card Maker'
+/** The companion app that plays game packs (also a working title; see playtest/index.html and its manifest). */
+export const PLAYTEST_NAME = 'Card Maker Playtest'
 export const APP_VERSION: string = __APP_VERSION__

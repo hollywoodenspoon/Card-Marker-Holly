@@ -1,11 +1,17 @@
 import { commit, setView, updateLibrary, useEditor } from '@/core/editor/editorStore'
 import { updateElements } from '@/core/editor/elementCommands'
-import { activeTemplate, currentCard, findSurfaceElement, ownerOf } from '@/core/editor/selectors'
+import {
+  activeTemplate,
+  currentCard,
+  findSurfaceElement,
+  isLayoutEditable,
+  ownerOf,
+} from '@/core/editor/selectors'
 import { createShape, createTemplate } from '@/core/model/factories'
 import { newId } from '@/core/model/ids'
 import { cloneWithNewIds, findElement, uniqueName } from '@/core/model/tree'
 import type { FontAsset, Side, Template } from '@/core/model/types'
-import { migrateFieldRename } from './fields'
+import { isField, migrateFieldRename, templateFields } from './fields'
 import { setPartVisibility } from './overrides'
 import { isVisibleOnCard } from './resolve'
 import { fieldDefaults, ruleHolds } from './rules'
@@ -44,7 +50,13 @@ export function toggleEditLock(id: string) {
   updateElements([id], (el) => void (el.editLocked = !el.editLocked))
 }
 
+/**
+ * Rename a part. A field's layer name and field name are kept the same, so
+ * renaming a field's layer renames the field too (see `renameField`).
+ */
 export function renameElement(id: string, name: string) {
+  const el = findSurfaceElement(useEditor.getState(), id)
+  if (el && isField(el)) return renameField(id, name)
   updateElements([id], (el) => {
     el.name = name
   })
@@ -171,26 +183,42 @@ export function saveCurrentCardAsTemplate(name: string) {
   return t.id
 }
 
-/** Rename a field; values on cards using this template follow the new name. */
+/**
+ * Rename a field. Its layer gets the same name (and the other way round, via
+ * `renameElement`), so names a game reads (e.g. A_AS) are what the Layers
+ * panel shows. Values on cards using this template follow the new name; when
+ * another part still uses the old name, the old value is kept for it too.
+ */
 export function renameField(id: string, name: string) {
   const s = useEditor.getState()
   const el = findSurfaceElement(s, id)
-  if (!el || !('fieldName' in el) || !name || name === el.fieldName) return
+  if (!el || !isField(el) || !name || !isLayoutEditable(s, id)) return
+  if (name === el.fieldName && name === el.name) return
   const from = el.fieldName
+  const owner = ownerOf(s, id)
   const tid = s.view.mode === 'template' ? s.view.templateId : null
+  const cardId = s.view.cardId
   commit((d) => {
-    const lists = tid ? [d.templates[tid]?.elements ?? []] : []
-    for (const list of lists) {
-      const e = findElement(list, id)
-      if (e && 'fieldName' in e) {
-        // Keep the layer name in step when it was just the field name.
-        if (e.name === e.fieldName) e.name = name
-        e.fieldName = name
+    if (owner === 'template' && tid && d.templates[tid]) {
+      const t = d.templates[tid]
+      const e = findElement(t.elements, id)
+      if (!e || !isField(e)) return
+      e.name = name
+      e.fieldName = name
+      const stillUsed = templateFields(t as Template).some((f) => f.fieldName === from)
+      migrateFieldRename(Object.values(d.cards), tid, from, name, stillUsed)
+      t.updatedAt = Date.now()
+    } else if (owner === 'local' && cardId && d.cards[cardId]) {
+      const card = d.cards[cardId]
+      const e = findElement(card.local[s.view.side], id)
+      if (!e || !isField(e)) return
+      e.name = name
+      e.fieldName = name
+      if (from !== name && card.fields[from] && !card.fields[name]) {
+        card.fields[name] = card.fields[from]
+        delete card.fields[from]
       }
-    }
-    if (tid) {
-      migrateFieldRename(Object.values(d.cards), tid, from, name)
-      d.templates[tid].updatedAt = Date.now()
+      card.updatedAt = Date.now()
     }
   }, 'field:' + id)
 }

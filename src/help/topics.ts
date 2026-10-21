@@ -230,9 +230,9 @@ export const HELP_TOPICS: HelpTopic[] = [
   },
   {
     id: 'playtest',
-    title: 'Playtest',
+    title: 'Playtesting your game',
     section: 'Output',
-    keywords: 'play test game table board tokens score dice coin hot seat',
+    keywords: 'playtest play test game pack cmpack table board tokens score fields',
   },
   // Reference
   {
@@ -290,6 +290,7 @@ export const HELP_SHOTS = [
   'vector-save',
   'gallery',
   'proofread',
+  'game-pack',
   'playtest',
   'print',
   'print-settings',

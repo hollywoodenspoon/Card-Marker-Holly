@@ -29,11 +29,11 @@ export function topicForView(): string | undefined {
   const ui = useUi.getState()
   if (ui.printOpen) return 'printing'
   if (ui.galleryOpen) return 'gallery'
-  if (ui.playtestOpen) return 'playtest'
   if (ui.vectorOpen) return 'vector-basics'
   if (ui.dataView === 'import') return 'mail-merge'
   if (ui.dataView) return 'card-data'
   if (ui.ttsOpen) return 'tabletop-simulator'
   if (ui.imageExport) return 'card-images'
+  if (ui.packOpen) return 'playtest'
   return undefined
 }

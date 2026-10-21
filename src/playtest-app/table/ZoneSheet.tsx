@@ -4,7 +4,7 @@ import { piecesIn } from '@/playtest/state'
 import { Button } from '@/ui/components/ui/button'
 import { Sheet } from '@/ui/components/ui/sheet'
 import { PieceFace } from './Piece'
-import { useFaces } from './useCardFaces'
+import { useFaces } from './packContext'
 import { usePlaytest } from './usePlaytest'
 
 /** Every card in a zone, big enough to read (a pile, a hand, the field). Tap one to select it. */

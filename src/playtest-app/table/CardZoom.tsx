@@ -1,7 +1,7 @@
 import { seenBy } from '@/playtest/actions'
 import { Dialog, DialogContent } from '@/ui/components/ui/dialog'
 import { PieceFace } from './Piece'
-import { useFaces } from './useCardFaces'
+import { useFaces } from './packContext'
 import { usePlaytest } from './usePlaytest'
 
 /** One card as large as the screen allows, to read its text. */

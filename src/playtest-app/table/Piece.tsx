@@ -5,7 +5,7 @@ import type { Seen } from '@/playtest/actions'
 import type { PieceBox } from '@/playtest/geometry'
 import type { TokenDef } from '@/playtest/setup'
 import type { Piece, TokenInst } from '@/playtest/state'
-import type { Face } from './useCardFaces'
+import type { Face } from './packContext'
 
 /** A card back for cards without a back template: neutral, in the owner's colour. */
 export function PlainBack({ color }: { color: string }) {

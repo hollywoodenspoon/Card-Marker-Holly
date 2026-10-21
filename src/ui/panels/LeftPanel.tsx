@@ -36,9 +36,9 @@ const ACTIONS = [
   },
   {
     label: 'Playtest',
-    title: 'Playtest: play your game on a virtual table',
+    title: 'Export a game pack for the Playtest app',
     icon: Swords,
-    run: () => useUi.getState().setPlaytestOpen(true),
+    run: () => useUi.getState().setPackOpen(true),
   },
   {
     label: 'Export',

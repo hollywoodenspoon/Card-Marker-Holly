@@ -10,7 +10,6 @@ import type {
   StylePreset,
   Template,
 } from '@/core/model/types'
-import { remapSetup } from '@/playtest/setup'
 import { base64ToBlob, blobToBase64 } from './base64'
 
 /** Full project backup: everything needed to restore it in another browser. */
@@ -115,14 +114,6 @@ export function importProject(file: unknown, nameSuffix = ''): ProjectBundle {
         Object.entries(dk.counts).map(([id, n]) => [remap(ids.cards, id), n]),
       ),
     }))
-  if (project.games)
-    project.games = project.games.map((g) =>
-      remapSetup(
-        g,
-        (id) => remap(ids.assets, id),
-        (id) => remap(ids.cards, id),
-      ),
-    )
   // A printed deck id must follow its deck's new id.
   if (print.deckId) {
     const i = (f.project.decks ?? []).findIndex((dk) => dk.id === print.deckId)

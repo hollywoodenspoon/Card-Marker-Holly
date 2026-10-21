@@ -1,6 +1,5 @@
 import { MoreHorizontal } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useEditor } from '@/core/editor/editorStore'
 import { cn } from '@/lib/cn'
 import { seenBy } from '@/playtest/actions'
 import { pieceBoxes, targetAt, type PieceBox } from '@/playtest/geometry'
@@ -23,11 +22,12 @@ import {
 import { usePanZoom } from '@/ui/components/usePanZoom'
 import { ZoomBar } from '@/ui/components/ZoomBar'
 import { PieceFace, PieceView, TokenShape } from './Piece'
-import { useFaces } from './useCardFaces'
+import { usePack } from './packContext'
 import { usePlaytest } from './usePlaytest'
 
 /** Space around the table (mm), so labels above the top zones show. */
 const MARGIN = 10
+const NO_URLS: Record<string, string> = {}
 /** Pointer travel (px) that turns a press into a drag. */
 const DRAG_PX = 6
 
@@ -38,22 +38,6 @@ type Gesture = {
   y0: number
   last: { x: number; y: number }
   moved: boolean
-}
-
-/** Object URLs for asset pictures (token images, board backgrounds). */
-function useAssetUrls(ids: string[]) {
-  const assets = useEditor((s) => s.library.assets)
-  const key = [...new Set(ids)].sort().join(',')
-  const urls = useMemo(() => {
-    const out: Record<string, string> = {}
-    for (const id of key ? key.split(',') : []) {
-      const a = assets[id]
-      if (a) out[id] = URL.createObjectURL(a.blob)
-    }
-    return out
-  }, [assets, key])
-  useEffect(() => () => Object.values(urls).forEach((u) => URL.revokeObjectURL(u)), [urls])
-  return urls
 }
 
 /**
@@ -69,13 +53,14 @@ export function TableCanvas({ onOpenZone }: { onOpenZone: (key: string) => void 
   const viewer = usePlaytest((s) => s.viewer)
   const act = usePlaytest((s) => s.act)
   const select = usePlaytest((s) => s.select)
-  const faces = useFaces()
-  const defaultSize = useEditor((s) => s.doc!.project.defaultSize)
+  const pack = usePack()
+  const faces = pack.faces
+  const defaultSize = pack.info.cardSize
   const layout = useMemo(() => tableLayout(setup), [setup])
   const sizeOf = useCallback(
     (id: string) => {
       const f = faces[state.pieces[id]?.cardId]
-      return f ? { w: f.w, h: f.h } : { w: defaultSize.widthMm, h: defaultSize.heightMm }
+      return f ? { w: f.w, h: f.h } : defaultSize
     },
     [faces, state.pieces, defaultSize],
   )
@@ -83,10 +68,8 @@ export function TableCanvas({ onOpenZone }: { onOpenZone: (key: string) => void 
     () => pieceBoxes(setup, layout, state, sizeOf),
     [setup, layout, state, sizeOf],
   )
-  const urls = useAssetUrls([
-    ...setup.tokens.flatMap((t) => (t.assetId ? [t.assetId] : [])),
-    ...setup.zones.flatMap((z) => (z.background?.assetId ? [z.background.assetId] : [])),
-  ])
+  // Token and board pictures from assets aren't in game packs yet (shapes and card boards are).
+  const urls = NO_URLS
   const seatColor = (seat: number | null) =>
     seat === null ? '#64748b' : (setup.seats[seat]?.color ?? '#64748b')
   const tokenColor = useCallback(

@@ -6,7 +6,7 @@ A card editor built with React, TypeScript, Vite and a Konva canvas. It runs as 
 
 ```bash
 npm install            # install dependencies
-npm run dev            # website dev server at http://localhost:5173
+npm run dev            # website dev server at http://localhost:5173 (Playtest app: /playtest/)
 npm run build          # type-check and build the website to dist/
 npm test               # unit tests (Vitest)
 npm run lint           # ESLint
@@ -90,7 +90,7 @@ Android installs an update only if it is signed with the same key, so releases a
 Without the secrets, test runs of the Release workflow still build an APK signed with a temporary debug key, and publishing a release stops with a message.
 
 ### Left pane
-- The rail on the left (desktop, and the tablet's left drawer) has the panels **Templates, Cards, Decks, Fonts**, then quick buttons: **Print**, **Gallery** (gallery and proofreading), **Playtest**, **Images** (export card images), **Keywords** and **Data** (card data table, CSV export and mail merge). These are also in the ☰ menu.
+- The rail on the left (desktop, and the tablet's left drawer) has the panels **Templates, Cards, Decks, Fonts**, then quick buttons: **Print**, **Gallery** (gallery and proofreading), **Playtest** (export a game pack), **Images** (export card images), **Keywords** and **Data** (card data table, CSV export and mail merge). These are also in the ☰ menu.
 - **Assets** sit at the bottom of the left pane. Click the header to fold them away or open them again (remembered on this device). Click an image to put it on the card, or into the selected art box. The header buttons make a folder or upload images. On a phone, Assets is in the bottom bar.
 
 ### Asset folders
@@ -138,7 +138,7 @@ Rail → **Vector**, ☰ → *Vector Maker*, or the pen button in the Assets hea
 - **Snapping** to card edges, guides and other parts (magnet button). Drag from a ruler to make a **guide**; drag it back to remove it.
 - **Layers** (right pane, or the Layers tab on phone): drag to reorder, eye to show/hide, lock, double-click to rename (or edit the name at the top of the right pane, which also works on touch).
 - **Deleting** acts straight away and shows a message with **Undo** (cards, decks, layers). Fonts ask first, as they can't be undone.
-- **Esc** closes Print, Gallery, Playtest and Card data. The card editor's keys (Delete, arrows…) only act on the card when no other view or dialog is open.
+- **Esc** closes Print, Gallery and Card data. The card editor's keys (Delete, arrows…) only act on the card when no other view or dialog is open.
 - **Shortcuts**: Ctrl/⌘ Z undo, Ctrl/⌘ Shift Z or Y redo, Ctrl/⌘ D duplicate, Delete, arrows nudge (Shift = 5 mm), Ctrl/⌘ G group, Ctrl/⌘ Shift G ungroup, Ctrl/⌘ 0 fit, Ctrl/⌘ H find and replace.
 
 ### Adding things
@@ -188,8 +188,8 @@ The gallery and the print preview use the card editor's controls: hold **Space**
 
 ☰ → *Gallery and proofreading*: every card in a big grid (fronts, backs or both, with a size slider, search and a deck filter); click a card to open it. The **Proofread** tab lists each card's text with the browser's spell check; plain text can be fixed right there (formatted text is edited on the card).
 
-### Playtest
-Rail → *Playtest* (or ☰ → *Playtest*): play your game with your own cards on a virtual table before printing. Pick a game table and a deck for each player; drag or tap cards between fields, hands and piles, flip them, turn them (Ready / Attacking / …), place tokens, keep score, flip a coin or roll dice. *View as* hides the other player's cards for hot-seat play; everything can be undone, and the game log can be copied. Built in: an Adventure Scuffle! table and a simple board-game table. No rules are checked yet.
+### Playtest (separate app)
+Rail → *Playtest* (or ☰ → *Playtest (export game pack)…*) exports a **game pack** (`.cmpack`): every card's picture (as printed), its field values by field name (text as text, icon rows as numbers, hidden layers included) and your decks. **Playtest now** (in a browser) opens it straight in **Card Maker Playtest**, a companion app at `playtest/` on the same site (installable, offline); **Save game pack** gives a file for any device or a friend. There you pick a table and a deck per player and play by hand: drag or tap cards between fields, hands and piles, flip and turn them, place tokens, keep score, coin and dice, *View as* a player for hot-seat play, undo, and a copyable game log. Games are saved per pack. Built in: an Adventure Scuffle! table and a simple board-game table. No rules are checked yet.
 
 ### Tabletop Simulator
 ☰ → *Export for Tabletop Simulator…*: pick a deck (or the print list) and download a zip of deck sheets (10 × 7, up to 69 cards each, max 4096 px) plus the back image — or matching back sheets when backs differ — and step-by-step import instructions.

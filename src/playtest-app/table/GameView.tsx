@@ -1,21 +1,17 @@
-import { ArrowLeft, Plus, Redo2, ScrollText, Trophy, Undo2 } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
-import { useEditor } from '@/core/editor/editorStore'
-import { HelpButton } from '@/help/HelpButton'
+import { ArrowLeft, CircleHelp, Plus, Redo2, ScrollText, Trophy, Undo2 } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { askConfirm } from '@/ui/components/feedback'
 import { Button, IconButton } from '@/ui/components/ui/button'
 import { NativeSelect } from '@/ui/components/ui/input'
 import { Sheet } from '@/ui/components/ui/sheet'
 import { useBackHandler, useEscapeToClose } from '@/ui/components/overlay'
-import type { LayoutKind } from '@/ui/shell/useLayout'
-import { useUi } from '@/ui/uiStore'
 import { ActionBar } from './ActionBar'
 import { CardZoom } from './CardZoom'
 import { LogPanel } from './LogPanel'
 import { StartPanel } from './StartPanel'
 import { TableCanvas } from './TableCanvas'
 import { Tracker } from './Tracker'
-import { FacesProvider, useCardFaces } from './useCardFaces'
+import { usePack } from './packContext'
 import { usePlaytest } from './usePlaytest'
 import { ZoneSheet } from './ZoneSheet'
 
@@ -25,37 +21,41 @@ const isTyping = (t: EventTarget | null) => {
 }
 
 /**
- * Playtest: a table for any game, played by hand. The layout comes from a game
- * setup (zones, card states, tokens, counters); no rules are enforced yet.
+ * A pack's table: a game played by hand. The layout comes from a game setup
+ * (zones, card states, tokens, counters); no rules are enforced yet.
  */
-export default function PlaytestView({ layout }: { layout: LayoutKind }) {
-  const phone = layout === 'phone'
-  const projectId = useEditor((s) => s.doc!.project.id)
+export function GameView({
+  phone,
+  onBack,
+  onHelp,
+}: {
+  phone: boolean
+  onBack: () => void
+  onHelp: () => void
+}) {
+  const pack = usePack()
   const setup = usePlaytest((s) => s.setup)
   const state = usePlaytest((s) => s.state)
-  const ownProject = usePlaytest((s) => s.projectId === projectId)
+  const ownPack = usePlaytest((s) => s.packId === pack.id)
   const viewer = usePlaytest((s) => s.viewer)
   const hasSelection = usePlaytest((s) => !!s.selected)
-  const playing = !!setup && !!state && ownProject
+  const playing = !!setup && !!state && ownPack
   const [zone, setZone] = useState<string | null>(null)
   const [zoom, setZoom] = useState<string | null>(null)
   const [logOpen, setLogOpen] = useState(!phone)
   const [winSeen, setWinSeen] = useState<string | null>(null)
 
-  // A game from another project doesn't carry over.
-  useEffect(() => {
-    if (!ownProject && usePlaytest.getState().setup) usePlaytest.getState().end()
-  }, [ownProject])
-
-  const close = () => useUi.getState().setPlaytestOpen(false)
-  const back = () => {
+  // Escape lets go of the selection (it never leaves the game); Android's Back
+  // does that too, then goes back to the pack list.
+  const deselect = () => {
     const pt = usePlaytest.getState()
-    if (pt.placing) return pt.select(pt.selected)
-    if (pt.selected) return pt.select(null)
-    close()
+    if (pt.placing) pt.select(pt.selected)
+    else if (pt.selected) pt.select(null)
+    else return false
+    return true
   }
-  useEscapeToClose(back)
-  useBackHandler(back)
+  useEscapeToClose(() => void deselect())
+  useBackHandler(() => void (deselect() || onBack()))
 
   // Undo / redo and F to flip, while no dialog is open and not typing.
   useEffect(() => {
@@ -75,15 +75,6 @@ export default function PlaytestView({ layout }: { layout: LayoutKind }) {
     return () => window.removeEventListener('keydown', onKey)
   }, [])
 
-  const cardIds = useMemo(
-    () => [
-      ...Object.values(state?.pieces ?? {}).map((p) => p.cardId),
-      ...(setup?.zones.flatMap((z) => (z.background?.cardId ? [z.background.cardId] : [])) ?? []),
-    ],
-    [state?.pieces, setup],
-  )
-  const faces = useCardFaces(playing ? cardIds : [])
-
   const newGame = async () => {
     if (
       !(await askConfirm({
@@ -99,18 +90,15 @@ export default function PlaytestView({ layout }: { layout: LayoutKind }) {
   const winner = state?.winner
   const winKey = winner ? `${winner.seat}:${state!.log.length}` : null
   return (
-    <div
-      className="h-app pt-safe fixed inset-0 z-50 flex flex-col bg-background"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Playtest"
-    >
+    <div className="h-app pt-safe flex flex-col bg-background" aria-label="Playtest">
       <header className="flex shrink-0 flex-wrap items-center gap-2 border-b bg-panel px-2 py-2">
-        <IconButton label="Back to editor" onClick={close}>
+        <IconButton label="Back to your game packs" onClick={onBack}>
           <ArrowLeft />
         </IconButton>
-        <div className="text-sm font-semibold">Playtest</div>
-        <HelpButton topic="playtest" />
+        <div className="min-w-0 truncate text-sm font-semibold">{pack.info.name}</div>
+        <IconButton label="How to play (F1)" onClick={onHelp}>
+          <CircleHelp />
+        </IconButton>
         {playing && (
           <>
             <span className="hidden truncate text-sm text-muted-foreground sm:inline">
@@ -153,7 +141,7 @@ export default function PlaytestView({ layout }: { layout: LayoutKind }) {
       {!playing ? (
         <StartPanel />
       ) : (
-        <FacesProvider value={faces}>
+        <>
           <Tracker phone={phone} />
           <div className="flex min-h-0 flex-1">
             <div className="relative flex min-w-0 flex-1 flex-col">
@@ -192,7 +180,7 @@ export default function PlaytestView({ layout }: { layout: LayoutKind }) {
           )}
           <ZoneSheet zone={zone} onClose={() => setZone(null)} phone={phone} />
           <CardZoom pieceId={zoom} onClose={() => setZoom(null)} />
-        </FacesProvider>
+        </>
       )}
     </div>
   )

@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest'
 import { createIconRow, createImage, createProject, createText } from '@/core/model/factories'
 import { flatten } from '@/core/model/tree'
 import type { Asset, FontAsset, StylePreset } from '@/core/model/types'
-import { simpleBoard } from '@/playtest/setup'
 import { CardMakerDB } from './db'
 import { exportProject, importProject } from './projectFile'
 import { loadProject, saveProjectBundle } from './repo'
@@ -66,10 +65,6 @@ function sample() {
   card.mergeRow = 7
   b.project.decks = [{ id: 'deck1', name: 'Starter', counts: { [card.id]: 2 } }]
   b.project.print.deckId = 'deck1'
-  const game = simpleBoard({ w: 63, h: 88 })
-  game.zones[0].background = { assetId: 'a-art', cardId: card.id }
-  game.tokens[0].assetId = 'a-art'
-  b.project.games = [game]
   return {
     doc: {
       project: b.project,
@@ -111,10 +106,6 @@ describe('project files', () => {
     expect(deck.id).not.toBe('deck1')
     expect(deck.counts).toEqual({ [card.id]: 2 })
     expect(b.project.print.deckId).toBe(deck.id)
-    const [game] = b.project.games!
-    expect(assetIds.has(game.zones[0].background!.assetId!)).toBe(true)
-    expect(game.zones[0].background!.cardId).toBe(card.id)
-    expect(assetIds.has(game.tokens[0].assetId!)).toBe(true)
     for (const el of [
       ...b.templates.flatMap((t) => flatten(t.elements)),
       ...flatten(card.local.front),

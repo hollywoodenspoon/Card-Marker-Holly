@@ -1,14 +1,12 @@
 import { Play, TriangleAlert } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import { useEditor } from '@/core/editor/editorStore'
-import type { Deck } from '@/core/model/types'
 import { presets, validateSetup, type GameSetup } from '@/playtest/setup'
 import { deckCards } from '@/playtest/state'
 import { Button } from '@/ui/components/ui/button'
 import { Label, NativeSelect } from '@/ui/components/ui/input'
+import { usePack } from './packContext'
 import { usePlaytest } from './usePlaytest'
 
-const NO_DECKS: Deck[] = []
 const ALL = '__all'
 const KEY = 'cardmaker.playtest'
 
@@ -30,15 +28,12 @@ function remember(v: { setupId: string; decks: string[] }) {
 
 /** Pick a game setup and a deck for each player, then start. */
 export function StartPanel() {
-  const project = useEditor((s) => s.doc!.project)
-  const cards = useEditor((s) => s.doc!.cards)
-  const decks = project.decks ?? NO_DECKS
+  const pack = usePack()
+  const { info } = pack
+  const decks = useMemo(() => info.decks.map((d, i) => ({ id: `deck:${i}`, ...d })), [info.decks])
   const setups = useMemo<GameSetup[]>(
-    () => [
-      ...presets({ w: project.defaultSize.widthMm, h: project.defaultSize.heightMm }),
-      ...(project.games ?? []),
-    ],
-    [project.defaultSize, project.games],
+    () => [...presets(info.cardSize), ...(info.setups ?? [])],
+    [info.cardSize, info.setups],
   )
   const [last] = useState(remembered)
   const [setupId, setSetupId] = useState(
@@ -51,7 +46,8 @@ export function StartPanel() {
   const [chosen, setChosen] = useState<string[]>(() =>
     Array.from({ length: 4 }, (_, i) => valid(last.decks?.[i]) || fallback[i % fallback.length]),
   )
-  const list = Object.values(cards)
+  // The pack lists cards in Card Maker's order.
+  const list = useMemo(() => info.cards.map((c, order) => ({ ...c, order })), [info.cards])
   const cardsFor = (choice: string) =>
     choice === ALL
       ? deckCards(list, null)
@@ -64,7 +60,7 @@ export function StartPanel() {
   const start = () => {
     const picks = setup.seats.map((_, i) => chosen[i])
     remember({ setupId: setup.id, decks: chosen })
-    usePlaytest.getState().start(project.id, setup, picks.map(cardsFor))
+    usePlaytest.getState().start(pack.id, setup, picks.map(cardsFor))
   }
 
   return (
@@ -130,8 +126,8 @@ export function StartPanel() {
           })}
         {decks.length === 0 && setup.deal && (
           <p className="text-xs text-muted-foreground">
-            Tip: make a deck for each player in the Decks panel to choose exactly which cards they
-            play with.
+            Tip: make a deck for each player in Card Maker's Decks panel, then export the game pack
+            again, to choose exactly which cards they play with.
           </p>
         )}
         {errors.length > 0 && (

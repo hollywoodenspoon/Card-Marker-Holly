@@ -104,8 +104,8 @@ function AppMenu({ phone }: { phone: boolean }) {
         <DropdownMenuItem onSelect={() => useUi.getState().setGalleryOpen(true)}>
           <LayoutGrid /> Gallery and proofreading
         </DropdownMenuItem>
-        <DropdownMenuItem onSelect={() => useUi.getState().setPlaytestOpen(true)}>
-          <Swords /> Playtest
+        <DropdownMenuItem onSelect={() => useUi.getState().setPackOpen(true)}>
+          <Swords /> Playtest (export game pack)…
         </DropdownMenuItem>
         {phone && (
           <>
