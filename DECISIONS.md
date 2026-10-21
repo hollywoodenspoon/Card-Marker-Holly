@@ -423,3 +423,11 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
   - Whatever the choice, check Google's Android developer verification first: from 2026 to 2027 it requires verified developers even for installs outside Play.
   - The app has no internet permission on purpose, so it won't update itself.
 - **Later:** the owner wants a public website version without the parts made for their own use (such as Playtest). That will be planned separately.
+
+## Hearthside Table: deck builder
+
+- **Adventure Scuffle cards are read from the pack's `_AS` fields** (`src/adventure/cards.ts`): `Name_AS`, `Code_AS`, `Type_AS`, `FS_AS`, `A_AS`, `D_AS`, `Fate_AS`, `Ability_AS`, `Deck_AS`. An Ace is a card whose `Name_AS` contains `{ace}` (the owner's inline symbol), so no separate role field is needed. Bad or missing values are listed, not fatal, so a half-finished set can still be played. `src/adventure/` is pure TypeScript with no React or storage, so its logic can be ported to the Godot game.
+- **Free Company rules** (`src/adventure/deck.ts`): exactly 12 cards, one copy each, at most one Ace, as in the rulebook. Packs without `_AS` fields get the same size and copy checks without the Ace rule.
+- **Decks are stored per pack** in the Playtest database (`decks` table, Dexie version 2); removing a pack removes its decks. A deck lists card ids; the export file (`.asdeck.json`) lists card codes too, so it can be read into another pack with the same codes.
+- **Edits show at once and are saved behind them** (a small zustand store), so quick taps never work on an outdated copy of the deck.
+- **Start panel:** decks built here are listed first ("Your decks"), then the pack's decks; a saved deck that breaks a rule shows its first problem. Nothing is blocked yet: rules-on play (next step) will refuse illegal decks.

@@ -46,15 +46,16 @@ export function Library({ onOpen, onHelp }: { onOpen: (id: string) => void; onHe
     const ok = await askConfirm({
       title: `Remove ${p.name}?`,
       description:
-        'The pack and its saved game are removed from this browser. Your Hearthside Cardworks project is not touched.',
+        'The pack, its saved game and the decks built for it are removed from this browser. Your Hearthside Cardworks project is not touched.',
       okLabel: 'Remove',
       danger: true,
     })
     if (!ok) return
     const db = playtestDb()
-    await db.transaction('rw', db.packs, db.games, async () => {
+    await db.transaction('rw', db.packs, db.games, db.decks, async () => {
       await db.packs.delete(p.id)
       await db.games.delete(p.id)
+      await db.decks.where('packId').equals(p.id).delete()
     })
     await refresh()
   }

@@ -200,10 +200,12 @@ function TemplateRow({
         type="button"
         className="flex min-w-0 flex-1 items-center gap-2.5 text-left"
         onClick={() => {
-          pickTemplateForCard(t.id)
+          // Opening the Templates tab means editing layouts: a click edits this one.
+          // Using it for the current card is in ⋯.
+          editTemplate(t.id)
           onPicked?.()
         }}
-        title="Use for this card"
+        title={`Edit ${t.name}`}
       >
         <CardThumb template={t} side={t.side} heightPx={44} />
         <span className="min-w-0 flex-1">
@@ -218,16 +220,6 @@ function TemplateRow({
           </span>
         </span>
       </button>
-      <IconButton
-        label={`Edit ${t.name}`}
-        size="icon-sm"
-        onClick={() => {
-          editTemplate(t.id)
-          onPicked?.()
-        }}
-      >
-        <Pencil />
-      </IconButton>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <IconButton label={`Options for ${t.name}`} size="icon-sm">

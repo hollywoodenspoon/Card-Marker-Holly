@@ -26,6 +26,15 @@ export interface GameRow {
   savedAt: number
 }
 
+/** A deck built in the Playtest app (one copy per card id listed). */
+export interface DeckRow {
+  id: string
+  packId: string
+  name: string
+  cards: string[]
+  updatedAt: number
+}
+
 export interface SetupRow {
   id: string
   setup: GameSetup
@@ -35,10 +44,12 @@ export class PlaytestDB extends Dexie {
   packs!: EntityTable<PackRow, 'id'>
   games!: EntityTable<GameRow, 'packId'>
   setups!: EntityTable<SetupRow, 'id'>
+  decks!: EntityTable<DeckRow, 'id'>
 
   constructor(name = 'card-maker-playtest') {
     super(name)
     this.version(1).stores({ packs: 'id, importedAt', games: 'packId', setups: 'id' })
+    this.version(2).stores({ decks: 'id, packId' })
   }
 }
 
@@ -57,3 +68,20 @@ export async function addPack(bytes: Uint8Array, db = playtestDb()): Promise<Pac
   })
   return info
 }
+
+/** Decks built for a pack, newest change first. */
+export async function listDecks(packId: string, db = playtestDb()): Promise<DeckRow[]> {
+  const rows = await db.decks.where('packId').equals(packId).toArray()
+  return rows.sort((a, b) => b.updatedAt - a.updatedAt)
+}
+
+export async function saveDeck(
+  deck: Omit<DeckRow, 'updatedAt'>,
+  db = playtestDb(),
+): Promise<DeckRow> {
+  const row = { ...deck, updatedAt: Date.now() }
+  await db.decks.put(row)
+  return row
+}
+
+export const deleteDeck = (id: string, db = playtestDb()) => db.decks.delete(id)

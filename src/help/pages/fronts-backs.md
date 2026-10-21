@@ -26,7 +26,7 @@ Projects made before pairs existed get them automatically when you open them: ea
 ## Choosing a card's back
 
 1. Open the **Templates** tab (on a phone, ☰ → **Templates**).
-2. Click a back template, or use its ⋯ → **Use for this card**.
+2. On a back template, press ⋯ → **Use for this card**. (Clicking the template itself opens it for editing.)
 
 The editor switches to the back so you can see it. A tick marks the templates the current card uses.
 

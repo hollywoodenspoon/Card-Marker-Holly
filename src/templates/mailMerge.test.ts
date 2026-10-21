@@ -12,6 +12,7 @@ import {
   columnIndex,
   columnLetter,
   lettersFromHeaders,
+  nameColumnFromHeaders,
   parseRows,
   planMerge,
   rowsToRead,
@@ -172,5 +173,20 @@ describe('planMerge', () => {
       title: 'A',
       Attack: 'D',
     })
+  })
+})
+
+describe('card name column from headers', () => {
+  it('finds Name, Card name and field-style names such as Name_AS', () => {
+    expect(nameColumnFromHeaders(['Code', 'Name'])).toBe('B')
+    expect(nameColumnFromHeaders(['Card name', 'Cost'])).toBe('A')
+    expect(nameColumnFromHeaders(['Code_AS', 'Type_AS', 'Name_AS'])).toBe('C')
+    expect(nameColumnFromHeaders(['id', 'card_name'])).toBe('B')
+  })
+
+  it('prefers an exact name over a title, and ignores other words', () => {
+    expect(nameColumnFromHeaders(['Title', 'Name'])).toBe('B')
+    expect(nameColumnFromHeaders(['Title', 'Rules'])).toBe('A')
+    expect(nameColumnFromHeaders(['Nickname', 'Rename', 'Cost'])).toBeUndefined()
   })
 })

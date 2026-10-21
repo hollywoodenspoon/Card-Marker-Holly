@@ -6,6 +6,7 @@ import { NativeSelect } from '@/ui/components/ui/input'
 import { Sheet } from '@/ui/components/ui/sheet'
 import { useBackHandler, useEscapeToClose } from '@/ui/components/overlay'
 import { ActionBar } from './ActionBar'
+import { DeckBuilder } from '../decks/DeckBuilder'
 import { CardZoom } from './CardZoom'
 import { LogPanel } from './LogPanel'
 import { StartPanel } from './StartPanel'
@@ -44,6 +45,9 @@ export function GameView({
   const [zoom, setZoom] = useState<string | null>(null)
   const [logOpen, setLogOpen] = useState(!phone)
   const [winSeen, setWinSeen] = useState<string | null>(null)
+  const [decksOpen, setDecksOpen] = useState(false)
+  // Remounts the start panel after the Decks screen, so new decks are listed.
+  const [deckRev, setDeckRev] = useState(0)
 
   // Escape lets go of the selection (it never leaves the game); Android's Back
   // does that too, then goes back to the pack list.
@@ -139,7 +143,7 @@ export function GameView({
         )}
       </header>
       {!playing ? (
-        <StartPanel />
+        <StartPanel key={deckRev} onDecks={() => setDecksOpen(true)} />
       ) : (
         <>
           <Tracker phone={phone} />
@@ -181,6 +185,14 @@ export function GameView({
           <ZoneSheet zone={zone} onClose={() => setZone(null)} phone={phone} />
           <CardZoom pieceId={zoom} onClose={() => setZoom(null)} />
         </>
+      )}
+      {decksOpen && (
+        <DeckBuilder
+          onClose={() => {
+            setDecksOpen(false)
+            setDeckRev((r) => r + 1)
+          }}
+        />
       )}
     </div>
   )
