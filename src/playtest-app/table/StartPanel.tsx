@@ -175,8 +175,8 @@ export function StartPanel({ onDecks }: { onDecks: () => void }) {
               {mode === 'free'
                 ? 'Move, flip and turn cards yourself; nothing is checked.'
                 : mode === 'hotseat'
-                  ? "The app runs the Mutual Reveal rules and hides each player's cards until the device is handed over. Card abilities are not active yet: cards play with their stats."
-                  : 'The app runs the Mutual Reveal rules and you play both players, seeing everything. Card abilities are not active yet: cards play with their stats.'}
+                  ? "The app runs the Mutual Reveal rules and hides each player's cards until the device is handed over. Card abilities are applied as the cards say."
+                  : 'The app runs the Mutual Reveal rules and you play both players, seeing everything. Card abilities are applied as the cards say.'}
             </p>
           </div>
         )}

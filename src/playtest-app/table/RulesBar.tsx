@@ -1,15 +1,24 @@
 import { Check, Maximize2, Shuffle, Swords } from '@/ui/icons'
 import { abilityText } from '@/adventure/cards'
-import { actor, isLegal, legalMoves, prompt } from '@/adventure/engine'
+import {
+  abilityName,
+  actor,
+  fsPreview,
+  isLegal,
+  legalMoves,
+  prompt,
+  responseMoves,
+} from '@/adventure/engine'
 import { other } from '@/adventure/state'
-import { engagementTotals, fightingSpirit } from '@/adventure/stats'
+import { engagementTotals } from '@/adventure/stats'
 import { seenBy } from '@/playtest/actions'
 import { Button } from '@/ui/components/ui/button'
 import { usePlaytest } from './usePlaytest'
 
 /**
  * With the rules on: what to do now, in words, and the buttons for choices
- * that aren't a tap on the table (pass, the First Engagement, Fighting Spirit).
+ * that aren't a tap on the table (abilities, choices, the First Engagement,
+ * Fighting Spirit, pass).
  */
 export function RulesBar({ onZoom }: { onZoom: (pieceId: string) => void }) {
   const setup = usePlaytest((s) => s.setup)!
@@ -48,11 +57,51 @@ export function RulesBar({ onZoom }: { onZoom: (pieceId: string) => void }) {
   } else if (st.k === 'reveal') {
     hint = picks.length ? 'Now tap a card next to it.' : 'Tap a highlighted card.'
   } else if (st.k === 'respond') {
+    const mine = viewer === null || viewer === st.seat
     buttons = (
-      <Button size="sm" variant="secondary" onClick={() => play({ t: 'pass' })}>
-        Pass
-      </Button>
+      <>
+        {mine &&
+          responseMoves(rules, st.seat).map((m) =>
+            m.t === 'ability' ? (
+              <Button
+                key={m.card}
+                size="sm"
+                variant="secondary"
+                title={abilityText(rules.cards[m.card]?.ability ?? '')}
+                onClick={() => play(m)}
+                data-testid="rules-ability"
+              >
+                <span>
+                  <span className="font-semibold">{rules.cards[m.card]?.name}:</span>{' '}
+                  {abilityName(rules, st.seat, m.card)}
+                </span>
+              </Button>
+            ) : null,
+          )}
+        <Button size="sm" onClick={() => play({ t: 'pass' })} data-testid="rules-pass">
+          Pass
+        </Button>
+      </>
     )
+  } else if (st.k === 'choose') {
+    hint = st.options.some((o) => o.card || o.slot !== undefined)
+      ? 'Tap a highlighted card, or pick below.'
+      : ''
+    // Only the chooser sees the choices (they may name hidden cards).
+    const mine = viewer === null || viewer === st.seat
+    buttons = mine
+      ? st.options.map((o) => (
+          <Button
+            key={o.id}
+            size="sm"
+            variant={o.id === 'decline' ? 'ghost' : 'secondary'}
+            onClick={() => play({ t: 'choose', id: o.id })}
+            data-testid="rules-choice"
+          >
+            {o.label}
+          </Button>
+        ))
+      : null
   } else if (st.k === 'first') {
     buttons = legalMoves(rules).map((m) =>
       m.t === 'first' ? (
@@ -83,21 +132,26 @@ export function RulesBar({ onZoom }: { onZoom: (pieceId: string) => void }) {
           {rules.players[other(e.attacker)].name}
         </span>
         {mine &&
-          rules.players[st.seat].support.map((card) => (
-            <Button
-              key={card}
-              size="sm"
-              variant="secondary"
-              title={abilityText(rules.cards[card]?.ability ?? '')}
-              onClick={() => play({ t: 'fs', card })}
-              data-testid="rules-fs"
-            >
-              {rules.cards[card]?.name ?? 'Card'}{' '}
-              <span className="font-semibold tabular-nums">
-                +{fightingSpirit(rules, st.seat, card)}
-              </span>
-            </Button>
-          ))}
+          legalMoves(rules).map((m) => {
+            if (m.t !== 'fs') return null
+            const v = fsPreview(rules, st.seat, m.card, m.from)
+            return (
+              <Button
+                key={`${m.from ?? 'support'}:${m.card}`}
+                size="sm"
+                variant="secondary"
+                title={abilityText(rules.cards[m.card]?.ability ?? '')}
+                onClick={() => play(m)}
+                data-testid="rules-fs"
+              >
+                {rules.cards[m.card]?.name ?? 'Card'}
+                {m.from === 'rest' && (
+                  <span className="text-muted-foreground">(rest zone)</span>
+                )}{' '}
+                <span className="font-semibold tabular-nums">{v === null ? 'coin' : `+${v}`}</span>
+              </Button>
+            )
+          })}
         <Button size="sm" onClick={() => play({ t: 'pass' })} data-testid="rules-pass">
           Pass ({side.toLowerCase()} {side === 'Attack' ? t.attack : t.defense})
         </Button>

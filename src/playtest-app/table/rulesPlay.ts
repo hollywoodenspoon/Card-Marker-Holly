@@ -57,8 +57,26 @@ export type TapResult =
   | { kind: 'place' }
   | null
 
+/** The choice option a piece stands for (a target on the field, or a card in a zone). */
+export function optionFor(s: AsState, pieceId: string) {
+  const st = s.step
+  const id = parsePieceId(pieceId)
+  if (st.k !== 'choose' || !id) return null
+  return (
+    st.options.find((o) =>
+      o.slot !== undefined
+        ? o.seat === id.seat && s.players[id.seat].field[o.slot]?.card === id.card
+        : o.card === id.card && (o.seat ?? st.seat) === id.seat,
+    ) ?? null
+  )
+}
+
 export function tapPiece(s: AsState, picks: number[], pieceId: string): TapResult {
   const st = s.step
+  if (st.k === 'choose') {
+    const o = optionFor(s, pieceId)
+    return o ? { kind: 'moves', moves: [{ t: 'choose', id: o.id }] } : null
+  }
   const at = whereIs(s, pieceId)
   if (!at || st.k === 'over') return null
   if (st.k === 'reveal') {
@@ -101,6 +119,12 @@ export function hints(s: AsState, picks: number[]): { pieces: Set<string>; slots
     if (p.field.some((f) => !f.card)) for (const c of p[st.from]) pid(st.seat, c)
     for (const i of st.placed) pid(st.seat, p.field[i].card)
     p.field.forEach((f, i) => !f.card && slots.add(`${zoneKey('field', st.seat)}:${i}`))
+  } else if (st.k === 'choose') {
+    for (const o of st.options) {
+      if (o.slot !== undefined && o.seat !== undefined)
+        pid(o.seat, s.players[o.seat].field[o.slot]?.card ?? null)
+      else if (o.card) pid(o.seat ?? st.seat, o.card)
+    }
   }
   // Fighting Spirit is picked with the rules bar's buttons, not on the table.
   return { pieces, slots }
