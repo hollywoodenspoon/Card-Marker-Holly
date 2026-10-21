@@ -266,3 +266,17 @@ export function lettersFromHeaders(headerRow: string[], fieldNames: string[]) {
   }
   return out
 }
+
+/**
+ * The column that names the cards, from a header row: "Name", "Card name",
+ * "Title", or a field-style name such as "Name_AS" or "card_name".
+ */
+export function nameColumnFromHeaders(headerRow: string[]): string | undefined {
+  const norm = (s: string) => s.trim().toLowerCase()
+  const exact = headerRow.findIndex((h) => ['name', 'card name', 'cardname'].includes(norm(h)))
+  if (exact >= 0) return columnLetter(exact)
+  const named = headerRow.findIndex((h) => /^name[_ -]|[_ -]name$/.test(norm(h)))
+  if (named >= 0) return columnLetter(named)
+  const title = headerRow.findIndex((h) => norm(h) === 'title')
+  return title >= 0 ? columnLetter(title) : undefined
+}

@@ -11,6 +11,7 @@ import {
   cleanColumn,
   lettersFromHeaders,
   columnLetter,
+  nameColumnFromHeaders,
   planMerge,
   rowsToRead,
   type Table,
@@ -116,6 +117,9 @@ export function MergeForm({ onClose }: { onClose: () => void }) {
       if (!s.length || !s.some((x) => x.table.length)) throw new Error('No rows found.')
       setSheets(s)
       setSheetIndex(0)
+      // A header like "Name" or "Name_AS" names the cards, unless a column is already set.
+      const named = nameColumnFromHeaders(s.find((x) => x.table.length)?.table[0] ?? [])
+      if (named) setSettings((cur) => (cur.nameColumn ? cur : { ...cur, nameColumn: named }))
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
     } finally {
@@ -144,8 +148,8 @@ export function MergeForm({ onClose }: { onClose: () => void }) {
       if (headerLetters[p.el.fieldName]) next[p.el.id] = headerLetters[p.el.fieldName]
     setEdits(next)
     if (!settings.nameColumn) {
-      const i = table[0].findIndex((h) => h.trim().toLowerCase() === 'name')
-      if (i >= 0) set({ nameColumn: columnLetter(i) })
+      const named = nameColumnFromHeaders(table[0])
+      if (named) set({ nameColumn: named })
     }
   }
 
@@ -161,24 +165,50 @@ export function MergeForm({ onClose }: { onClose: () => void }) {
     setDone(`Done: ${r.added} card${r.added === 1 ? '' : 's'} added, ${r.updated} updated.`)
   }
 
+  // With a sheet loaded, columns are picked from a list showing each header.
+  const width = Math.max(0, ...table.slice(0, 20).map((r) => r.length))
+  const columns = Array.from({ length: width }, (_, i) => {
+    const l = columnLetter(i)
+    const head = (table[0]?.[i] ?? '').trim()
+    return { letter: l, label: head ? `${l} · ${head.slice(0, 24)}` : l }
+  })
   const colInput = (
     label: string,
     value: string | undefined,
     onChange: (v: string | undefined) => void,
     id: string,
+    none = '—',
   ) => (
     <div className="flex flex-col gap-1">
       <Label htmlFor={id}>{label}</Label>
-      <Input
-        id={id}
-        className="text-center uppercase"
-        placeholder="—"
-        maxLength={3}
-        value={value ?? ''}
-        onChange={(e) =>
-          onChange(cleanColumn(e.target.value) ?? (e.target.value ? value : undefined))
-        }
-      />
+      {columns.length ? (
+        <NativeSelect
+          id={id}
+          value={value ?? ''}
+          onChange={(e) => onChange(e.target.value || undefined)}
+        >
+          <option value="">{none}</option>
+          {value && !columns.some((c) => c.letter === value) && (
+            <option value={value}>{value}</option>
+          )}
+          {columns.map((c) => (
+            <option key={c.letter} value={c.letter}>
+              {c.label}
+            </option>
+          ))}
+        </NativeSelect>
+      ) : (
+        <Input
+          id={id}
+          className="text-center uppercase"
+          placeholder="—"
+          maxLength={3}
+          value={value ?? ''}
+          onChange={(e) =>
+            onChange(cleanColumn(e.target.value) ?? (e.target.value ? value : undefined))
+          }
+        />
+      )}
     </div>
   )
 
@@ -318,7 +348,13 @@ export function MergeForm({ onClose }: { onClose: () => void }) {
           </div>
         </div>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-          {colInput('Card name', settings.nameColumn, (v) => set({ nameColumn: v }), 'mm-name')}
+          {colInput(
+            'Card name',
+            settings.nameColumn,
+            (v) => set({ nameColumn: v }),
+            'mm-name',
+            'None (Row 2, Row 3…)',
+          )}
           {colInput('Copies', settings.copiesColumn, (v) => set({ copiesColumn: v }), 'mm-copies')}
           {colInput(
             'Front column',

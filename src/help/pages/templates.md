@@ -9,7 +9,7 @@ The **Card** / **Template** switch is in the top bar (on a phone, above the card
 - **Card** mode fills in one card: its title, art, stats and so on. The template's layout is fixed here.
 - **Template** mode edits the layout shared by every card using that template. A bar above the card says "Editing template … · N cards". Press **Back to card** (**Done** on a phone) when you're finished.
 
-You can also edit a template from the **Templates** tab (pencil button), or by selecting a template part on a card and pressing **Edit template** in the properties panel.
+You can also edit a template by clicking it in the **Templates** tab, or by selecting a template part on a card and pressing **Edit template** in the properties panel.
 
 ![Editing a template](template-mode.webp)
 
@@ -35,10 +35,9 @@ What a field shows before a card fills it in is its default: the template's text
 
 Open the **Templates** tab in the left rail (on a phone, ☰ → **Templates**). Templates are listed under **Fronts** and **Backs** with a thumbnail, and how many cards use each. A tick marks the ones the current card uses.
 
-- Click a template to use it for the current card.
-- The pencil edits it.
+- Click a template to edit it (Template mode opens on it).
 - **+** next to **Fronts** or **Backs** makes a new, empty template.
-- ⋯ has **Use for this card**, **Rename**, **Duplicate**, **Export file** and **Delete**. Back templates also have **Use as back for all cards**.
+- ⋯ has **Use for this card** (it switches back to Card mode), **Rename**, **Duplicate**, **Export file** and **Delete**. Back templates also have **Use as back for all cards**.
 
 ![The Templates tab](templates.webp)
 
