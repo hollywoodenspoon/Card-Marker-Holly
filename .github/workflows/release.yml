@@ -52,6 +52,13 @@ jobs:
         env:
           # Only to read the repo's releases while building; nothing is published here.
           GH_TOKEN: ${{ github.token }}
+      # The Arch package goes into a pacman repository (see the publish job); check it builds one.
+      - name: Check the pacman repository
+        if: runner.os == 'Linux'
+        run: |
+          mkdir -p pacman-check && cp release/*.pkg.tar.xz pacman-check/
+          docker run --rm -v "$PWD/pacman-check:/repo" -w /repo archlinux:latest \
+            sh -c 'repo-add cardworks.db.tar.gz *.pkg.tar.xz && pacman -Qip *.pkg.tar.xz | grep -E "^(Name|Provides|Conflicts|Replaces)"'
       - uses: actions/upload-artifact@v4
         with:
           name: desktop-${{ runner.os }}
@@ -142,3 +149,24 @@ jobs:
           fi
           # Creates the tag on this commit when it does not exist yet.
           gh release create "$tag" out/* $pre --target "$GITHUB_SHA" --title "$tag" --notes-file "$notes"
+      # The pacman repository lives in the fixed "pacman-repo" release (a pre-release, so
+      # never "latest"; the app's update check skips it). It holds only the newest package.
+      # Users add it once to /etc/pacman.conf (README → Arch / CachyOS).
+      - name: Update the pacman repository
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p repo && cp out/*.pkg.tar.xz repo/
+          docker run --rm -v "$PWD/repo:/repo" -w /repo archlinux:latest \
+            sh -c 'repo-add cardworks.db.tar.gz *.pkg.tar.xz'
+          # GitHub release files can't be symlinks: store the databases under both names.
+          cd repo
+          cp --remove-destination cardworks.db.tar.gz cardworks.db
+          cp --remove-destination cardworks.files.tar.gz cardworks.files
+          gh release view pacman-repo >/dev/null 2>&1 || gh release create pacman-repo --prerelease \
+            --target "$GITHUB_SHA" --title "Arch / CachyOS package repository" \
+            --notes "pacman repository for Hearthside Cardworks. Add it to /etc/pacman.conf as described in the README; you don't need to download anything here."
+          for a in $(gh release view pacman-repo --json assets -q '.assets[].name'); do
+            gh release delete-asset pacman-repo "$a" -y
+          done
+          gh release upload pacman-repo ./* --clobber

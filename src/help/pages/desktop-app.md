@@ -10,7 +10,15 @@ Download the app from the project's [Releases page](https://github.com/hollywood
   - **`Hearthside-Cardworks-Setup-….exe`** (recommended): double-click it and it installs in a few seconds, for you only, without admin rights. It can update itself.
   - **`…-portable.exe`**: there is nothing to install. Put it anywhere (for example a _Hearthside Cardworks_ folder on your desktop or a USB stick) and double-click it.
 - **Linux**: the file ending in `.AppImage`. Make it executable (right-click → **Properties** and tick the option to allow running it as a program, or `chmod +x` in a terminal), then double-click it.
-- **Arch Linux and CachyOS**: the file ending in `.pkg.tar.xz`. Install it with `sudo pacman -U` followed by the file name.
+- **Arch Linux and CachyOS**: add the app's package repository once, and then your normal `sudo pacman -Syu` keeps it up to date. Add these lines to the end of `/etc/pacman.conf` (for example with `sudo nano /etc/pacman.conf`):
+
+  ```
+  [cardworks]
+  SigLevel = Optional TrustAll
+  Server = https://github.com/hollywoodenspoon/Card-Marker-Holly/releases/download/pacman-repo
+  ```
+
+  Then run `sudo pacman -Syu hearthside-cardworks`. (You can also download the file ending in `.pkg.tar.xz` and install it with `sudo pacman -U`, but then it won't update.)
 
 ### Windows protected your PC
 
@@ -28,7 +36,8 @@ Change it any time in ☰: **Automatic update checks** turns checking on or off,
 What happens when there's a new version depends on which download you use:
 
 - **Windows Setup and the Linux AppImage** download it in the background and say **Version … is ready**. It installs when you close the app, or press **Restart now** (☰ also shows **Restart to update**). Your work is saved first.
-- **The portable `.exe` and the Arch package** can't replace themselves. They say **Version … is out** with a **Download** button that opens the Releases page. For the Arch package, install the new file with `sudo pacman -U`.
+- **The portable `.exe`** can't replace itself. It says **Version … is out** with a **Download** button that opens the Releases page.
+- **The Arch package** is updated by pacman. It says **Version … is out. Update with: sudo pacman -Syu**, with a button that copies the command.
 
 Your projects are separate from the app, so updating never touches them.
 

@@ -70,3 +70,11 @@ describe('shortError', () => {
     expect(shortError('x'.repeat(300))).toHaveLength(138)
   })
 })
+
+describe('the pacman repository release', () => {
+  it('is never taken for a version', () => {
+    const atom = `<link href="https://github.com/o/r/releases/tag/pacman-repo"/>
+      <link href="https://github.com/o/r/releases/tag/v0.1.0-alpha.3"/>`
+    expect(newestTag(atom, true)?.version).toBe('0.1.0-alpha.3')
+  })
+})

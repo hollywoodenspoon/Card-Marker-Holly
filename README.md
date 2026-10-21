@@ -46,7 +46,15 @@ A small *Make your first card* checklist on the canvas ticks these steps off as 
 - **Download** it from the repo's *Releases* page:
   - **Windows:** `Hearthside-Cardworks-Setup-….exe` installs for you only (no admin rights) and updates itself; `Hearthside-Cardworks-…-portable.exe` is one file with nothing to install. The first time, Windows may say "Windows protected your PC" (the app isn't code-signed): click **More info → Run anyway**.
   - **Linux:** the `.AppImage`. Make it executable (`chmod +x`, or Properties → Allow executing), then run it.
-  - **Arch / CachyOS:** install the `.pkg.tar.xz` with `sudo pacman -U hearthside-cardworks-….pkg.tar.xz`.
+  - **Arch / CachyOS:** use the app's pacman repository, so your normal `sudo pacman -Syu` updates it. Add this to the end of `/etc/pacman.conf` once:
+
+    ```
+    [cardworks]
+    SigLevel = Optional TrustAll
+    Server = https://github.com/hollywoodenspoon/Card-Marker-Holly/releases/download/pacman-repo
+    ```
+
+    then run `sudo pacman -Syu hearthside-cardworks` (it replaces an older `card-maker` package). The packages aren't signed yet, hence `SigLevel = Optional TrustAll` for this repository only. The `.pkg.tar.xz` on each release still works with `sudo pacman -U`.
 - **Each project is a folder** of ordinary files, by default in `Documents/Hearthside Cardworks/<project name>/`:
   ```
   project.json      cards, templates, styles, and which pictures and fonts are used
@@ -65,7 +73,7 @@ A small *Make your first card* checklist on the canvas ticks these steps off as 
 - **Settings and the Recent list** are kept with the app:
   - portable exe: in a `Hearthside Cardworks data` folder next to the exe, so nothing goes into AppData
   - Linux: in `~/.config/card-maker`
-- **Updates:** at first start the app asks whether to check for updates. With checks on, it asks GitHub once per start and nothing else; the Setup exe and the AppImage install new versions themselves, the portable exe and the Arch package say when one is out. With checks off it never goes online. ☰ has **Check for updates** and **Automatic update checks**, and shows the version.
+- **Updates:** at first start the app asks whether to check for updates. With checks on, it asks GitHub once per start and nothing else; the Setup exe and the AppImage install new versions themselves, the portable exe says when one is out, and the Arch package updates with `sudo pacman -Syu`. With checks off it never goes online. ☰ has **Check for updates** and **Automatic update checks**, and shows the version.
 
 ### Android app (phones and tablets)
 - **Install:** download `Hearthside-Cardworks-….apk` from *Releases* on the phone or tablet (Android 7 or newer) and open it. Android asks to allow **Install unknown apps** for the browser or file manager once. Updates install over the old version.
