@@ -1,4 +1,4 @@
-import { CircleHelp, Download, FileUp, Menu, Play, Trash2 } from '@/ui/icons'
+import { CircleHelp, FileUp, Menu, Play, Trash2 } from '@/ui/icons'
 import { useEffect, useRef, useState } from 'react'
 import { PLAYTEST_NAME } from '@/app/appInfo'
 import { cn } from '@/lib/cn'
@@ -6,15 +6,8 @@ import { addPack, playtestDb, type PackRow } from '@/playtest/library'
 import { PACK_EXT } from '@/playtest/pack'
 import { askConfirm, toast } from '@/ui/components/feedback'
 import { Button, IconButton } from '@/ui/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/ui/components/ui/dropdown'
-import { promptInstall, usePwa } from '@/ui/pwa/pwa'
-import { ThemeMenuItems } from '@/ui/theme/ThemeMenu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/ui/components/ui/dropdown'
+import { SettingsMenu } from '@/ui/settings/SettingsMenu'
 
 /** Your game packs: import a file from Hearthside Cardworks, open one to play, or remove it. */
 export function Library({ onOpen, onHelp }: { onOpen: (id: string) => void; onHelp: () => void }) {
@@ -22,7 +15,6 @@ export function Library({ onOpen, onHelp }: { onOpen: (id: string) => void; onHe
   const [saved, setSaved] = useState<Set<string>>(new Set())
   const [over, setOver] = useState(false)
   const input = useRef<HTMLInputElement>(null)
-  const canInstall = usePwa((s) => s.canInstall)
 
   const refresh = () => {
     const db = playtestDb()
@@ -99,15 +91,7 @@ export function Library({ onOpen, onHelp }: { onOpen: (id: string) => void; onHe
             </IconButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            {canInstall && (
-              <>
-                <DropdownMenuItem onSelect={() => void promptInstall()}>
-                  <Download /> Install app
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-              </>
-            )}
-            <ThemeMenuItems />
+            <SettingsMenu onHelp={onHelp} />
           </DropdownMenuContent>
         </DropdownMenu>
       </header>

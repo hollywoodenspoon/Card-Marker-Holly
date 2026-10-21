@@ -12,6 +12,7 @@ import {
   Swords,
 } from '@/ui/icons'
 import { useEditor } from '@/core/editor/editorStore'
+import { setEditMode } from './editMode'
 import { openHelp } from '@/help/openHelp'
 import { cn } from '@/lib/cn'
 import { IconButton } from '@/ui/components/ui/button'
@@ -97,7 +98,12 @@ export function LeftPanel({
           <button
             key={p.id}
             type="button"
-            onClick={() => onTab(p.id)}
+            onClick={() => {
+              onTab(p.id)
+              // The Templates and Cards tabs are also the editing mode.
+              if (p.id === 'templates') setEditMode('template')
+              if (p.id === 'cards') setEditMode('card')
+            }}
             aria-pressed={shown === p.id}
             className={cn(
               railButton,

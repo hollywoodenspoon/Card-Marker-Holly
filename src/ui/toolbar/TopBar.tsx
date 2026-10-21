@@ -7,7 +7,6 @@ import {
   Library,
   Type,
   TextSearch,
-  CircleHelp,
   FolderOpen,
   Home,
   Image,
@@ -18,14 +17,12 @@ import {
   Redo2,
   Undo2,
   PenTool,
-  Ruler,
   Sheet,
   Swords,
 } from '@/ui/icons'
 import { APP_NAME, APP_VERSION } from '@/app/appInfo'
 import { goHome } from '@/app/session'
 import { openHelp } from '@/help/openHelp'
-import { UpdateMenuItems } from '@/ui/desktop/UpdateMenuItems'
 import { folderStore } from '@/storage'
 import { redo, undo, useEditor } from '@/core/editor/editorStore'
 import { Button, IconButton } from '@/ui/components/ui/button'
@@ -38,8 +35,8 @@ import {
 } from '@/ui/components/ui/dropdown'
 import type { LayoutKind } from '@/ui/shell/useLayout'
 import { exportOpenProject } from '@/ui/actions/projectFileActions'
-import { InstallMenuItem } from '@/ui/pwa/InstallMenuItem'
-import { ThemeMenuItems } from '@/ui/theme/ThemeMenu'
+import { SettingsMenu } from '@/ui/settings/SettingsMenu'
+import { setEditMode } from '@/ui/panels/editMode'
 import { useUi } from '@/ui/uiStore'
 import { AddMenu } from './AddMenu'
 import { ModeSwitch } from './ModeSwitch'
@@ -59,7 +56,6 @@ export function TopBar({ layout }: { layout: LayoutKind }) {
             <PanelLeft />
           </IconButton>
         )}
-        <AppMenu phone={phone} />
         <ProjectName className={phone ? 'max-w-[38vw]' : undefined} />
         <SaveIndicator compact={phone} />
         <div className="flex-1" />
@@ -84,12 +80,18 @@ export function TopBar({ layout }: { layout: LayoutKind }) {
             <PanelRight />
           </IconButton>
         )}
+        <AppMenu phone={phone} />
       </div>
     </header>
   )
 }
 
+/**
+ * ☰, on the right. What the left rail already offers is only listed here on
+ * phones (no rail there); Settings holds Help, Units, Theme and updates.
+ */
 function AppMenu({ phone }: { phone: boolean }) {
+  const ui = useUi.getState
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -97,69 +99,64 @@ function AppMenu({ phone }: { phone: boolean }) {
           <Menu />
         </IconButton>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start">
-        <DropdownMenuItem onSelect={() => useUi.getState().setPrintOpen(true)}>
-          <Printer /> Print / export PDF
-        </DropdownMenuItem>
-        <DropdownMenuItem onSelect={() => useUi.getState().setGalleryOpen(true)}>
-          <LayoutGrid /> Gallery and proofreading
-        </DropdownMenuItem>
-        <DropdownMenuItem onSelect={() => useUi.getState().setPackOpen(true)}>
-          <Swords /> Playtest (export game pack)…
-        </DropdownMenuItem>
+      <DropdownMenuContent align="end">
         {phone && (
           <>
-            <DropdownMenuItem onSelect={() => useUi.getState().setPhoneSheet('templates')}>
+            <DropdownMenuItem onSelect={() => ui().setPrintOpen(true)}>
+              <Printer /> Print / export PDF
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => ui().setGalleryOpen(true)}>
+              <LayoutGrid /> Gallery and proofreading
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => ui().setPackOpen(true)}>
+              <Swords /> Playtest (export game pack)…
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onSelect={() => {
+                setEditMode('template')
+                ui().setPhoneSheet('templates')
+              }}
+            >
               <LayoutTemplate /> Templates
             </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => useUi.getState().setPhoneSheet('decks')}>
+            <DropdownMenuItem onSelect={() => ui().setPhoneSheet('decks')}>
               <Library /> Decks
             </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => useUi.getState().setPhoneSheet('fonts')}>
+            <DropdownMenuItem onSelect={() => ui().setPhoneSheet('fonts')}>
               <Type /> Fonts
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onSelect={() => ui().setImageExport({ cardId: useEditor.getState().view.cardId })}
+            >
+              <Image /> Export card images…
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => ui().setKeywordsOpen(true)}>
+              <Highlighter /> Keywords…
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => ui().setVectorOpen({ assetId: null })}>
+              <PenTool /> Vector Maker
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => ui().setDataView('table')}>
+              <Sheet /> Card data (table, CSV, mail merge)
             </DropdownMenuItem>
             <DropdownMenuSeparator />
           </>
         )}
-        <DropdownMenuItem
-          onSelect={() =>
-            useUi.getState().setImageExport({ cardId: useEditor.getState().view.cardId })
-          }
-        >
-          <Image /> Export card images…
-        </DropdownMenuItem>
-        <DropdownMenuItem onSelect={() => useUi.getState().setTtsOpen(true)}>
-          <Dices /> Export for Tabletop Simulator…
-        </DropdownMenuItem>
-        <DropdownMenuItem onSelect={() => useUi.getState().setKeywordsOpen(true)}>
-          <Highlighter /> Keywords…
-        </DropdownMenuItem>
-        <DropdownMenuItem onSelect={() => useUi.getState().setVectorOpen({ assetId: null })}>
-          <PenTool /> Vector Maker
-        </DropdownMenuItem>
-        <DropdownMenuItem onSelect={() => useUi.getState().setDataView('table')}>
-          <Sheet /> Card data (table, CSV, mail merge)
-        </DropdownMenuItem>
-        <DropdownMenuItem onSelect={() => useUi.getState().setFindOpen(true)}>
+        <DropdownMenuItem onSelect={() => ui().setFindOpen(true)}>
           <TextSearch /> Find and replace…
         </DropdownMenuItem>
-        <DropdownMenuItem onSelect={() => useUi.getState().setUnitsOpen(true)}>
-          <Ruler /> Units…
+        <DropdownMenuItem onSelect={() => ui().setTtsOpen(true)}>
+          <Dices /> Export for Tabletop Simulator…
+        </DropdownMenuItem>
+        <ShowFolderMenuItem />
+        <DropdownMenuItem onSelect={() => void exportOpenProject()}>
+          <Download /> Export backup file
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={() => void goHome()}>
           <Home /> All projects
         </DropdownMenuItem>
-        <DropdownMenuItem onSelect={() => void exportOpenProject()}>
-          <Download /> Export backup file
-        </DropdownMenuItem>
-        <DropdownMenuItem onSelect={() => openHelp()}>
-          <CircleHelp /> Help
-        </DropdownMenuItem>
-        <ShowFolderMenuItem />
-        <UpdateMenuItems />
-        <InstallMenuItem />
         <DropdownMenuSeparator />
-        <ThemeMenuItems />
+        <SettingsMenu onHelp={() => openHelp()} onUnits={() => ui().setUnitsOpen(true)} />
         <DropdownMenuSeparator />
         <div className="px-2 py-1.5 text-xs text-muted-foreground">
           {APP_NAME} {APP_VERSION}

@@ -1,5 +1,4 @@
 import {
-  CircleHelp,
   Download,
   FolderCog,
   FolderOpen,
@@ -15,7 +14,7 @@ import { useEffect, useState } from 'react'
 import { APP_NAME, APP_VERSION } from '@/app/appInfo'
 import { openProject } from '@/app/session'
 import { openHelp } from '@/help/openHelp'
-import { UpdateMenuItems } from '@/ui/desktop/UpdateMenuItems'
+import { SettingsMenu } from '@/ui/settings/SettingsMenu'
 import { pathLabel } from '@/platform/desktop'
 import { folderStore, getBackend } from '@/storage'
 import type { ProjectEntry } from '@/storage/backend'
@@ -32,8 +31,6 @@ import { Input } from '@/ui/components/ui/input'
 import { toast } from '@/ui/components/feedback'
 import { NewProjectDialog } from './NewProjectDialog'
 import { exportStoredProject, importProjectFromFile } from '@/ui/actions/projectFileActions'
-import { InstallMenuItem } from '@/ui/pwa/InstallMenuItem'
-import { ThemeMenuItems } from '@/ui/theme/ThemeMenu'
 
 const fail = (what: string, e: unknown) =>
   toast(`${what}: ${e instanceof Error ? e.message : String(e)}`, { tone: 'error' })
@@ -105,7 +102,7 @@ export function HomeScreen() {
         <div className="flex-1" />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <IconButton label="Settings">
+            <IconButton label="Menu">
               <Menu />
             </IconButton>
           </DropdownMenuTrigger>
@@ -115,12 +112,7 @@ export function HomeScreen() {
                 <FolderCog /> Projects folder…
               </DropdownMenuItem>
             )}
-            <DropdownMenuItem onSelect={() => openHelp()}>
-              <CircleHelp /> Help
-            </DropdownMenuItem>
-            <UpdateMenuItems />
-            <InstallMenuItem />
-            <ThemeMenuItems />
+            <SettingsMenu onHelp={() => openHelp()} />
           </DropdownMenuContent>
         </DropdownMenu>
       </header>
