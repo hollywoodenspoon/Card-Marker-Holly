@@ -86,7 +86,7 @@ export function Library({ onOpen, onHelp }: { onOpen: (id: string) => void; onHe
       }}
     >
       <header className="flex shrink-0 items-center gap-2 border-b bg-panel px-3 py-2">
-        <img src={`${import.meta.env.BASE_URL}icon.svg`} alt="" className="size-7" />
+        <img src={`${import.meta.env.BASE_URL}playtest/icon.svg`} alt="" className="size-7" />
         <h1 className="text-sm font-semibold">{PLAYTEST_NAME}</h1>
         <span className="flex-1" />
         <IconButton label="How to play (F1)" onClick={onHelp}>

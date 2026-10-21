@@ -19,7 +19,8 @@
     "desktop:dist": "node scripts/desktop.mjs dist",
     "android:sync": "node scripts/android.mjs sync",
     "android:apk": "node scripts/android.mjs apk",
-    "help:shots": "node scripts/help-screenshots.mjs"
+    "help:shots": "node scripts/help-screenshots.mjs",
+    "icons": "node scripts/icons.mjs"
   },
   "dependencies": {
     "@capacitor/android": "8.5.2",
@@ -61,6 +62,7 @@
   "devDependencies": {
     "@capacitor/cli": "8.5.2",
     "@eslint/js": "^10.0.1",
+    "@iconify-json/game-icons": "1.2.4",
     "@tailwindcss/vite": "^4.3.3",
     "@types/node": "^26.6.5",
     "@types/papaparse": "^5.5.2",
