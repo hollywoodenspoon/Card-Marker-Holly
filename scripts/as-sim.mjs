@@ -4,7 +4,7 @@
 //   npm run as:sim -- [--games 500] [--levels normal,hard] [--pack my.cmpack]
 //                     [--seed 1] [--playouts 48] [--out report.md]
 //
-// Without --pack it plays The First Quest's four test decks.
+// Without --pack it plays The First Quest's three premade decks.
 import { readFileSync, writeFileSync } from 'node:fs'
 import { createServer } from 'vite'
 

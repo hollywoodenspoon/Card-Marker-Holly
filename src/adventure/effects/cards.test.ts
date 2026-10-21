@@ -22,7 +22,7 @@ interface Side {
 function board(a: Side, b: Side, opts: { initiative?: Seat; respond?: Seat } = {}): AsState {
   const s = createGame({
     cards: FIRST_QUEST,
-    decks: [FIRST_QUEST_DECKS.guild, FIRST_QUEST_DECKS.retinue],
+    decks: [FIRST_QUEST_DECKS["Adventurer's Guild"], FIRST_QUEST_DECKS["Hero's Retinue"]],
     names: ['Ann', 'Bo'],
     seed: 9,
   })

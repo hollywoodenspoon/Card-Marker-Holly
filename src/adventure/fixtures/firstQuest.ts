@@ -531,10 +531,18 @@ export const fq = (n: number) => `tfq${String(n).padStart(2, '0')}`
 
 const group = (g: string) => FIRST_QUEST.filter((c) => c.group === g).map((c) => c.id)
 
-/** Four legal Free Companies: the three premade decks and the Bonus Cards with three more. */
+/** The three premade Free Companies. */
 export const FIRST_QUEST_DECKS: Record<string, string[]> = {
-  guild: group("Adventurer's Guild"),
-  retinue: group("Hero's Retinue"),
-  necromancer: group('Necromancer Deck'),
-  bonus: [...group('Bonus Cards'), fq(2), fq(3), fq(14)],
+  "Adventurer's Guild": group("Adventurer's Guild"),
+  "Hero's Retinue": group("Hero's Retinue"),
+  'Necromancer Deck': group('Necromancer Deck'),
+}
+
+/**
+ * For tests only: the premade decks plus a legal mix of the Bonus Cards (which
+ * aren't a Free Company of their own), so random games reach every ability.
+ */
+export const TEST_DECKS: Record<string, string[]> = {
+  ...FIRST_QUEST_DECKS,
+  'Bonus mix': [...group('Bonus Cards'), fq(2), fq(3), fq(14)],
 }

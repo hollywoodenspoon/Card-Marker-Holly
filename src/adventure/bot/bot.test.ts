@@ -2,13 +2,13 @@ import { produce } from 'immer'
 import { describe, expect, it } from 'vitest'
 import { shuffle } from '@/playtest/rng'
 import { apply, createGame, isLegal } from '../engine'
-import { FIRST_QUEST, FIRST_QUEST_DECKS } from '../fixtures/firstQuest'
+import { FIRST_QUEST, FIRST_QUEST_DECKS, TEST_DECKS } from '../fixtures/firstQuest'
 import { report, simulate } from '../sim/sim'
 import { other, type AsState } from '../state'
 import { determinize } from './determinize'
 import { botMove, type BotLevel } from '.'
 
-const decks = Object.values(FIRST_QUEST_DECKS)
+const decks = Object.values(TEST_DECKS)
 
 /** A whole bot game; every move must be legal. */
 function play(a: BotLevel, b: BotLevel, seed: number, playouts = 16) {

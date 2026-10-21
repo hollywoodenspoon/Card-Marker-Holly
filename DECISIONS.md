@@ -483,7 +483,7 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 - **Tests:**
   - One test per card or group of cards (`effects/cards.test.ts`).
   - The First Quest cards as test data (`fixtures/firstQuest.ts`).
-  - 200 random-move games over four legal decks, which check that every game ends and no card is lost or duplicated (`selfplay.test.ts`).
+  - 200 random-move games over the three premade decks and a Bonus Card test mix, which check that every game ends and no card is lost or duplicated (`selfplay.test.ts`).
 
 ## Hearthside Table: bots and balance runs
 
@@ -504,7 +504,7 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
   - Taps on the table do nothing while it is the bot's turn.
   - The bot levels are saved with the game.
 - **Balance runs** (`npm run as:sim`, `scripts/as-sim.mjs`) load the rules through Vite in Node.
-  - Without `--pack`, they play The First Quest's four test decks. With `--pack`, they play every legal deck in a game pack.
+  - Without `--pack`, they play The First Quest's three premade decks (the Bonus Cards aren't a Free Company of their own). With `--pack`, they play every legal deck in a game pack.
   - Every pairing is played in turn, and seats swap on alternate games.
   - The Markdown report has:
     - win rates per deck, deck against deck, and per bot level
