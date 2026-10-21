@@ -1,4 +1,4 @@
-import { Play, TriangleAlert } from 'lucide-react'
+import { Play, TriangleAlert } from '@/ui/icons'
 import { useMemo, useState } from 'react'
 import { presets, validateSetup, type GameSetup } from '@/playtest/setup'
 import { deckCards } from '@/playtest/state'

@@ -1,4 +1,4 @@
-import { ArrowLeft, ChevronLeft, ChevronRight, Search, X } from 'lucide-react'
+import { ArrowLeft, ChevronLeft, ChevronRight, Search, X } from '@/ui/icons'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { cn } from '@/lib/cn'
 import { useBackHandler, useEscapeToClose } from '@/ui/components/overlay'

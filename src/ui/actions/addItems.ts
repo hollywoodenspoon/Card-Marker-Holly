@@ -1,4 +1,4 @@
-import { Circle, Hash, Image, ImagePlus, Minus, Rows3, Square, Type } from 'lucide-react'
+import { Circle, Hash, Image, ImagePlus, Minus, Rows3, Square, Type } from '@/ui/icons'
 import { IMAGE_ACCEPT } from '@/assets/imageAssets'
 import { addCardNumber, addIconRow, addImageField, addShape, addText } from './addActions'
 import { importAndPlace, pickFiles } from './imageActions'

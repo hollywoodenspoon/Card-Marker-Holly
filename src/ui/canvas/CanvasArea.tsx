@@ -1,4 +1,4 @@
-import { Magnet, Maximize, Minus, Plus, Scan, SquareDashed } from 'lucide-react'
+import { Magnet, Maximize, Minus, Plus, Scan, SquareDashed } from '@/ui/icons'
 import { useMemo } from 'react'
 import { assetResolver } from '@/assets/assetResolver'
 import { CardStage } from '@/core/render/CardStage'

@@ -1,4 +1,4 @@
-import { Download, Loader2, Save } from 'lucide-react'
+import { Download, Loader2, Save } from '@/ui/icons'
 import { useState } from 'react'
 import { useEditor } from '@/core/editor/editorStore'
 import { addAssetFolder } from '@/ui/actions/assetFolders'

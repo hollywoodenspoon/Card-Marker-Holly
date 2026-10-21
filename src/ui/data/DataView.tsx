@@ -1,4 +1,4 @@
-import { ArrowLeft, FileDown, Search, X } from 'lucide-react'
+import { ArrowLeft, FileDown, Search, X } from '@/ui/icons'
 import { memo, useCallback, useMemo, useState } from 'react'
 import { HelpButton } from '@/help/HelpButton'
 import { renameCard, selectCard } from '@/core/editor/cardCommands'

@@ -1,4 +1,4 @@
-import { Check, RefreshCw, RotateCw } from 'lucide-react'
+import { Check, RefreshCw, RotateCw } from '@/ui/icons'
 import { desktop } from '@/platform/desktop'
 import { DropdownMenuItem } from '@/ui/components/ui/dropdown'
 import { checkForUpdates, installUpdate, setUpdatesEnabled, useUpdates } from './updates'

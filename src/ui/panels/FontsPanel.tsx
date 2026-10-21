@@ -1,4 +1,4 @@
-import { Trash2, Upload } from 'lucide-react'
+import { Trash2, Upload } from '@/ui/icons'
 import { useMemo } from 'react'
 import { BUILTIN_FONTS, unregisterFont } from '@/assets/fonts'
 import { updateLibrary, useEditor } from '@/core/editor/editorStore'

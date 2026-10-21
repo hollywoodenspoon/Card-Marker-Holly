@@ -11,7 +11,7 @@ import {
   Rows3,
   Shapes,
   Type,
-} from 'lucide-react'
+} from '@/ui/icons'
 import { useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { useEditor } from '@/core/editor/editorStore'

@@ -1,4 +1,4 @@
-import { GripVertical, Minus, Plus } from 'lucide-react'
+import { GripVertical, Minus, Plus } from '@/ui/icons'
 import { useMemo } from 'react'
 import { useEditor } from '@/core/editor/editorStore'
 import { deckSize, setPrintDeck } from '@/templates/deckCommands'

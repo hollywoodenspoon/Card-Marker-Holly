@@ -1,4 +1,4 @@
-import { Copy, Eye, EyeOff, Trash2 } from 'lucide-react'
+import { Copy, Eye, EyeOff, Trash2 } from '@/ui/icons'
 import { useMemo, useState } from 'react'
 import { setAllCopies } from '@/core/editor/projectCommands'
 import { useEditor } from '@/core/editor/editorStore'

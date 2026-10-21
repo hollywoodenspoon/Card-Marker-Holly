@@ -1,4 +1,4 @@
-import { ArrowLeft, Search } from 'lucide-react'
+import { ArrowLeft, Search } from '@/ui/icons'
 import { memo, useCallback, useMemo, useRef, useState } from 'react'
 import { HelpButton } from '@/help/HelpButton'
 import { selectCard } from '@/core/editor/cardCommands'

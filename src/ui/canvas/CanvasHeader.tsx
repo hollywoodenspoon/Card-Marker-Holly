@@ -1,4 +1,4 @@
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft } from '@/ui/icons'
 import { setView, useEditor } from '@/core/editor/editorStore'
 import { activeTemplate, currentCard } from '@/core/editor/selectors'
 import type { Side } from '@/core/model/types'

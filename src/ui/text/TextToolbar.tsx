@@ -10,7 +10,7 @@ import {
   Bold,
   Italic,
   Underline,
-} from 'lucide-react'
+} from '@/ui/icons'
 import { useMemo } from 'react'
 import { assetResolver } from '@/assets/assetResolver'
 import { BUILTIN_FONTS } from '@/assets/fonts'

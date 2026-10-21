@@ -10,7 +10,7 @@ import {
   Plus,
   Trash2,
   Upload,
-} from 'lucide-react'
+} from '@/ui/icons'
 import { useEffect, useState } from 'react'
 import { APP_NAME, APP_VERSION } from '@/app/appInfo'
 import { openProject } from '@/app/session'

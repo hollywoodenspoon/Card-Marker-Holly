@@ -1,4 +1,4 @@
-import { Images, Layers, Plus, SlidersHorizontal, SquareStack } from 'lucide-react'
+import { Images, Layers, Plus, SlidersHorizontal, SquareStack } from '@/ui/icons'
 import { cn } from '@/lib/cn'
 import { Sheet } from '@/ui/components/ui/sheet'
 import { PanelBody } from '@/ui/panels/PanelBody'

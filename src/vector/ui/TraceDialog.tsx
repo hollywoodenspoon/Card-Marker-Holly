@@ -1,4 +1,4 @@
-import { ImageUp, Loader2, Wand2 } from 'lucide-react'
+import { ImageUp, Loader2, Wand2 } from '@/ui/icons'
 import { useEffect, useMemo, useState } from 'react'
 import { IMAGE_ACCEPT } from '@/assets/imageAssets'
 import { useEditor } from '@/core/editor/editorStore'

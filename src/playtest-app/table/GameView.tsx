@@ -1,4 +1,4 @@
-import { ArrowLeft, CircleHelp, Plus, Redo2, ScrollText, Trophy, Undo2 } from 'lucide-react'
+import { ArrowLeft, CircleHelp, Plus, Redo2, ScrollText, Trophy, Undo2 } from '@/ui/icons'
 import { useEffect, useState } from 'react'
 import { askConfirm } from '@/ui/components/feedback'
 import { Button, IconButton } from '@/ui/components/ui/button'

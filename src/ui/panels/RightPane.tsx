@@ -1,4 +1,4 @@
-import { ChevronDown, Layers } from 'lucide-react'
+import { ChevronDown, Layers } from '@/ui/icons'
 import { useEditor } from '@/core/editor/editorStore'
 import { activeTemplate } from '@/core/editor/selectors'
 import { cn } from '@/lib/cn'

@@ -1,4 +1,4 @@
-import { CircleHelp } from 'lucide-react'
+import { CircleHelp } from '@/ui/icons'
 import { IconButton } from '@/ui/components/ui/button'
 import { openHelp } from './openHelp'
 

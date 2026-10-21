@@ -1,4 +1,4 @@
-import { FlipHorizontal2, Maximize2, Move, Undo2, X } from 'lucide-react'
+import { FlipHorizontal2, Maximize2, Move, Undo2, X } from '@/ui/icons'
 import { placeName, seenBy } from '@/playtest/actions'
 import { parseZoneKey, zoneKey } from '@/playtest/setup'
 import { locate } from '@/playtest/state'

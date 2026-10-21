@@ -1,4 +1,4 @@
-import { FileDown, Loader2 } from 'lucide-react'
+import { FileDown, Loader2 } from '@/ui/icons'
 import { useState } from 'react'
 import { useEditor } from '@/core/editor/editorStore'
 import { printEntries } from '@/print/printList'

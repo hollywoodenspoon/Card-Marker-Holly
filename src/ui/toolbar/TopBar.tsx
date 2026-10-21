@@ -21,7 +21,7 @@ import {
   Ruler,
   Sheet,
   Swords,
-} from 'lucide-react'
+} from '@/ui/icons'
 import { APP_NAME, APP_VERSION } from '@/app/appInfo'
 import { goHome } from '@/app/session'
 import { openHelp } from '@/help/openHelp'

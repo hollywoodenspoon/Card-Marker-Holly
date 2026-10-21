@@ -1,4 +1,4 @@
-import { X } from 'lucide-react'
+import { X } from '@/ui/icons'
 import { useEffect, useState } from 'react'
 import { cn } from '@/lib/cn'
 import { dismiss, useFeedback, type TextAsk } from './feedback'

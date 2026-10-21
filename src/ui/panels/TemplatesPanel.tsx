@@ -8,7 +8,7 @@ import {
   Save,
   Trash2,
   Upload,
-} from 'lucide-react'
+} from '@/ui/icons'
 import { useMemo, useState } from 'react'
 import { registerProjectFonts } from '@/assets/fonts'
 import { useEditor } from '@/core/editor/editorStore'

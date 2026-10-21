@@ -1,4 +1,4 @@
-import { RectangleHorizontal, RectangleVertical } from 'lucide-react'
+import { RectangleHorizontal, RectangleVertical } from '@/ui/icons'
 import { useEditor } from '@/core/editor/editorStore'
 import { setCardSize } from '@/core/editor/projectCommands'
 import { matchPreset, orientationOf, presetSize, withOrientation } from '@/core/units/presets'

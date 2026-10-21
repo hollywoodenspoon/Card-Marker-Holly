@@ -1,4 +1,4 @@
-import { CloudOff, RefreshCw, X } from 'lucide-react'
+import { CloudOff, RefreshCw, X } from '@/ui/icons'
 import { Button, IconButton } from '@/ui/components/ui/button'
 import { applyUpdate, dismissPwaToast, usePwa } from './pwa'
 

@@ -8,7 +8,7 @@ import {
   ListChecks,
   Loader2,
   Settings2,
-} from 'lucide-react'
+} from '@/ui/icons'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { HelpButton } from '@/help/HelpButton'
 import { useEditor } from '@/core/editor/editorStore'

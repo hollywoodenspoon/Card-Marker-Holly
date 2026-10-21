@@ -1,4 +1,4 @@
-import { Copy, Minus, MoreHorizontal, Pencil, Plus, Printer, Trash2 } from 'lucide-react'
+import { Copy, Minus, MoreHorizontal, Pencil, Plus, Printer, Trash2 } from '@/ui/icons'
 import { useMemo, useState } from 'react'
 import { useEditor } from '@/core/editor/editorStore'
 import type { Card, Deck } from '@/core/model/types'

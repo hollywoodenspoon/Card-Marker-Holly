@@ -1,4 +1,4 @@
-import { Filter, LayoutTemplate } from 'lucide-react'
+import { Filter, LayoutTemplate } from '@/ui/icons'
 import { useState } from 'react'
 import { useEditor } from '@/core/editor/editorStore'
 import { updateElement } from '@/core/editor/elementCommands'

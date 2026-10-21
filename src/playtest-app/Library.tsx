@@ -1,4 +1,4 @@
-import { CircleHelp, Download, FileUp, Menu, Play, Trash2 } from 'lucide-react'
+import { CircleHelp, Download, FileUp, Menu, Play, Trash2 } from '@/ui/icons'
 import { useEffect, useRef, useState } from 'react'
 import { PLAYTEST_NAME } from '@/app/appInfo'
 import { cn } from '@/lib/cn'

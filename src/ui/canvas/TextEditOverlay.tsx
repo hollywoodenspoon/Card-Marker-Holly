@@ -1,4 +1,4 @@
-import { Check } from 'lucide-react'
+import { Check } from '@/ui/icons'
 import { lazy, Suspense } from 'react'
 import { setView, useEditor } from '@/core/editor/editorStore'
 import { findSurfaceElement } from '@/core/editor/selectors'

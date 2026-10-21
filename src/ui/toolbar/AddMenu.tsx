@@ -1,4 +1,4 @@
-import { Plus } from 'lucide-react'
+import { Plus } from '@/ui/icons'
 import { useEditor } from '@/core/editor/editorStore'
 import { ADD_ITEMS } from '@/ui/actions/addItems'
 import { Button } from '@/ui/components/ui/button'

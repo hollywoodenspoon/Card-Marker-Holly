@@ -20,7 +20,8 @@
     "android:sync": "node scripts/android.mjs sync",
     "android:apk": "node scripts/android.mjs apk",
     "help:shots": "node scripts/help-screenshots.mjs",
-    "icons": "node scripts/icons.mjs"
+    "icons": "node scripts/icons.mjs",
+    "icons:gen": "node scripts/game-icons.mjs"
   },
   "dependencies": {
     "@capacitor/android": "8.5.2",

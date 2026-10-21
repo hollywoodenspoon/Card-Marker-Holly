@@ -1,4 +1,4 @@
-import { ChevronDown, Eye, EyeOff, GripVertical, Lock, LockOpen, Plus, Trash2 } from 'lucide-react'
+import { ChevronDown, Eye, EyeOff, GripVertical, Lock, LockOpen, Plus, Trash2 } from '@/ui/icons'
 import { useState } from 'react'
 import { cn } from '@/lib/cn'
 import { IconButton } from '@/ui/components/ui/button'

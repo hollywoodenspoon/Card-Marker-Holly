@@ -1,4 +1,4 @@
-import { ArrowLeftRight, ArrowUpDown, Minus, Plus, RotateCcw, Upload } from 'lucide-react'
+import { ArrowLeftRight, ArrowUpDown, Minus, Plus, RotateCcw, Upload } from '@/ui/icons'
 import { useMemo, useState } from 'react'
 import { assetResolver } from '@/assets/assetResolver'
 import { useEditor } from '@/core/editor/editorStore'

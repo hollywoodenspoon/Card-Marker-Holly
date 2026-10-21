@@ -1,4 +1,4 @@
-import { FileDown, Loader2, Play } from 'lucide-react'
+import { FileDown, Loader2, Play } from '@/ui/icons'
 import { useMemo, useState } from 'react'
 import { APP_VERSION } from '@/app/appInfo'
 import { isAndroidApp } from '@/app/isAndroidApp'

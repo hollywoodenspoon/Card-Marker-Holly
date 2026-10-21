@@ -1,4 +1,4 @@
-import { Images, Layers, LayoutTemplate, Library, SquareStack, Type } from 'lucide-react'
+import { Images, Layers, LayoutTemplate, Library, SquareStack, Type } from '@/ui/icons'
 
 export type PanelId = 'cards' | 'decks' | 'templates' | 'assets' | 'fonts' | 'layers'
 

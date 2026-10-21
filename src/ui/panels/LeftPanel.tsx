@@ -10,7 +10,7 @@ import {
   Highlighter,
   Upload,
   Swords,
-} from 'lucide-react'
+} from '@/ui/icons'
 import { useEditor } from '@/core/editor/editorStore'
 import { openHelp } from '@/help/openHelp'
 import { cn } from '@/lib/cn'

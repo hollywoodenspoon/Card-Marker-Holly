@@ -12,7 +12,7 @@ import {
   Pencil,
   Plus,
   Underline,
-} from 'lucide-react'
+} from '@/ui/icons'
 import { useMemo } from 'react'
 import { setView, useEditor } from '@/core/editor/editorStore'
 import { updateElement } from '@/core/editor/elementCommands'
