@@ -40,7 +40,7 @@ On the **Download** tab, type a **Name**, then press one of:
 - **SVG** or **PDF**: stay vector, and open in Illustrator, Inkscape and Affinity.
 - **PNG** or **JPEG**: pictures at the chosen **Size**. JPEG uses the **JPEG background** colour.
 
-In the desktop and Android apps a normal save window opens; on the website the file downloads.
+In the desktop app a normal save window opens; on the website the file downloads.
 
 ## Drafts: nothing is lost
 

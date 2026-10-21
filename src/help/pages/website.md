@@ -12,7 +12,7 @@ On the website, projects, pictures and fonts are stored **inside the browser** y
 
 To keep your work safe, export a backup file from time to time: ☰ → **Export backup file**. To move work to another browser, another device or the desktop app, export a backup there and **Import** it on the Home screen of the other one. See [Projects, saving and backups](help:projects).
 
-> **Tip:** If you'd rather have ordinary files you can see and copy, use the [Desktop app](help:desktop-app) or the [Android app](help:android-app). Both open your backup files.
+> **Tip:** If you'd rather have ordinary files you can see and copy, use the [Desktop app](help:desktop-app). It opens your backup files.
 
 ## Downloads
 

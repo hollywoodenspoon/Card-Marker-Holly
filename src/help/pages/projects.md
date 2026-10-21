@@ -10,14 +10,14 @@ Each project shows its name, card size and when it was last edited. Click a proj
 
 - **New project**: start a new one (see [Getting started](help:getting-started)).
 - **Import**: add a project from a backup file.
-- **Open folder** (desktop and Android apps only): add a project folder from anywhere.
+- **Open folder** (desktop app only): add a project folder from anywhere.
 
 The ⋯ button next to a project has:
 
 - **Rename**
 - **Show in folder** (desktop app only): opens the project's folder in your file manager.
 - **Export backup file**
-- **Delete** on the website, or **Remove…** in the desktop and Android apps.
+- **Delete** on the website, or **Remove…** in the desktop app.
 
 ![The Home screen](home.webp)
 
@@ -59,11 +59,10 @@ Backup files also move work between places: from the website to the desktop app,
 
 - **Website**: ⋯ → **Delete** removes the project and all its cards, templates, images and fonts from this browser. This can't be undone, so export a backup first if you might want it again.
 - **Desktop app**: ⋯ → **Remove…** takes the project off the list. Its folder stays on disk unless you tick **Also move the folder to the Trash**.
-- **Android app**: ⋯ → **Remove…** works the same way, but the box says **Also delete the folder and everything in it from this device**. Android has no Trash, so that deletes it for good.
 
-## Project folders (desktop and Android)
+## Project folders (desktop app)
 
-In the apps, each project is a folder of ordinary files:
+In the desktop app, each project is a folder of ordinary files:
 
 - `project.json`: cards, templates, styles and settings
 - `project.json.bak`: the version before the last save
@@ -79,6 +78,5 @@ To share a single layout rather than a whole project, export it from the **Templ
 ## See also
 
 - [Desktop app (Windows and Linux)](help:desktop-app)
-- [Android app](help:android-app)
 - [Website and offline use](help:website)
 - [Troubleshooting and questions](help:troubleshooting)

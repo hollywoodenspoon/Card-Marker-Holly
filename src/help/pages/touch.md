@@ -73,13 +73,8 @@ The − / % / + buttons at the bottom right zoom too, and the percentage button 
 - The hint at the top of the right pane tells you what a tap will do with the pen.
 - To rename a layer or object, tap its name once to select it, then tap it again.
 
-## Android Back button
-
-Back closes the open sheet or view first. In the editor with nothing open, it goes to the Home screen.
-
 ## See also
 
 - [The workspace](help:workspace)
 - [Canvas: zoom, pan, snapping and undo](help:canvas)
 - [Keyboard shortcuts](help:shortcuts)
-- [Android app](help:android-app)

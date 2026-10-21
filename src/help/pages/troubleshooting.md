@@ -52,11 +52,10 @@ The Windows app isn't signed with a paid certificate, so Windows warns you the f
 
 - **Website**: your projects are stored inside the browser you made them in, on that device only. Exports (PDF, images…) go to your browser's **Downloads** folder.
 - **Desktop app**: each project is a folder, by default in **Documents/Hearthside Cardworks/**. In the editor, ☰ → **Show project folder** opens it. Exports go wherever you chose in the **Save as** window.
-- **Android app**: each project is a folder inside the folder you picked on first start. On the Home screen, ☰ → **Projects folder…** shows and changes it. Exports go wherever you chose on the **Save to** screen.
 
 ## Folder not found
 
-In the desktop or Android app, a project shows **Folder not found · click to locate it** when its folder was moved, renamed or is on a drive that isn't plugged in. Click the project (or ⋯ → **Locate folder…**) and choose the folder where it is now. If you no longer have it, ⋯ → **Remove…** takes it off the list.
+In the desktop app, a project shows **Folder not found · click to locate it** when its folder was moved, renamed or is on a drive that isn't plugged in. Click the project (or ⋯ → **Locate folder…**) and choose the folder where it is now. If you no longer have it, ⋯ → **Remove…** takes it off the list.
 
 ## Restored from backup message
 
@@ -71,7 +70,7 @@ The website keeps projects in your browser. They disappear if the browser's data
 If you have a backup file, press **Import** on the Home screen to bring the project back. If not, they can't be recovered. From now on:
 
 - export a backup file now and then (☰ → **Export backup file**),
-- or use the desktop or Android app, which save ordinary files you can copy.
+- or use the desktop app, which saves ordinary files you can copy.
 
 ## The save indicator says Not saved
 

@@ -128,10 +128,6 @@ Shortcuts don't act while you're typing in a box. The card editor's keys also st
 | Pen: hold [[Ctrl]]                      | Adjust points and handles without leaving the pen |
 | Pen: [[Ctrl]] + click empty space       | End the path                                      |
 
-## Android Back button
-
-Closes the open menu or sheet first, then a full-screen view; in the editor it goes to the Home screen.
-
 ## See also
 
 - [Canvas: zoom, pan, snapping and undo](help:canvas)
