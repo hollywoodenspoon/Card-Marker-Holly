@@ -52,8 +52,10 @@ Undo works move by move, and the game log names every card that is revealed. A â
 The bot only knows what a player at the table would: your Support and face-down cards stay hidden from it. It does know which cards are in your Free Company (as if decklists were shown before the game), not where they are.
 
 - **Easy** plays any legal move.
-- **Normal** follows rules of thumb: strong Fighting Spirit stays in Support, attackers go on the Front Line, and it plays only the Fighting Spirit it needs to take the lead.
-- **Hard** tries each choice many times against guesses of your hidden cards and keeps the one that goes best.
+- **Normal** places and reveals by rules of thumb, and plays **Skirmish Tricks** and **Combat Tricks**:
+  - It times swaps, Maneuvers and locks for the coming combat. It works out from the Fate Numbers who will attack whom, tries each option against guesses of your hidden cards, and keeps an ability for later unless using it now clearly pays.
+  - In Combat, it uses rest-zone Fighting Spirit cards, weighs switching attackers and defenders, and spends Support freely in the round's last Engagement, since unused Support is rested anyway.
+- **Hard** plays the same Tricks. For Fighting Spirit and the First Engagement, it also plays the round out many times against guesses of your hidden cards and keeps the choice that goes best.
 
 While the bot is thinking, the bar says so. The speed menu sets how long each of its moves stays on screen, **Pause** stops it, and **Next move** then plays one move at a time. **Undo** against the bot goes back to your own last decision.
 

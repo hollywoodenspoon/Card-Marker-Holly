@@ -4,9 +4,10 @@ import { other, type AsState, type Seat } from '../state'
 import { engagementTotals } from '../stats'
 
 /**
- * The Easy and Normal bots: quick rules of thumb over the legal moves. They
- * only read what their seat may know, except the step's own options (which
- * are that seat's to choose from).
+ * Quick rules of thumb over the legal moves: Easy, and the fast policy the
+ * Normal and Hard bots build on (and play out games with). They only read what
+ * their seat may know, except the step's own options (which are that seat's
+ * to choose from).
  */
 
 export type Rng = { seed: number }
@@ -51,8 +52,8 @@ function placeMove(s: AsState, seat: Seat): Move {
   return { t: 'place', card: chosen[0], slot: order[0] }
 }
 
-/** Normal: rules of thumb for every step. */
-export function normalMove(s: AsState, r: Rng): Move {
+/** Rules of thumb for every step (fast: no lookahead). */
+export function quickMove(s: AsState, r: Rng): Move {
   const st = s.step
   const legal = legalMoves(s)
   if (st.k === 'over') return legal[0]
@@ -81,7 +82,7 @@ export function normalMove(s: AsState, r: Rng): Move {
   }
 }
 
-function chooseMove(s: AsState, seat: Seat, r: Rng): Move {
+export function chooseMove(s: AsState, seat: Seat, r: Rng): Move {
   const st = s.step
   if (st.k !== 'choose') return { t: 'pass' }
   const opts = st.options
@@ -108,8 +109,14 @@ function chooseMove(s: AsState, seat: Seat, r: Rng): Move {
   return { t: 'choose', id: opts[roll(r, opts.length)].id }
 }
 
-/** Fighting Spirit: pass when ahead; otherwise the smallest card that takes the lead. */
-function fsMove(s: AsState, seat: Seat, legal: Move[]): Move {
+/**
+ * Fighting Spirit (Combat Tricks): free rest-zone cards first; pass when ahead;
+ * otherwise the smallest card that takes the lead, or one that ties when a tie
+ * is all that can be had (it denies the point). Unused Support is rested at
+ * Regroup anyway, so in the round's last Engagement every card that can still
+ * change the result is worth spending; earlier, only cards that come close.
+ */
+export function fsMove(s: AsState, seat: Seat, legal: Move[]): Move {
   const e = s.engagement
   if (!e) return { t: 'pass' }
   const t = engagementTotals(s, e)
@@ -117,18 +124,26 @@ function fsMove(s: AsState, seat: Seat, legal: Move[]): Move {
   const theirs = e.attacker === seat ? t.defense : t.attack
   if (mine > theirs) return { t: 'pass' }
   const gap = theirs - mine
+  const theyLocked = e.passed[other(seat)]
+  const last = s.queue.length === 0
   const options = legal.flatMap((m) =>
     m.t === 'fs'
       ? [{ m, v: fsPreview(s, seat, m.card, m.from) ?? 1, free: m.from === 'rest' }]
       : [],
   )
+  if (!options.length) return { t: 'pass' }
   // Rest-zone cards cost nothing: use them first.
-  const free = options.filter((o) => o.free)
-  if (free.length) return free.sort((a, b) => b.v - a.v)[0].m
-  const winning = options.filter((o) => o.v > gap).sort((a, b) => a.v - b.v)
+  const free = options.filter((o) => o.free).sort((a, b) => b.v - a.v)
+  if (free.length) return free[0].m
+  const byValue = [...options].sort((a, b) => a.v - b.v)
+  const winning = byValue.filter((o) => o.v > gap)
   if (winning.length) return winning[0].m
-  const best = options.sort((a, b) => b.v - a.v)[0]
-  // Close enough to tie or almost: worth a card.
-  if (best && gap - best.v <= 1) return best.m
+  const best = byValue[byValue.length - 1]
+  // A tie denies the point: worth it once their total is locked, or in the last Engagement.
+  const tying = byValue.find((o) => o.v === gap)
+  if (tying && (theyLocked || last)) return tying.m
+  const reserve = options.reduce((n, o) => n + o.v, 0)
+  if (last && reserve >= gap) return best.m
+  if (gap - best.v <= 1) return best.m
   return { t: 'pass' }
 }

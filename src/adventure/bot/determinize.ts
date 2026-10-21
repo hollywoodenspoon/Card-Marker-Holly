@@ -12,7 +12,8 @@ export function determinize(s: AsState, seat: Seat, seed: number): AsState {
   return produce(s, (d) => {
     const p = d.players[other(seat)]
     const down = p.field.flatMap((f, i) => (f.card && !f.faceUp ? [i] : []))
-    const hidden = [...p.support, ...down.map((i) => p.field[i].card!)]
+    // Sorted first, so the guess never depends on where the cards really are.
+    const hidden = [...p.support, ...down.map((i) => p.field[i].card!)].sort()
     const [mixed, next] = shuffle(hidden, seed)
     p.support = mixed.slice(0, p.support.length)
     down.forEach((i, k) => (p.field[i].card = mixed[p.support.length + k]))

@@ -495,8 +495,13 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 
 - **Three levels in `src/adventure/bot/`**, all choosing from `legalMoves`:
   - **Easy:** a random legal move.
-  - **Normal:** rules of thumb.
-  - **Hard:** determinized Monte Carlo. For each candidate move (at most 8, pass always among them) it guesses the hidden cards, plays to the end of the round with Normal on both sides, and scores the points gained, a win, and the Support kept. The number of playouts is its strength: 96 by default in the app. Setup, placing and revealing go by Normal's rules of thumb.
+  - **Normal:** rules of thumb for placing and revealing (`policies.ts`), plus **Skirmish and Combat Tricks** (`tricks.ts`) for every ability response and choice, owner's terms.
+    - Each option is tried on 3 guesses of the hidden cards (the same guesses for every option), with the bot's next own choice tried too.
+    - The board after it is scored by `evaluate`: points so far, plus the expected points of this round's Engagements. Those are predicted from the Attack/Defense Assignment the engine will make (`projectAssignment`), the Attack and Defense on each side, and each side's Fighting Spirit left.
+    - **Timing:** before the final response, an ability is used only when it beats passing by at least 0.12 expected points. Otherwise it is kept for later, when more of the board is known.
+    - **Fighting Spirit:** free rest-zone cards first. In the round's last Engagement, Support is spent while it can still change the result, since unused Support is rested at Regroup. A tie is taken when the opponent has locked their total.
+    - Normal beat the plain rules of thumb in 63–65% of 120 games, at about 0.3 s a game.
+  - **Hard:** the same Tricks for abilities and choices. For Fighting Spirit and the First Engagement it uses determinized Monte Carlo: for each candidate move (at most 8, pass always among them) it guesses the hidden cards, plays to the end of the round with quick rules of thumb on both sides, and scores the points gained, a win, and the Support kept. The number of playouts is its strength: 96 by default in the app.
 - **Fair play:**
   - The bots read only what their seat may know, plus the options of the choice they are making.
   - A test checks that Easy and Normal pick the same move however the opponent's hidden cards are arranged.

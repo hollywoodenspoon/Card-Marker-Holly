@@ -35,7 +35,7 @@ describe('bots', () => {
       expect(play('easy', 'normal', seed).s.winner).not.toBeNull()
       expect(play('normal', 'normal', seed + 100).s.winner).not.toBeNull()
     }
-  })
+  }, 60_000)
 
   it('Normal beats Easy most of the time', () => {
     let wins = 0
@@ -50,7 +50,7 @@ describe('bots', () => {
       if (s.winner?.seat === normalSeat) wins++
     }
     expect(wins).toBeGreaterThanOrEqual(24)
-  })
+  }, 60_000)
 
   it('Hard beats Easy most of the time', () => {
     let wins = 0

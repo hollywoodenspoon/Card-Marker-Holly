@@ -1,7 +1,8 @@
 import { actor, apply, legalMoves, type Move } from '../engine'
 import type { AsState, Seat } from '../state'
 import { determinize } from './determinize'
-import { easyMove, normalMove, roll, type Rng } from './policies'
+import { easyMove, quickMove, roll, type Rng } from './policies'
+import { trickMove } from './tricks'
 
 export type BotLevel = 'easy' | 'normal' | 'hard'
 export const BOT_LEVELS: BotLevel[] = ['easy', 'normal', 'hard']
@@ -12,17 +13,26 @@ export interface BotOptions {
   playouts?: number
 }
 
+/** Normal: rules of thumb, plus Skirmish and Combat Tricks for abilities and choices. */
+export function normalMove(s: AsState, r: Rng): Move {
+  const st = s.step
+  if (st.k === 'respond' || st.k === 'choose') return trickMove(s, st.seat, r)
+  return quickMove(s, r)
+}
+
 const policy = (level: BotLevel) => (level === 'easy' ? easyMove : normalMove)
 
 /**
  * Hard: determinized Monte Carlo. For each candidate move it guesses the
- * hidden cards many times, plays the rest of the round with Normal play on
- * both sides, and keeps the move whose rounds go best.
+ * hidden cards many times, plays the rest of the round with quick play on
+ * both sides, and keeps the move whose rounds go best. Abilities and choices
+ * go by the Normal bot's Tricks.
  */
 function hardMove(s: AsState, seat: Seat, r: Rng, playouts: number): Move {
   const legal = legalMoves(s).filter((m) => m.t !== 'unplace')
-  // Setup, placing and revealing go by the rules of thumb; Hard thinks about the rest.
-  if (legal.length === 1 || s.step.k === 'place' || s.step.k === 'reveal') return normalMove(s, r)
+  // Placing and revealing go by the rules of thumb, abilities and choices by the Tricks;
+  // Hard plays out Fighting Spirit and the First Engagement.
+  if (legal.length === 1 || !['fs', 'first'].includes(s.step.k)) return normalMove(s, r)
   const candidates = legal.length > 8 ? pickSome(legal, 8, r) : legal
   const per = Math.max(2, Math.floor(playouts / candidates.length))
   let best = candidates[0]
@@ -53,13 +63,13 @@ function pickSome(moves: Move[], n: number, r: Rng): Move[] {
   return out
 }
 
-/** Play Normal moves to the end of the round: the points gained, plus a big bonus for a win. */
+/** Play quick moves to the end of the round: the points gained, plus a big bonus for a win. */
 function rollout(s: AsState, seat: Seat, r: Rng): number {
   const before = s.players[seat].points - s.players[seat === 0 ? 1 : 0].points
   const round = s.round
   let x = s
   for (let n = 0; n < 300 && x.step.k !== 'over' && x.round === round; n++) {
-    const next = apply(x, normalMove(x, r))
+    const next = apply(x, quickMove(x, r))
     if (next === x) break
     x = next
   }
