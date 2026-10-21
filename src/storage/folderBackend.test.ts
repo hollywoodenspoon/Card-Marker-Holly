@@ -126,6 +126,30 @@ describe('folder backend', () => {
     expect(again!.library.assets.a1).toBeUndefined()
   })
 
+  it('replaces a project in its own folder, removing files the backup lacks', async () => {
+    const { bridge, files } = memoryFs()
+    const b = folderBackend(bridge)
+    const bundle = createProject('Restore me')
+    const pid = bundle.project.id
+    const dir = '/home/me/Documents/Hearthside Cardworks/Restore me'
+    const old = picture(pid, 'old', [9, 9])
+    await b.saveBundle({ ...bundle, stylePresets: [], assets: [old], fonts: [] })
+    expect(files.has(`${dir}/images/old.png`)).toBe(true)
+    const fresh = picture(pid, 'new', [1, 2])
+    await b.replaceBundle({
+      ...bundle,
+      project: { ...bundle.project, name: 'Restored' },
+      stylePresets: [],
+      assets: [fresh],
+      fonts: [],
+    })
+    expect(files.has(`${dir}/images/old.png`)).toBe(false)
+    expect([...files.get(`${dir}/images/new.png`)!]).toEqual([1, 2])
+    const loaded = await b.loadProject(pid)
+    expect(loaded!.doc.project.name).toBe('Restored')
+    expect((await b.listProjects()).filter((p) => p.id === pid)).toHaveLength(1)
+  })
+
   it('round-trips picture bytes and keeps entries whose file went missing', async () => {
     const { bridge, files } = memoryFs()
     const b = folderBackend(bridge)

@@ -26,6 +26,14 @@ export interface ConfirmAsk {
   danger?: boolean
   resolve: (v: boolean) => void
 }
+export interface ChoiceAsk {
+  kind: 'choice'
+  title: string
+  description?: string
+  /** Buttons, last one first in reading order on wide screens; Cancel is added. */
+  choices: { id: string; label: string; danger?: boolean; primary?: boolean }[]
+  resolve: (v: string | null) => void
+}
 export interface Toast {
   id: number
   message: string
@@ -33,7 +41,10 @@ export interface Toast {
   action?: { label: string; run: () => void }
 }
 
-export const useFeedback = create<{ ask: TextAsk | ConfirmAsk | null; toasts: Toast[] }>(() => ({
+export const useFeedback = create<{
+  ask: TextAsk | ConfirmAsk | ChoiceAsk | null
+  toasts: Toast[]
+}>(() => ({
   ask: null,
   toasts: [],
 }))
@@ -51,6 +62,13 @@ export function askText(
 export function askConfirm(opts: Omit<ConfirmAsk, 'kind' | 'resolve'>) {
   return new Promise<boolean>((resolve) =>
     useFeedback.setState({ ask: { kind: 'confirm', ...opts, resolve } }),
+  )
+}
+
+/** Ask to pick one of several actions. Resolves to the choice's id, or null when cancelled. */
+export function askChoice(opts: Omit<ChoiceAsk, 'kind' | 'resolve'>) {
+  return new Promise<string | null>((resolve) =>
+    useFeedback.setState({ ask: { kind: 'choice', ...opts, resolve } }),
   )
 }
 

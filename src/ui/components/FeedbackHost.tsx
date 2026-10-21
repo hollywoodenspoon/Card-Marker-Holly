@@ -13,7 +13,8 @@ export function FeedbackHost() {
   const close = (value: string | boolean | null) => {
     if (!ask) return
     useFeedback.setState({ ask: null })
-    if (ask.kind === 'text') ask.resolve(typeof value === 'string' ? value : null)
+    if (ask.kind === 'text' || ask.kind === 'choice')
+      ask.resolve(typeof value === 'string' ? value : null)
     else ask.resolve(value === true)
   }
   return (
@@ -26,6 +27,22 @@ export function FeedbackHost() {
           <DialogContent title={ask.title} description={ask.description} className="z-[80]">
             {ask.kind === 'text' ? (
               <TextForm ask={ask} onDone={close} />
+            ) : ask.kind === 'choice' ? (
+              <div className="flex flex-wrap justify-end gap-2">
+                <Button variant="secondary" onClick={() => close(null)}>
+                  Cancel
+                </Button>
+                {ask.choices.map((c) => (
+                  <Button
+                    key={c.id}
+                    variant={c.danger ? 'danger' : c.primary ? 'default' : 'outline'}
+                    autoFocus={c.primary}
+                    onClick={() => close(c.id)}
+                  >
+                    {c.label}
+                  </Button>
+                ))}
+              </div>
             ) : (
               <div className="flex justify-end gap-2">
                 <Button variant="secondary" onClick={() => close(false)}>

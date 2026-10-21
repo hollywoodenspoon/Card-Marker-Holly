@@ -251,6 +251,22 @@ export function folderBackend(fs: DesktopBridge): FolderStore {
       await writeAll(dir, bundleToState(bundle))
     },
 
+    async replaceBundle(bundle) {
+      const dir = await locationOf(bundle.project.id)
+      if (!dir || !(await fs.exists(dir))) return backend.saveBundle(bundle)
+      // Reading the folder first lists its picture and font files, so the ones
+      // the backup doesn't have are removed after project.json is written.
+      const before = await readFolder(dir).catch(() => null)
+      const state = bundleToState(bundle)
+      const removed = before
+        ? [
+            ...Object.keys(before.library.assets).filter((id) => !state.library.assets[id]),
+            ...Object.keys(before.library.fonts).filter((id) => !state.library.fonts[id]),
+          ]
+        : []
+      await writeAll(dir, state, removed)
+    },
+
     async writeChanges(state, changes) {
       const dir = await locationOf(state.doc.project.id)
       if (!dir) throw new Error('This project is no longer in the list of projects.')
