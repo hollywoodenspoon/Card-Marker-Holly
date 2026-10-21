@@ -1,6 +1,6 @@
 # How to play
 
-Hearthside Table lays out a table for your game and lets you play it with the cards you made in Hearthside Cardworks, on any device. You move, flip and turn cards by hand and keep score. The app doesn't check the rules yet, so you play by your own.
+Hearthside Table lays out a table for your game and lets you play it with the cards you made in Hearthside Cardworks, on any device. You move, flip and turn cards by hand and keep score. For Adventure Scuffle, the app can also run the Mutual Reveal rules for you.
 
 ## Getting your cards here
 
@@ -15,8 +15,26 @@ A game pack holds every card's picture, the values of its fields (such as `A_AS`
 1. Pick a **Game**. Two tables are built in:
    - **Adventure Scuffle! — Mutual Reveal**: for each player a 2 × 3 field (Front Line and Rear Guard), Support and a Rest zone; card states Ready, Attacking, Defending and Ability-active; a Main Attacker cube; points to 4. The two fields face each other, so a card's Mirrored Position is straight across.
    - **Simple board game**: a shared board, a hand and a deck for each player, pawns, markers and two dice.
-2. Pick a **deck** for each player: one you built here (**Your decks**), or one from Hearthside Cardworks (**Decks in the pack**). **All cards** gives a player one of every card. A warning shows when a deck breaks a deck rule, or has a different number of cards than the game uses.
-3. Press **Start**.
+2. For Adventure Scuffle, pick the **Rules**:
+   - **Free table**: you move every card yourself and nothing is checked.
+   - **Rules on: two players, one device**: the app runs the rules and hides each player's cards until the device is handed over.
+   - **Rules on: see both sides**: the app runs the rules and you play both players, seeing everything. Good for playtesting alone.
+3. Pick a **deck** for each player: one you built here (**Your decks**), or one from Hearthside Cardworks (**Decks in the pack**). **All cards** gives a player one of every card. A warning shows when a deck breaks a deck rule, or has a different number of cards than the game uses. With the rules on, both decks must be legal Free Companies.
+4. Press **Start**.
+
+## Playing with the rules on
+
+The bar at the bottom says whose turn it is and what to do. Cards you may use now glow green.
+
+- **Setup and Regroup:** tap a card in your Support (or rest zone), then tap an empty position on your field, or drag it there. **Fill randomly** fills the rest, and **Done** confirms. Until then you can move a card you just placed, or drag it back.
+- **Skirmish:** tap 2 adjacent face-down cards on your opponent's field to reveal them (the first one you tap turns amber). After the opening pairs, you reveal 1 card at a time, next to one that is already revealed.
+- **Attack and defense** are worked out by Fate Number when everything is revealed: the lower half attacks, the upper half defends, and the lowest attacker is the Main Attacker (the cube).
+- **Combat:** the player with initiative picks which Engagement goes first. Then each player in turn reveals a Support card as Fighting Spirit, or passes. A pass locks your total for that Engagement. The bar shows the totals. If no defender is on or next to the attacked position, the attacker scores straight away.
+- The first player to 4 points wins.
+
+With **two players, one device**, a screen asks you to pass the device whenever the other player must act. Press the button only when the right player holds it. The view menu at the top can switch to **Everyone sees all** at any time.
+
+Card abilities are not active yet: cards play with their printed Attack, Defense and Fighting Spirit. Undo works move by move, and the game log names every card that is revealed. A ⚑ in the log marks something the rules don't settle yet, such as a player left with no attacking card.
 
 ## Building decks
 
@@ -94,4 +112,4 @@ The **game log** lists everything that happened, such as "Spatial Witch: Attacki
 
 ## What's next
 
-Rules, so that the table knows what's allowed and counts for you, and a computer opponent are planned for later versions.
+Card abilities and a computer opponent are planned for later versions.

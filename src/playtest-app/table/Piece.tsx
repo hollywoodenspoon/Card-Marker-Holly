@@ -111,6 +111,7 @@ export const PieceView = memo(function PieceView({
   color,
   selected,
   picked,
+  hint,
   tokens,
   tokenDefs,
   tokenColor,
@@ -127,6 +128,8 @@ export const PieceView = memo(function PieceView({
   color: string
   selected: boolean
   picked: boolean
+  /** The rules let the player to act use it now. */
+  hint?: boolean
   tokens: TokenInst[]
   tokenDefs: TokenDef[]
   tokenColor: (t: TokenInst) => string
@@ -142,10 +145,12 @@ export const PieceView = memo(function PieceView({
       tabIndex={-1}
       aria-label={seen === 'back' ? 'Face-down card' : piece.name}
       aria-pressed={selected}
+      data-hint={hint || undefined}
       className={cn(
         'absolute touch-none rounded-[5%] shadow-md transition-[transform,box-shadow] duration-150 select-none',
         selected && 'ring-4 ring-accent',
         picked && !selected && 'ring-4 ring-amber-400',
+        hint && !selected && !picked && 'ring-4 ring-emerald-400',
         dragging && 'opacity-40',
       )}
       style={{

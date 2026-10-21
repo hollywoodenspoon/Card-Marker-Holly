@@ -1,5 +1,7 @@
 import { MoreHorizontal } from '@/ui/icons'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { other } from '@/adventure/state'
+import { pieceId } from '@/adventure/table'
 import { cn } from '@/lib/cn'
 import { seenBy } from '@/playtest/actions'
 import { pieceBoxes, targetAt, type PieceBox } from '@/playtest/geometry'
@@ -23,6 +25,7 @@ import { usePanZoom } from '@/ui/components/usePanZoom'
 import { ZoomBar } from '@/ui/components/ZoomBar'
 import { PieceFace, PieceView, TokenShape } from './Piece'
 import { usePack } from './packContext'
+import { hints as ruleHints } from './rulesPlay'
 import { usePlaytest } from './usePlaytest'
 
 /** Space around the table (mm), so labels above the top zones show. */
@@ -53,6 +56,17 @@ export function TableCanvas({ onOpenZone }: { onOpenZone: (key: string) => void 
   const viewer = usePlaytest((s) => s.viewer)
   const act = usePlaytest((s) => s.act)
   const select = usePlaytest((s) => s.select)
+  const rules = usePlaytest((s) => s.rules)
+  const picks = usePlaytest((s) => s.picks)
+  const tapRules = usePlaytest((s) => s.tapRules)
+  // With the rules on: what the player to act may tap.
+  const hint = useMemo(() => (rules ? ruleHints(rules, picks) : null), [rules, picks])
+  const pickedIds = useMemo(() => {
+    const st = rules?.step
+    if (!rules || st?.k !== 'reveal') return new Set<string>()
+    const opp = other(st.seat)
+    return new Set(picks.map((i) => pieceId(opp, rules.players[opp].field[i].card ?? '')))
+  }, [rules, picks])
   const pack = usePack()
   const faces = pack.faces
   const defaultSize = pack.info.cardSize
@@ -252,6 +266,12 @@ export function TableCanvas({ onOpenZone }: { onOpenZone: (key: string) => void 
   }
 
   const tap = (cur: Gesture, p: { x: number; y: number }) => {
+    // With the rules on, a tap on a card can be a move (a reveal) or pick a card to place.
+    if (rules && cur.kind === 'piece') {
+      const same = selected?.kind === 'piece' && selected.id === cur.id
+      if (same) return select(null)
+      if (tapRules(cur.id)) return
+    }
     // Tap-to-place: the selection goes where you tap.
     if (placing && selected) {
       if (cur.kind === 'piece' && selected.kind === 'piece' && cur.id === selected.id)
@@ -344,7 +364,12 @@ export function TableCanvas({ onOpenZone }: { onOpenZone: (key: string) => void 
                   {z.kind === 'row' ? ` (${count})` : ''}
                 </span>
                 {menu && (
-                  <ZoneMenu zoneKey={pzn.key} kind={z.kind} onOpen={() => onOpenZone(pzn.key)} />
+                  <ZoneMenu
+                    zoneKey={pzn.key}
+                    kind={z.kind}
+                    onOpen={() => onOpenZone(pzn.key)}
+                    locked={!!rules}
+                  />
                 )}
               </div>
               {z.kind === 'grid' &&
@@ -353,7 +378,12 @@ export function TableCanvas({ onOpenZone }: { onOpenZone: (key: string) => void 
                   return (
                     <div
                       key={i}
-                      className="absolute rounded-md border border-white/20"
+                      data-slot-hint={hint?.slots.has(`${pzn.key}:${i}`) || undefined}
+                      className={cn(
+                        'absolute rounded-md border border-white/20',
+                        hint?.slots.has(`${pzn.key}:${i}`) &&
+                          'border-2 border-emerald-400 bg-emerald-400/15',
+                      )}
                       style={{
                         left: (r.x + 1) * k,
                         top: (r.y + 1) * k,
@@ -412,7 +442,8 @@ export function TableCanvas({ onOpenZone }: { onOpenZone: (key: string) => void 
               secretHere={z?.visibility === 'public'}
               color={seatColor(piece.owner)}
               selected={selected?.kind === 'piece' && selected.id === b.id}
-              picked={state.last.picked === b.id}
+              picked={state.last.picked === b.id || pickedIds.has(b.id)}
+              hint={!!hint?.pieces.has(b.id)}
               tokens={onPiece[b.id] ?? []}
               tokenDefs={setup.tokens}
               tokenColor={tokenColor}
@@ -461,10 +492,13 @@ function ZoneMenu({
   zoneKey,
   kind,
   onOpen,
+  locked,
 }: {
   zoneKey: string
   kind: string
   onOpen: () => void
+  /** The rules are on: only looking is allowed. */
+  locked: boolean
 }) {
   const act = usePlaytest((s) => s.act)
   return (
@@ -481,14 +515,16 @@ function ZoneMenu({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start">
         <DropdownMenuItem onSelect={onOpen}>Show all cards</DropdownMenuItem>
-        {kind !== 'grid' && (
+        {kind !== 'grid' && !locked && (
           <DropdownMenuItem onSelect={() => act({ t: 'shuffle', zone: zoneKey })}>
             Shuffle
           </DropdownMenuItem>
         )}
-        <DropdownMenuItem onSelect={() => act({ t: 'pick', zone: zoneKey })}>
-          Pick a random card
-        </DropdownMenuItem>
+        {!locked && (
+          <DropdownMenuItem onSelect={() => act({ t: 'pick', zone: zoneKey })}>
+            Pick a random card
+          </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   )

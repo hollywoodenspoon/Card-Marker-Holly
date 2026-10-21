@@ -5,6 +5,7 @@ import { Button, IconButton } from '@/ui/components/ui/button'
 import { NativeSelect } from '@/ui/components/ui/input'
 import { Sheet } from '@/ui/components/ui/sheet'
 import { useBackHandler, useEscapeToClose } from '@/ui/components/overlay'
+import { actor } from '@/adventure/engine'
 import { ActionBar } from './ActionBar'
 import { DeckBuilder } from '../decks/DeckBuilder'
 import { CardZoom } from './CardZoom'
@@ -13,6 +14,7 @@ import { StartPanel } from './StartPanel'
 import { TableCanvas } from './TableCanvas'
 import { Tracker } from './Tracker'
 import { usePack } from './packContext'
+import { RulesBar } from './RulesBar'
 import { usePlaytest } from './usePlaytest'
 import { ZoneSheet } from './ZoneSheet'
 
@@ -22,8 +24,8 @@ const isTyping = (t: EventTarget | null) => {
 }
 
 /**
- * A pack's table: a game played by hand. The layout comes from a game setup
- * (zones, card states, tokens, counters); no rules are enforced yet.
+ * A pack's table: a game played by hand, or Adventure Scuffle with the rules
+ * on. The layout comes from a game setup (zones, card states, tokens, counters).
  */
 export function GameView({
   phone,
@@ -40,6 +42,10 @@ export function GameView({
   const ownPack = usePlaytest((s) => s.packId === pack.id)
   const viewer = usePlaytest((s) => s.viewer)
   const hasSelection = usePlaytest((s) => !!s.selected)
+  const rules = usePlaytest((s) => s.rules)
+  // Hot-seat: the table is shown to one player at a time; hand it over when the other must act.
+  const toAct = rules ? actor(rules) : null
+  const handOver = rules && viewer !== null && toAct !== null && toAct !== viewer ? toAct : null
   const playing = !!setup && !!state && ownPack
   const [zone, setZone] = useState<string | null>(null)
   const [zoom, setZoom] = useState<string | null>(null)
@@ -70,7 +76,7 @@ export function GameView({
       const key = e.key.toLowerCase()
       if (mod && key === 'z') pt[e.shiftKey ? 'redo' : 'undo']()
       else if (mod && key === 'y') pt.redo()
-      else if (!mod && key === 'f' && pt.selected?.kind === 'piece')
+      else if (!mod && key === 'f' && pt.selected?.kind === 'piece' && !pt.rules)
         pt.act({ t: 'flip', piece: pt.selected.id })
       else return
       e.preventDefault()
@@ -150,6 +156,32 @@ export function GameView({
           <div className="flex min-h-0 flex-1">
             <div className="relative flex min-w-0 flex-1 flex-col">
               <TableCanvas onOpenZone={setZone} />
+              {handOver !== null && (
+                <div
+                  className="absolute inset-0 z-[500] grid place-items-center bg-canvas p-4"
+                  data-testid="rules-handover"
+                >
+                  <div className="flex max-w-sm flex-col items-center gap-3 rounded-xl border bg-panel p-5 text-center shadow-xl">
+                    <span
+                      className="size-4 rounded-full"
+                      style={{ background: setup.seats[handOver]?.color }}
+                    />
+                    <p className="text-base font-semibold">
+                      Pass the device to {setup.seats[handOver]?.name}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      The table stays hidden until they're ready, so nobody sees the other player's
+                      cards.
+                    </p>
+                    <Button
+                      onClick={() => usePlaytest.getState().setViewer(handOver)}
+                      data-testid="rules-handover-ok"
+                    >
+                      I'm {setup.seats[handOver]?.name}: show my side
+                    </Button>
+                  </div>
+                </div>
+              )}
               {winner && winKey !== winSeen && (
                 <div
                   className="absolute bottom-3 left-3 z-[400] flex max-w-[calc(100%-1.5rem)] flex-wrap items-center gap-3 rounded-xl border bg-panel px-4 py-2 shadow-xl"
@@ -175,8 +207,14 @@ export function GameView({
               </aside>
             )}
           </div>
-          <ActionBar onZoom={setZoom} />
-          {!hasSelection && <div className="pb-safe bg-canvas" />}
+          {rules ? (
+            <RulesBar onZoom={setZoom} />
+          ) : (
+            <>
+              <ActionBar onZoom={setZoom} />
+              {!hasSelection && <div className="pb-safe bg-canvas" />}
+            </>
+          )}
           {phone && (
             <Sheet open={logOpen} onOpenChange={setLogOpen} side="bottom" title="Game log" tall>
               <LogPanel />
@@ -199,8 +237,8 @@ export function GameView({
 }
 
 function UndoRedo() {
-  const canUndo = usePlaytest((s) => s.past.length > 0)
-  const canRedo = usePlaytest((s) => s.future.length > 0)
+  const canUndo = usePlaytest((s) => (s.rules ? s.rulesPast : s.past).length > 0)
+  const canRedo = usePlaytest((s) => (s.rules ? s.rulesFuture : s.future).length > 0)
   return (
     <>
       <IconButton

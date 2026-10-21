@@ -1,4 +1,5 @@
 import Dexie, { type EntityTable } from 'dexie'
+import type { AsState } from '@/adventure/state'
 import { readPack, type PackInfo } from './pack'
 import type { GameSetup } from './setup'
 import type { TableState } from './state'
@@ -23,6 +24,8 @@ export interface GameRow {
   setup: GameSetup
   state: TableState
   past: TableState[]
+  /** Adventure Scuffle with the rules on: the rules state (the table is drawn from it). */
+  rules?: { state: AsState; past: AsState[]; viewer: number | null }
   savedAt: number
 }
 

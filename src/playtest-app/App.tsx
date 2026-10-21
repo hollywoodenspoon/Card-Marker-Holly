@@ -34,7 +34,7 @@ export function App() {
       const pack = openPack(id, readPack(new Uint8Array(await row.file.arrayBuffer())))
       const saved = await db.games.get(id)
       const pt = usePlaytest.getState()
-      if (saved) pt.resume(id, saved.setup, saved.state, saved.past)
+      if (saved) pt.resume(id, saved.setup, saved.state, saved.past, saved.rules)
       else if (pt.packId !== id) pt.clear(id)
       setOpen((old) => {
         old?.close()
