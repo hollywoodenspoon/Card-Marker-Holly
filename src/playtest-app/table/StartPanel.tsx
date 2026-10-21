@@ -1,5 +1,6 @@
 import { Layers, Play, TriangleAlert } from '@/ui/icons'
 import { useEffect, useMemo, useState } from 'react'
+import { BOT_LEVELS, BOT_NAMES, type BotLevel } from '@/adventure/bot'
 import { checkDeck } from '@/adventure/deck'
 import { listDecks, type DeckRow } from '@/playtest/library'
 import { randomSeed } from '@/playtest/rng'
@@ -9,24 +10,29 @@ import { Button } from '@/ui/components/ui/button'
 import { Label, NativeSelect } from '@/ui/components/ui/input'
 import { useDeckCards } from '../decks/useDeckCards'
 import { usePack } from './packContext'
-import { usePlaytest } from './usePlaytest'
+import { usePlaytest, type Bots } from './usePlaytest'
 
 const ALL = '__all'
 const SAVED = 'saved:'
 const KEY = 'cardmaker.playtest'
 
 const AS_SETUP = 'preset:adventure-scuffle'
-type Mode = 'free' | 'hotseat' | 'open'
+type Mode = 'free' | 'hotseat' | 'open' | 'bot' | 'botbot'
 
 /** Last setup and decks, per device (only a convenience). */
-function remembered(): { setupId?: string; decks?: string[]; mode?: Mode } {
+function remembered(): {
+  setupId?: string
+  decks?: string[]
+  mode?: Mode
+  levels?: BotLevel[]
+} {
   try {
     return JSON.parse(localStorage.getItem(KEY) ?? '{}')
   } catch {
     return {}
   }
 }
-function remember(v: { setupId: string; decks: string[]; mode: Mode }) {
+function remember(v: { setupId: string; decks: string[]; mode: Mode; levels: BotLevel[] }) {
   try {
     localStorage.setItem(KEY, JSON.stringify(v))
   } catch {
@@ -104,6 +110,10 @@ export function StartPanel({ onDecks }: { onDecks: () => void }) {
   // The Adventure Scuffle rules can run the game when the pack has the _AS card values.
   const canRule = setup.id === AS_SETUP && deckCardsInfo.adventure && setup.seats.length === 2
   const [mode, setMode] = useState<Mode>(last.mode ?? 'free')
+  const [levels, setLevels] = useState<BotLevel[]>(last.levels ?? ['normal', 'normal'])
+  // Against the bot you are Player 1; the bot plays Player 2.
+  const botSeats = mode === 'bot' ? [1] : mode === 'botbot' ? [0, 1] : []
+  const bots = [0, 1].map((i) => (botSeats.includes(i) ? (levels[i] ?? 'normal') : null)) as Bots
   const ruled = canRule && mode !== 'free'
   const ids = (i: number) => cardsFor(chosen[i])?.map((c) => c.cardId) ?? []
   const deckProblem = (i: number) => {
@@ -114,7 +124,7 @@ export function StartPanel({ onDecks }: { onDecks: () => void }) {
 
   const start = () => {
     const picks = setup.seats.map((_, i) => chosen[i])
-    remember({ setupId: setup.id, decks: chosen, mode })
+    remember({ setupId: setup.id, decks: chosen, mode, levels })
     const pt = usePlaytest.getState()
     if (ruled)
       pt.startRules(
@@ -123,10 +133,12 @@ export function StartPanel({ onDecks }: { onDecks: () => void }) {
         {
           cards: deckCardsInfo.cards,
           decks: [ids(0), ids(1)],
-          names: [setup.seats[0].name, setup.seats[1].name],
+          names: [0, 1].map((i) =>
+            bots[i] ? `${setup.seats[i].name} (${BOT_NAMES[bots[i]!]} bot)` : setup.seats[i].name,
+          ) as [string, string],
           seed: randomSeed(),
         },
-        mode === 'hotseat',
+        { hotseat: mode === 'hotseat', bots },
       )
     else pt.start(pack.id, setup, picks.map(cardsFor))
   }
@@ -170,14 +182,46 @@ export function StartPanel({ onDecks }: { onDecks: () => void }) {
               <option value="free">Free table (you apply the rules)</option>
               <option value="hotseat">Rules on: two players, one device</option>
               <option value="open">Rules on: see both sides (playtest alone)</option>
+              <option value="bot">Rules on: you against the bot</option>
+              <option value="botbot">Rules on: watch bot against bot</option>
             </NativeSelect>
             <p className="text-xs text-muted-foreground">
               {mode === 'free'
                 ? 'Move, flip and turn cards yourself; nothing is checked.'
                 : mode === 'hotseat'
                   ? "The app runs the Mutual Reveal rules and hides each player's cards until the device is handed over. Card abilities are applied as the cards say."
-                  : 'The app runs the Mutual Reveal rules and you play both players, seeing everything. Card abilities are applied as the cards say.'}
+                  : mode === 'open'
+                    ? 'The app runs the Mutual Reveal rules and you play both players, seeing everything. Card abilities are applied as the cards say.'
+                    : mode === 'bot'
+                      ? `You play ${setup.seats[0].name}; the bot plays ${setup.seats[1].name}. It only knows what a player would.`
+                      : 'Two bots play each other while you watch, with speed controls. Good for seeing how decks play.'}
             </p>
+            {botSeats.map((i) => (
+              <div key={i} className="flex items-center gap-2">
+                <Label htmlFor={`pt-bot-${i}`} className="w-28 shrink-0">
+                  {setup.seats[i].name}'s bot
+                </Label>
+                <NativeSelect
+                  id={`pt-bot-${i}`}
+                  value={levels[i] ?? 'normal'}
+                  onChange={(e) =>
+                    setLevels((l) => {
+                      const n = [...l]
+                      n[i] = e.target.value as BotLevel
+                      return n
+                    })
+                  }
+                  data-testid={`playtest-bot-${i}`}
+                >
+                  {BOT_LEVELS.map((l) => (
+                    <option key={l} value={l}>
+                      {BOT_NAMES[l]}
+                      {l === 'hard' ? ' (thinks longer)' : ''}
+                    </option>
+                  ))}
+                </NativeSelect>
+              </div>
+            ))}
           </div>
         )}
         {setup.deal &&

@@ -107,3 +107,21 @@ Rest costs (`restCost`) pick Support cards one at a time. Cards already promised
 `fixtures/games/*.json` holds `{format, cards, names, decks, seed, moves, expect: {winner, points, round, log}}`. The cards are `basicCards()` from `fixtures/basic.ts` (no abilities): card `i` has Fate `100 + 20i`. A port should replay every fixture and match the log line for line. `AS_WRITE_FIXTURES=1 npx vitest run src/adventure` writes them again after a deliberate rules change.
 
 The card ability tests (`effects/cards.test.ts`) build small boards from `fixtures/firstQuest.ts`, the 45 cards with ids `tfq01` to `tfq45`. `fixtures/randomGame.ts` plays random legal moves from a seed. A port can use it the same way, to check that games always end and no card is lost.
+
+## Bots and balance runs
+
+`bot/index.ts`: `botMove(state, level, seed, {playouts})` returns a move for the player to act, given as `'easy'`, `'normal'` or `'hard'`.
+
+- Easy and Normal (`bot/policies.ts`) are rules of thumb.
+- Hard is determinized Monte Carlo:
+  - `bot/determinize.ts` shuffles the opponent's hidden cards and reseeds coins.
+  - Each candidate is played to the end of the round with Normal on both sides.
+  - The candidate with the best average score wins.
+- A port only needs `legalMoves`, `apply` and the seeded RNG to reproduce them.
+
+`sim/sim.ts`: `simulate({cards, decks, games, levels, seed})` plays bot games and counts:
+
+- results per deck, per pairing, per level and per card
+- any game that refused a bot's move or lost a card
+
+`report(result)` turns them into Markdown. `npm run as:sim -- --games 500 --levels normal,hard --pack my.cmpack --out report.md` runs it from the command line.

@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import type { BotLevel } from '@/adventure/bot'
 import { actor, apply, createGame, type Move, type NewGame } from '@/adventure/engine'
 import type { AsState } from '@/adventure/state'
 import { toTable } from '@/adventure/table'
@@ -10,7 +11,27 @@ import { movesFor, tapPiece } from './rulesPlay'
 
 const HISTORY = 500
 
-const NO_RULES = { rules: null, rulesPast: [], rulesFuture: [], picks: [] }
+/** A bot level per seat (null: a person plays that seat). */
+export type Bots = [BotLevel | null, BotLevel | null]
+export type BotSpeed = 'slow' | 'normal' | 'fast'
+const NO_BOTS: Bots = [null, null]
+
+const NO_RULES = {
+  rules: null,
+  rulesPast: [],
+  rulesFuture: [],
+  picks: [],
+  bots: NO_BOTS,
+  botPaused: false,
+}
+
+/** Who sees the table at the start: the one person against a bot, or the player to act. */
+function firstViewer(rules: AsState, bots: Bots, hotseat: boolean): number | null {
+  const people = ([0, 1] as const).filter((s) => !bots[s])
+  if (people.length === 1) return people[0]
+  if (people.length === 0) return null
+  return hotseat ? actor(rules) : null
+}
 
 export type Selection = { kind: 'piece'; id: string } | { kind: 'token'; id: string } | null
 
@@ -35,17 +56,31 @@ interface PlaytestStore {
   rulesFuture: AsState[]
   /** Positions picked for a pair reveal so far. */
   picks: number[]
+  /** Seats the bot plays, and how fast it moves. */
+  bots: Bots
+  botSpeed: BotSpeed
+  botPaused: boolean
   start: (packId: string, setup: GameSetup, decks: (DeckCards | null)[]) => void
-  /** Start a game with the rules on; `hotseat` hides each player's cards between turns. */
-  startRules: (packId: string, setup: GameSetup, game: NewGame, hotseat: boolean) => void
+  /**
+   * Start a game with the rules on. `hotseat`: two people share the device, so
+   * each player's cards are hidden between turns. `bots`: seats the bot plays.
+   */
+  startRules: (
+    packId: string,
+    setup: GameSetup,
+    game: NewGame,
+    opts: { hotseat: boolean; bots?: Bots },
+  ) => void
   /** Continue a saved game. */
   resume: (
     packId: string,
     setup: GameSetup,
     state: TableState,
     past: TableState[],
-    rules?: { state: AsState; past: AsState[]; viewer: number | null },
+    rules?: { state: AsState; past: AsState[]; viewer: number | null; bots?: Bots },
   ) => void
+  setBotSpeed: (s: BotSpeed) => void
+  setBotPaused: (p: boolean) => void
   act: (a: TableAction) => void
   /** Play rule moves as one undo step. */
   play: (moves: Move | Move[]) => void
@@ -75,6 +110,9 @@ export const usePlaytest = create<PlaytestStore>((set, get) => ({
   rulesPast: [],
   rulesFuture: [],
   picks: [],
+  bots: NO_BOTS,
+  botSpeed: 'normal',
+  botPaused: false,
   start: (packId, setup, decks) =>
     set({
       packId,
@@ -86,7 +124,7 @@ export const usePlaytest = create<PlaytestStore>((set, get) => ({
       placing: false,
       ...NO_RULES,
     }),
-  startRules: (packId, setup, game, hotseat) => {
+  startRules: (packId, setup, game, { hotseat, bots = NO_BOTS }) => {
     const rules = createGame(game)
     set({
       packId,
@@ -100,7 +138,9 @@ export const usePlaytest = create<PlaytestStore>((set, get) => ({
       rulesPast: [],
       rulesFuture: [],
       picks: [],
-      viewer: hotseat ? actor(rules) : null,
+      bots,
+      botPaused: false,
+      viewer: firstViewer(rules, bots, hotseat),
     })
   },
   resume: (packId, setup, state, past, rules) =>
@@ -119,6 +159,8 @@ export const usePlaytest = create<PlaytestStore>((set, get) => ({
             rulesFuture: [],
             picks: [],
             viewer: rules.viewer,
+            bots: rules.bots ?? NO_BOTS,
+            botPaused: false,
           }
         : NO_RULES),
     }),
@@ -139,8 +181,11 @@ export const usePlaytest = create<PlaytestStore>((set, get) => ({
     })
   },
   tapRules: (pieceId) => {
-    const { rules, picks, play, select } = get()
+    const { rules, picks, play, select, bots } = get()
     if (!rules) return false
+    // The bot's turn: taps only look.
+    const a = actor(rules)
+    if (a !== null && bots[a]) return false
     const r = tapPiece(rules, picks, pieceId)
     if (!r) return false
     if (r.kind === 'moves') play(r.moves)
@@ -152,7 +197,8 @@ export const usePlaytest = create<PlaytestStore>((set, get) => ({
     const { setup, state, past, rules } = get()
     if (!setup || !state) return
     if (rules) {
-      const moves = movesFor(rules, a)
+      const who = actor(rules)
+      const moves = who !== null && get().bots[who] ? null : movesFor(rules, a)
       if (moves) get().play(moves)
       else set({ placing: false })
       return
@@ -162,17 +208,26 @@ export const usePlaytest = create<PlaytestStore>((set, get) => ({
     set({ state: next, past: [...past, state].slice(-HISTORY), future: [], placing: false })
   },
   undo: () => {
-    const { setup, rules, rulesPast, rulesFuture } = get()
+    const { setup, rules, rulesPast, rulesFuture, bots } = get()
     if (setup && rules) {
       if (!rulesPast.length) return
-      const prev = rulesPast.at(-1)!
+      // Against a bot, undo goes back to your own last decision (the bot's moves too).
+      const person = (s: AsState) => {
+        const a = actor(s)
+        return a === null || !bots[a]
+      }
+      const againstBot = bots.some(Boolean) && bots.some((b) => !b)
+      let n = 1
+      if (againstBot) while (n < rulesPast.length && !person(rulesPast.at(-n)!)) n++
+      const prev = rulesPast.at(-n)!
       return set({
         rules: prev,
         state: toTable(setup, prev),
-        rulesPast: rulesPast.slice(0, -1),
-        rulesFuture: [rules, ...rulesFuture],
+        rulesPast: rulesPast.slice(0, -n),
+        rulesFuture: [...rulesPast.slice(-n + 1 || rulesPast.length), rules, ...rulesFuture],
         picks: [],
         placing: false,
+        botPaused: againstBot ? false : get().botPaused,
       })
     }
     const { state, past, future } = get()
@@ -225,4 +280,6 @@ export const usePlaytest = create<PlaytestStore>((set, get) => ({
     }),
   select: (selected, placing = false) => set({ selected, placing }),
   setViewer: (viewer) => set({ viewer }),
+  setBotSpeed: (botSpeed) => set({ botSpeed }),
+  setBotPaused: (botPaused) => set({ botPaused }),
 }))

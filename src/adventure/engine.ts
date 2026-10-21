@@ -238,6 +238,8 @@ function resume(d: D) {
     }
     throw e
   }
+  if (p.ctx.mode === 'battle' && ab.optional)
+    log(d, `Battle Ability: ${cardName(d, p.ctx.card)}: ${ab.name}.`)
   ab.apply(d, p.ctx, plan)
   const { owner, card, mode } = p.ctx
   const own = d.players[owner]

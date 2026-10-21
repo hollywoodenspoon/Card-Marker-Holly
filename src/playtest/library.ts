@@ -1,4 +1,5 @@
 import Dexie, { type EntityTable } from 'dexie'
+import type { BotLevel } from '@/adventure/bot'
 import type { AsState } from '@/adventure/state'
 import { readPack, type PackInfo } from './pack'
 import type { GameSetup } from './setup'
@@ -25,7 +26,13 @@ export interface GameRow {
   state: TableState
   past: TableState[]
   /** Adventure Scuffle with the rules on: the rules state (the table is drawn from it). */
-  rules?: { state: AsState; past: AsState[]; viewer: number | null }
+  rules?: {
+    state: AsState
+    past: AsState[]
+    viewer: number | null
+    /** The bot level per seat (null: a person). */
+    bots?: [BotLevel | null, BotLevel | null]
+  }
   savedAt: number
 }
 

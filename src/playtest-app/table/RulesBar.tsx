@@ -1,4 +1,4 @@
-import { Check, Maximize2, Shuffle, Swords } from '@/ui/icons'
+import { Check, Maximize2, Pause, Play, Shuffle, StepForward, Swords } from '@/ui/icons'
 import { abilityText } from '@/adventure/cards'
 import {
   abilityName,
@@ -12,15 +12,28 @@ import {
 import { other } from '@/adventure/state'
 import { engagementTotals } from '@/adventure/stats'
 import { seenBy } from '@/playtest/actions'
-import { Button } from '@/ui/components/ui/button'
-import { usePlaytest } from './usePlaytest'
+import { Button, IconButton } from '@/ui/components/ui/button'
+import { NativeSelect } from '@/ui/components/ui/input'
+import { usePlaytest, type BotSpeed } from './usePlaytest'
 
 /**
  * With the rules on: what to do now, in words, and the buttons for choices
  * that aren't a tap on the table (abilities, choices, the First Engagement,
  * Fighting Spirit, pass).
  */
-export function RulesBar({ onZoom }: { onZoom: (pieceId: string) => void }) {
+export function RulesBar({
+  onZoom,
+  botToAct,
+  onBotStep,
+}: {
+  onZoom: (pieceId: string) => void
+  /** A bot is to act: its controls replace the choices. */
+  botToAct: boolean
+  onBotStep: () => void
+}) {
+  const bots = usePlaytest((s) => s.bots)
+  const botSpeed = usePlaytest((s) => s.botSpeed)
+  const botPaused = usePlaytest((s) => s.botPaused)
   const setup = usePlaytest((s) => s.setup)!
   const state = usePlaytest((s) => s.state)!
   const rules = usePlaytest((s) => s.rules)!
@@ -159,6 +172,38 @@ export function RulesBar({ onZoom }: { onZoom: (pieceId: string) => void }) {
     )
   }
 
+  if (botToAct && st.k !== 'over') {
+    hint = botPaused ? 'Paused.' : 'The bot is thinking…'
+    buttons = null
+  }
+  const botControls = bots.some(Boolean) && st.k !== 'over' && (
+    <>
+      <NativeSelect
+        aria-label="Bot speed"
+        className="w-auto"
+        value={botSpeed}
+        onChange={(e) => usePlaytest.getState().setBotSpeed(e.target.value as BotSpeed)}
+        data-testid="bot-speed"
+      >
+        <option value="slow">Slow</option>
+        <option value="normal">Normal speed</option>
+        <option value="fast">Fast</option>
+      </NativeSelect>
+      <IconButton
+        label={botPaused ? 'Let the bot play' : 'Pause the bot'}
+        onClick={() => usePlaytest.getState().setBotPaused(!botPaused)}
+        data-testid="bot-pause"
+      >
+        {botPaused ? <Play /> : <Pause />}
+      </IconButton>
+      {botPaused && botToAct && (
+        <Button size="sm" variant="secondary" onClick={onBotStep} data-testid="bot-step">
+          <StepForward /> Next move
+        </Button>
+      )}
+    </>
+  )
+
   return (
     <div
       className="flex shrink-0 flex-col gap-1.5 border-t bg-panel px-2 py-1.5 pb-safe"
@@ -177,10 +222,11 @@ export function RulesBar({ onZoom }: { onZoom: (pieceId: string) => void }) {
           {hint && <span className="text-muted-foreground"> {hint}</span>}
         </span>
       </p>
-      {(buttons || zoomable) && (
+      {(buttons || zoomable || botControls) && (
         <div className="flex items-center gap-1.5 overflow-x-auto">
           {buttons}
           <span className="flex-1" />
+          {botControls}
           {zoomable && (
             <Button size="sm" variant="ghost" onClick={() => onZoom(zoomable)}>
               <Maximize2 /> Zoom

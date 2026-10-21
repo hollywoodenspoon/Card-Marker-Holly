@@ -484,3 +484,30 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
   - One test per card or group of cards (`effects/cards.test.ts`).
   - The First Quest cards as test data (`fixtures/firstQuest.ts`).
   - 200 random-move games over four legal decks, which check that every game ends and no card is lost or duplicated (`selfplay.test.ts`).
+
+## Hearthside Table: bots and balance runs
+
+- **Three levels in `src/adventure/bot/`**, all choosing from `legalMoves`:
+  - **Easy:** a random legal move.
+  - **Normal:** rules of thumb.
+  - **Hard:** determinized Monte Carlo. For each candidate move (at most 8, pass always among them) it guesses the hidden cards, plays to the end of the round with Normal on both sides, and scores the points gained, a win, and the Support kept. The number of playouts is its strength: 96 by default in the app. Setup, placing and revealing go by Normal's rules of thumb.
+- **Fair play:**
+  - The bots read only what their seat may know, plus the options of the choice they are making.
+  - A test checks that Easy and Normal pick the same move however the opponent's hidden cards are arranged.
+  - Hard guesses by shuffling the opponent's hidden cards. That assumes open decklists: the bot knows which 12 cards the opponent's Free Company holds, not where they are.
+- **In the app:**
+  - The bot runs in a Web Worker. Its moves wait for the chosen speed (slow 1.6 s, normal 0.75 s, fast 0.12 s), so they can be followed.
+  - Pause, and step one move at a time.
+  - Against the bot you play Player 1. You see your side, and there is no hand-over screen.
+  - Undo goes back past the bot's moves to your own last decision.
+  - Bot against bot shows everything.
+  - Taps on the table do nothing while it is the bot's turn.
+  - The bot levels are saved with the game.
+- **Balance runs** (`npm run as:sim`, `scripts/as-sim.mjs`) load the rules through Vite in Node.
+  - Without `--pack`, they play The First Quest's four test decks. With `--pack`, they play every legal deck in a game pack.
+  - Every pairing is played in turn, and seats swap on alternate games.
+  - The Markdown report has:
+    - win rates per deck, deck against deck, and per bot level
+    - per card: the win rate of the decks it was in, Fighting Spirit reveals and ability uses per game
+    - how often the player with the first initiative won
+    - any game that broke a rule check (a refused move, or a card lost or doubled)
