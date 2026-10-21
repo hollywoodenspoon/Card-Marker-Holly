@@ -56,7 +56,7 @@ Lines and swirls don't need closing. To stop drawing:
 - Press [[Enter]] or [[Esc]].
 - Or hold [[Ctrl]] (⌘ on Mac) and click empty space.
 
-On Android, the Back button also finishes the path. A path with only one point is removed.
+A path with only one point is removed.
 
 ## Fixing mistakes while you draw
 

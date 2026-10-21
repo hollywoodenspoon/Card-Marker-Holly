@@ -14,7 +14,7 @@ Assets are the pictures you upload to a project. They are kept as the original f
 - Press the **Upload images** button (the arrow in the Assets header). You can pick several files at once.
 - Or drop picture files onto the canvas, or paste one with [[Ctrl+V]] (⌘ on Mac). These are added to Assets and placed on the card.
 
-PNG, JPG, WebP and SVG work. On the desktop and Android apps, uploaded pictures are saved unchanged in the project folder's `images` folder.
+PNG, JPG, WebP and SVG work. In the desktop app, uploaded pictures are saved unchanged in the project folder's `images` folder.
 
 The pen button next to the upload button opens the Vector Maker, where you can draw your own shapes and icons. See [Drawing shapes](help:vector-basics).
 

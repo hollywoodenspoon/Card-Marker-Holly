@@ -41,12 +41,6 @@ export const HELP_TOPICS: HelpTopic[] = [
     keywords: 'install exe appimage cachyos arch pacman folder portable',
   },
   {
-    id: 'android-app',
-    title: 'Android app',
-    section: 'Start',
-    keywords: 'phone tablet apk install folder',
-  },
-  {
     id: 'website',
     title: 'Website and offline use',
     section: 'Start',

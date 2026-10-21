@@ -405,3 +405,21 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 
 - **A fixed pre-release `pacman-repo`** holds the newest package and the repository database (`cardworks.db`/`.files` as real files: release assets can't be symlinks), updated by the Release workflow with `repo-add` in an `archlinux` container. Users add `[cardworks]` to `/etc/pacman.conf` once, then `pacman -Syu` updates the app. The updater skips the non-version tag, and the Arch build's update message says to run `sudo pacman -Syu`.
 - **Unsigned for now** (`SigLevel = Optional TrustAll`): signing needs a GPG key the owner creates and adds as a secret; it can be added later without users changing more than the SigLevel line.
+
+## Android releases paused
+
+- **At the owner's request**, after 0.1.0-alpha.3: no Android release of any kind for now. The Release workflow no longer has an Android job, and the release notes, README and Help no longer offer an APK (the Help page "Android app" is gone).
+- **The source stays** (`android/`, `capacitor.config.ts`, `scripts/android.mjs`, the `android:*` scripts, the native folder plugin and the platform bridge), so Android can come back without redoing it. It doesn't affect the website or desktop builds. Phone users are served by the website (installable, offline).
+- **To ship it again:**
+  - Bring back the Android job from git history (before this change), together with the Help page and README section.
+  - Create the signing key once: `keytool -genkeypair -v -keystore card-maker.jks -alias cardmaker -keyalg RSA -keysize 4096 -validity 36500`, then `base64 -w0 card-maker.jks`.
+  - Add the secrets `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` (`cardmaker`) and `ANDROID_KEY_PASSWORD`.
+  - Back the key up in two places: a lost key means everyone uninstalls once.
+- **Ways to ship, discussed when paused:**
+  - **The APK on GitHub Releases**, with [Obtainium](https://obtainium.imranr.dev) for automatic updates. This needs nothing more on our side.
+  - **IzzyOnDroid** (F-Droid clients, free, uses our signed APKs).
+  - **Main F-Droid**: they build and sign it themselves.
+  - **Google Play**: $25, and new personal accounts need a 14-day closed test with 12+ testers.
+  - Whatever the choice, check Google's Android developer verification first: from 2026 to 2027 it requires verified developers even for installs outside Play.
+  - The app has no internet permission on purpose, so it won't update itself.
+- **Later:** the owner wants a public website version without the parts made for their own use (such as Playtest). That will be planned separately.

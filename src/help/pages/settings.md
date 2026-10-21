@@ -46,7 +46,7 @@ Some choices are about how you like to work, so they're kept on this device (in 
 - the unit new projects start with
 - the Help page you read last
 
-## Desktop and Android apps
+## Desktop app
 
 - **Projects folder**: where new projects go. On the Home screen, ☰ → **Projects folder…**. In the desktop app, the **New project** box also has **Change…**.
 - In the desktop app, settings and the Recent list are stored with the app: in **Hearthside Cardworks data** next to the Windows `.exe` (an older **Card Maker data** folder keeps being used), or in `~/.config/card-maker` on Linux.
