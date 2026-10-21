@@ -53,7 +53,7 @@ Deleting a template that cards use moves those cards to another template of the 
 ## Exporting and importing templates
 
 - ⋯ → **Export file** saves a template as a `.cardtemplate.json` file, with its images, fonts, style presets and keywords.
-- **Import** (at the top of the Templates tab) adds a template from such a file to this project. It takes this project's card size.
+- **Import** (at the top of the Templates tab) adds a template from such a file to this project. It keeps the size it was made at. An imported front is paired with a back of that size, or gets a new starter back when the project has none.
 
 ## Changing many cards
 

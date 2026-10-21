@@ -19,7 +19,7 @@ That's it: you have a PDF with your card, its back, and cut marks.
 
 ![The New project box](new-project.webp)
 
-> **Tip:** On a phone or tablet, double-tap instead of double-click. On a phone, **Print** is in the ☰ menu as **Print / export PDF**.
+> **Tip:** On a phone or tablet, double-tap instead of double-click. On a phone, **Print** is in the ☰ menu (top right) as **Print / export PDF**.
 
 ## The first steps checklist
 

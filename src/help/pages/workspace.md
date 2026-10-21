@@ -8,13 +8,16 @@ The editor looks a little different on a computer, a tablet and a phone, but it 
 
 From left to right:
 
-- **☰ menu**: Print / export PDF, Gallery and proofreading, Export card images…, Export for Tabletop Simulator…, Keywords…, Vector Maker, Card data, Find and replace…, Units…, All projects, Export backup file, Help, and the theme. On a phone it also has Templates, Decks and Fonts.
 - **Project name**: click it to rename the project.
 - **Save indicator**: _Saved_, _Saving…_ or _Not saved_.
 - **Card / Template** switch: fill in a card, or change the shared layout. See [Templates and fields](help:templates).
 - **Add**: Text, Image…, Image field (art box), Icon row (stat), Card number, Rectangle, Ellipse, Line.
 - **Print**: opens the print preview and PDF export.
 - **Undo** and **Redo**.
+- **☰ menu**, at the right end: Find and replace…, Export for Tabletop Simulator…, Export backup file, All projects (and **Show project folder** in the desktop app), and **Settings**. On a phone, ☰ also has everything the rail has on a computer (Print, Gallery, Playtest, Templates, Decks, Fonts, Export card images, Keywords, Vector Maker and Card data).
+- **Settings** (inside ☰): Help, Units…, Theme… and, in the apps, the update and install items. Help stays here on every screen size.
+
+The ☰ menu sits at the top right everywhere, on the Home screen too.
 
 ## Left pane
 
@@ -24,6 +27,8 @@ On a computer the left pane has a narrow rail of buttons. The top four switch th
 - **Cards**: every card, with search, reorder and multi-select.
 - **Decks**: groups of cards with counts.
 - **Fonts**: upload and manage fonts.
+
+**Templates** and **Cards** also switch the mode: the Templates tab goes to **Template** mode on the current card's template, and the Cards tab goes back to **Card** mode. Switching the mode with the **Card / Template** switch moves the tab the same way. **Decks** and **Fonts** leave the mode as it is.
 
 Below a line come quick buttons that open full-screen views: **Print**, **Gallery**, **Export** (card images), **Keywords**, **Vector** (the Vector Maker), **Data** (card table, CSV and mail merge) and **Help**.
 
@@ -63,7 +68,7 @@ On a phone the card fills the screen:
 - Close a sheet with ✕, by tapping its button again, or by swiping its header down.
 - The **Edit** sheet stays low, so you can still see and tap the card above it.
 - When you edit text, a panel opens at the top of the screen with the text tools and a **Done** button.
-- **Templates**, **Decks**, **Fonts** and **Print / export PDF** are in the ☰ menu.
+- **Templates**, **Decks**, **Fonts**, **Print / export PDF** and the other rail views are in the ☰ menu.
 
 ## See also
 

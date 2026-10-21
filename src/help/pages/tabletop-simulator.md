@@ -11,6 +11,8 @@ You can playtest your game in Tabletop Simulator before printing anything. Heart
 
 The cards are always exported in full colour with all their art. The draft options in the print view only apply to paper.
 
+A custom deck in Tabletop Simulator has one card shape, so cards of different sizes become separate decks. Their files have the size in the name, for example "… 63.5x88.9mm faces 1.jpg", and "How to import.txt" has steps for each deck.
+
 ![Export for Tabletop Simulator](tts.webp)
 
 ## What is in the zip

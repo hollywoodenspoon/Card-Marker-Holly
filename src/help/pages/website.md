@@ -22,8 +22,8 @@ PDFs, card images and other exports are normal browser downloads. They go wherev
 
 Most browsers can install the website as an app with its own window and icon:
 
-1. Open ☰ (in the editor, or the ☰ on the Home screen).
-2. Choose **Install app**.
+1. Open ☰ at the top right (in the editor or on the Home screen).
+2. Choose **Settings** → **Install app**.
 
 **Install app** only shows when your browser offers it. If you don't see it, look for the browser's own install option (often in its address bar or menu, or **Add to Home screen** on a phone). An installed app keeps using the same browser storage, so your projects are the same in both.
 

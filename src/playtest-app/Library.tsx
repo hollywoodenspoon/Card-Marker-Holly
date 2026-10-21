@@ -124,8 +124,8 @@ export function Library({ onOpen, onHelp }: { onOpen: (id: string) => void; onHe
               <ol className="list-decimal space-y-1 pl-5">
                 <li>
                   In Hearthside Cardworks, press{' '}
-                  <span className="font-medium text-foreground">Playtest</span> in the left rail (or
-                  ☰ → Playtest).
+                  <span className="font-medium text-foreground">Playtest</span> in the left rail (on
+                  a phone, ☰ → Playtest).
                 </li>
                 <li>
                   Choose <span className="font-medium text-foreground">Playtest now</span> to open

@@ -1,5 +1,16 @@
 **Early alpha.** Things will change, and there may be bugs. Keep backups of projects you care about (☰ → Export backup file, or copy the project folder).
 
+## What's new
+
+- **A new name:** Card Maker is now **Hearthside Cardworks**, and the playtest app is **Hearthside Table**, with a tavern-sign app icon. Your projects, settings and backups carry over as they are.
+- **Fantasy icons** on the main buttons, from game-icons.net.
+- **37 themes**, picked from ☰ → Settings → Theme…: the new **Hearthside** (moonlit night and candle glow, the new default), hearth themes, twelve job themes (Red Mage to Thief), Chocobo and Gold Chocobo, tabletop, pastel, bold dark and accessible themes.
+- **Tidier menu:** ☰ sits at the top right everywhere, with Help, Units, Theme and updates under **Settings**. On a computer it no longer repeats what the left rail has.
+- **Tabs follow the mode:** the Templates tab switches to Template mode and the Cards tab back to Card mode.
+- **Import asks first** when the backup is of a project you already have: make a new copy, or overwrite it (with Undo).
+- **Fronts paired with backs, and mixed card sizes:** every front prints with its own back at the same size, and one project can hold cards of different sizes. Printing, Tabletop Simulator export, card images and game packs handle each size.
+- **Arch / CachyOS:** a pacman repository, so `sudo pacman -Syu` updates the app.
+
 ## Download
 
 - **Windows:** two choices.
@@ -7,6 +18,7 @@
   - `Hearthside-Cardworks-…-portable.exe`: a single file with nothing to install, which keeps its settings in a `Hearthside Cardworks data` folder next to the exe. It tells you when a new version is out, and you download that yourself.
 
   Windows may say "Windows protected your PC" because the app isn't code-signed. Click **More info → Run anyway**.
+
 - **Linux (any distro):** `hearthside-cardworks-…-x86_64.AppImage`. Make it executable (`chmod +x`), then run it. It can update itself.
 - **Android (phone and tablet, Android 7+):** `Hearthside-Cardworks-….apk`. Open it on the device, allow **Install unknown apps** for your browser or file manager when asked, then install. The first start asks for a folder for your projects (for example `Documents/Hearthside Cardworks`).
 - **Arch / CachyOS:** add the app's pacman repository once, then `sudo pacman -Syu` keeps it up to date. Add to the end of `/etc/pacman.conf`:

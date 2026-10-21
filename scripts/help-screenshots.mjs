@@ -49,7 +49,8 @@ const app = (page, fn, arg) => page.evaluate(fn, arg)
 async function newPage(viewport, opts = {}) {
   const ctx = await browser.newContext({ viewport, deviceScaleFactor: 1, ...opts })
   await ctx.addInitScript(() => {
-    localStorage.setItem('cardmaker.theme', 'light')
+    localStorage.setItem('cardmaker.theme', 'hearthside')
+    localStorage.setItem('cardmaker.themeDark', '1')
     localStorage.setItem('cardmaker.firstRunDone', '1')
   })
   const page = await ctx.newPage()
@@ -305,10 +306,28 @@ const menuItem = async (name) => {
 }
 await page.getByRole('button', { name: 'Menu' }).click()
 await wait(page)
-await clip('settings-menu', page.getByRole('menu'), 8)
+await page.getByRole('menuitem', { name: 'Settings' }).click()
+await wait(page)
+{
+  // The ☰ menu with its Settings submenu open, as one picture.
+  const menus = await page.getByRole('menu').all()
+  const box = await Promise.all(menus.map((m) => m.boundingBox()))
+  const x = Math.min(...box.map((r) => r.x)) - 8
+  const y = Math.min(...box.map((r) => r.y)) - 8
+  const w = Math.max(...box.map((r) => r.x + r.width)) - x + 8
+  const h = Math.max(...box.map((r) => r.y + r.height)) - y + 8
+  await save(page, 'settings-menu', await page.screenshot({ clip: { x, y, width: w, height: h } }))
+}
+// Pointer moves between the two menus close the submenu, so choose it with the keyboard.
+await page.getByRole('menuitem', { name: /Theme/ }).focus()
+await page.keyboard.press('Enter')
+await wait(page, 700)
+await shot(page, 'theme-picker', page.getByRole('dialog'))
 await page.keyboard.press('Escape')
+await wait(page)
 
-await menuItem(/Keywords/)
+await rail('Keywords').click()
+await wait(page, 700)
 await shot(page, 'keywords', page.getByRole('dialog'))
 await page.keyboard.press('Escape')
 await menuItem(/Find and replace/)

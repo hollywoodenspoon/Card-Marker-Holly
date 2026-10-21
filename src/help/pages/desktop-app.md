@@ -31,11 +31,11 @@ The first time you start the app, it asks **Check for updates automatically?**
 - **Yes, check**: at each start the app asks GitHub (where the downloads live) whether a newer version exists. Nothing else is sent: no projects, no names, no tracking.
 - **No, stay offline**: the app never goes online, as before.
 
-Change it any time in ☰: **Automatic update checks** turns checking on or off, and **Check for updates** checks right now.
+Change it any time in ☰ → **Settings**: **Automatic update checks** turns checking on or off, and **Check for updates** checks right now.
 
 What happens when there's a new version depends on which download you use:
 
-- **Windows Setup and the Linux AppImage** download it in the background and say **Version … is ready**. It installs when you close the app, or press **Restart now** (☰ also shows **Restart to update**). Your work is saved first.
+- **Windows Setup and the Linux AppImage** download it in the background and say **Version … is ready**. It installs when you close the app, or press **Restart now** (☰ → **Settings** also shows **Restart to update**). Your work is saved first.
 - **The portable `.exe`** can't replace itself. It says **Version … is out** with a **Download** button that opens the Releases page.
 - **The Arch package** is updated by pacman. It says **Version … is out. Update with: sudo pacman -Syu**, with a button that copies the command.
 

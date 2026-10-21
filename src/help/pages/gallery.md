@@ -4,7 +4,7 @@ The gallery shows all your cards at once, big enough to compare them side by sid
 
 ## Opening the gallery
 
-- **Desktop and tablet:** press **Gallery** in the left rail, or ☰ → **Gallery and proofreading**.
+- **Desktop and tablet:** press **Gallery** in the left rail.
 - **Phone:** ☰ → **Gallery and proofreading**.
 
 Press [[Esc]] or the back arrow to return to the editor.

@@ -1,6 +1,6 @@
 # Card size, bleed and safe area
 
-Every card in a project has the same size. You choose it when you create the project and can change it at any time.
+You choose a card size when you create the project and can change it at any time. A project can also mix sizes, for example poker-size creatures and small square tokens.
 
 ## Choose a size
 
@@ -10,7 +10,13 @@ Every card in a project has the same size. You choose it when you create the pro
 
 ![Card size settings in the right pane](card-size.webp)
 
-The size applies to all templates in the project. Parts on the card keep their positions and sizes in mm, so after a big change you may want to move a few things in Template mode.
+## Sizes belong to a front and its back
+
+Every front template is paired with a back template, so the two always line up when you print double-sided. One back can serve several fronts. A back and all the fronts paired with it share one size; the right pane shows which templates that is, for example _Size of Creature front + Spell front + Basic back (3 templates)_.
+
+The size you change is the size of the template you're on (in Card mode, the current card's templates) and of its pair. Other pairs keep their sizes. To give some cards another size, make a new back, set its size, and pair new fronts with it (see [Fronts and backs](help:fronts-backs#pairing-a-front-with-a-back)).
+
+When you change a size, parts keep their positions and sizes in mm, so after a big change you may want to move a few things in Template mode. Backgrounds that cover the whole card (or the card and its bleed) stretch to the new size. If a template in the pair was already designed, or cards using it have their own layers, the app asks before it changes anything. Undo puts the old size back.
 
 ## Presets
 
@@ -42,7 +48,7 @@ The size applies to all templates in the project. Parts on the card keep their p
 
 Hearthside Cardworks always measures in mm behind the scenes, but you can see and type sizes in the unit you like: **Millimetres**, **Centimetres**, **Inches** or **Pixels**.
 
-Change it in the right pane under **Card** → **Units** (nothing selected), or with ☰ → **Units…**. Every size and position box, the size list and the rulers switch over.
+Change it in the right pane under **Card** → **Units** (nothing selected), or with ☰ → **Settings** → **Units…**. Every size and position box, the size list and the rulers switch over.
 
 Pixels only make sense at a print resolution, so choosing **Pixels** shows a **Pixels per inch** box (300 by default). At 300 pixels per inch, 59 mm shows as 697 px.
 
@@ -77,4 +83,4 @@ If you round your corners with a corner cutter, turn on **Show rounded corners**
 
 - [Canvas: zoom, pan, snapping and undo](help:canvas)
 - [Printing on paper](help:printing)
-- [Themes and settings](help:settings)
+- [Settings](help:settings)

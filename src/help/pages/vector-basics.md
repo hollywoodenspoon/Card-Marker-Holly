@@ -4,8 +4,8 @@ The Vector Maker is a drawing board for your own icons, symbols, frames and badg
 
 ## Opening the Vector Maker
 
-- On desktop, press **Vector** in the rail on the left.
-- Open the ☰ menu and choose **Vector Maker**.
+- On a computer or tablet, press **Vector** in the rail on the left.
+- On a phone, open the ☰ menu and choose **Vector Maker**.
 - Press the pen button (**New vector**) in the Assets header.
 - To change a drawing you saved before, open its **⋯** in Assets and choose **Edit in Vector Maker**.
 
