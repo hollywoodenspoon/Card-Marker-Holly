@@ -65,14 +65,22 @@ describe('folder backend', () => {
     const b = folderBackend(bridge)
     const bundle = createProject('My: Game?')
     await b.saveBundle({ ...bundle, stylePresets: [], assets: [], fonts: [] })
-    const json = files.get('/home/me/Documents/Card Maker/My Game/project.json')
+    const json = files.get('/home/me/Documents/Hearthside Cardworks/My Game/project.json')
     expect(json).toBeDefined()
     expect(parseFolderFile(text(json)).project.id).toBe(bundle.project.id)
     const list = await b.listProjects()
     expect(list).toMatchObject([{ id: bundle.project.id, name: 'My: Game?', missing: false }])
     // A second project with the same name gets its own folder.
     await b.saveBundle({ ...createProject('My: Game?'), stylePresets: [], assets: [], fonts: [] })
-    expect(files.has('/home/me/Documents/Card Maker/My Game (2)/project.json')).toBe(true)
+    expect(files.has('/home/me/Documents/Hearthside Cardworks/My Game (2)/project.json')).toBe(true)
+  })
+
+  it('keeps using Documents/Card Maker from before the rename', async () => {
+    const { bridge, files } = memoryFs()
+    files.set('/home/me/Documents/Card Maker/Old/project.json', new Uint8Array([1]))
+    const b = folderBackend(bridge)
+    await b.saveBundle({ ...createProject('New'), stylePresets: [], assets: [], fonts: [] })
+    expect(files.has('/home/me/Documents/Card Maker/New/project.json')).toBe(true)
   })
 
   it('autosaves edits, writes pictures once and removes deleted ones', async () => {
@@ -84,7 +92,7 @@ describe('folder backend', () => {
     const loaded = await b.loadProject(pid)
     openDoc(loaded!.doc, loaded!.library)
     const saver = startAutosave(useEditor, { delayMs: 5, backend: b })
-    const dir = '/home/me/Documents/Card Maker/Saves'
+    const dir = '/home/me/Documents/Hearthside Cardworks/Saves'
 
     updateLibrary((l) => {
       l.assets.a1 = picture(pid, 'a1', [1, 2, 3])
@@ -129,7 +137,7 @@ describe('folder backend', () => {
       assets: [picture(pid, 'p', [9, 8, 7]), picture(pid, 'gone', [1], 'image/jpeg')],
       fonts: [],
     })
-    const dir = '/home/me/Documents/Card Maker/Pics'
+    const dir = '/home/me/Documents/Hearthside Cardworks/Pics'
     files.delete(`${dir}/images/gone.jpg`)
     const loaded = await b.loadProject(pid)
     expect([...new Uint8Array(await loaded!.library.assets.p.blob.arrayBuffer())]).toEqual([
@@ -144,7 +152,7 @@ describe('folder backend', () => {
     const b = folderBackend(bridge)
     const bundle = createProject('Orig')
     await b.saveBundle({ ...bundle, stylePresets: [], assets: [], fonts: [] })
-    const src = '/home/me/Documents/Card Maker/Orig'
+    const src = '/home/me/Documents/Hearthside Cardworks/Orig'
     for (const [k, v] of [...files])
       if (k.startsWith(src)) files.set(k.replace(src, '/usb/Copy'), v)
 
@@ -174,7 +182,7 @@ describe('folder backend', () => {
     const b = folderBackend(bridge)
     const bundle = createProject('Moved')
     await b.saveBundle({ ...bundle, stylePresets: [], assets: [], fonts: [] })
-    const src = '/home/me/Documents/Card Maker/Moved'
+    const src = '/home/me/Documents/Hearthside Cardworks/Moved'
     for (const [k, v] of [...files])
       if (k.startsWith(src)) {
         files.set(k.replace(src, '/new/Moved'), v)
@@ -197,7 +205,7 @@ describe('folder backend', () => {
     const b = folderBackend(bridge)
     const bundle = createProject('Crash')
     await b.saveBundle({ ...bundle, stylePresets: [], assets: [], fonts: [] })
-    const dir = '/home/me/Documents/Card Maker/Crash'
+    const dir = '/home/me/Documents/Hearthside Cardworks/Crash'
     const good = files.get(`${dir}/${PROJECT_FILE}`)!
     // Stopped mid-save on Android: the old file was moved to .bak, the new one is still .tmp.
     files.delete(`${dir}/${PROJECT_FILE}`)
@@ -220,11 +228,11 @@ describe('folder backend', () => {
     const { bridge, files } = memoryFs()
     const b = folderBackend({ ...bridge, needsProjectsFolder: true })
     expect(await b.hasProjectsDir()).toBe(false)
-    files.set('/sd/Card Maker/.keep', new Uint8Array())
-    await b.setProjectsDir('/sd/Card Maker')
+    files.set('/sd/Hearthside Cardworks/.keep', new Uint8Array())
+    await b.setProjectsDir('/sd/Hearthside Cardworks')
     expect(await b.hasProjectsDir()).toBe(true)
     // Access lost (folder gone): ask again.
-    files.delete('/sd/Card Maker/.keep')
+    files.delete('/sd/Hearthside Cardworks/.keep')
     expect(await b.hasProjectsDir()).toBe(false)
     expect(await folderBackend(bridge).hasProjectsDir()).toBe(true)
   })

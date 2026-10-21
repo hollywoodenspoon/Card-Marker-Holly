@@ -2,7 +2,7 @@ import { strFromU8, strToU8, unzipSync, zipSync } from 'fflate'
 import type { GameSetup } from './setup'
 
 /**
- * A game pack: everything the Playtest app needs from a Card Maker project,
+ * A game pack: everything the Playtest app needs from a Hearthside Cardworks project,
  * in one zip (.cmpack). Card pictures as JPEG (identical pictures stored
  * once), each card's field values by field name (for a rules engine later),
  * the decks, and optionally table setups.
@@ -39,7 +39,7 @@ export interface PackInfo {
   format: typeof PACK_FORMAT
   version: number
   name: string
-  /** The Card Maker project it came from (a newer export of it replaces the old one). */
+  /** The Hearthside Cardworks project it came from (a newer export of it replaces the old one). */
   projectId: string
   exportedAt: number
   appVersion?: string
@@ -128,7 +128,7 @@ export function readPack(bytes: Uint8Array): GamePack {
   } catch {
     return fail('The game pack is damaged (pack.json is not valid).')
   }
-  if (info?.format !== PACK_FORMAT) fail('This is not a Card Maker game pack.')
+  if (info?.format !== PACK_FORMAT) fail('This is not a Hearthside Cardworks game pack.')
   if (typeof info.version !== 'number' || info.version > PACK_VERSION)
     fail('This game pack was made by a newer version. Update the Playtest app to open it.')
   if (!Array.isArray(info.cards) || !Array.isArray(info.decks) || !info.cardSize)

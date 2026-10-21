@@ -1,6 +1,6 @@
 # Themes and settings
 
-Card Maker has only a few settings, and most of them are in the ☰ menu.
+Hearthside Cardworks has only a few settings, and most of them are in the ☰ menu.
 
 ## Themes
 
@@ -50,7 +50,7 @@ Some choices are about how you like to work, so they're kept on this device (in 
 
 - **Projects folder**: where new projects go. On the Home screen, ☰ → **Projects folder…**. In the desktop app, the **New project** box also has **Change…**.
 - **Automatic update checks** and **Check for updates** (desktop app, in ☰): see [Desktop app](help:desktop-app#updates).
-- In the desktop app, settings and the Recent list are stored with the app: in **Card Maker data** next to the Windows `.exe`, or in `~/.config/card-maker` on Linux.
+- In the desktop app, settings and the Recent list are stored with the app: in **Hearthside Cardworks data** next to the Windows `.exe`, or in `~/.config/card-maker` on Linux.
 
 ## Install and version
 

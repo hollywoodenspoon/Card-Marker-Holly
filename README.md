@@ -1,6 +1,6 @@
-# Card Maker
+# Hearthside Cardworks
 
-*Card Maker is a working title.* Version **0.1.0-alpha.2** (early alpha).
+*Hearthside Cardworks is a working title.* Version **0.1.0-alpha.2** (early alpha).
 
 A card editor built with React, TypeScript, Vite and a Konva canvas. It runs as a website (projects stored in the browser), or as a desktop app for Windows and Linux and an Android app for phones and tablets (projects stored as folders of ordinary files). There is no backend, and it works offline.
 
@@ -15,7 +15,7 @@ npm run preview        # serve the website build (installable, works offline)
 npm run desktop:dev    # desktop app with live reload
 npm run desktop:dist   # desktop packages for this OS in release/ (add e.g. -- --linux AppImage pacman)
 npm run android:sync   # build the web app into the Android project (android/, open it in Android Studio)
-npm run android:apk    # build release/Card-Maker-<version>.apk (needs the Android SDK and JDK 21)
+npm run android:apk    # build release/Hearthside-Cardworks-<version>.apk (needs the Android SDK and JDK 21)
 ```
 
 **Website:** https://hollywoodenspoon.github.io/Card-Marker-Holly/. Every push to `main` rebuilds it (`.github/workflows/pages.yml`). One-time setup: repo Settings → Pages → Source: **GitHub Actions**.
@@ -44,10 +44,10 @@ A small *Make your first card* checklist on the canvas ticks these steps off as 
 
 ### Desktop app (Windows and Linux)
 - **Download** it from the repo's *Releases* page:
-  - **Windows:** `Card-Maker-Setup-….exe` installs for you only (no admin rights) and updates itself; `Card-Maker-…-portable.exe` is one file with nothing to install. The first time, Windows may say "Windows protected your PC" (the app isn't code-signed): click **More info → Run anyway**.
+  - **Windows:** `Hearthside-Cardworks-Setup-….exe` installs for you only (no admin rights) and updates itself; `Hearthside-Cardworks-…-portable.exe` is one file with nothing to install. The first time, Windows may say "Windows protected your PC" (the app isn't code-signed): click **More info → Run anyway**.
   - **Linux:** the `.AppImage`. Make it executable (`chmod +x`, or Properties → Allow executing), then run it.
-  - **Arch / CachyOS:** install the `.pkg.tar.xz` with `sudo pacman -U card-maker-….pkg.tar.xz`.
-- **Each project is a folder** of ordinary files, by default in `Documents/Card Maker/<project name>/`:
+  - **Arch / CachyOS:** install the `.pkg.tar.xz` with `sudo pacman -U hearthside-cardworks-….pkg.tar.xz`.
+- **Each project is a folder** of ordinary files, by default in `Documents/Hearthside Cardworks/<project name>/`:
   ```
   project.json      cards, templates, styles, and which pictures and fonts are used
   project.json.bak  the version before the last save
@@ -63,13 +63,13 @@ A small *Make your first card* checklist on the canvas ticks these steps off as 
 - **New project** shows where its folder will go. **Change…** picks another place for new projects.
 - **Exports** (PDF, images, Tabletop Simulator, CSV, vectors) open a normal **Save as** dialog; the message afterwards has **Show in folder**.
 - **Settings and the Recent list** are kept with the app:
-  - portable exe: in a `Card Maker data` folder next to the exe, so nothing goes into AppData
+  - portable exe: in a `Hearthside Cardworks data` folder next to the exe, so nothing goes into AppData
   - Linux: in `~/.config/card-maker`
 - **Updates:** at first start the app asks whether to check for updates. With checks on, it asks GitHub once per start and nothing else; the Setup exe and the AppImage install new versions themselves, the portable exe and the Arch package say when one is out. With checks off it never goes online. ☰ has **Check for updates** and **Automatic update checks**, and shows the version.
 
 ### Android app (phones and tablets)
-- **Install:** download `Card-Maker-….apk` from *Releases* on the phone or tablet (Android 7 or newer) and open it. Android asks to allow **Install unknown apps** for the browser or file manager once. Updates install over the old version.
-- **First start:** you pick the folder for your projects. Tap **Documents**, make a folder named *Card Maker* with the new-folder button, then **Use this folder**. Projects are saved there in the same folder format as on the desktop (`project.json`, `images/`, `fonts/`), so you can copy one to a computer (USB, or a sync app) and back. Home → ☰ → **Projects folder…** changes the folder later; **Open folder** adds a project folder from elsewhere.
+- **Install:** download `Hearthside-Cardworks-….apk` from *Releases* on the phone or tablet (Android 7 or newer) and open it. Android asks to allow **Install unknown apps** for the browser or file manager once. Updates install over the old version.
+- **First start:** you pick the folder for your projects. Tap **Documents**, make a folder named *Hearthside Cardworks* with the new-folder button, then **Use this folder**. Projects are saved there in the same folder format as on the desktop (`project.json`, `images/`, `fonts/`), so you can copy one to a computer (USB, or a sync app) and back. Home → ☰ → **Projects folder…** changes the folder later; **Open folder** adds a project folder from elsewhere.
 - **Back button:** closes the open sheet or view first, then goes from the editor to Home.
 - **Saving:** automatic, also when you switch to another app.
 - **Exports** (PDF, images, Tabletop Simulator, CSV) open Android's **Save to** screen.
@@ -189,7 +189,7 @@ The gallery and the print preview use the card editor's controls: hold **Space**
 ☰ → *Gallery and proofreading*: every card in a big grid (fronts, backs or both, with a size slider, search and a deck filter); click a card to open it. The **Proofread** tab lists each card's text with the browser's spell check; plain text can be fixed right there (formatted text is edited on the card).
 
 ### Playtest (separate app)
-Rail → *Playtest* (or ☰ → *Playtest (export game pack)…*) exports a **game pack** (`.cmpack`): every card's picture (as printed), its field values by field name (text as text, icon rows as numbers, hidden layers included) and your decks. **Playtest now** (in a browser) opens it straight in **Card Maker Playtest**, a companion app at `playtest/` on the same site (installable, offline); **Save game pack** gives a file for any device or a friend. There you pick a table and a deck per player and play by hand: drag or tap cards between fields, hands and piles, flip and turn them, place tokens, keep score, coin and dice, *View as* a player for hot-seat play, undo, and a copyable game log. Games are saved per pack. Built in: an Adventure Scuffle! table and a simple board-game table. No rules are checked yet.
+Rail → *Playtest* (or ☰ → *Playtest (export game pack)…*) exports a **game pack** (`.cmpack`): every card's picture (as printed), its field values by field name (text as text, icon rows as numbers, hidden layers included) and your decks. **Playtest now** (in a browser) opens it straight in **Hearthside Table**, a companion app at `playtest/` on the same site (installable, offline); **Save game pack** gives a file for any device or a friend. There you pick a table and a deck per player and play by hand: drag or tap cards between fields, hands and piles, flip and turn them, place tokens, keep score, coin and dice, *View as* a player for hot-seat play, undo, and a copyable game log. Games are saved per pack. Built in: an Adventure Scuffle! table and a simple board-game table. No rules are checked yet.
 
 ### Tabletop Simulator
 ☰ → *Export for Tabletop Simulator…*: pick a deck (or the print list) and download a zip of deck sheets (10 × 7, up to 69 cards each, max 4096 px) plus the back image — or matching back sheets when backs differ — and step-by-step import instructions.

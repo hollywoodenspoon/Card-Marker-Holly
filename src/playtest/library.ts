@@ -4,12 +4,12 @@ import type { GameSetup } from './setup'
 import type { TableState } from './state'
 
 /**
- * The Playtest app's own database (separate from Card Maker's projects).
- * Both apps are served from the same site, so Card Maker's "Playtest now"
+ * The Playtest app's own database (separate from Hearthside Cardworks' projects).
+ * Both apps are served from the same site, so Hearthside Cardworks' "Playtest now"
  * can put a pack here and open the Playtest app on it.
  */
 export interface PackRow {
-  /** The Card Maker project id: a newer export of the same project replaces the old one. */
+  /** The Hearthside Cardworks project id: a newer export of the same project replaces the old one. */
   id: string
   name: string
   importedAt: number

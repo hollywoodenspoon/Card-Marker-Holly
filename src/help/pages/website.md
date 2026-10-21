@@ -1,6 +1,6 @@
 # Website and offline use
 
-You can use Card Maker straight from your web browser at [hollywoodenspoon.github.io/Card-Marker-Holly](https://hollywoodenspoon.github.io/Card-Marker-Holly/). Nothing to install, no account, and nothing is sent anywhere: your work stays on your own device.
+You can use Hearthside Cardworks straight from your web browser at [hollywoodenspoon.github.io/Card-Marker-Holly](https://hollywoodenspoon.github.io/Card-Marker-Holly/). Nothing to install, no account, and nothing is sent anywhere: your work stays on your own device.
 
 ## Where the website keeps your work
 
@@ -29,7 +29,7 @@ Most browsers can install the website as an app with its own window and icon:
 
 ## Working offline
 
-After your first visit, Card Maker works without an internet connection, including PDF export. A message says **Ready to work offline.** when it's ready.
+After your first visit, Hearthside Cardworks works without an internet connection, including PDF export. A message says **Ready to work offline.** when it's ready.
 
 When a newer version is available, a message says **A new version is available.** Press **Update** to switch to it. Your projects aren't affected.
 

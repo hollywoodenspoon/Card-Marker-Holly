@@ -27,16 +27,18 @@ import { initUpdates, updatesEnabled } from './updater'
 
 // Fixed folder names, so renaming the app never loses settings.
 const DATA_ID = 'card-maker'
-const PORTABLE_DATA = 'Card Maker data'
+// The portable exe's data folder: the old name is kept when it is already there.
+const portableData = (dir: string) =>
+  existsSync(path.join(dir, 'Card Maker data'))
+    ? path.join(dir, 'Card Maker data')
+    : path.join(dir, `${APP_NAME} data`)
 
 // The portable Windows exe keeps its data next to itself, never in AppData.
 const portableDir = process.env.PORTABLE_EXECUTABLE_DIR
 app.setPath(
   'userData',
   process.env.CARDMAKER_DATA_DIR ??
-    (portableDir
-      ? path.join(portableDir, PORTABLE_DATA)
-      : path.join(app.getPath('appData'), DATA_ID)),
+    (portableDir ? portableData(portableDir) : path.join(app.getPath('appData'), DATA_ID)),
 )
 const documentsDir = () => process.env.CARDMAKER_DOCUMENTS_DIR ?? app.getPath('documents')
 

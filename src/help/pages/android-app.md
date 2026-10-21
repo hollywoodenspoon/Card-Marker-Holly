@@ -8,7 +8,7 @@ The app is installed from an APK file rather than the Play Store. The APK will a
 
 1. On your phone or tablet, download the file ending in `.apk` from the Releases page.
 2. Open it. Android asks once whether your browser or file manager may **Install unknown apps**. Allow it, then go back and tap **Install**.
-3. Open **Card Maker**.
+3. Open **Hearthside Cardworks**.
 
 To update, install the newer APK the same way. It installs over the old version and your projects stay where they are.
 
@@ -17,7 +17,7 @@ To update, install the newer APK the same way. It installs over the old version 
 The first time you start the app, it asks **Where should your projects go?**
 
 1. Tap **Choose a folder**.
-2. Tap **Documents**, then the new-folder button, and name the folder _Card Maker_.
+2. Tap **Documents**, then the new-folder button, and name the folder _Hearthside Cardworks_.
 3. Tap **Use this folder** (and **Allow** if Android asks).
 
 Each project becomes a folder inside it, in the same format as the desktop app (`project.json`, `images`, `fonts`). Copy a project folder to a computer by USB or with a sync app, and open it there with **Open folder**; it works the other way round too.

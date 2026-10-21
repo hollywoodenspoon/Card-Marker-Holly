@@ -2,7 +2,7 @@
 # productName is the working title; change it together with APP_NAME in src/app/appInfo.ts.
 # appId stays fixed so a rename never loses settings.
 appId: io.github.hollywoodenspoon.cardmaker
-productName: Card Maker
+productName: Hearthside Cardworks
 copyright: Copyright © 2026 hollywoodenspoon
 
 directories:
@@ -30,11 +30,17 @@ linux:
   icon: public/pwa-512.png
   maintainer: hollywoodenspoon
   synopsis: Design cards and print them on A4 sheets
-  artifactName: card-maker-${version}-${arch}.${ext}
+  artifactName: hearthside-cardworks-${version}-${arch}.${ext}
 
 # Arch / CachyOS names for what the bundled Electron needs from the system.
+# Renamed from card-maker: pacman swaps the old package for this one on update.
 pacman:
-  artifactName: card-maker-${version}-${arch}.pkg.tar.xz
+  packageName: hearthside-cardworks
+  artifactName: hearthside-cardworks-${version}-${arch}.pkg.tar.xz
+  fpm:
+    - --replaces=card-maker
+    - --conflicts=card-maker
+    - --provides=card-maker
   depends:
     - gtk3
     - nss
@@ -52,9 +58,9 @@ win:
 nsis:
   oneClick: true
   perMachine: false
-  artifactName: Card-Maker-Setup-${version}.exe
+  artifactName: Hearthside-Cardworks-Setup-${version}.exe
 
 # One self-contained exe: no installer, no admin rights; data stays next to it.
 # It can't replace itself, so it only says when a new version is out.
 portable:
-  artifactName: Card-Maker-${version}-portable.exe
+  artifactName: Hearthside-Cardworks-${version}-portable.exe

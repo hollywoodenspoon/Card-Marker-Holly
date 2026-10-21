@@ -67,7 +67,7 @@ describe('game packs', () => {
     expect(() => readPack(strToU8('hello'))).toThrow(/not a zip/)
     expect(() => readPack(zipSync({ 'x.txt': strToU8('x') }))).toThrow(/pack.json is missing/)
     expect(() => readPack(zipSync({ 'pack.json': strToU8('{"format":"other"}') }))).toThrow(
-      /not a Card Maker game pack/,
+      /not a Hearthside Cardworks game pack/,
     )
     const files = unzipSync(await buildPack(input()))
     const info = JSON.parse(new TextDecoder().decode(files['pack.json']))

@@ -139,7 +139,7 @@ describe('project files', () => {
 
   it('rejects other files', () => {
     expect(() => importProject({ format: 'card-maker-template', version: 1 })).toThrow(
-      /not a Card Maker project/,
+      /not a Hearthside Cardworks project/,
     )
     expect(() => importProject(null)).toThrow()
   })

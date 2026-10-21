@@ -46,7 +46,7 @@ export function StartPanel() {
   const [chosen, setChosen] = useState<string[]>(() =>
     Array.from({ length: 4 }, (_, i) => valid(last.decks?.[i]) || fallback[i % fallback.length]),
   )
-  // The pack lists cards in Card Maker's order.
+  // The pack lists cards in Hearthside Cardworks' order.
   const list = useMemo(() => info.cards.map((c, order) => ({ ...c, order })), [info.cards])
   const cardsFor = (choice: string) =>
     choice === ALL
@@ -126,7 +126,7 @@ export function StartPanel() {
           })}
         {decks.length === 0 && setup.deal && (
           <p className="text-xs text-muted-foreground">
-            Tip: make a deck for each player in Card Maker's Decks panel, then export the game pack
+            Tip: make a deck for each player in Hearthside Cardworks' Decks panel, then export the game pack
             again, to choose exactly which cards they play with.
           </p>
         )}

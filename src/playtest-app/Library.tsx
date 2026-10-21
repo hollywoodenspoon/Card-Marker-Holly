@@ -16,7 +16,7 @@ import {
 import { promptInstall, usePwa } from '@/ui/pwa/pwa'
 import { ThemeMenuItems } from '@/ui/theme/ThemeMenu'
 
-/** Your game packs: import a file from Card Maker, open one to play, or remove it. */
+/** Your game packs: import a file from Hearthside Cardworks, open one to play, or remove it. */
 export function Library({ onOpen, onHelp }: { onOpen: (id: string) => void; onHelp: () => void }) {
   const [packs, setPacks] = useState<PackRow[] | null>(null)
   const [saved, setSaved] = useState<Set<string>>(new Set())
@@ -54,7 +54,7 @@ export function Library({ onOpen, onHelp }: { onOpen: (id: string) => void; onHe
     const ok = await askConfirm({
       title: `Remove ${p.name}?`,
       description:
-        'The pack and its saved game are removed from this browser. Your Card Maker project is not touched.',
+        'The pack and its saved game are removed from this browser. Your Hearthside Cardworks project is not touched.',
       okLabel: 'Remove',
       danger: true,
     })
@@ -139,7 +139,7 @@ export function Library({ onOpen, onHelp }: { onOpen: (id: string) => void; onHe
               <p className="mb-2 font-medium text-foreground">No game packs yet</p>
               <ol className="list-decimal space-y-1 pl-5">
                 <li>
-                  In Card Maker, press <span className="font-medium text-foreground">Playtest</span>{' '}
+                  In Hearthside Cardworks, press <span className="font-medium text-foreground">Playtest</span>{' '}
                   in the left rail (or ☰ → Playtest).
                 </li>
                 <li>

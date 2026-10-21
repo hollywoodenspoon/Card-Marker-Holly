@@ -12,11 +12,11 @@ import { openPack, PackProvider, type OpenPack } from './table/packContext'
 import { usePlaytest } from './table/usePlaytest'
 import { useGameAutosave } from './useGameAutosave'
 
-/** "#pack=<id>": the pack to open (Card Maker's "Playtest now" links here). */
+/** "#pack=<id>": the pack to open (Hearthside Cardworks' "Playtest now" links here). */
 const packFromHash = () => new URLSearchParams(location.hash.slice(1)).get('pack')
 
 /**
- * The Playtest app: a library of game packs exported from Card Maker, and a
+ * The Playtest app: a library of game packs exported from Hearthside Cardworks, and a
  * table to play them on. Everything stays in this browser (its own database).
  */
 export function App() {

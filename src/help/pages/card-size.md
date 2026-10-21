@@ -40,7 +40,7 @@ The size applies to all templates in the project. Parts on the card keep their p
 
 ## Units
 
-Card Maker always measures in mm behind the scenes, but you can see and type sizes in the unit you like: **Millimetres**, **Centimetres**, **Inches** or **Pixels**.
+Hearthside Cardworks always measures in mm behind the scenes, but you can see and type sizes in the unit you like: **Millimetres**, **Centimetres**, **Inches** or **Pixels**.
 
 Change it in the right pane under **Card** → **Units** (nothing selected), or with ☰ → **Units…**. Every size and position box, the size list and the rulers switch over.
 

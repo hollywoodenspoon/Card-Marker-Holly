@@ -4,7 +4,7 @@ import { Sheet } from '@/ui/components/ui/sheet'
 import { useLayout } from '@/ui/shell/useLayout'
 import guide from './guide.md?raw'
 
-/** The Playtest app's guide (one page, the same Markdown style as Card Maker's Help). */
+/** The Playtest app's guide (one page, the same Markdown style as Hearthside Cardworks' Help). */
 export function HowToPlay({ open, onClose }: { open: boolean; onClose: () => void }) {
   const phone = useLayout() === 'phone'
   const page = useMemo(

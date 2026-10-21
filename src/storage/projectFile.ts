@@ -68,7 +68,7 @@ export async function exportProject(doc: DocState, library: LibraryState): Promi
 export function importProject(file: unknown, nameSuffix = ''): ProjectBundle {
   const f = file as ProjectFile
   if (f?.format !== 'card-maker-project' || f.version !== 1 || !f.project)
-    throw new Error('This is not a Card Maker project file.')
+    throw new Error('This is not a Hearthside Cardworks project file.')
   const pid = newId()
   const ids = {
     templates: new Map<string, string>(),

@@ -1,6 +1,6 @@
 # Tabletop Simulator
 
-You can playtest your game in Tabletop Simulator before printing anything. Card Maker saves your cards as deck sheets, the big grid images Tabletop Simulator uses for a custom deck.
+You can playtest your game in Tabletop Simulator before printing anything. Hearthside Cardworks saves your cards as deck sheets, the big grid images Tabletop Simulator uses for a custom deck.
 
 ## Exporting the deck
 

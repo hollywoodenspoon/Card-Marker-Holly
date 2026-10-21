@@ -91,7 +91,10 @@ export function folderBackend(fs: DesktopBridge): FolderStore {
   async function projectsDir() {
     const s = await readSettings()
     if (s.projectsDir) return s.projectsDir
-    const dir = joinPath((await fs.paths()).documents, APP_NAME)
+    const docs = (await fs.paths()).documents
+    // Before the rename the folder was "Card Maker": keep using it when it is there.
+    const old = joinPath(docs, 'Card Maker')
+    const dir = (await fs.exists(old)) ? old : joinPath(docs, APP_NAME)
     await saveSettings((x) => (x.projectsDir = dir))
     return dir
   }

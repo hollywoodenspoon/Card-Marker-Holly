@@ -1,6 +1,6 @@
 # Printing on paper
 
-Card Maker lays your cards out on paper sheets, ready to cut by hand, and saves them as a PDF at exact millimetre sizes. Everything on this page lives in the print view.
+Hearthside Cardworks lays your cards out on paper sheets, ready to cut by hand, and saves them as a PDF at exact millimetre sizes. Everything on this page lives in the print view.
 
 ## Opening the print view
 

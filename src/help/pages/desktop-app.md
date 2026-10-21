@@ -1,14 +1,14 @@
 # Desktop app (Windows and Linux)
 
-The desktop app is the same Card Maker as the website, but your projects are saved as folders of ordinary files on your computer instead of inside a browser. It never goes online.
+The desktop app is the same Hearthside Cardworks as the website, but your projects are saved as folders of ordinary files on your computer instead of inside a browser. It never goes online.
 
 ## Download and install
 
 Download the app from the project's [Releases page](https://github.com/hollywoodenspoon/Card-Marker-Holly/releases). Pick the file for your system:
 
 - **Windows**, two choices:
-  - **`Card-Maker-Setup-….exe`** (recommended): double-click it and it installs in a few seconds, for you only, without admin rights. It can update itself.
-  - **`…-portable.exe`**: there is nothing to install. Put it anywhere (for example a _Card Maker_ folder on your desktop or a USB stick) and double-click it.
+  - **`Hearthside-Cardworks-Setup-….exe`** (recommended): double-click it and it installs in a few seconds, for you only, without admin rights. It can update itself.
+  - **`…-portable.exe`**: there is nothing to install. Put it anywhere (for example a _Hearthside Cardworks_ folder on your desktop or a USB stick) and double-click it.
 - **Linux**: the file ending in `.AppImage`. Make it executable (right-click → **Properties** and tick the option to allow running it as a program, or `chmod +x` in a terminal), then double-click it.
 - **Arch Linux and CachyOS**: the file ending in `.pkg.tar.xz`. Install it with `sudo pacman -U` followed by the file name.
 
@@ -34,11 +34,11 @@ Your projects are separate from the app, so updating never touches them.
 
 > **Note:** Versions before 0.1.0-alpha.2 can't update themselves. Download a newer version by hand once; from then on it's automatic.
 
-> **Note:** The Windows app keeps its settings and Recent list in a folder called **Card Maker data** next to the `.exe`. If you move the `.exe`, move that folder with it. Nothing goes into AppData.
+> **Note:** The Windows app keeps its settings and Recent list in a folder called **Hearthside Cardworks data** next to the `.exe`. If you move the `.exe`, move that folder with it. Nothing goes into AppData.
 
 ## Where your projects are saved
 
-New projects go into **Documents/Card Maker/**, one folder per project, named after the project. The **New project** box shows exactly where (_Saved in …_). Press **Change…** there to pick another place for new projects. You can also change it on the Home screen: ☰ → **Projects folder…**.
+New projects go into **Documents/Hearthside Cardworks/**, one folder per project, named after the project. The **New project** box shows exactly where (_Saved in …_). Press **Change…** there to pick another place for new projects. You can also change it on the Home screen: ☰ → **Projects folder…**.
 
 Each project folder holds:
 
@@ -68,7 +68,7 @@ PDFs, card images, Tabletop Simulator files, CSV files and backups open a normal
 
 Theme, units and other preferences are kept with the app:
 
-- Windows: in the **Card Maker data** folder next to the `.exe`
+- Windows: in the **Hearthside Cardworks data** folder next to the `.exe`
 - Linux: in `~/.config/card-maker`
 
 The version number is shown at the bottom of the ☰ menu.

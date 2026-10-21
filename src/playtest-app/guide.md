@@ -1,11 +1,11 @@
 # How to play
 
-Card Maker Playtest lays out a table for your game and lets you play it with the cards you made in Card Maker, on any device. You move, flip and turn cards by hand and keep score. The app doesn't check the rules yet, so you play by your own.
+Hearthside Table lays out a table for your game and lets you play it with the cards you made in Hearthside Cardworks, on any device. You move, flip and turn cards by hand and keep score. The app doesn't check the rules yet, so you play by your own.
 
 ## Getting your cards here
 
-1. In Card Maker, press **Playtest** in the left rail (or ☰ → **Playtest**).
-2. Choose **Playtest now** to open the cards here straight away (Card Maker in a browser), or **Save game pack** to get a `.cmpack` file.
+1. In Hearthside Cardworks, press **Playtest** in the left rail (or ☰ → **Playtest**).
+2. Choose **Playtest now** to open the cards here straight away (Hearthside Cardworks in a browser), or **Save game pack** to get a `.cmpack` file.
 3. Here, press **Import game pack** (or drop the file on the page) and press **Play**.
 
 A game pack holds every card's picture, the values of its fields (such as `A_AS`, `D_AS` and `FS_AS`) and your decks. Send the file to a friend and they can play too. When you change cards, export the pack again: the new one replaces the old one here.
@@ -15,7 +15,7 @@ A game pack holds every card's picture, the values of its fields (such as `A_AS`
 1. Pick a **Game**. Two tables are built in:
    - **Adventure Scuffle! — Mutual Reveal**: for each player a 2 × 3 field (Front Line and Rear Guard), Support and a Rest zone; card states Ready, Attacking, Defending and Ability-active; a Main Attacker cube; points to 4. The two fields face each other, so a card's Mirrored Position is straight across.
    - **Simple board game**: a shared board, a hand and a deck for each player, pawns, markers and two dice.
-2. Pick a **deck** for each player (the decks from Card Maker). **All cards** gives a player one of every card. A warning shows when a deck has a different number of cards than the game uses.
+2. Pick a **deck** for each player (the decks from Hearthside Cardworks). **All cards** gives a player one of every card. A warning shows when a deck has a different number of cards than the game uses.
 3. Press **Start**.
 
 The game is saved in this browser as you play: come back later, or reload, and press **Continue**.

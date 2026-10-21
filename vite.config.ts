@@ -13,7 +13,7 @@ const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 
 // their own files and need no service worker.
 const nativeApp = ['desktop', 'android'].includes(process.env.VITE_TARGET ?? '')
 
-/** The Playtest page keeps only its own manifest (the PWA plugin adds Card Maker's to every page). */
+/** The Playtest page keeps only its own manifest (the PWA plugin adds Hearthside Cardworks' to every page). */
 const playtestManifest = (): Plugin => ({
   name: 'playtest-manifest',
   enforce: 'post',
@@ -38,8 +38,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['icon.svg', 'apple-touch-icon.png'],
       manifest: {
-        name: 'Card Maker',
-        short_name: 'Card Maker',
+        name: 'Hearthside Cardworks',
+        short_name: 'Hearthside',
         description: 'Design cards and print them on A4 sheets. Works offline.',
         start_url: '.',
         scope: '.',
@@ -72,7 +72,7 @@ export default defineConfig({
     // The editor shell (React, Konva, Radix, Dexie) is ~300 kB gzipped; the text editor is split out.
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
-      // Two apps from one build: Card Maker, and the Playtest app at playtest/.
+      // Two apps from one build: Hearthside Cardworks, and the Playtest app at playtest/.
       input: {
         main: fileURLToPath(new URL('./index.html', import.meta.url)),
         playtest: fileURLToPath(new URL('./playtest/index.html', import.meta.url)),
