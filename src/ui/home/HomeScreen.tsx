@@ -1,5 +1,4 @@
 import {
-  CircleHelp,
   Download,
   FolderCog,
   FolderOpen,
@@ -10,12 +9,12 @@ import {
   Plus,
   Trash2,
   Upload,
-} from 'lucide-react'
+} from '@/ui/icons'
 import { useEffect, useState } from 'react'
 import { APP_NAME, APP_VERSION } from '@/app/appInfo'
 import { openProject } from '@/app/session'
 import { openHelp } from '@/help/openHelp'
-import { UpdateMenuItems } from '@/ui/desktop/UpdateMenuItems'
+import { SettingsMenu } from '@/ui/settings/SettingsMenu'
 import { pathLabel } from '@/platform/desktop'
 import { folderStore, getBackend } from '@/storage'
 import type { ProjectEntry } from '@/storage/backend'
@@ -32,8 +31,6 @@ import { Input } from '@/ui/components/ui/input'
 import { toast } from '@/ui/components/feedback'
 import { NewProjectDialog } from './NewProjectDialog'
 import { exportStoredProject, importProjectFromFile } from '@/ui/actions/projectFileActions'
-import { InstallMenuItem } from '@/ui/pwa/InstallMenuItem'
-import { ThemeMenuItems } from '@/ui/theme/ThemeMenu'
 
 const fail = (what: string, e: unknown) =>
   toast(`${what}: ${e instanceof Error ? e.message : String(e)}`, { tone: 'error' })
@@ -99,13 +96,13 @@ export function HomeScreen() {
 
   return (
     <div className="h-app pt-safe pb-safe flex flex-col overflow-auto">
-      <header className="flex h-14 shrink-0 items-center gap-2 border-b bg-panel px-3">
+      <header className="app-topbar flex h-14 shrink-0 items-center gap-2 border-b bg-panel px-3">
         <img src={`${import.meta.env.BASE_URL}icon.svg`} alt="" className="size-7" />
         <span className="text-sm font-semibold">{APP_NAME}</span>
         <div className="flex-1" />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <IconButton label="Settings">
+            <IconButton label="Menu">
               <Menu />
             </IconButton>
           </DropdownMenuTrigger>
@@ -115,12 +112,7 @@ export function HomeScreen() {
                 <FolderCog /> Projects folder…
               </DropdownMenuItem>
             )}
-            <DropdownMenuItem onSelect={() => openHelp()}>
-              <CircleHelp /> Help
-            </DropdownMenuItem>
-            <UpdateMenuItems />
-            <InstallMenuItem />
-            <ThemeMenuItems />
+            <SettingsMenu onHelp={() => openHelp()} />
           </DropdownMenuContent>
         </DropdownMenu>
       </header>

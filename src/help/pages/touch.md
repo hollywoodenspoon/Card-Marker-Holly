@@ -1,6 +1,6 @@
 # Touch gestures
 
-Card Maker works with fingers, a pen or a mouse on every screen size. On touch screens the selection handles are bigger, every button is large enough to tap, and nothing depends on hovering.
+Hearthside Cardworks works with fingers, a pen or a mouse on every screen size. On touch screens the selection handles are bigger, every button is large enough to tap, and nothing depends on hovering.
 
 ## On the card
 

@@ -6,7 +6,7 @@ import type { CapacitorConfig } from '@capacitor/cli'
  */
 const config: CapacitorConfig = {
   appId: 'io.github.hollywoodenspoon.cardmaker',
-  appName: 'Card Maker',
+  appName: 'Hearthside Cardworks',
   webDir: 'dist',
   server: { androidScheme: 'https' },
   android: { allowMixedContent: false },

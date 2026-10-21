@@ -1,20 +1,12 @@
-import { useEditor, setView } from '@/core/editor/editorStore'
-import { activeTemplate, currentCard } from '@/core/editor/selectors'
+import { useEditor } from '@/core/editor/editorStore'
 import { cn } from '@/lib/cn'
+import { setEditMode } from '@/ui/panels/editMode'
 
 /** Card mode fills in a card; template mode edits the layout shared by many cards. */
 export function ModeSwitch({ className }: { className?: string }) {
   const mode = useEditor((s) => s.view.mode)
-  const toTemplate = () => {
-    const s = useEditor.getState()
-    const t = activeTemplate(s)
-    const card = currentCard(s)
-    const id =
-      t?.id ??
-      (card ? (s.view.side === 'front' ? card.frontTemplateId : card.backTemplateId) : null)
-    setView({ mode: 'template', templateId: id, selection: [], editingTextId: null, cropId: null })
-  }
-  const toCard = () => setView({ mode: 'card', selection: [], editingTextId: null, cropId: null })
+  const toTemplate = () => void setEditMode('template')
+  const toCard = () => void setEditMode('card')
   return (
     <div
       role="radiogroup"

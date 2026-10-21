@@ -42,7 +42,13 @@ export interface DesktopBridge {
 export type UpdateEvent =
   | { type: 'checking' }
   | { type: 'none' }
-  | { type: 'available'; version: string; url: string }
+  | {
+      type: 'available'
+      version: string
+      url: string
+      /** Installed with a package manager: the command that updates it (e.g. sudo pacman -Syu). */
+      command?: string
+    }
   | { type: 'downloading'; version: string; percent?: number }
   | { type: 'ready'; version: string }
   | { type: 'error'; message: string }

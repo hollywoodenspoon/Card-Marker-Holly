@@ -266,6 +266,7 @@ export function createProject(
     'Basic back',
     starterBackElements(size, bleed),
   )
+  front.backId = back.id
   const card = createCard(project.id, 1, front.id, back.id, 'Card 1')
   return { project, templates: [front, back], cards: [card] }
 }

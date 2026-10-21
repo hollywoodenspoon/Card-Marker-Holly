@@ -1,4 +1,4 @@
-import { ArrowLeft, CircleHelp, Plus, Redo2, ScrollText, Trophy, Undo2 } from 'lucide-react'
+import { ArrowLeft, CircleHelp, Plus, Redo2, ScrollText, Trophy, Undo2 } from '@/ui/icons'
 import { useEffect, useState } from 'react'
 import { askConfirm } from '@/ui/components/feedback'
 import { Button, IconButton } from '@/ui/components/ui/button'
@@ -91,7 +91,7 @@ export function GameView({
   const winKey = winner ? `${winner.seat}:${state!.log.length}` : null
   return (
     <div className="h-app pt-safe flex flex-col bg-background" aria-label="Playtest">
-      <header className="flex shrink-0 flex-wrap items-center gap-2 border-b bg-panel px-2 py-2">
+      <header className="app-topbar flex shrink-0 flex-wrap items-center gap-2 border-b bg-panel px-2 py-2">
         <IconButton label="Back to your game packs" onClick={onBack}>
           <ArrowLeft />
         </IconButton>

@@ -1,4 +1,4 @@
-import { AlertTriangle, Crop, ImageUp, RotateCcw } from 'lucide-react'
+import { AlertTriangle, Crop, ImageUp, RotateCcw } from '@/ui/icons'
 import { assetResolver } from '@/assets/assetResolver'
 import { IMAGE_ACCEPT } from '@/assets/imageAssets'
 import { setView, useEditor } from '@/core/editor/editorStore'

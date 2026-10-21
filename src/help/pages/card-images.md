@@ -4,8 +4,8 @@ Besides the PDF, you can save cards as picture files: to share them online, send
 
 ## Opening the export
 
-- ☰ → **Export card images…**
 - **Export** in the left rail (below **Print** and **Gallery**)
+- on a phone, ☰ → **Export card images…**
 - in the **Cards** list, a card's ⋯ → **Export as image…**
 
 ![The Export card images dialog](card-images.webp)

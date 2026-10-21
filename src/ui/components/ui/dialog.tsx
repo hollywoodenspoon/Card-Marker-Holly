@@ -1,5 +1,5 @@
 import { Dialog as DialogPrimitive } from 'radix-ui'
-import { X } from 'lucide-react'
+import { X } from '@/ui/icons'
 import { cn } from '@/lib/cn'
 
 export const Dialog = DialogPrimitive.Root

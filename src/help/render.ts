@@ -61,7 +61,7 @@ export function renderHelp(md: string, imageBase: string): RenderedPage {
         const m = /^help:([\w-]+)(?:#([\w-]+))?$/.exec(t.href)
         if (m)
           return `<a href="#help/${m[1]}${m[2] ? `/${m[2]}` : ''}" data-help="${m[1]}"${m[2] ? ` data-anchor="${m[2]}"` : ''}>${text}</a>`
-        // The Playtest app, served next to Card Maker (pictures live in <base>help/).
+        // The Playtest app, served next to Hearthside Cardworks (pictures live in <base>help/).
         if (t.href === 'playtest/')
           return `<a href="${imageBase}../playtest/" target="_blank" rel="noopener">${text}</a>`
         if (/^https:\/\//.test(t.href))

@@ -1,6 +1,6 @@
 # Tabletop Simulator
 
-You can playtest your game in Tabletop Simulator before printing anything. Card Maker saves your cards as deck sheets, the big grid images Tabletop Simulator uses for a custom deck.
+You can playtest your game in Tabletop Simulator before printing anything. Hearthside Cardworks saves your cards as deck sheets, the big grid images Tabletop Simulator uses for a custom deck.
 
 ## Exporting the deck
 
@@ -10,6 +10,8 @@ You can playtest your game in Tabletop Simulator before printing anything. Card 
 4. Press **Export**. The app saves a zip file named after your project (and the deck), ending in "Tabletop Simulator.zip".
 
 The cards are always exported in full colour with all their art. The draft options in the print view only apply to paper.
+
+A custom deck in Tabletop Simulator has one card shape, so cards of different sizes become separate decks. Their files have the size in the name, for example "… 63.5x88.9mm faces 1.jpg", and "How to import.txt" has steps for each deck.
 
 ![Export for Tabletop Simulator](tts.webp)
 

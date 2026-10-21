@@ -8,7 +8,7 @@ import {
   Save,
   Trash2,
   Upload,
-} from 'lucide-react'
+} from '@/ui/icons'
 import { useMemo, useState } from 'react'
 import { registerProjectFonts } from '@/assets/fonts'
 import { useEditor } from '@/core/editor/editorStore'
@@ -16,8 +16,6 @@ import { currentCard } from '@/core/editor/selectors'
 import type { Side, Template } from '@/core/model/types'
 import { cn } from '@/lib/cn'
 import {
-  applyBackToAll,
-  applyTemplate,
   deleteTemplate,
   downloadTemplate,
   duplicateTemplate,
@@ -41,6 +39,7 @@ import {
 } from '@/ui/components/ui/dropdown'
 import { Input } from '@/ui/components/ui/input'
 import { toast } from '@/ui/components/feedback'
+import { pickBackForAllCards, pickTemplateForCard } from '@/ui/actions/templateUse'
 
 export function TemplatesPanel({ onPicked }: { onPicked?: () => void }) {
   const templates = useEditor((s) => s.doc?.templates)
@@ -201,7 +200,7 @@ function TemplateRow({
         type="button"
         className="flex min-w-0 flex-1 items-center gap-2.5 text-left"
         onClick={() => {
-          applyTemplate(t.id)
+          pickTemplateForCard(t.id)
           onPicked?.()
         }}
         title="Use for this card"
@@ -236,11 +235,11 @@ function TemplateRow({
           </IconButton>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onSelect={() => applyTemplate(t.id)}>
+          <DropdownMenuItem onSelect={() => pickTemplateForCard(t.id)}>
             <Check /> Use for this card
           </DropdownMenuItem>
           {t.side === 'back' && (
-            <DropdownMenuItem onSelect={() => applyBackToAll(t.id)}>
+            <DropdownMenuItem onSelect={() => pickBackForAllCards(t.id)}>
               <Check /> Use as back for all cards
             </DropdownMenuItem>
           )}

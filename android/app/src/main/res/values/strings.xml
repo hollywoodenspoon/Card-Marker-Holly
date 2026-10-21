@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Card Maker</string>
-    <string name="title_activity_main">Card Maker</string>
+    <string name="app_name">Hearthside Cardworks</string>
+    <string name="title_activity_main">Hearthside Cardworks</string>
     <string name="package_name">io.github.hollywoodenspoon.cardmaker</string>
     <string name="custom_url_scheme">io.github.hollywoodenspoon.cardmaker</string>
 </resources>

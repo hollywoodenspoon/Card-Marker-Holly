@@ -7,7 +7,7 @@ import {
   PenTool,
   Shapes,
   Spline,
-} from 'lucide-react'
+} from '@/ui/icons'
 import { useState } from 'react'
 import { cn } from '@/lib/cn'
 import { Popover, PopoverContent, PopoverTrigger } from '@/ui/components/ui/popover'

@@ -42,7 +42,14 @@ To make one:
 1. In the editor, open ☰ and choose **Export backup file**. (On the Home screen, use the project's ⋯ → **Export backup file**.)
 2. Keep the file somewhere safe: a USB stick, cloud storage, or email it to yourself.
 
-To bring one back, press **Import** on the Home screen and choose the file. Importing always creates a **new** project, so it never overwrites anything you already have.
+To bring one back, press **Import** on the Home screen and choose the file.
+
+If the backup is of a project you already have on this device, the app asks what to do. It shows when each was last changed and how many cards each has:
+
+- **Make a new copy** adds the backup as a separate project, with "(copy)" after its name. Nothing you have changes.
+- **Overwrite…** replaces the project on this device with the backup: its cards, templates, images and fonts. The app asks once more first. Right after, a message offers **Undo**, which puts back the version you had.
+
+A backup of a project you don't have yet is simply added.
 
 Backup files also move work between places: from the website to the desktop app, from one browser to another, or to a friend.
 

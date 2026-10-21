@@ -4,6 +4,7 @@ import { createCard } from '@/core/model/factories'
 import { walk } from '@/core/model/tree'
 import type { Id, MergeSettings } from '@/core/model/types'
 import type { MergePlan } from './mailMerge'
+import { anchorOf, sameSize } from './sizeGroups'
 
 /** Remember the merge dialog's choices on the project (undoable, kept in backups). */
 export function setMergeSettings(patch: Partial<MergeSettings>, coalesce?: string) {
@@ -42,6 +43,12 @@ export function runMerge(plan: MergePlan) {
   let firstId: Id | undefined
   commit((d) => {
     const copies = { ...d.project.print.copies }
+    // The chosen back, unless it doesn't fit the front: then the front's own back.
+    const backFor = (front: Id | null, back: Id | null) => {
+      const f = front ? d.templates[front] : undefined
+      const b = back ? d.templates[back] : undefined
+      return f && b && !sameSize(f.size, b.size) ? (anchorOf(d.templates, front)?.id ?? back) : back
+    }
     for (const p of plan.cards) {
       let id = p.cardId
       if (id && d.cards[id]) {
@@ -49,14 +56,14 @@ export function runMerge(plan: MergePlan) {
         Object.assign(c.fields, p.values)
         if (p.name) c.name = p.name
         c.frontTemplateId = p.frontTemplateId
-        c.backTemplateId = p.backTemplateId
+        c.backTemplateId = backFor(p.frontTemplateId, p.backTemplateId)
         c.updatedAt = now
       } else {
         const c = createCard(
           d.project.id,
           order++,
           p.frontTemplateId,
-          p.backTemplateId,
+          backFor(p.frontTemplateId, p.backTemplateId),
           p.name ?? `Row ${p.row}`,
         )
         c.fields = p.values

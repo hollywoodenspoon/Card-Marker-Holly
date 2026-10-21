@@ -107,7 +107,7 @@ export function importTemplate(
 } {
   const f = file as TemplateFile
   if (f?.format !== 'card-maker-template' || f.version !== 1 || !f.template)
-    throw new Error('This is not a Card Maker template file.')
+    throw new Error('This is not a Hearthside Cardworks template file.')
   const assetMap = new Map<string, string>()
   const assets: Asset[] = []
   for (const { data, ...meta } of f.assets ?? []) {
@@ -169,9 +169,12 @@ export function importTemplate(
     }
   })
   const now = Date.now()
+  // The anchored back belongs to the other project; the importer picks one here.
+  const { backId: _back, ...rest } = structuredClone(f.template)
   return {
     template: {
-      ...structuredClone(f.template),
+      ...rest,
+      edited: true,
       id: newId(),
       projectId,
       elements,

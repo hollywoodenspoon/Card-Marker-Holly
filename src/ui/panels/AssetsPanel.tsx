@@ -9,7 +9,7 @@ import {
   PenTool,
   Trash2,
   Upload,
-} from 'lucide-react'
+} from '@/ui/icons'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { assetResolver } from '@/assets/assetResolver'
 import { groupAssets, type AssetGroup } from '@/assets/folders'

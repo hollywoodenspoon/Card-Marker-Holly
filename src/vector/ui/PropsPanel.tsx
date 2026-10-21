@@ -21,7 +21,7 @@ import {
   Trash2,
   Ungroup,
   Scissors,
-} from 'lucide-react'
+} from '@/ui/icons'
 import { Button, IconButton } from '@/ui/components/ui/button'
 import { Label, NativeSelect } from '@/ui/components/ui/input'
 import { ColorField, NumberField, Row, Section } from '@/ui/components/fields'

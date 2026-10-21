@@ -4,7 +4,7 @@ The card data view shows every card as a row in a spreadsheet-style table: its n
 
 ## Opening the table
 
-On desktop, press **Data** in the rail on the left. On any device, open the ☰ menu and choose **Card data (table, CSV, mail merge)**.
+On a computer or tablet, press **Data** in the rail on the left. On a phone, open the ☰ menu and choose **Card data (table, CSV, mail merge)**.
 
 It opens full screen with two tabs: **Table** and **Import**. To go back to the editor, press the back arrow at the top left, or [[Esc]].
 

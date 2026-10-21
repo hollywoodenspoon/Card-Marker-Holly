@@ -13,6 +13,12 @@ export interface StorageBackend {
   loadProject(id: string): Promise<LoadedProject | null>
   /** Store a complete new project (new or imported). */
   saveBundle(bundle: ProjectBundle): Promise<void>
+  /**
+   * Replace a stored project with a bundle of the same id (a backup restored
+   * over it): everything not in the bundle is removed. Falls back to saveBundle
+   * when the project isn't stored.
+   */
+  replaceBundle(bundle: ProjectBundle): Promise<void>
   /** Persist one autosave step: the full state plus what changed since the last write. */
   writeChanges(state: { doc: DocState; library: LibraryState }, changes: ChangeSet): Promise<void>
   /** Remove a project. `deleteFiles` (folders only) also deletes the folder from disk. */

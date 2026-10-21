@@ -249,15 +249,27 @@ export const HELP_TOPICS: HelpTopic[] = [
   },
   {
     id: 'settings',
-    title: 'Themes and settings',
+    title: 'Settings',
     section: 'Reference',
-    keywords: 'dark light theme units colour',
+    keywords: 'menu units help install updates',
+  },
+  {
+    id: 'themes',
+    title: 'Themes',
+    section: 'Reference',
+    keywords: 'dark light colour hearthside mage chocobo pastel high contrast',
   },
   {
     id: 'troubleshooting',
     title: 'Troubleshooting and questions',
     section: 'Reference',
     keywords: 'faq problem blurry missing font backs not lining up where files',
+  },
+  {
+    id: 'about',
+    title: 'About and credits',
+    section: 'Reference',
+    keywords: 'version licence license icons game-icons lucide fonts credits name',
   },
 ]
 
@@ -299,4 +311,5 @@ export const HELP_SHOTS = [
   'keywords',
   'find-replace',
   'settings-menu',
+  'theme-picker',
 ] as const

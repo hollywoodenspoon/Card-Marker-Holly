@@ -26,7 +26,7 @@ The letters are saved on the template, so the next merge remembers them.
 
 ## Running a merge
 
-Open it from **Cards** → the arrow next to **+ Card** → **Mail merge from spreadsheet…**, or open the card data view (**Data** in the rail, or ☰ → **Card data (table, CSV, mail merge)**) and choose the **Import** tab.
+Open it from **Cards** → the arrow next to **+ Card** → **Mail merge from spreadsheet…**, or open the card data view (**Data** in the rail, or on a phone ☰ → **Card data (table, CSV, mail merge)**) and choose the **Import** tab.
 
 ![The mail merge form](mail-merge.webp)
 

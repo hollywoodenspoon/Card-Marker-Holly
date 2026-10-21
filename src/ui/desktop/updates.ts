@@ -59,6 +59,13 @@ function onEvent(e: UpdateEvent) {
     case 'none':
       return toast('You have the newest version.')
     case 'available':
+      if (e.command)
+        return toast(`Version ${e.version} is out. Update with: ${e.command}`, {
+          action: {
+            label: 'Copy command',
+            run: () => void navigator.clipboard?.writeText(e.command!).catch(() => {}),
+          },
+        })
       return toast(`Version ${e.version} is out.`, {
         action: { label: 'Download', run: () => void u?.openReleases(e.url) },
       })

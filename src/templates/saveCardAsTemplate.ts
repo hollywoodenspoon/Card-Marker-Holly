@@ -59,6 +59,8 @@ export function saveCardAsTemplate(
     size: structuredClone(template?.size ?? fallbackSize),
     elements,
     guides: structuredClone(template?.guides ?? []).map((g) => ({ ...g, id: newId() })),
+    ...(side === 'front' && template?.backId && { backId: template.backId }),
+    edited: true,
     createdAt: now,
     updatedAt: now,
   }

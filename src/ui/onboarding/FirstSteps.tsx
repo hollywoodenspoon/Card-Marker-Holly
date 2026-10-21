@@ -1,4 +1,4 @@
-import { Check, X } from 'lucide-react'
+import { Check, X } from '@/ui/icons'
 import { useState } from 'react'
 import { useEditor } from '@/core/editor/editorStore'
 import { cn } from '@/lib/cn'

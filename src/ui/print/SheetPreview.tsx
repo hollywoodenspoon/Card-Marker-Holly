@@ -3,7 +3,7 @@ import { Group, Image as KImage, Layer, Line, Rect, Stage } from 'react-konva'
 import { assetResolver } from '@/assets/assetResolver'
 import { CornerGuide } from '@/core/render/Overlays'
 import { StaticNodes } from '@/core/render/StaticCard'
-import type { PrintJob } from '@/print/job'
+import { pageSheet, type PrintJob } from '@/print/job'
 import { backCells, cutMarks, guideLines, mirrorLine, type Line as L } from '@/print/layout'
 import { bleedFramePath, type BleedBands } from '@/print/pdf/bleedFill'
 import { useRenderVersion } from '@/ui/canvas/useRenderVersion'
@@ -24,7 +24,8 @@ export function SheetPreview({
   /** Auto-bleed bands, when the bleed is filled from the card edge. */
   bands: BleedBands | null
 }) {
-  const { sheet, settings } = job
+  const { settings } = job
+  const sheet = pageSheet(job, sheetIndex)
   const version = useRenderVersion()
   const k = widthPx / sheet.pageW
   const heightPx = Math.round(sheet.pageH * k)

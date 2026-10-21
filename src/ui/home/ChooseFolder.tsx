@@ -1,4 +1,4 @@
-import { FolderOpen } from 'lucide-react'
+import { FolderOpen } from '@/ui/icons'
 import { useState } from 'react'
 import { APP_NAME } from '@/app/appInfo'
 import { folderStore } from '@/storage'

@@ -11,7 +11,7 @@ import {
   Undo2,
   ZoomIn,
   ZoomOut,
-} from 'lucide-react'
+} from '@/ui/icons'
 import { useEffect, useState } from 'react'
 import { useEditor } from '@/core/editor/editorStore'
 import { pickFiles } from '@/ui/actions/imageActions'

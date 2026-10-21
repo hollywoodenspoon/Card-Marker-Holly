@@ -1,4 +1,4 @@
-import { EyeOff } from 'lucide-react'
+import { EyeOff } from '@/ui/icons'
 import { memo } from 'react'
 import { cn } from '@/lib/cn'
 import type { Seen } from '@/playtest/actions'

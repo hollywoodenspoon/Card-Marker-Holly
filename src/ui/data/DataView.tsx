@@ -1,4 +1,4 @@
-import { ArrowLeft, FileDown, Search, X } from 'lucide-react'
+import { ArrowLeft, FileDown, Search, X } from '@/ui/icons'
 import { memo, useCallback, useMemo, useState } from 'react'
 import { HelpButton } from '@/help/HelpButton'
 import { renameCard, selectCard } from '@/core/editor/cardCommands'
@@ -7,7 +7,7 @@ import { setCopies } from '@/core/editor/projectCommands'
 import type { Asset, Card, Deck, Template } from '@/core/model/types'
 import { cn } from '@/lib/cn'
 import { copiesOf } from '@/print/printList'
-import { setTemplateForCards } from '@/templates/bulkCommands'
+import { templateForCards } from '@/ui/actions/templateUse'
 import {
   tableColumns,
   tableRow,
@@ -332,7 +332,7 @@ function ValueCell({
         aria-label={label}
         className="w-40"
         value={current ?? ''}
-        onChange={(e) => setTemplateForCards([card.id], side, e.target.value || null)}
+        onChange={(e) => templateForCards([card.id], side, e.target.value || null)}
       >
         <option value="">None</option>
         {templates

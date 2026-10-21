@@ -91,7 +91,7 @@ public class FoldersPlugin extends Plugin {
             Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
         );
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            // Start in Documents, where "Card Maker" usually goes.
+            // Start in Documents, where "Hearthside Cardworks" usually goes.
             intent.putExtra(
                 DocumentsContract.EXTRA_INITIAL_URI,
                 DocumentsContract.buildDocumentUri("com.android.externalstorage.documents", "primary:Documents")
@@ -149,7 +149,7 @@ public class FoldersPlugin extends Plugin {
         call.resolve(ret);
     }
 
-    /** "primary:Documents/Card Maker" → "Documents/Card Maker" (SD cards keep their id). */
+    /** "primary:Documents/Hearthside Cardworks" → "Documents/Hearthside Cardworks" (SD cards keep their id). */
     private static String label(Uri tree) {
         String id = DocumentsContract.getTreeDocumentId(tree);
         int colon = id.indexOf(':');

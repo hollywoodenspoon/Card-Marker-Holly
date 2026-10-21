@@ -1,4 +1,4 @@
-import { Undo2 } from 'lucide-react'
+import { Undo2 } from '@/ui/icons'
 import { useMemo, useState } from 'react'
 import { selectCard } from '@/core/editor/cardCommands'
 import { commit, undo, useEditor } from '@/core/editor/editorStore'

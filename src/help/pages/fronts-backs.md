@@ -14,6 +14,15 @@ In template mode the switch is hidden, because a template is either a front or a
 
 The **Templates** tab lists **Fronts** and **Backs** separately (the side you're looking at comes first). Press **+** next to **Backs** to make a new back template; it starts with a white background to build on. A back template is edited like any other, see [Templates and fields](help:templates).
 
+## Pairing a front with a back
+
+Every front is paired with a back: the back it prints with. One back can serve many fronts, and a back and its fronts always have the same size (see [Card size](help:card-size#sizes-belong-to-a-front-and-its-back)).
+
+- A new front is paired with the current card's back, at its size.
+- To change the pair, edit the front and, with nothing selected, choose another back under **Back for this front** in the right pane. If that back is a different size, the front takes its size (the app asks first when the front was already designed). Cards using the front move to the new back when their old one no longer fits.
+
+Projects made before pairs existed get them automatically when you open them: each front is paired with the back most of its cards use.
+
 ## Choosing a card's back
 
 1. Open the **Templates** tab (on a phone, ☰ → **Templates**).
@@ -21,9 +30,11 @@ The **Templates** tab lists **Fronts** and **Backs** separately (the side you're
 
 The editor switches to the back so you can see it. A tick marks the templates the current card uses.
 
+When you give a card another front, its back switches to that front's paired back. After that you can still pick any other back of the **same size**. A back of a different size can't go on the card, and the app tells you so.
+
 ## One back for the whole deck
 
-On a back template, press ⋯ → **Use as back for all cards**. Every card now uses that back. Edit it once, and every card's back changes.
+On a back template, press ⋯ → **Use as back for all cards**. Every card of the same size now uses that back (cards of another size keep theirs). Edit it once, and every card's back changes.
 
 New cards made with **+ Card** use the same templates as the current card, so they keep the shared back.
 

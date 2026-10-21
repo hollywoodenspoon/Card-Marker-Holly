@@ -1,6 +1,6 @@
 # Keyboard shortcuts
 
-These are all the keys Card Maker knows. On a Mac, use ⌘ wherever it says Ctrl, and Option wherever it says Alt.
+These are all the keys Hearthside Cardworks knows. On a Mac, use ⌘ wherever it says Ctrl, and Option wherever it says Alt.
 
 Shortcuts don't act while you're typing in a box. The card editor's keys also stop while a dialog or a full-screen view (Print, Gallery, Card data, Vector Maker, Help) is open, so they never change the hidden card.
 

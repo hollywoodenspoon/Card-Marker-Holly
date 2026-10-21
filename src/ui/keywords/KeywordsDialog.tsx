@@ -1,4 +1,4 @@
-import { Bold, Italic, Plus, Trash2, Underline } from 'lucide-react'
+import { Bold, Italic, Plus, Trash2, Underline } from '@/ui/icons'
 import { useEditor } from '@/core/editor/editorStore'
 import { newId } from '@/core/model/ids'
 import type { Keyword, TextStyle } from '@/core/model/types'

@@ -1,13 +1,13 @@
 # Playtesting your game
 
-Card Maker has a companion app, **Card Maker Playtest**, for playing your game with your cards on a virtual table before you print anything. It runs in the browser on a computer, tablet or phone and can be installed like an app. Card Maker hands it your cards as a **game pack**.
+Hearthside Cardworks has a companion app, **Hearthside Table**, for playing your game with your cards on a virtual table before you print anything. It runs in the browser on a computer, tablet or phone and can be installed like an app. Hearthside Cardworks hands it your cards as a **game pack**.
 
 ## Exporting a game pack
 
-1. Press **Playtest** in the left rail, or ☰ → **Playtest (export game pack)…**.
+1. Press **Playtest** in the left rail (on a phone, ☰ → **Playtest (export game pack)…**).
 2. The dialog shows what goes into the pack: **every card** in the project (also cards that are in no deck), your **decks**, and the **fields** it found.
 3. Choose:
-   - **Playtest now** (Card Maker in a browser): opens the Playtest app in a new tab with the pack ready to play.
+   - **Playtest now** (Hearthside Cardworks in a browser): opens the Playtest app in a new tab with the pack ready to play.
    - **Save game pack**: saves a `.cmpack` file. Open it in the Playtest app on any device, or send it to a friend.
 
 ![The game pack dialog](game-pack.webp)

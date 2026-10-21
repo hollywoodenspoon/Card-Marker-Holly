@@ -91,7 +91,10 @@ export function folderBackend(fs: DesktopBridge): FolderStore {
   async function projectsDir() {
     const s = await readSettings()
     if (s.projectsDir) return s.projectsDir
-    const dir = joinPath((await fs.paths()).documents, APP_NAME)
+    const docs = (await fs.paths()).documents
+    // Before the rename the folder was "Card Maker": keep using it when it is there.
+    const old = joinPath(docs, 'Card Maker')
+    const dir = (await fs.exists(old)) ? old : joinPath(docs, APP_NAME)
     await saveSettings((x) => (x.projectsDir = dir))
     return dir
   }
@@ -246,6 +249,22 @@ export function folderBackend(fs: DesktopBridge): FolderStore {
       const dir = await uniqueFolder(bundle.project.name)
       written.clear()
       await writeAll(dir, bundleToState(bundle))
+    },
+
+    async replaceBundle(bundle) {
+      const dir = await locationOf(bundle.project.id)
+      if (!dir || !(await fs.exists(dir))) return backend.saveBundle(bundle)
+      // Reading the folder first lists its picture and font files, so the ones
+      // the backup doesn't have are removed after project.json is written.
+      const before = await readFolder(dir).catch(() => null)
+      const state = bundleToState(bundle)
+      const removed = before
+        ? [
+            ...Object.keys(before.library.assets).filter((id) => !state.library.assets[id]),
+            ...Object.keys(before.library.fonts).filter((id) => !state.library.fonts[id]),
+          ]
+        : []
+      await writeAll(dir, state, removed)
     },
 
     async writeChanges(state, changes) {

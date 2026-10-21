@@ -65,10 +65,45 @@ export async function exportProject(doc: DocState, library: LibraryState): Promi
  * references are rewritten. Element ids are kept, so per-card part toggles
  * and card-layer anchors still match.
  */
-export function importProject(file: unknown, nameSuffix = ''): ProjectBundle {
+function checkFile(file: unknown): ProjectFile {
   const f = file as ProjectFile
   if (f?.format !== 'card-maker-project' || f.version !== 1 || !f.project)
-    throw new Error('This is not a Card Maker project file.')
+    throw new Error('This is not a Hearthside Cardworks project file.')
+  return f
+}
+
+/** The project id inside a backup file (to see whether it is already on this device). */
+export const projectIdOf = (file: unknown) => checkFile(file).project.id
+
+/**
+ * Rebuild a project from a backup file exactly as it was, with the same ids:
+ * for overwriting the copy already on this device.
+ */
+export function restoreProject(file: unknown): ProjectBundle {
+  const f = checkFile(file)
+  const pid = f.project.id
+  return {
+    project: { ...structuredClone(f.project), updatedAt: Date.now() },
+    templates: (f.templates ?? []).map(
+      (t) => ({ ...structuredClone(t), projectId: pid }) as Template,
+    ),
+    cards: (f.cards ?? []).map((c) => ({ ...structuredClone(c), projectId: pid }) as Card),
+    stylePresets: (f.stylePresets ?? []).map((p) => ({ ...structuredClone(p), projectId: pid })),
+    assets: (f.assets ?? []).map(({ data, ...meta }) => ({
+      ...meta,
+      projectId: pid,
+      blob: base64ToBlob(data, meta.mime),
+    })),
+    fonts: (f.fonts ?? []).map(({ data, ...meta }) => ({
+      ...meta,
+      projectId: pid,
+      blob: base64ToBlob(data, 'font/ttf'),
+    })),
+  }
+}
+
+export function importProject(file: unknown, nameSuffix = ''): ProjectBundle {
+  const f = checkFile(file)
   const pid = newId()
   const ids = {
     templates: new Map<string, string>(),

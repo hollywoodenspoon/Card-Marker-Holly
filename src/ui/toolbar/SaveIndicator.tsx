@@ -1,4 +1,4 @@
-import { AlertCircle, Check, Loader2 } from 'lucide-react'
+import { AlertCircle, Check, Loader2 } from '@/ui/icons'
 import { cn } from '@/lib/cn'
 import { useSaveStatus } from '@/storage/saveStatus'
 

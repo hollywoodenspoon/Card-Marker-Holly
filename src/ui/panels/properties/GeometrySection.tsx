@@ -11,7 +11,7 @@ import {
   ChevronUp,
   FlipHorizontal2,
   FlipVertical2,
-} from 'lucide-react'
+} from '@/ui/icons'
 import { alignSelection, reorderElement, updateElement } from '@/core/editor/elementCommands'
 import type { Element } from '@/core/model/types'
 import { IconButton } from '@/ui/components/ui/button'

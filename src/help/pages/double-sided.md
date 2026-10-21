@@ -1,6 +1,6 @@
 # Double-sided printing
 
-When your cards have backs, Card Maker makes a backs sheet for every fronts sheet. It is laid out so each back lands exactly behind its own front when the page is printed on both sides.
+When your cards have backs, Hearthside Cardworks makes a backs sheet for every fronts sheet. It is laid out so each back lands exactly behind its own front when the page is printed on both sides.
 
 ## How the backs sheet works
 

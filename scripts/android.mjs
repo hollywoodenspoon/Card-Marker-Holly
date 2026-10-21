@@ -1,7 +1,7 @@
 // Android app builds:
 //   node scripts/android.mjs sync   build the web app for Android and copy it into android/
 //   node scripts/android.mjs apk    sync, then build the release APK (needs the Android SDK)
-// The APK ends up in release/Card-Maker-<version>.apk.
+// The APK ends up in release/Hearthside-Cardworks-<version>.apk.
 import { spawn } from 'node:child_process'
 import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { build } from 'vite'
@@ -28,7 +28,7 @@ if (mode === 'apk') {
   const gradlew = process.platform === 'win32' ? 'gradlew.bat' : './gradlew'
   await run(gradlew, ['assembleRelease', '--no-daemon'], 'android')
   mkdirSync('release', { recursive: true })
-  const out = `release/Card-Maker-${version}.apk`
+  const out = `release/Hearthside-Cardworks-${version}.apk`
   copyFileSync('android/app/build/outputs/apk/release/app-release.apk', out)
   console.log(`Built ${out}`)
 }

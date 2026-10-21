@@ -1,11 +1,7 @@
 import type { CardSize, Id, PrintSettings } from '../model/types'
 import { commit } from './editorStore'
 
-/**
- * The card size is shared by the whole project (fronts and backs must match
- * to print double-sided), so it updates the default and every template.
- * Elements keep their mm positions.
- */
+/** Resize every template (a project with no templates only gets a new default). */
 export function setCardSize(size: CardSize, coalesce?: string) {
   commit((d) => {
     d.project.defaultSize = size

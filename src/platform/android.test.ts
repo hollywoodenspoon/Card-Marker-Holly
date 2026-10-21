@@ -18,10 +18,14 @@ function fakePlugin() {
   const plugin: FoldersPlugin = {
     async pickFolder() {
       trees.push(`/tree/${trees.length}`)
-      return { path: trees.at(-1)!, label: 'Documents/Card Maker' }
+      return { path: trees.at(-1)!, label: 'Documents/Hearthside Cardworks' }
     },
     roots: async () => ({
-      roots: trees.map((path) => ({ path, label: 'Documents/Card Maker', granted: true })),
+      roots: trees.map((path) => ({
+        path,
+        label: 'Documents/Hearthside Cardworks',
+        granted: true,
+      })),
     }),
     async read({ path }) {
       check(path)
@@ -89,7 +93,7 @@ describe('Android bridge', () => {
     expect(root).toBe('/tree/0')
     await store.setProjectsDir(root!)
     expect(await store.hasProjectsDir()).toBe(true)
-    expect(bridge.label!('/tree/0/My Game')).toBe('Documents/Card Maker/My Game')
+    expect(bridge.label!('/tree/0/My Game')).toBe('Documents/Hearthside Cardworks/My Game')
 
     const bundle = createProject('My Game')
     await store.saveBundle({ ...bundle, stylePresets: [], assets: [], fonts: [] })

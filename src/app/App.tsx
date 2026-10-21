@@ -10,6 +10,7 @@ import { ChooseFolder } from '@/ui/home/ChooseFolder'
 import { HomeScreen } from '@/ui/home/HomeScreen'
 import { PwaToast } from '@/ui/pwa/PwaToast'
 import { AppShell } from '@/ui/shell/AppShell'
+import { ThemePicker } from '@/ui/theme/ThemeMenu'
 import { openProject, setAutosaveFlusher } from './session'
 
 export function App() {
@@ -51,6 +52,7 @@ export function App() {
       <PwaToast />
       <HelpHost />
       <FeedbackHost />
+      <ThemePicker />
     </>
   )
 }

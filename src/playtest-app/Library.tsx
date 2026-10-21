@@ -1,4 +1,4 @@
-import { CircleHelp, Download, FileUp, Menu, Play, Trash2 } from 'lucide-react'
+import { CircleHelp, FileUp, Menu, Play, Trash2 } from '@/ui/icons'
 import { useEffect, useRef, useState } from 'react'
 import { PLAYTEST_NAME } from '@/app/appInfo'
 import { cn } from '@/lib/cn'
@@ -6,23 +6,15 @@ import { addPack, playtestDb, type PackRow } from '@/playtest/library'
 import { PACK_EXT } from '@/playtest/pack'
 import { askConfirm, toast } from '@/ui/components/feedback'
 import { Button, IconButton } from '@/ui/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/ui/components/ui/dropdown'
-import { promptInstall, usePwa } from '@/ui/pwa/pwa'
-import { ThemeMenuItems } from '@/ui/theme/ThemeMenu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/ui/components/ui/dropdown'
+import { SettingsMenu } from '@/ui/settings/SettingsMenu'
 
-/** Your game packs: import a file from Card Maker, open one to play, or remove it. */
+/** Your game packs: import a file from Hearthside Cardworks, open one to play, or remove it. */
 export function Library({ onOpen, onHelp }: { onOpen: (id: string) => void; onHelp: () => void }) {
   const [packs, setPacks] = useState<PackRow[] | null>(null)
   const [saved, setSaved] = useState<Set<string>>(new Set())
   const [over, setOver] = useState(false)
   const input = useRef<HTMLInputElement>(null)
-  const canInstall = usePwa((s) => s.canInstall)
 
   const refresh = () => {
     const db = playtestDb()
@@ -54,7 +46,7 @@ export function Library({ onOpen, onHelp }: { onOpen: (id: string) => void; onHe
     const ok = await askConfirm({
       title: `Remove ${p.name}?`,
       description:
-        'The pack and its saved game are removed from this browser. Your Card Maker project is not touched.',
+        'The pack and its saved game are removed from this browser. Your Hearthside Cardworks project is not touched.',
       okLabel: 'Remove',
       danger: true,
     })
@@ -85,8 +77,8 @@ export function Library({ onOpen, onHelp }: { onOpen: (id: string) => void; onHe
         void importFiles(e.dataTransfer.files)
       }}
     >
-      <header className="flex shrink-0 items-center gap-2 border-b bg-panel px-3 py-2">
-        <img src={`${import.meta.env.BASE_URL}icon.svg`} alt="" className="size-7" />
+      <header className="app-topbar flex shrink-0 items-center gap-2 border-b bg-panel px-3 py-2">
+        <img src={`${import.meta.env.BASE_URL}playtest/icon.svg`} alt="" className="size-7" />
         <h1 className="text-sm font-semibold">{PLAYTEST_NAME}</h1>
         <span className="flex-1" />
         <IconButton label="How to play (F1)" onClick={onHelp}>
@@ -99,15 +91,7 @@ export function Library({ onOpen, onHelp }: { onOpen: (id: string) => void; onHe
             </IconButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            {canInstall && (
-              <>
-                <DropdownMenuItem onSelect={() => void promptInstall()}>
-                  <Download /> Install app
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-              </>
-            )}
-            <ThemeMenuItems />
+            <SettingsMenu onHelp={onHelp} />
           </DropdownMenuContent>
         </DropdownMenu>
       </header>
@@ -139,8 +123,9 @@ export function Library({ onOpen, onHelp }: { onOpen: (id: string) => void; onHe
               <p className="mb-2 font-medium text-foreground">No game packs yet</p>
               <ol className="list-decimal space-y-1 pl-5">
                 <li>
-                  In Card Maker, press <span className="font-medium text-foreground">Playtest</span>{' '}
-                  in the left rail (or ☰ → Playtest).
+                  In Hearthside Cardworks, press{' '}
+                  <span className="font-medium text-foreground">Playtest</span> in the left rail (on
+                  a phone, ☰ → Playtest).
                 </li>
                 <li>
                   Choose <span className="font-medium text-foreground">Playtest now</span> to open

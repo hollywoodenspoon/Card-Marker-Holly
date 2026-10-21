@@ -1,6 +1,6 @@
 # Printing on paper
 
-Card Maker lays your cards out on paper sheets, ready to cut by hand, and saves them as a PDF at exact millimetre sizes. Everything on this page lives in the print view.
+Hearthside Cardworks lays your cards out on paper sheets, ready to cut by hand, and saves them as a PDF at exact millimetre sizes. Everything on this page lives in the print view.
 
 ## Opening the print view
 
@@ -31,6 +31,10 @@ If your project has decks, a **Print** menu at the top picks **Cards to print (t
 ### How the grid is worked out
 
 Each card takes a cell of its size plus the bleed on every side. A 54 × 86 mm card with 3 mm bleed needs a 60 × 92 mm cell. The app keeps the printer margin and the room for cut marks free around the edge, fits as many whole cells across and down as it can, and centres the grid on the page. If not even one card fits, the preview says so.
+
+### Cards of different sizes
+
+When the cards you print come in more than one size, each size gets its own sheets with its own grid, cut marks and mirrored backs. The PDF has the sheets of the first size, then the next size, and so on, in the order they first appear in the print list. The summary line says, for example, "2 card sizes · 24 cards · 4 sheets + backs", the caption under each preview names the size, and **Orientation** shows the count for each size, like "Portrait · 9 / 4".
 
 ## Gap between cards
 

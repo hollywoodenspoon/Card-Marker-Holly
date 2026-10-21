@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { usePasteImages } from '@/ui/actions/usePaste'
 import { useShortcuts } from '@/ui/actions/useShortcuts'
 import { ExportImagesDialog } from '@/ui/export/ExportImagesDialog'
@@ -10,6 +10,7 @@ import { KeywordsDialog } from '@/ui/keywords/KeywordsDialog'
 import { DataView } from '@/ui/data/DataView'
 import { GalleryView } from '@/ui/gallery/GalleryView'
 import { PrintView } from '@/ui/print/PrintView'
+import { followModeWithTabs } from '@/ui/panels/editMode'
 import { useUi } from '@/ui/uiStore'
 import { DesktopShell } from './DesktopShell'
 import { PhoneShell } from './PhoneShell'
@@ -23,6 +24,7 @@ export function AppShell() {
   const layout = useLayout()
   useShortcuts()
   usePasteImages()
+  useEffect(followModeWithTabs, [])
   const printOpen = useUi((s) => s.printOpen)
   const galleryOpen = useUi((s) => s.galleryOpen)
   const dataOpen = useUi((s) => !!s.dataView)

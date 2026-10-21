@@ -1,4 +1,4 @@
-import { Copy, Crop, ImageUp, ListChecks, Minus, Plus, RotateCcw, Trash2 } from 'lucide-react'
+import { Copy, Crop, ImageUp, ListChecks, Minus, Plus, RotateCcw, Trash2 } from '@/ui/icons'
 import { setView, useEditor } from '@/core/editor/editorStore'
 import { deleteSelection, duplicateSelection } from '@/core/editor/elementCommands'
 import { findSurfaceElement, isLayoutEditable } from '@/core/editor/selectors'

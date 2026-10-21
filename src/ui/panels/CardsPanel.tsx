@@ -8,7 +8,7 @@ import {
   Plus,
   Search,
   Trash2,
-} from 'lucide-react'
+} from '@/ui/icons'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   addCard,

@@ -1,4 +1,4 @@
-import { RectangleHorizontal, RectangleVertical } from 'lucide-react'
+import { RectangleHorizontal, RectangleVertical } from '@/ui/icons'
 import { useEffect, useState } from 'react'
 import { createAndOpenProject } from '@/app/session'
 import { pathLabel } from '@/platform/desktop'

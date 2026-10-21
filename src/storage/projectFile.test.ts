@@ -139,8 +139,29 @@ describe('project files', () => {
 
   it('rejects other files', () => {
     expect(() => importProject({ format: 'card-maker-template', version: 1 })).toThrow(
-      /not a Card Maker project/,
+      /not a Hearthside Cardworks project/,
     )
     expect(() => importProject(null)).toThrow()
+  })
+})
+
+describe('restoring over an existing project', () => {
+  it('keeps every id and replaces the stored rows (browser storage)', async () => {
+    const { doc, library } = sample()
+    const { dexieBackend } = await import('./dexieBackend')
+    const d = new CardMakerDB(`restore-${Math.random()}`)
+    const backend = dexieBackend(d)
+    const file = JSON.parse(JSON.stringify(await exportProject(doc, library)))
+    await backend.saveBundle(importProject(file))
+    const { restoreProject } = await import('./projectFile')
+    // Store the original ids, then add an extra card that the backup doesn't have.
+    await backend.saveBundle(restoreProject(file))
+    const extra = { ...Object.values(doc.cards)[0], id: 'extra-card' }
+    await d.cards.put(extra)
+    await backend.replaceBundle(restoreProject(file))
+    const loaded = await backend.loadProject(doc.project.id)
+    expect(loaded!.doc.project.id).toBe(doc.project.id)
+    expect(Object.keys(loaded!.doc.cards).sort()).toEqual(Object.keys(doc.cards).sort())
+    expect(Object.keys(loaded!.library.assets).sort()).toEqual(Object.keys(library.assets).sort())
   })
 })

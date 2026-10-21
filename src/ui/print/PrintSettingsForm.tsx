@@ -13,12 +13,18 @@ import { NumberField, Row, Section } from '@/ui/components/fields'
 const set = (patch: Partial<PrintSettings>, key?: string) =>
   setPrintSettings(patch, key && 'print:' + key)
 
-export function PrintSettingsForm() {
+/** `sizes`: the card sizes being printed (each gets its own sheets). */
+export function PrintSettingsForm({ sizes }: { sizes: { w: number; h: number }[] }) {
   const project = useEditor((s) => s.doc!.project)
   const p = normalizePrint(project.print)
-  const input = sheetInput(project, p)
-  const por = capacity(input, 'portrait').perSheet
-  const lan = capacity(input, 'landscape').perSheet
+  const shown = sizes.length
+    ? sizes
+    : [{ w: project.defaultSize.widthMm, h: project.defaultSize.heightMm }]
+  // Cards per sheet in each orientation, one number per size ("9 / 4").
+  const per = (o: 'portrait' | 'landscape') =>
+    shown.map((c) => capacity(sheetInput(project, p, c), o).perSheet).join(' / ')
+  const por = per('portrait')
+  const lan = per('landscape')
   return (
     <div>
       <Section title="Sheet">
@@ -36,8 +42,7 @@ export function PrintSettingsForm() {
             ))}
           </NativeSelect>
           <p className="text-xs text-muted-foreground">
-            {paperOf(p.paper).label} · {project.defaultSize.widthMm} ×{' '}
-            {project.defaultSize.heightMm} mm cards
+            {paperOf(p.paper).label} · {shown.map((c) => `${c.w} × ${c.h}`).join(' and ')} mm cards
           </p>
         </div>
         <div className="flex flex-col gap-1">

@@ -11,7 +11,7 @@ import type {
 } from '@/core/model/types'
 import type { RenderNode } from '@/core/render/renderTypes'
 import { cardContext } from '@/templates/cardContext'
-import { resolveCard } from '../job'
+import { cardSizeOf, resolveCard } from '../job'
 import { BleedBands, bleedFramePath } from '../pdf/bleedFill'
 import { CanvasTarget } from '../pdf/canvasTarget'
 import { renderCard } from '../pdf/renderCard'
@@ -120,16 +120,25 @@ export async function exportCardImages(
   onProgress?: (done: number, total: number) => void,
 ): Promise<ImageExportResult> {
   const { project } = input
-  const card = { w: project.defaultSize.widthMm, h: project.defaultSize.heightMm }
   const bleedFill: BleedFill = normalizePrint(project.print).bleedFill
   const res = createPrintResources(input)
-  const bands =
-    bleedFill !== 'off' && project.bleedMm > 0
-      ? new BleedBands(
-          { card, bleedMm: project.bleedMm, mode: bleedFill, pxPerMm: options.dpi / 25.4 },
-          res,
-        )
-      : null
+  // Each card at its own size (cards of different size groups can be mixed).
+  const bandsBySize = new Map<string, BleedBands | null>()
+  const sizedFor = (c: Card) => {
+    const card = cardSizeOf(project, input.templates, c)
+    const key = `${card.w}x${card.h}`
+    if (!bandsBySize.has(key))
+      bandsBySize.set(
+        key,
+        bleedFill !== 'off' && project.bleedMm > 0
+          ? new BleedBands(
+              { card, bleedMm: project.bleedMm, mode: bleedFill, pxPerMm: options.dpi / 25.4 },
+              res,
+            )
+          : null,
+      )
+    return { card, bands: bandsBySize.get(key)! }
+  }
   const allCards = input.allCards ?? Object.fromEntries(input.cards.map((c) => [c.id, c]))
   const sides = new Map<Card, { front: RenderNode[]; back: RenderNode[] | null }>()
   for (const c of input.cards) {
@@ -157,6 +166,7 @@ export async function exportCardImages(
   for (const group of groups.values()) {
     const f0 = group[0]
     const nodes = sides.get(f0.card)![f0.side as Side]!
+    const { card, bands } = sizedFor(f0.card)
     const canvas = await renderCardImage(
       nodes,
       {

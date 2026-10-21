@@ -131,6 +131,13 @@ export interface Template {
   size: CardSize
   elements: Element[]
   guides: Guide[]
+  /**
+   * Fronts only: the back this front prints with. One back can serve several
+   * fronts; a back and all fronts anchored to it share one size (a size group).
+   */
+  backId?: Id
+  /** Changed in template mode since it was made (resizing then asks first). */
+  edited?: boolean
   thumbnail?: Blob
   createdAt: number
   updatedAt: number

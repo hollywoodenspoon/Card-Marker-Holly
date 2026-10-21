@@ -1,4 +1,4 @@
-import { FileSpreadsheet, Loader2, Undo2, Upload } from 'lucide-react'
+import { FileSpreadsheet, Loader2, Undo2, Upload } from '@/ui/icons'
 import { useMemo, useState } from 'react'
 import { undo, useEditor } from '@/core/editor/editorStore'
 import { currentCard } from '@/core/editor/selectors'

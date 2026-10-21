@@ -1,4 +1,4 @@
-import { Download } from 'lucide-react'
+import { Download } from '@/ui/icons'
 import { DropdownMenuItem } from '@/ui/components/ui/dropdown'
 import { promptInstall, usePwa } from './pwa'
 

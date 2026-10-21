@@ -1,6 +1,6 @@
 # Getting started
 
-Card Maker is a card editor for your own card game. You design a layout once, fill in many cards, and print them on paper sheets with cut marks, ready to cut by hand. Everything saves by itself.
+Hearthside Cardworks is a card editor for your own card game. You design a layout once, fill in many cards, and print them on paper sheets with cut marks, ready to cut by hand. Everything saves by itself.
 
 This page gets you from nothing to a printed card in a few minutes.
 
@@ -19,7 +19,7 @@ That's it: you have a PDF with your card, its back, and cut marks.
 
 ![The New project box](new-project.webp)
 
-> **Tip:** On a phone or tablet, double-tap instead of double-click. On a phone, **Print** is in the ☰ menu as **Print / export PDF**.
+> **Tip:** On a phone or tablet, double-tap instead of double-click. On a phone, **Print** is in the ☰ menu (top right) as **Print / export PDF**.
 
 ## The first steps checklist
 

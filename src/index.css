@@ -36,66 +36,14 @@
   --canvas: oklch(0.42 0 0);
 }
 
-/* Fun colour themes (data-theme on <html>). The canvas surround stays neutral grey. */
-[data-theme='bubblegum'] {
-  --background: #fff4fa;
-  --foreground: #0b3b3b;
-  --panel: #ffffff;
-  --muted: #e5fdff;
-  /* #069494 is too light for small text on white; same hue, readable. */
-  --muted-foreground: #057575;
-  --border: #a8f5fb;
-  --input: #7ee9f2;
-  --accent: #ff69b4;
-  --accent-foreground: #ffffff;
-  --accent-soft: #ffe1f0;
-  --ring: #00f0ff;
-  --canvas: oklch(0.74 0 0);
+/* Colour themes (data-theme on <html>) come from src/ui/theme/themes.json via
+   virtual:themes.css. Their optional decorations: */
+.app-topbar {
+  background-image: var(--topbar-bg, none);
+  box-shadow: var(--topbar-shadow, none);
 }
-
-[data-theme='arcade'] {
-  --background: #120b24;
-  --foreground: #f1ecff;
-  --panel: #1b1236;
-  --muted: #261a4a;
-  --muted-foreground: #a99bd6;
-  --border: #33255f;
-  --input: #3f2e75;
-  --accent: #39ff9c;
-  --accent-foreground: #0b1a12;
-  --accent-soft: #1f4a3e;
-  --ring: #ff3df2;
-  --canvas: oklch(0.42 0 0);
-}
-
-[data-theme='forest'] {
-  --background: #f4f1e8;
-  --foreground: #23301f;
-  --panel: #fbf9f3;
-  --muted: #e8e3d3;
-  --muted-foreground: #6b6a4f;
-  --border: #d9d2bc;
-  --input: #cbc3a8;
-  --accent: #2f6b3a;
-  --accent-foreground: #fbf9f3;
-  --accent-soft: #dcead3;
-  --ring: #c88a2c;
-  --canvas: oklch(0.74 0 0);
-}
-
-[data-theme='sunset'] {
-  --background: #fff6ef;
-  --foreground: #3a1d2b;
-  --panel: #ffffff;
-  --muted: #ffeadb;
-  --muted-foreground: #9a5a54;
-  --border: #ffd3b8;
-  --input: #ffbf9a;
-  --accent: #e8505b;
-  --accent-foreground: #ffffff;
-  --accent-soft: #ffe0dc;
-  --ring: #f9a23c;
-  --canvas: oklch(0.74 0 0);
+.app-rail {
+  background-image: var(--rail-bg, none);
 }
 
 @theme inline {

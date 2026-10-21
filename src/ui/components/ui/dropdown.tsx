@@ -74,3 +74,42 @@ export function DropdownMenuRadioItem({
     </DM.RadioItem>
   )
 }
+
+export const DropdownMenuSub = DM.Sub
+
+export function DropdownMenuSubTrigger({
+  className,
+  children,
+  ...props
+}: React.ComponentProps<typeof DM.SubTrigger>) {
+  return (
+    <DM.SubTrigger
+      className={cn(
+        'flex h-11 cursor-default items-center gap-2 rounded-md px-2.5 outline-none select-none data-[highlighted]:bg-muted data-[state=open]:bg-muted md:h-8 [&_svg]:size-4 [&_svg]:text-muted-foreground',
+        className,
+      )}
+      {...props}
+    >
+      {children}
+      <span className="ml-auto pl-4 text-muted-foreground" aria-hidden>
+        ›
+      </span>
+    </DM.SubTrigger>
+  )
+}
+
+export function DropdownMenuSubContent({
+  className,
+  ...props
+}: React.ComponentProps<typeof DM.SubContent>) {
+  return (
+    <DM.Portal>
+      <DM.SubContent
+        sideOffset={4}
+        collisionPadding={8}
+        className={cn('z-50 min-w-48 rounded-lg border bg-panel p-1 text-sm shadow-lg', className)}
+        {...props}
+      />
+    </DM.Portal>
+  )
+}

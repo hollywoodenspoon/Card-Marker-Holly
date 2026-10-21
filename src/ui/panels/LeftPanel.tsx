@@ -10,8 +10,9 @@ import {
   Highlighter,
   Upload,
   Swords,
-} from 'lucide-react'
+} from '@/ui/icons'
 import { useEditor } from '@/core/editor/editorStore'
+import { setEditMode } from './editMode'
 import { openHelp } from '@/help/openHelp'
 import { cn } from '@/lib/cn'
 import { IconButton } from '@/ui/components/ui/button'
@@ -91,17 +92,23 @@ export function LeftPanel({
     <div className={cn('flex min-h-0 min-w-0', className)}>
       <nav
         aria-label="Panels"
-        className="flex w-16 shrink-0 flex-col items-center gap-1 overflow-y-auto border-r py-2"
+        className="app-rail flex w-16 shrink-0 flex-col items-center gap-1 overflow-y-auto border-r py-2"
       >
         {LEFT_PANELS.map((p) => (
           <button
             key={p.id}
             type="button"
-            onClick={() => onTab(p.id)}
+            onClick={() => {
+              onTab(p.id)
+              // The Templates and Cards tabs are also the editing mode.
+              if (p.id === 'templates') setEditMode('template')
+              if (p.id === 'cards') setEditMode('card')
+            }}
             aria-pressed={shown === p.id}
             className={cn(
               railButton,
-              shown === p.id && 'bg-accent-soft text-accent hover:bg-accent-soft',
+              shown === p.id &&
+                'bg-accent-soft text-[var(--rail-active-fg,var(--accent))] hover:bg-accent-soft',
             )}
           >
             <p.icon className="size-5" />

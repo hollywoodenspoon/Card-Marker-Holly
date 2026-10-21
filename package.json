@@ -1,7 +1,7 @@
 {
   "name": "card-maker",
   "private": true,
-  "version": "0.1.0-alpha.2",
+  "version": "0.1.0-alpha.3",
   "description": "Design cards and print them on A4 sheets. Works offline.",
   "author": "hollywoodenspoon",
   "main": "dist-electron/main.cjs",
@@ -19,7 +19,9 @@
     "desktop:dist": "node scripts/desktop.mjs dist",
     "android:sync": "node scripts/android.mjs sync",
     "android:apk": "node scripts/android.mjs apk",
-    "help:shots": "node scripts/help-screenshots.mjs"
+    "help:shots": "node scripts/help-screenshots.mjs",
+    "icons": "node scripts/icons.mjs",
+    "icons:gen": "node scripts/game-icons.mjs"
   },
   "dependencies": {
     "@capacitor/android": "8.5.2",
@@ -61,6 +63,7 @@
   "devDependencies": {
     "@capacitor/cli": "8.5.2",
     "@eslint/js": "^10.0.1",
+    "@iconify-json/game-icons": "1.2.4",
     "@tailwindcss/vite": "^4.3.3",
     "@types/node": "^26.6.5",
     "@types/papaparse": "^5.5.2",

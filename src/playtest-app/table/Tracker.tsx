@@ -8,7 +8,7 @@ import {
   Plus,
   RotateCcw,
   Shuffle,
-} from 'lucide-react'
+} from '@/ui/icons'
 import { cn } from '@/lib/cn'
 import { zoneKey, type GameSetup } from '@/playtest/setup'
 import type { TableState } from '@/playtest/state'

@@ -1,25 +1,24 @@
-# Themes and settings
+# Settings
 
-Card Maker has only a few settings, and most of them are in the ☰ menu.
+Hearthside Cardworks has only a few settings. Most of them are in ☰ → **Settings**.
 
-## Themes
+## The Settings menu
 
-Open ☰ (in the editor, or the ☰ on the Home screen) and pick a theme under **Theme**:
+Open ☰ at the top right (in the editor, or on the Home screen) and choose **Settings**:
 
-- **Light**
-- **Dark**
-- **Follow system**: light or dark to match your device. This is the default.
-- **Bubblegum pop**, **Midnight arcade** (dark), **Forest** and **Sunset**: colour themes for some fun.
+- **Help**: these pages.
+- **Units…**: the unit you see and type sizes in (in a project).
+- **Theme…**: the colours of the app. See [Themes](help:themes).
+- In the desktop app: **Automatic update checks**, **Check for updates** and, when an update is ready, **Restart to update**. See [Desktop app](help:desktop-app#updates).
+- **Install app**, when your browser can install the website as an app. See [Website and offline use](help:website).
 
-![The ☰ menu with the theme choices](settings-menu.webp)
-
-The theme changes the app around your card, never the card itself. The canvas behind the card stays neutral grey in every theme, so your card's colours always look true.
+![The ☰ menu with Settings open](settings-menu.webp)
 
 ## Units
 
 Choose the unit you see and type sizes in: **Millimetres**, **Centimetres**, **Inches** or **Pixels**.
 
-- ☰ → **Units…**, or
+- ☰ → **Settings** → **Units…**, or
 - the right pane with nothing selected → **Card** → **Units**.
 
 With **Pixels**, set **Pixels per inch** too (300 by default), the print resolution the pixels are counted at. The unit is saved with the project, and new projects start with the one you used last. See [Card size, bleed and safe area](help:card-size#units).
@@ -28,7 +27,8 @@ With **Pixels**, set **Pixels per inch** too (300 by default), the print resolut
 
 These are saved with each project. Find them in the right pane with nothing selected:
 
-- **Card size** and orientation
+- **Card size** and orientation (for the template you're on and its matching front or back)
+- **Back for this front** (on a front template)
 - **Units**
 - **Bleed** and **Safe margin**
 - **Corner cutter guide**
@@ -49,16 +49,15 @@ Some choices are about how you like to work, so they're kept on this device (in 
 ## Desktop and Android apps
 
 - **Projects folder**: where new projects go. On the Home screen, ☰ → **Projects folder…**. In the desktop app, the **New project** box also has **Change…**.
-- **Automatic update checks** and **Check for updates** (desktop app, in ☰): see [Desktop app](help:desktop-app#updates).
-- In the desktop app, settings and the Recent list are stored with the app: in **Card Maker data** next to the Windows `.exe`, or in `~/.config/card-maker` on Linux.
+- In the desktop app, settings and the Recent list are stored with the app: in **Hearthside Cardworks data** next to the Windows `.exe` (an older **Card Maker data** folder keeps being used), or in `~/.config/card-maker` on Linux.
 
-## Install and version
+## Version
 
-- **Install app** appears in ☰ when your browser can install the website as an app. See [Website and offline use](help:website).
-- The version number is at the bottom of the ☰ menu, and at the bottom of the Home screen.
+The version number is at the bottom of the ☰ menu, at the bottom of the Home screen, and on [About and credits](help:about).
 
 ## See also
 
+- [Themes](help:themes)
 - [Card size, bleed and safe area](help:card-size)
 - [The workspace](help:workspace)
 - [Desktop app (Windows and Linux)](help:desktop-app)

@@ -4,7 +4,7 @@ Answers to the problems people run into most. If something isn't covered here, t
 
 ## Fonts look different in the PDF
 
-Card Maker puts real font files into the PDF so text prints sharp and exactly as shown. That needs the font file.
+Hearthside Cardworks puts real font files into the PDF so text prints sharp and exactly as shown. That needs the font file.
 
 - **Inter**, **Alegreya** and **Alegreya SC** come with the app and are always embedded.
 - Fonts you **upload** in the **Fonts** tab (TTF or OTF) are embedded too.
@@ -14,7 +14,7 @@ To fix it, upload the font file in **Fonts** (or switch to a font that came with
 
 ## Blurry pictures and the low DPI warning
 
-A picture with too few pixels for its printed size looks soft or blocky on paper. Card Maker warns you when a picture would print below about **300 DPI** (dots per inch):
+A picture with too few pixels for its printed size looks soft or blocky on paper. Hearthside Cardworks warns you when a picture would print below about **300 DPI** (dots per inch):
 
 - an orange **!** badge at the top right of the picture on the canvas,
 - _Prints at about … DPI_ in the picture's properties,
@@ -51,7 +51,7 @@ The Windows app isn't signed with a paid certificate, so Windows warns you the f
 ## Where are my files
 
 - **Website**: your projects are stored inside the browser you made them in, on that device only. Exports (PDF, images…) go to your browser's **Downloads** folder.
-- **Desktop app**: each project is a folder, by default in **Documents/Card Maker/**. In the editor, ☰ → **Show project folder** opens it. Exports go wherever you chose in the **Save as** window.
+- **Desktop app**: each project is a folder, by default in **Documents/Hearthside Cardworks/**. In the editor, ☰ → **Show project folder** opens it. Exports go wherever you chose in the **Save as** window.
 - **Android app**: each project is a folder inside the folder you picked on first start. On the Home screen, ☰ → **Projects folder…** shows and changes it. Exports go wherever you chose on the **Save to** screen.
 
 ## Folder not found

@@ -24,6 +24,15 @@ export function dexieBackend(d: CardMakerDB = db): StorageBackend {
     },
     loadProject: (id) => loadProject(id, d),
     saveBundle: (b) => saveProjectBundle(b, d),
+    replaceBundle: (b) =>
+      d.transaction(
+        'rw',
+        [d.projects, d.templates, d.cards, d.assets, d.fonts, d.stylePresets],
+        async () => {
+          await deleteProject(b.project.id, d)
+          await saveProjectBundle(b, d)
+        },
+      ),
     async writeChanges({ doc }, ch) {
       const { templates: t, cards: c, stylePresets: sp, assets: a, fonts: f } = ch
       await d.transaction(

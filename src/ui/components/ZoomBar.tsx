@@ -1,4 +1,4 @@
-import { Maximize, Minus, Plus } from 'lucide-react'
+import { Maximize, Minus, Plus } from '@/ui/icons'
 import { cn } from '@/lib/cn'
 import { IconButton } from './ui/button'
 

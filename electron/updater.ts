@@ -10,7 +10,8 @@ import { compareVersions, isPrerelease, newestTag, shortError } from './updateHo
  *   auto:   the AppImage and the installed Windows app download the new version
  *           and install it when the app closes (or on "Restart now").
  *   notify: the portable exe and the Arch package can't replace themselves, so
- *           they only say that a new version is out, with a download link.
+ *           they only say that a new version is out: with a download link, or
+ *           for the Arch package the pacman command (it updates from our repo).
  */
 const RELEASES = 'https://github.com/hollywoodenspoon/Card-Marker-Holly/releases'
 
@@ -30,6 +31,10 @@ export function updatesEnabled(): boolean | null {
 function setEnabled(enabled: boolean) {
   writeFileSync(settingsFile(), JSON.stringify({ enabled }, null, 2))
 }
+
+/** The Arch package (installed under /opt): pacman updates it from the cardworks repository. */
+const pacman = () =>
+  app.isPackaged && process.platform === 'linux' && !process.env.APPIMAGE && __dirname.startsWith('/opt/')
 
 export function updateMode(): UpdateMode {
   if (!app.isPackaged) return 'notify'
@@ -93,7 +98,7 @@ export function initUpdates(win: () => BrowserWindow | null, beforeInstall: () =
       }
       const latest = await latestRelease()
       if (latest && compareVersions(latest.version, app.getVersion()) > 0)
-        send({ type: 'available', ...latest })
+        send({ type: 'available', ...latest, ...(pacman() && { command: 'sudo pacman -Syu' }) })
       else if (byUser) send({ type: 'none' })
     } catch (e) {
       if (byUser) send({ type: 'error', message: shortError(e) })

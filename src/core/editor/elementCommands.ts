@@ -54,8 +54,10 @@ function targetList(d: D, v: ViewState): Element[] | undefined {
 
 function stamp(d: D, v: ViewState) {
   const t = Date.now()
-  if (v.mode === 'template' && v.templateId && d.templates[v.templateId])
+  if (v.mode === 'template' && v.templateId && d.templates[v.templateId]) {
     d.templates[v.templateId].updatedAt = t
+    d.templates[v.templateId].edited = true
+  }
   if (v.mode === 'card' && v.cardId && d.cards[v.cardId]) d.cards[v.cardId].updatedAt = t
 }
 
