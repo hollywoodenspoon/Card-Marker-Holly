@@ -2,6 +2,7 @@ import { Layers, Play, TriangleAlert } from '@/ui/icons'
 import { useEffect, useMemo, useState } from 'react'
 import { checkDeck } from '@/adventure/deck'
 import { listDecks, type DeckRow } from '@/playtest/library'
+import { randomSeed } from '@/playtest/rng'
 import { presets, validateSetup, type GameSetup } from '@/playtest/setup'
 import { deckCards } from '@/playtest/state'
 import { Button } from '@/ui/components/ui/button'
@@ -14,15 +15,18 @@ const ALL = '__all'
 const SAVED = 'saved:'
 const KEY = 'cardmaker.playtest'
 
+const AS_SETUP = 'preset:adventure-scuffle'
+type Mode = 'free' | 'hotseat' | 'open'
+
 /** Last setup and decks, per device (only a convenience). */
-function remembered(): { setupId?: string; decks?: string[] } {
+function remembered(): { setupId?: string; decks?: string[]; mode?: Mode } {
   try {
     return JSON.parse(localStorage.getItem(KEY) ?? '{}')
   } catch {
     return {}
   }
 }
-function remember(v: { setupId: string; decks: string[] }) {
+function remember(v: { setupId: string; decks: string[]; mode: Mode }) {
   try {
     localStorage.setItem(KEY, JSON.stringify(v))
   } catch {
@@ -97,11 +101,34 @@ export function StartPanel({ onDecks }: { onDecks: () => void }) {
   }
   const errors = validateSetup(setup)
   const want = setup.deal?.deckSize
+  // The Adventure Scuffle rules can run the game when the pack has the _AS card values.
+  const canRule = setup.id === AS_SETUP && deckCardsInfo.adventure && setup.seats.length === 2
+  const [mode, setMode] = useState<Mode>(last.mode ?? 'free')
+  const ruled = canRule && mode !== 'free'
+  const ids = (i: number) => cardsFor(chosen[i])?.map((c) => c.cardId) ?? []
+  const deckProblem = (i: number) => {
+    const c = checkDeck(ids(i), byId)
+    return c.ok ? null : c.problems[0]
+  }
+  const blocked = ruled && setup.seats.some((_, i) => deckProblem(i))
 
   const start = () => {
     const picks = setup.seats.map((_, i) => chosen[i])
-    remember({ setupId: setup.id, decks: chosen })
-    usePlaytest.getState().start(pack.id, setup, picks.map(cardsFor))
+    remember({ setupId: setup.id, decks: chosen, mode })
+    const pt = usePlaytest.getState()
+    if (ruled)
+      pt.startRules(
+        pack.id,
+        setup,
+        {
+          cards: deckCardsInfo.cards,
+          decks: [ids(0), ids(1)],
+          names: [setup.seats[0].name, setup.seats[1].name],
+          seed: randomSeed(),
+        },
+        mode === 'hotseat',
+      )
+    else pt.start(pack.id, setup, picks.map(cardsFor))
   }
 
   return (
@@ -114,7 +141,7 @@ export function StartPanel({ onDecks }: { onDecks: () => void }) {
           <h2 className="text-base font-semibold">New game</h2>
           <p className="text-sm text-muted-foreground">
             Lay out a table for your game and play it by hand: move, flip and turn cards, keep
-            score. Nothing is checked yet, so you play by your own rules.
+            score. For Adventure Scuffle, the app can also run the rules for you.
           </p>
         </div>
         <div className="flex flex-col gap-1.5">
@@ -131,6 +158,28 @@ export function StartPanel({ onDecks }: { onDecks: () => void }) {
             {setup.phases.length ? ` · ${setup.phases.join(' → ')}` : ''}
           </p>
         </div>
+        {canRule && (
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="pt-mode">Rules</Label>
+            <NativeSelect
+              id="pt-mode"
+              value={mode}
+              onChange={(e) => setMode(e.target.value as Mode)}
+              data-testid="playtest-mode"
+            >
+              <option value="free">Free table (you apply the rules)</option>
+              <option value="hotseat">Rules on: two players, one device</option>
+              <option value="open">Rules on: see both sides (playtest alone)</option>
+            </NativeSelect>
+            <p className="text-xs text-muted-foreground">
+              {mode === 'free'
+                ? 'Move, flip and turn cards yourself; nothing is checked.'
+                : mode === 'hotseat'
+                  ? "The app runs the Mutual Reveal rules and hides each player's cards until the device is handed over. Card abilities are not active yet: cards play with their stats."
+                  : 'The app runs the Mutual Reveal rules and you play both players, seeing everything. Card abilities are not active yet: cards play with their stats.'}
+            </p>
+          </div>
+        )}
         {setup.deal &&
           setup.seats.map((seat, i) => {
             const picked = cardsFor(chosen[i])
@@ -171,7 +220,11 @@ export function StartPanel({ onDecks }: { onDecks: () => void }) {
                 </NativeSelect>
                 {(() => {
                   const own = savedDeck(chosen[i])
-                  const problems = own ? checkDeck(own.cards, byId).problems : []
+                  const problems = ruled
+                    ? [deckProblem(i)].filter(Boolean)
+                    : own
+                      ? checkDeck(own.cards, byId).problems
+                      : []
                   return problems.length > 0 ? (
                     <p className="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400">
                       <TriangleAlert className="size-3.5 shrink-0" />
@@ -179,7 +232,7 @@ export function StartPanel({ onDecks }: { onDecks: () => void }) {
                     </p>
                   ) : null
                 })()}
-                {!savedDeck(chosen[i]) && want !== undefined && picked && n !== want && (
+                {!ruled && !savedDeck(chosen[i]) && want !== undefined && picked && n !== want && (
                   <p className="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400">
                     <TriangleAlert className="size-3.5 shrink-0" />
                     {n} card{n === 1 ? '' : 's'}; this game uses {want}.
@@ -204,7 +257,17 @@ export function StartPanel({ onDecks }: { onDecks: () => void }) {
             ))}
           </ul>
         )}
-        <Button onClick={start} disabled={errors.length > 0} data-testid="playtest-start-button">
+        {blocked && (
+          <p className="text-xs text-danger">
+            With the rules on, each player needs a legal Free Company: 12 different cards, at most
+            one Ace.
+          </p>
+        )}
+        <Button
+          onClick={start}
+          disabled={errors.length > 0 || blocked}
+          data-testid="playtest-start-button"
+        >
           <Play /> Start
         </Button>
       </div>

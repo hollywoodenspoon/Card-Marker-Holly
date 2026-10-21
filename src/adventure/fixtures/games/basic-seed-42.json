@@ -1,0 +1,352 @@
+{
+  "format": "adventure-scuffle-game",
+  "cards": "basic",
+  "names": ["Ann", "Bo"],
+  "decks": [
+    ["c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8", "c9", "c10", "c11", "c12"],
+    ["c13", "c14", "c15", "c16", "c17", "c18", "c19", "c20", "c21", "c22", "c23", "c24"]
+  ],
+  "seed": 42,
+  "moves": [
+    {
+      "t": "placeRandom"
+    },
+    {
+      "t": "done"
+    },
+    {
+      "t": "placeRandom"
+    },
+    {
+      "t": "done"
+    },
+    {
+      "t": "reveal",
+      "slots": [0, 1]
+    },
+    {
+      "t": "reveal",
+      "slots": [0, 1]
+    },
+    {
+      "t": "reveal",
+      "slots": [2]
+    },
+    {
+      "t": "reveal",
+      "slots": [2]
+    },
+    {
+      "t": "reveal",
+      "slots": [3]
+    },
+    {
+      "t": "reveal",
+      "slots": [3]
+    },
+    {
+      "t": "reveal",
+      "slots": [4]
+    },
+    {
+      "t": "reveal",
+      "slots": [4]
+    },
+    {
+      "t": "reveal",
+      "slots": [5]
+    },
+    {
+      "t": "reveal",
+      "slots": [5]
+    },
+    {
+      "t": "first",
+      "attacker": 1
+    },
+    {
+      "t": "fs",
+      "card": "c21"
+    },
+    {
+      "t": "fs",
+      "card": "c12"
+    },
+    {
+      "t": "pass"
+    },
+    {
+      "t": "pass"
+    },
+    {
+      "t": "fs",
+      "card": "c17"
+    },
+    {
+      "t": "fs",
+      "card": "c6"
+    },
+    {
+      "t": "pass"
+    },
+    {
+      "t": "pass"
+    },
+    {
+      "t": "placeRandom"
+    },
+    {
+      "t": "done"
+    },
+    {
+      "t": "placeRandom"
+    },
+    {
+      "t": "done"
+    },
+    {
+      "t": "reveal",
+      "slots": [0, 1]
+    },
+    {
+      "t": "reveal",
+      "slots": [0, 1]
+    },
+    {
+      "t": "reveal",
+      "slots": [2]
+    },
+    {
+      "t": "reveal",
+      "slots": [2]
+    },
+    {
+      "t": "reveal",
+      "slots": [3]
+    },
+    {
+      "t": "reveal",
+      "slots": [3]
+    },
+    {
+      "t": "reveal",
+      "slots": [4]
+    },
+    {
+      "t": "reveal",
+      "slots": [4]
+    },
+    {
+      "t": "reveal",
+      "slots": [5]
+    },
+    {
+      "t": "reveal",
+      "slots": [5]
+    },
+    {
+      "t": "first",
+      "attacker": 0
+    },
+    {
+      "t": "fs",
+      "card": "c7"
+    },
+    {
+      "t": "fs",
+      "card": "c15"
+    },
+    {
+      "t": "pass"
+    },
+    {
+      "t": "pass"
+    },
+    {
+      "t": "placeRandom"
+    },
+    {
+      "t": "done"
+    },
+    {
+      "t": "placeRandom"
+    },
+    {
+      "t": "done"
+    },
+    {
+      "t": "reveal",
+      "slots": [0, 1]
+    },
+    {
+      "t": "reveal",
+      "slots": [0, 1]
+    },
+    {
+      "t": "reveal",
+      "slots": [2]
+    },
+    {
+      "t": "reveal",
+      "slots": [2]
+    },
+    {
+      "t": "reveal",
+      "slots": [3]
+    },
+    {
+      "t": "reveal",
+      "slots": [3]
+    },
+    {
+      "t": "reveal",
+      "slots": [4]
+    },
+    {
+      "t": "reveal",
+      "slots": [4]
+    },
+    {
+      "t": "reveal",
+      "slots": [5]
+    },
+    {
+      "t": "reveal",
+      "slots": [5]
+    },
+    {
+      "t": "first",
+      "attacker": 1
+    },
+    {
+      "t": "fs",
+      "card": "c14"
+    },
+    {
+      "t": "fs",
+      "card": "c6"
+    },
+    {
+      "t": "pass"
+    },
+    {
+      "t": "pass"
+    },
+    {
+      "t": "fs",
+      "card": "c22"
+    },
+    {
+      "t": "fs",
+      "card": "c9"
+    },
+    {
+      "t": "pass"
+    },
+    {
+      "t": "pass"
+    }
+  ],
+  "expect": {
+    "winner": 1,
+    "points": [1, 4],
+    "round": 3,
+    "log": [
+      "New game: Ann against Bo.",
+      "Bo has the initiative.",
+      "Bo placed 6 cards face down.",
+      "Ann placed 6 cards face down.",
+      "Round 1: Skirmish. Bo has the initiative.",
+      "Bo reveals Card 7 (Front Line Left Flank, Fate 240) and Card 10 (Front Line Center, Fate 300) on Ann's field.",
+      "Ann reveals Card 15 (Front Line Left Flank, Fate 400) and Card 24 (Front Line Center, Fate 580) on Bo's field.",
+      "Bo reveals Card 8 (Front Line Right Flank, Fate 260) on Ann's field.",
+      "Ann reveals Card 13 (Front Line Right Flank, Fate 360) on Bo's field.",
+      "Bo reveals Card 11 (Rear Guard Left Flank, Fate 320) on Ann's field.",
+      "Ann reveals Card 23 (Rear Guard Left Flank, Fate 560) on Bo's field.",
+      "Bo reveals Card 3 (Rear Guard Center, Fate 160) on Ann's field.",
+      "Ann reveals Card 20 (Rear Guard Center, Fate 500) on Bo's field.",
+      "Bo reveals Card 1 (Rear Guard Right Flank, Fate 120) on Ann's field.",
+      "Ann reveals Card 16 (Rear Guard Right Flank, Fate 420) on Bo's field.",
+      "Ann: Main Attacker Card 1 (Rear Guard Right Flank), attacking with Card 3, Card 7; defending: Card 8, Card 10, Card 11.",
+      "Bo: Main Attacker Card 13 (Front Line Right Flank), attacking with Card 15, Card 16; defending: Card 20, Card 23, Card 24.",
+      "Bo chooses Bo's attack as the First Engagement.",
+      "First Engagement: Bo's Card 13 attacks Front Line Left Flank (Card 7).",
+      "Attack 8 vs Defense 8.",
+      "Bo reveals Card 21 as Fighting Spirit (+1). Attack 9 vs Defense 8.",
+      "Ann reveals Card 12 as Fighting Spirit (+1). Attack 9 vs Defense 9.",
+      "Bo passes.",
+      "Ann passes.",
+      "Attack 9 vs Defense 9: a tie, no points.",
+      "Second Engagement: Ann's Card 1 attacks Rear Guard Left Flank (Card 23).",
+      "Attack 8 vs Defense 7.",
+      "Bo reveals Card 17 as Fighting Spirit (+3). Attack 8 vs Defense 10.",
+      "Ann reveals Card 6 as Fighting Spirit (+1). Attack 9 vs Defense 10.",
+      "Bo passes.",
+      "Ann passes.",
+      "Attack 9 vs Defense 10: Bo scores.",
+      "Points: Ann 0, Bo 1.",
+      "Regroup: Fighting Spirit and unused Support rest; active field cards go to Support.",
+      "Bo placed 6 cards face down.",
+      "Ann placed 6 cards face down.",
+      "Round 2: Skirmish. Ann has the initiative.",
+      "Ann reveals Card 14 (Front Line Left Flank, Fate 380) and Card 22 (Front Line Center, Fate 540) on Bo's field.",
+      "Bo reveals Card 6 (Front Line Left Flank, Fate 220) and Card 9 (Front Line Center, Fate 280) on Ann's field.",
+      "Ann reveals Card 19 (Front Line Right Flank, Fate 480) on Bo's field.",
+      "Bo reveals Card 5 (Front Line Right Flank, Fate 200) on Ann's field.",
+      "Ann reveals Card 18 (Rear Guard Left Flank, Fate 460) on Bo's field.",
+      "Bo reveals Card 4 (Rear Guard Left Flank, Fate 180) on Ann's field.",
+      "Ann reveals Card 17 (Rear Guard Center, Fate 440) on Bo's field.",
+      "Bo reveals Card 12 (Rear Guard Center, Fate 340) on Ann's field.",
+      "Ann reveals Card 21 (Rear Guard Right Flank, Fate 520) on Bo's field.",
+      "Bo reveals Card 2 (Rear Guard Right Flank, Fate 140) on Ann's field.",
+      "Ann: Main Attacker Card 2 (Rear Guard Right Flank), attacking with Card 4, Card 5; defending: Card 6, Card 9, Card 12.",
+      "Bo: Main Attacker Card 14 (Front Line Left Flank), attacking with Card 17, Card 18; defending: Card 19, Card 21, Card 22.",
+      "Ann chooses Ann's attack as the First Engagement.",
+      "First Engagement: Ann's Card 2 attacks Rear Guard Left Flank (Card 18).",
+      "No defender is on or next to that position: Ann scores.",
+      "Points: Ann 1, Bo 1.",
+      "Second Engagement: Bo's Card 14 attacks Front Line Right Flank (Card 5).",
+      "Attack 7 vs Defense 4.",
+      "Ann reveals Card 7 as Fighting Spirit (+2). Attack 7 vs Defense 6.",
+      "Bo reveals Card 15 as Fighting Spirit (+1). Attack 8 vs Defense 6.",
+      "Ann passes.",
+      "Bo passes.",
+      "Attack 8 vs Defense 6: Bo scores.",
+      "Points: Ann 1, Bo 2.",
+      "Regroup: Fighting Spirit and unused Support rest; active field cards go to Support.",
+      "Ann placed 6 cards face down.",
+      "Bo placed 6 cards face down.",
+      "Round 3: Skirmish. Bo has the initiative.",
+      "Bo reveals Card 11 (Front Line Left Flank, Fate 320) and Card 8 (Front Line Center, Fate 260) on Ann's field.",
+      "Ann reveals Card 20 (Front Line Left Flank, Fate 500) and Card 16 (Front Line Center, Fate 420) on Bo's field.",
+      "Bo reveals Card 7 (Front Line Right Flank, Fate 240) on Ann's field.",
+      "Ann reveals Card 24 (Front Line Right Flank, Fate 580) on Bo's field.",
+      "Bo reveals Card 1 (Rear Guard Left Flank, Fate 120) on Ann's field.",
+      "Ann reveals Card 15 (Rear Guard Left Flank, Fate 400) on Bo's field.",
+      "Bo reveals Card 10 (Rear Guard Center, Fate 300) on Ann's field.",
+      "Ann reveals Card 13 (Rear Guard Center, Fate 360) on Bo's field.",
+      "Bo reveals Card 3 (Rear Guard Right Flank, Fate 160) on Ann's field.",
+      "Ann reveals Card 23 (Rear Guard Right Flank, Fate 560) on Bo's field.",
+      "Ann: Main Attacker Card 1 (Rear Guard Left Flank), attacking with Card 3, Card 7; defending: Card 8, Card 10, Card 11.",
+      "Bo: Main Attacker Card 13 (Rear Guard Center), attacking with Card 15, Card 16; defending: Card 20, Card 23, Card 24.",
+      "Bo chooses Bo's attack as the First Engagement.",
+      "First Engagement: Bo's Card 13 attacks Rear Guard Center (Card 10).",
+      "Attack 12 vs Defense 7.",
+      "Bo reveals Card 14 as Fighting Spirit (+3). Attack 15 vs Defense 7.",
+      "Ann reveals Card 6 as Fighting Spirit (+1). Attack 15 vs Defense 8.",
+      "Bo passes.",
+      "Ann passes.",
+      "Attack 15 vs Defense 8: Bo scores.",
+      "Points: Ann 1, Bo 3.",
+      "Second Engagement: Ann's Card 1 attacks Rear Guard Right Flank (Card 23).",
+      "Attack 4 vs Defense 8.",
+      "Bo reveals Card 22 as Fighting Spirit (+2). Attack 4 vs Defense 10.",
+      "Ann reveals Card 9 as Fighting Spirit (+1). Attack 5 vs Defense 10.",
+      "Bo passes.",
+      "Ann passes.",
+      "Attack 5 vs Defense 10: Bo scores.",
+      "Points: Ann 1, Bo 4.",
+      "Bo wins with 4 points!"
+    ]
+  }
+}

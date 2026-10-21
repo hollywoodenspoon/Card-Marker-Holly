@@ -16,11 +16,65 @@ import { Button, IconButton } from '@/ui/components/ui/button'
 import { TokenShape } from './Piece'
 import { usePlaytest } from './usePlaytest'
 
+const PHASE_NAMES = {
+  setup: 'Setup',
+  skirmish: 'Skirmish',
+  combat: 'Combat',
+  regroup: 'Regroup',
+  over: 'Game over',
+} as const
+
 /** Counters, initiative and token trays per seat; round, phase and randomisers for the table. */
 export function Tracker({ phone }: { phone: boolean }) {
   const setup = usePlaytest((s) => s.setup)!
   const state = usePlaytest((s) => s.state)!
   const act = usePlaytest((s) => s.act)
+  // With the rules on, the rules keep score; the tracker only shows it.
+  const rules = usePlaytest((s) => s.rules)
+  if (rules)
+    return (
+      <div
+        className={cn(
+          'flex shrink-0 items-center gap-x-3 gap-y-1.5 border-b bg-panel px-2 py-1.5',
+          phone ? 'overflow-x-auto [&>*]:shrink-0' : 'flex-wrap',
+        )}
+        data-testid="playtest-tracker"
+      >
+        {rules.players.map((p, seat) => (
+          <span
+            key={seat}
+            className="flex items-center gap-1.5 rounded-lg border px-2 py-1 text-sm"
+            style={{
+              borderColor: `color-mix(in oklab, ${setup.seats[seat]?.color} 60%, transparent)`,
+            }}
+            data-testid={`playtest-seat-${seat}`}
+          >
+            <span
+              className="size-2.5 rounded-full"
+              style={{ background: setup.seats[seat]?.color }}
+            />
+            <span className="font-medium">{p.name}</span>
+            {rules.initiative === seat && (
+              <Flag className="size-4 fill-current text-amber-500" aria-label="Initiative" />
+            )}
+            <span
+              className={cn(
+                'tabular-nums',
+                rules.winner?.seat === seat && 'font-bold text-amber-500',
+              )}
+            >
+              Points <span className="font-semibold">{p.points}</span>
+            </span>
+          </span>
+        ))}
+        <span className="text-sm tabular-nums" data-testid="playtest-phase">
+          Round {rules.round} · <span className="font-semibold">{PHASE_NAMES[rules.phase]}</span>
+        </span>
+        <span className="text-xs text-muted-foreground">
+          Rules on · card abilities are not active yet
+        </span>
+      </div>
+    )
   return (
     <div
       className={cn(
