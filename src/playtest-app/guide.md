@@ -15,8 +15,20 @@ A game pack holds every card's picture, the values of its fields (such as `A_AS`
 1. Pick a **Game**. Two tables are built in:
    - **Adventure Scuffle! — Mutual Reveal**: for each player a 2 × 3 field (Front Line and Rear Guard), Support and a Rest zone; card states Ready, Attacking, Defending and Ability-active; a Main Attacker cube; points to 4. The two fields face each other, so a card's Mirrored Position is straight across.
    - **Simple board game**: a shared board, a hand and a deck for each player, pawns, markers and two dice.
-2. Pick a **deck** for each player (the decks from Hearthside Cardworks). **All cards** gives a player one of every card. A warning shows when a deck has a different number of cards than the game uses.
+2. Pick a **deck** for each player: one you built here (**Your decks**), or one from Hearthside Cardworks (**Decks in the pack**). **All cards** gives a player one of every card. A warning shows when a deck breaks a deck rule, or has a different number of cards than the game uses.
 3. Press **Start**.
+
+## Building decks
+
+Press **Build decks…** on the New game screen. The pack's whole card pool is on the left (on a phone, the **Pool** tab); your deck is on the right (the **Deck** tab).
+
+- **Tap a card** to add it to the deck, tap it again to take it out. A tick marks the cards in the deck.
+- **Find cards** by name, code or ability text, filter by type or group, and sort by Fate Number, Attack, Defense or Fighting Spirit.
+- **The rules** for Adventure Scuffle are checked as you go: a Free Company is exactly 12 different cards with at most one Ace. Aces are the cards with `{ace}` in their name (`Name_AS`). **Ready to play** shows when the deck is legal; otherwise the problems are listed.
+- **Several decks:** **+** starts a new one, **Start from a pack deck…** copies a deck from Hearthside Cardworks to change, and the **Deck** list switches between them. Rename a deck in **Name**.
+- **Export** saves the deck as a small `.asdeck.json` file, which **Import deck file** reads on another device or into another pack with the same card codes. **Copy list** copies the deck as text.
+
+Decks are saved in this browser as you change them, one set per pack. Cards with missing or odd values (for example two cards with the same Fate Number) are listed above the pool so you can fix them in Hearthside Cardworks.
 
 The game is saved in this browser as you play: come back later, or reload, and press **Continue**.
 
