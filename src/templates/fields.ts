@@ -17,14 +17,21 @@ export function sharedFieldNames(t: Template, el: FieldElement): FieldElement[] 
 /**
  * When a field is renamed in a template, move card values to the new name
  * for cards using that template — unless the card already has a value there.
+ * `keepOld`: another part still uses the old name, so its value stays as well.
  */
-export function migrateFieldRename(cards: Card[], templateId: string, from: string, to: string) {
+export function migrateFieldRename(
+  cards: Card[],
+  templateId: string,
+  from: string,
+  to: string,
+  keepOld = false,
+) {
   if (from === to) return
   for (const c of cards) {
     if (c.frontTemplateId !== templateId && c.backTemplateId !== templateId) continue
     if (c.fields[from] && !c.fields[to]) {
       c.fields[to] = c.fields[from]
-      delete c.fields[from]
+      if (!keepOld) delete c.fields[from]
     }
   }
 }

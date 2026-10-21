@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { usePasteImages } from '@/ui/actions/usePaste'
 import { useShortcuts } from '@/ui/actions/useShortcuts'
 import { ExportImagesDialog } from '@/ui/export/ExportImagesDialog'
+import { GamePackDialog } from '@/ui/export/GamePackDialog'
 import { TtsDialog } from '@/ui/export/TtsDialog'
 import { UnitsDialog } from '@/ui/panels/properties/UnitsDialog'
 import { FindReplaceDialog } from '@/ui/find/FindReplaceDialog'
@@ -43,6 +44,7 @@ export function AppShell() {
       <KeywordsDialog />
       <FindReplaceDialog />
       <TtsDialog />
+      <GamePackDialog />
       <UnitsDialog />
     </>
   )

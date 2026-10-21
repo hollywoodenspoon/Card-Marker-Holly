@@ -34,5 +34,6 @@ export function topicForView(): string | undefined {
   if (ui.dataView) return 'card-data'
   if (ui.ttsOpen) return 'tabletop-simulator'
   if (ui.imageExport) return 'card-images'
+  if (ui.packOpen) return 'playtest'
   return undefined
 }

@@ -6,7 +6,7 @@ A card editor built with React, TypeScript, Vite and a Konva canvas. It runs as 
 
 ```bash
 npm install            # install dependencies
-npm run dev            # website dev server at http://localhost:5173
+npm run dev            # website dev server at http://localhost:5173 (Playtest app: /playtest/)
 npm run build          # type-check and build the website to dist/
 npm test               # unit tests (Vitest)
 npm run lint           # ESLint
@@ -90,7 +90,7 @@ Android installs an update only if it is signed with the same key, so releases a
 Without the secrets, test runs of the Release workflow still build an APK signed with a temporary debug key, and publishing a release stops with a message.
 
 ### Left pane
-- The rail on the left (desktop, and the tablet's left drawer) has the panels **Templates, Cards, Decks, Fonts**, then quick buttons: **Print**, **Gallery** (gallery and proofreading), **Images** (export card images), **Keywords** and **Data** (card data table, CSV export and mail merge). These are also in the ☰ menu.
+- The rail on the left (desktop, and the tablet's left drawer) has the panels **Templates, Cards, Decks, Fonts**, then quick buttons: **Print**, **Gallery** (gallery and proofreading), **Playtest** (export a game pack), **Images** (export card images), **Keywords** and **Data** (card data table, CSV export and mail merge). These are also in the ☰ menu.
 - **Assets** sit at the bottom of the left pane. Click the header to fold them away or open them again (remembered on this device). Click an image to put it on the card, or into the selected art box. The header buttons make a folder or upload images. On a phone, Assets is in the bottom bar.
 
 ### Asset folders
@@ -187,6 +187,9 @@ The **Front / Back** switch above the canvas. Each card picks a front template a
 The gallery and the print preview use the card editor's controls: hold **Space** or the **middle mouse button** and drag to pan, **Ctrl/⌘ + wheel** (or pinch) to zoom, Ctrl/⌘ 0 to fit, plus the − % + buttons bottom right. In the gallery, zooming makes the cards bigger.
 
 ☰ → *Gallery and proofreading*: every card in a big grid (fronts, backs or both, with a size slider, search and a deck filter); click a card to open it. The **Proofread** tab lists each card's text with the browser's spell check; plain text can be fixed right there (formatted text is edited on the card).
+
+### Playtest (separate app)
+Rail → *Playtest* (or ☰ → *Playtest (export game pack)…*) exports a **game pack** (`.cmpack`): every card's picture (as printed), its field values by field name (text as text, icon rows as numbers, hidden layers included) and your decks. **Playtest now** (in a browser) opens it straight in **Card Maker Playtest**, a companion app at `playtest/` on the same site (installable, offline); **Save game pack** gives a file for any device or a friend. There you pick a table and a deck per player and play by hand: drag or tap cards between fields, hands and piles, flip and turn them, place tokens, keep score, coin and dice, *View as* a player for hot-seat play, undo, and a copyable game log. Games are saved per pack. Built in: an Adventure Scuffle! table and a simple board-game table. No rules are checked yet.
 
 ### Tabletop Simulator
 ☰ → *Export for Tabletop Simulator…*: pick a deck (or the print list) and download a zip of deck sheets (10 × 7, up to 69 cards each, max 4096 px) plus the back image — or matching back sheets when backs differ — and step-by-step import instructions.

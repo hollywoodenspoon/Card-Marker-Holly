@@ -14,6 +14,9 @@ interface UiState {
   keywordsOpen: boolean
   findOpen: boolean
   galleryOpen: boolean
+  /** Export game pack dialog (for the Playtest app). */
+  packOpen: boolean
+  setPackOpen: (o: boolean) => void
   ttsOpen: boolean
   unitsOpen: boolean
   /** Vector Maker; `assetId` opens that asset for editing. */
@@ -71,6 +74,8 @@ export const useUi = create<UiState>((set) => ({
   keywordsOpen: false,
   findOpen: false,
   galleryOpen: false,
+  packOpen: false,
+  setPackOpen: (packOpen) => set({ packOpen }),
   ttsOpen: false,
   unitsOpen: false,
   vectorOpen: null,
