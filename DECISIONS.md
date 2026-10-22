@@ -585,3 +585,12 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
   - **A fixed initiative:** `NewGame.initiative` sets the starting initiative directly. Tournament games after the first use it.
   - **The app:** the start panel offers rock-paper-scissors (the default) or Random.
   - **Bots:** every level throws at random and always takes the initiative, because the first player wins slightly more often in the sims.
+
+## Deck auto-builder
+
+- **Card values** come from a league of 60 random legal decks and 1,600 games played by the quick rules-of-thumb bot, about 10× faster than Normal. A logistic fit of "deck A beat deck B" on which cards each deck holds gives each card a value in log-odds of winning, as in the tier lists (`deckgen/values.ts`). Values are cached per pack and per card-data hash, so they're recomputed only when the cards change.
+- **The levels** (`deckgen/build.ts`):
+  - **Suboptimal:** random legal picks from all but the top 30% of cards.
+  - **Optimal:** greedy by value plus an archetype synergy bonus, then swaps while the score improves. A card whose ability names an archetype ("a Grave card") earns half the bonus with one other card of it in the deck, and the full bonus with two. The bonus is half the spread of the card values.
+  - **Very optimal:** Optimal, then up to 16 swaps, each kept only if the deck wins more games against the pack's legal decks and itself. Normal bots play 2 seeds × both seats per opponent, on the same seeds for every deck (`deckgen/climb.ts`).
+- **Checked on The First Quest** (Normal bots, 60 games per deck against the three premades): Suboptimal 33–40%, the premades 47–55%, Optimal 70%.

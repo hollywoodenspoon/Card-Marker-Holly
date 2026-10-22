@@ -105,6 +105,16 @@ export const REPLAYS_KEPT = 100
 /** Rush batches kept per pack. */
 export const RUSH_KEPT = 5
 
+/** Card values for the deck auto-builder, per pack and card data (see deckgen/values.ts). */
+export interface CardValuesRow {
+  /** `packId:hash`, the hash of the cards' rule values. */
+  key: string
+  packId: string
+  values: Record<string, number>
+  games: number
+  savedAt: number
+}
+
 export interface SetupRow {
   id: string
   setup: GameSetup
@@ -117,12 +127,14 @@ export class PlaytestDB extends Dexie {
   decks!: EntityTable<DeckRow, 'id'>
   replays!: EntityTable<ReplayRow, 'id'>
   rush!: EntityTable<RushRow, 'id'>
+  cardValues!: EntityTable<CardValuesRow, 'key'>
 
   constructor(name = 'card-maker-playtest') {
     super(name)
     this.version(1).stores({ packs: 'id, importedAt', games: 'packId', setups: 'id' })
     this.version(2).stores({ decks: 'id, packId' })
     this.version(3).stores({ replays: 'id, packId, savedAt', rush: 'id, packId, savedAt' })
+    this.version(4).stores({ cardValues: 'key, packId' })
   }
 }
 

@@ -92,6 +92,13 @@ Press **Build decks…** on the New game screen. The pack's whole card pool is o
 - **Find cards** by name, code or ability text, filter by type or group, and sort by Fate Number, Attack, Defense or Fighting Spirit.
 - **The rules** for Adventure Scuffle are checked as you go: a Free Company is exactly 12 different cards with at most one Ace. Aces are the cards with `{ace}` in their name (`Name_AS`). **Ready to play** shows when the deck is legal; otherwise the problems are listed.
 - **Several decks:** **+** starts a new one, **Start from a pack deck…** copies a deck from Hearthside Cardworks to change, and the **Deck** list switches between them. Rename a deck in **Name**.
+- **Auto-build** makes a new deck from any cards in the pack, at one of three levels:
+  - **Suboptimal:** playable but weak, from the less valued cards.
+  - **Optimal:** the strongest cards, plus archetype synergy (cards that ask for, say, a Grave card count more when the deck has Grave cards).
+  - **Very optimal:** starts from Optimal, then tries card swaps and keeps a swap only if the deck wins more bot games against the pack's decks. This takes a minute or two, and **Stop** keeps the best deck found so far.
+
+  The first time, and after the cards change, the app works out how strong each card is from quick bot games, which takes a few seconds and is then remembered. A short note tells you the deck's strongest cards and any archetype it builds around. In testing on The First Quest, Suboptimal decks won about 35% against the three premade decks, the premades about 50%, and Optimal decks about 70%.
+
 - **Export** saves the deck as a small `.asdeck.json` file, which **Import deck file** reads on another device or into another pack with the same card codes. **Copy list** copies the deck as text.
 
 Decks are saved in this browser as you change them, one set per pack. Cards with missing or odd values (for example two cards with the same Fate Number) are listed above the pool so you can fix them in Hearthside Cardworks.
