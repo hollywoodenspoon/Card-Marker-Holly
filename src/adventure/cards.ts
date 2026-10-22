@@ -26,6 +26,11 @@ export interface AsCard {
   ability: string
   /** The group a card belongs to, e.g. a starter deck ("Adventurer's Guild"). */
   group: string
+  /**
+   * Archetypes from `Archetype_AS` (e.g. "Grave" or "Rianz, Hero"). Empty: the
+   * card's archetypes come from its name (any word, as before).
+   */
+  archetypes: string[]
 }
 
 export interface CardIssue {
@@ -88,6 +93,7 @@ export function cardsFromPack(cards: PackCard[]): { cards: AsCard[]; issues: Car
       fate: stat('Fate_AS', 'Fate Number', 100, 666),
       ability: text(f.Ability_AS),
       group: text(f.Deck_AS),
+      archetypes: archetypeList(text(f.Archetype_AS)),
     }
   })
   // Fate Numbers are unique: the Skirmish ranks cards by them.
@@ -112,6 +118,13 @@ export function cardsFromPack(cards: PackCard[]): { cards: AsCard[]; issues: Car
         issues.push({ cardId: c.id, name: c.name, problem: `Card code ${code} is used twice.` })
   return { cards: out, issues }
 }
+
+/** "Grave, Ghoulish" or "Grave; Ghoulish" → ["Grave", "Ghoulish"]. */
+export const archetypeList = (s: string) =>
+  s
+    .split(/[,;/]/)
+    .map((x) => x.trim())
+    .filter(Boolean)
 
 /** Inline stat symbols as short text, for showing ability text outside a card picture. */
 const SYMBOL_TEXT: Record<string, string> = {

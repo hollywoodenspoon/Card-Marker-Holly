@@ -10,6 +10,8 @@ Hearthside Table lays out a table for your game and lets you play it with the ca
 
 A game pack holds every card's picture, the values of its fields (such as `A_AS`, `D_AS` and `FS_AS`) and your decks. Send the file to a friend and they can play too. When you change cards, export the pack again: the new one replaces the old one here.
 
+**Archetypes** (such as Grave, Ghoulish or Rianz) come from a card's `Archetype_AS` field when it has one. You can list several, separated by commas, for example `Rianz, Hero`. A card with no `Archetype_AS` belongs to every archetype whose word is in its name. The deck builder's search finds cards by archetype too.
+
 ## Starting a game
 
 1. Pick a **Game**. Two tables are built in:

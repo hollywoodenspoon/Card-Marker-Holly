@@ -121,6 +121,20 @@ describe('Inherent stats', () => {
     expect(statsAt(board({ field: [23, 17], down: [1] }, {}), 0, 0)).toEqual({ a: 2, d: 2 })
   })
 
+  it('reads archetypes from Archetype_AS, falling back to the name', () => {
+    const s = board({ field: [23, 2] }, {})
+    // Spirited Knight is no Rianz card…
+    expect(statsAt(s, 0, 0)).toEqual({ a: 2, d: 2 })
+    // …until Archetype_AS says so.
+    const tagged = produce(s, (d) => void (d.cards[fq(2)].archetypes = ['Rianz', 'Knight']))
+    expect(statsAt(tagged, 0, 0)).toEqual({ a: 3, d: 2 })
+    // A listed archetype replaces the name: a "Rianz" name tagged Grave isn't Rianz.
+    const s2 = board({ field: [23, 17] }, {})
+    expect(statsAt(s2, 0, 0)).toEqual({ a: 3, d: 2 })
+    const retagged = produce(s2, (d) => void (d.cards[fq(17)].archetypes = ['Grave']))
+    expect(statsAt(retagged, 0, 0)).toEqual({ a: 2, d: 2 })
+  })
+
   it('TFQ-28 Grave Whisperer: Grave on the field +1 A, in the rest zone +1 D', () => {
     expect(statsAt(board({ field: [28, 26], rest: [29] }, {}), 0, 0)).toEqual({ a: 3, d: 3 })
   })

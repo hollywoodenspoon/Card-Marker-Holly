@@ -147,7 +147,8 @@ export function DeckBuilder({ onClose }: { onClose: () => void }) {
         (!q ||
           c.name.toLowerCase().includes(q) ||
           c.code.toLowerCase().includes(q) ||
-          c.ability.toLowerCase().includes(q)) &&
+          c.ability.toLowerCase().includes(q) ||
+          c.archetypes.some((a) => a.toLowerCase().includes(q))) &&
         (!type || c.type === type) &&
         (!group || c.group === group),
     )

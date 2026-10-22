@@ -8,7 +8,7 @@ import {
   faceUp,
   isCenterSlot,
   log,
-  nameHas,
+  inArchetype,
   opponentRestsApply,
   opponentRestsPlan,
   rand,
@@ -166,7 +166,7 @@ function maneuver(word: string): Ability<[number, number]> {
           `Choose a ${word} card on your field.`,
           field
             .map((_, i) => i)
-            .filter((i) => field[i].card && nameHas(io.s, field[i].card!, word))
+            .filter((i) => field[i].card && inArchetype(io.s, field[i].card!, word))
             .map((i) => slotOption(io.s, own, i, own)),
         ),
       )
@@ -528,14 +528,14 @@ export const CARD_RULES: Record<string, CardRules> = {
     fs: (s, seat, _e, v) =>
       v +
       (initiative(s, seat) && restCount(s, seat) >= 3 ? 1 : 0) +
-      (faceUp(s, seat).some((x) => nameHas(s, x.card, 'Grave')) ? 1 : 0),
+      (faceUp(s, seat).some((x) => inArchetype(s, x.card, 'Grave')) ? 1 : 0),
   },
   // Grave Bloodsucker: No-Initiative, 3+ Rest Zone: +1 FS. A Grave card on your field: +1 FS.
   'TFQ-27': {
     fs: (s, seat, _e, v) =>
       v +
       (!initiative(s, seat) && restCount(s, seat) >= 3 ? 1 : 0) +
-      (faceUp(s, seat).some((x) => nameHas(s, x.card, 'Grave')) ? 1 : 0),
+      (faceUp(s, seat).some((x) => inArchetype(s, x.card, 'Grave')) ? 1 : 0),
   },
   // Grave Whisperer: Field +1 A, Fallen +1 D (Grave).
   'TFQ-28': { stat: fieldAndFallen('Grave') },
@@ -550,7 +550,7 @@ export const CARD_RULES: Record<string, CardRules> = {
             own,
             'Choose a Grave card in your rest zone to return to your Support.',
             io.s.players[own].rest
-              .filter((c) => c !== io.ctx.card && nameHas(io.s, c, 'Grave'))
+              .filter((c) => c !== io.ctx.card && inArchetype(io.s, c, 'Grave'))
               .map((c) => cardOption(io.s, c)),
           ),
         )
@@ -578,7 +578,7 @@ export const CARD_RULES: Record<string, CardRules> = {
   'TFQ-33': { restFs: restFs((s, seat, c) => archInRest(s, seat, 'Ghoulish', c)) },
   // Ghoulish Stalker: Strike (Ghoulish): +1 FS.
   'TFQ-34': {
-    fs: (s, seat, e, v) => v + (e.fs[seat].some((x) => nameHas(s, x.card, 'Ghoulish')) ? 1 : 0),
+    fs: (s, seat, e, v) => v + (e.fs[seat].some((x) => inArchetype(s, x.card, 'Ghoulish')) ? 1 : 0),
   },
   // Undead Chimera: Won First Engagement: Fighting Spirit from the rest zone, +1 FS.
   'TFQ-35': {
