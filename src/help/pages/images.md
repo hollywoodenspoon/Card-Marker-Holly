@@ -37,7 +37,7 @@ Add one with **Add** → **Image field (art box)**. A new project's starter fron
 
 **On a card**, select the art box. A bar floats under the card:
 
-- **Choose image** / **Replace image** picks this card's picture. Double-clicking an empty art box does the same.
+- **Choose image** / **Replace image** picks this card's picture. Double-clicking an empty art box does the same. Once it has a picture, **Replace** is in the properties panel too.
 - **Reposition** lets you drag the picture inside the frame. The **Zoom** slider in the **Art for this card** section enlarges it (100 to 400%). **Reset framing** undoes both.
 - **Default** goes back to the template's default art.
 

@@ -12,6 +12,7 @@ import {
   Search,
   Trash2,
 } from '@/ui/icons'
+import { clickWord } from '@/lib/pointer'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   addCard,
@@ -79,8 +80,8 @@ export function CardsPanel({ onPicked }: { onPicked?: () => void }) {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="flex items-center gap-2 p-3">
-        <div className="relative flex-1">
+      <div className="flex flex-wrap items-center gap-2 p-3">
+        <div className="relative w-full">
           <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={q}
@@ -90,6 +91,7 @@ export function CardsPanel({ onPicked }: { onPicked?: () => void }) {
             className="pl-8"
           />
         </div>
+        <div className="flex-1" />
         <Button
           size="sm"
           variant={picked ? 'default' : 'outline'}
@@ -104,7 +106,7 @@ export function CardsPanel({ onPicked }: { onPicked?: () => void }) {
             size="sm"
             className="rounded-r-none"
             onClick={() => addCard()}
-            title="New card with the same templates and part toggles as the current card"
+            title="New card with the same templates and shown parts as the current card"
           >
             <Plus /> Card
           </Button>
@@ -120,10 +122,10 @@ export function CardsPanel({ onPicked }: { onPicked?: () => void }) {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onSelect={() => addCard()}>
-                New card using previous card's layout
+                New card like the current one
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => addCard({ blank: true })}>
-                New card with default toggles
+                New card with the template's defaults
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onSelect={() => useUi.getState().setDataView('import')}>
@@ -135,7 +137,7 @@ export function CardsPanel({ onPicked }: { onPicked?: () => void }) {
       </div>
       {picked && (
         <div className="flex items-center gap-2 px-3 pb-2 text-xs text-muted-foreground">
-          Tap cards to select them.
+          {clickWord() === 'tap' ? 'Tap' : 'Click'} cards to select them.
           <div className="flex-1" />
           <Button
             size="sm"

@@ -46,7 +46,7 @@ While you drag, parts snap to:
 - your guides
 - the edges and centres of the other parts
 
-Blue lines show what you snapped to. The magnet button at the bottom right turns snapping off or on.
+Blue lines show what you snapped to. **Snap** (the magnet) at the bottom right turns snapping off or on.
 
 ## Rulers and guides
 
@@ -60,7 +60,7 @@ Guides belong to the template, so every card using that template shows them. The
 
 ## Bleed and safe area
 
-The first button in the controls at the bottom right shows or hides the bleed area and safe-area lines. See [Card size, bleed and safe area](help:card-size#bleed).
+**Guides**, the first button in the controls at the bottom right, shows or hides the bleed area and safe-area lines (on a phone it's the first icon). See [Card size, bleed and safe area](help:card-size#bleed).
 
 ## Undo and redo
 

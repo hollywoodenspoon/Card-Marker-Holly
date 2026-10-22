@@ -13,6 +13,7 @@ import {
   Plus,
   Underline,
 } from '@/ui/icons'
+import { clickWord } from '@/lib/pointer'
 import { useMemo } from 'react'
 import { setView, useEditor } from '@/core/editor/editorStore'
 import { updateElement } from '@/core/editor/elementCommands'
@@ -60,11 +61,15 @@ export function TextSection({ el, editable }: { el: TextElement; editable: boole
   return (
     <>
       <Section title="Text">
-        <Button size="sm" onClick={() => setView({ editingTextId: el.id, selection: [el.id] })}>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => setView({ editingTextId: el.id, selection: [el.id] })}
+        >
           <Pencil /> Edit text
         </Button>
         <p className="text-xs text-muted-foreground">
-          Double-click (or double-tap) the text on the card to edit. Select words to style them
+          Double-{clickWord()} the text on the card to edit. Select words to style them
           individually.
         </p>
         <SymbolHint />

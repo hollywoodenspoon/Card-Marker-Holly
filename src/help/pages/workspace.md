@@ -42,7 +42,7 @@ The card sits in the middle on a neutral grey background, with rulers along the 
 
 - The **Front / Back** switch above the card shows either side.
 - In Template mode, a banner says which template you're editing and how many cards use it, with **Back to card**.
-- The buttons at the bottom right show or hide the bleed and safe area, turn snapping on or off, and zoom.
+- The buttons at the bottom right: **Guides** shows or hides the bleed and safe area, **Snap** turns snapping on or off, then zoom. They're lit while on.
 
 See [Canvas: zoom, pan, snapping and undo](help:canvas).
 

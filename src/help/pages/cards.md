@@ -14,8 +14,8 @@ Each row shows a small front and back picture of the card and its name. Click a 
 
 - **+ Card** makes a new card right after the one you have open. It uses the same front and back templates and the same parts turned on or off, but its fields are empty, so it shows the template's default text and pictures.
 - The small arrow next to **+ Card** has more choices:
-  - **New card using previous card's layout**: the same as **+ Card**.
-  - **New card with default toggles**: the same templates, but every part shown or hidden the way the template says.
+  - **New card like the current one**: the same as **+ Card**.
+  - **New card with the template's defaults**: the same templates, but every part shown or hidden the way the template says.
   - **Mail merge from spreadsheet…**: makes many cards at once from a spreadsheet. See [Mail merge from a spreadsheet](help:mail-merge).
 
 New cards are named _Card 1_, _Card 2_ and so on. Rename them whenever you like.

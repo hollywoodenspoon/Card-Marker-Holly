@@ -13,7 +13,7 @@ import { fitToScreen, useViewport, zoomIn, zoomOut } from '@/core/render/viewpor
 import { cn } from '@/lib/cn'
 import { cardContext } from '@/templates/cardContext'
 import { resolveSide } from '@/templates/resolve'
-import { IconButton } from '@/ui/components/ui/button'
+import { Button, IconButton } from '@/ui/components/ui/button'
 import { useCoarsePointer, type LayoutKind } from '@/ui/shell/useLayout'
 import { useIsDark } from '@/ui/theme/theme'
 import { screenToMm } from '@/core/render/viewport'
@@ -154,6 +154,44 @@ function dropTarget(at: { x: number; y: number }): boolean {
   return !!hit
 }
 
+/** An on/off tool in the view bar: icon and word (icon only on phones), clearly lit when on. */
+function ToggleTool({
+  label,
+  title,
+  on,
+  compact,
+  onClick,
+  children,
+}: {
+  label: string
+  title: string
+  on: boolean
+  compact: boolean
+  onClick: () => void
+  children: React.ReactNode
+}) {
+  if (compact)
+    return (
+      <IconButton label={title} size="icon-sm" active={on} aria-pressed={on} onClick={onClick}>
+        {children}
+      </IconButton>
+    )
+  return (
+    <Button
+      size="sm"
+      variant="ghost"
+      active={on}
+      aria-pressed={on}
+      title={title}
+      onClick={onClick}
+      className={cn('gap-1.5 px-2', !on && 'text-muted-foreground')}
+    >
+      {children}
+      {label}
+    </Button>
+  )
+}
+
 function ViewControls({ compact }: { compact: boolean }) {
   const zoom = useViewport((s) => s.zoom)
   const showOverlay = useEditor((s) => s.view.showOverlay)
@@ -164,23 +202,25 @@ function ViewControls({ compact }: { compact: boolean }) {
         'absolute right-3 bottom-3 flex items-center gap-0.5 rounded-xl border bg-panel/95 p-1 shadow-md backdrop-blur',
       )}
     >
-      <IconButton
-        label={showOverlay ? 'Hide bleed and safe area' : 'Show bleed and safe area'}
-        size="icon-sm"
-        active={showOverlay}
+      <ToggleTool
+        label="Guides"
+        title={showOverlay ? 'Hide bleed and safe area' : 'Show bleed and safe area'}
+        on={showOverlay}
+        compact={compact}
         onClick={() => setView({ showOverlay: !showOverlay })}
       >
         {/* Not the eye: that means show / hide a layer. */}
         {showOverlay ? <Scan /> : <SquareDashed />}
-      </IconButton>
-      <IconButton
-        label={snapping ? 'Turn snapping off' : 'Turn snapping on'}
-        size="icon-sm"
-        active={snapping}
+      </ToggleTool>
+      <ToggleTool
+        label="Snap"
+        title={snapping ? 'Turn snapping off' : 'Turn snapping on'}
+        on={snapping}
+        compact={compact}
         onClick={() => setView({ snapping: !snapping })}
       >
         <Magnet />
-      </IconButton>
+      </ToggleTool>
       <span className="mx-0.5 h-5 w-px bg-border" />
       {!compact && (
         <IconButton label="Zoom out" size="icon-sm" onClick={zoomOut}>

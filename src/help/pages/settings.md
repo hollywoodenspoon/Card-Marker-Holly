@@ -31,8 +31,8 @@ These are saved with each project. Find them in the right pane with nothing sele
 - **Back for this front** (on a front template)
 - **Units**
 - **Bleed** and **Safe margin**
-- **Corner cutter guide**
-- **Card numbers**: the number of the first card
+- **Corner cutter guide** (folded: click its header to open it; it stays the way you left it)
+- **Card numbers**: the number of the first card (folded the same way)
 
 The print settings (paper, margins, cut marks, backs…) are saved with the project too. See [Printing on paper](help:printing).
 

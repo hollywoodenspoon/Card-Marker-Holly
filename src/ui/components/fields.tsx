@@ -1,7 +1,9 @@
 import { useState } from 'react'
+import { ChevronRight } from '@/ui/icons'
 import { fromDisplay, toDisplay, unitPrecision } from '@/core/units/units'
 import { cn } from '@/lib/cn'
 import { Label } from './ui/input'
+import { useRemembered } from './useRemembered'
 import { useUnits } from './useUnits'
 
 /**
@@ -185,11 +187,20 @@ export function Section({
   title,
   children,
   action,
+  foldable,
 }: {
   title: string
   children: React.ReactNode
   action?: React.ReactNode
+  /** Folded by default, opens with its header (remembered on this device). */
+  foldable?: boolean
 }) {
+  if (foldable)
+    return (
+      <FoldableSection title={title} action={action}>
+        {children}
+      </FoldableSection>
+    )
   return (
     <section className="border-b px-4 py-3 last:border-b-0">
       <div className="mb-2.5 flex items-center justify-between gap-2">
@@ -200,6 +211,53 @@ export function Section({
       </div>
       <div className="flex flex-col gap-3">{children}</div>
     </section>
+  )
+}
+
+function FoldableSection({
+  title,
+  children,
+  action,
+}: {
+  title: string
+  children: React.ReactNode
+  action?: React.ReactNode
+}) {
+  const [open, setOpen] = useRemembered(`section.${title}`, false)
+  return (
+    <section className="border-b px-4 py-1 last:border-b-0">
+      <div className="flex items-center justify-between gap-2">
+        <button
+          type="button"
+          aria-expanded={open}
+          onClick={() => setOpen(!open)}
+          className="flex min-h-11 flex-1 items-center gap-1.5 text-left text-xs font-semibold tracking-wide text-muted-foreground uppercase md:min-h-9"
+        >
+          <ChevronRight className={cn('size-3.5 transition-transform', open && 'rotate-90')} />
+          {title}
+        </button>
+        {open && action}
+      </div>
+      {open && <div className="flex flex-col gap-3 pt-1 pb-2">{children}</div>}
+    </section>
+  )
+}
+
+/** An explanation shown until dismissed with "Got it" (remembered on this device). */
+export function Tip({ id, children }: { id: string; children: React.ReactNode }) {
+  const [gone, setGone] = useRemembered(`tip.${id}`, false)
+  if (gone) return null
+  return (
+    <div className="mx-3 mt-3 flex items-start gap-2 rounded-lg bg-muted/60 p-2.5 text-xs text-muted-foreground">
+      <p className="min-w-0 flex-1">{children}</p>
+      <button
+        type="button"
+        onClick={() => setGone(true)}
+        className="shrink-0 rounded px-1.5 py-0.5 font-medium text-foreground hover:bg-muted"
+      >
+        Got it
+      </button>
+    </div>
   )
 }
 

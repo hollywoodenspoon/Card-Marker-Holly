@@ -198,7 +198,10 @@ function DataTable({
                 )}
               >
                 {c.label}{' '}
-                <span className="font-mono text-[10px] text-muted-foreground" title="CSV column">
+                <span
+                  className="ml-1 rounded bg-muted px-1 font-mono text-[10px] font-semibold text-muted-foreground"
+                  title={`Spreadsheet column ${c.letter}: where this column lands in the exported CSV, and the column a mail merge reads it from`}
+                >
                   {c.letter}
                 </span>
               </th>

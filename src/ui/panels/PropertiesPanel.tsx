@@ -141,7 +141,7 @@ function DocumentProperties() {
           (green).
         </p>
       </Section>
-      <Section title="Corner cutter guide">
+      <Section title="Corner cutter guide" foldable>
         <label className="flex items-center justify-between gap-3 text-sm">
           Show rounded corners
           <Switch
@@ -166,7 +166,7 @@ function DocumentProperties() {
           never printed.
         </p>
       </Section>
-      <Section title="Card numbers">
+      <Section title="Card numbers" foldable>
         <NumberField
           label="First card is number"
           min={0}

@@ -25,7 +25,12 @@ export function FirstSteps({ phone }: { phone?: boolean }) {
   const few = useEditor((s) => Object.keys(s.doc?.cards ?? {}).length <= 3)
   if (hidden || !few) return null
   const steps = [
-    { done: named, text: 'Click “Card name” on the card and type a name' },
+    {
+      done: named,
+      text: phone
+        ? 'Double-tap “Card name” on the card and type a name'
+        : 'Double-click “Card name” on the card and type a name',
+    },
     {
       done: art,
       text: phone

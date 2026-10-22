@@ -1,4 +1,5 @@
 import { AlertTriangle, Crop, ImageUp, RotateCcw } from '@/ui/icons'
+import { clickWord } from '@/lib/pointer'
 import { assetResolver } from '@/assets/assetResolver'
 import { IMAGE_ACCEPT } from '@/assets/imageAssets'
 import { setView, useEditor } from '@/core/editor/editorStore'
@@ -110,29 +111,33 @@ export function ImageFieldSection({ el }: { el: ImageFieldElement }) {
           className="h-24 w-full rounded-md border bg-muted object-contain"
         />
       )}
-      <Row>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={async () => {
-            const [f] = await pickFiles(IMAGE_ACCEPT, false)
-            if (f) await replaceImage(el.id, f)
-          }}
-        >
-          <ImageUp /> {info ? 'Replace' : 'Choose image'}
-        </Button>
-        <Button
-          variant={cropping ? 'default' : 'outline'}
-          size="sm"
-          disabled={!info || !perCard}
-          title={!perCard ? 'Framing is set per card' : undefined}
-          onClick={() => setView({ cropId: cropping ? null : el.id })}
-        >
-          <Crop /> {cropping ? 'Done' : 'Reposition'}
-        </Button>
-      </Row>
+      {/* An empty frame has its Choose image button on the card itself: one place to look. */}
+      {info && (
+        <Row>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={async () => {
+              const [f] = await pickFiles(IMAGE_ACCEPT, false)
+              if (f) await replaceImage(el.id, f)
+            }}
+          >
+            <ImageUp /> Replace
+          </Button>
+          <Button
+            variant={cropping ? 'default' : 'outline'}
+            size="sm"
+            disabled={!info || !perCard}
+            title={!perCard ? 'Framing is set per card' : undefined}
+            onClick={() => setView({ cropId: cropping ? null : el.id })}
+          >
+            <Crop /> {cropping ? 'Done' : 'Reposition'}
+          </Button>
+        </Row>
+      )}
       <p className="text-xs text-muted-foreground">
-        Tip: select this frame, then tap an image in Assets — or drop one on it.
+        {info ? 'To swap it' : 'To add one'}, use the button on the card, {clickWord()} an image in
+        Assets, or drop one on the frame.
       </p>
       <div className="flex flex-col gap-1">
         <Label>Fit</Label>

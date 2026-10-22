@@ -47,7 +47,7 @@ In the **Cards** tab, press **Select** and tick the cards (or **All**). In the b
 
 ## New cards
 
-**+ Card** makes a new card with the same templates and part toggles as the current one. To start with the template's defaults instead, use the arrow next to it → **New card with default toggles**.
+**+ Card** makes a new card with the same templates and part toggles as the current one. To start with the template's defaults instead, use the arrow next to it → **New card with the template's defaults**.
 
 ## See also
 

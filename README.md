@@ -186,7 +186,7 @@ The **Front / Back** switch above the canvas. Each card picks a front template a
 
 ### Cards list
 
-**Cards** tab: _+ Card_ (copies the previous card's layout), search, drag to reorder, ⋯ for rename / duplicate / export image / delete.
+**Cards** tab: _+ Card_ (like the current card), search, drag to reorder, ⋯ for rename / duplicate / export image / change template / save as template / delete.
 
 - **Change many cards at once**: press **Select**, tick cards (or _All_), then use the bar at the bottom: change the front or back template, show/hide a template part (eye buttons), set print copies, duplicate or delete. Each change is one undo step. Press **Done** to leave select mode.
 
