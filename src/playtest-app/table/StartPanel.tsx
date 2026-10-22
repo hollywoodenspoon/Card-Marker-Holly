@@ -1,4 +1,4 @@
-import { Film, Layers, Play, TriangleAlert, Zap } from '@/ui/icons'
+import { Film, Layers, Play, Trophy, TriangleAlert, Zap } from '@/ui/icons'
 import { useEffect, useMemo, useState } from 'react'
 import { BOT_LEVELS, BOT_NAMES, type BotLevel } from '@/adventure/bot'
 import { checkDeck } from '@/adventure/deck'
@@ -53,9 +53,11 @@ export function StartPanel({
   onDecks,
   onReplays,
   onRush,
+  onTournaments,
 }: {
   onDecks: () => void
   onReplays: () => void
+  onTournaments: () => void
   /** Rush: many bot games with nothing drawn, in their own screen. */
   onRush: (run: RushRun) => void
 }) {
@@ -375,6 +377,16 @@ export function StartPanel({
               data-testid="playtest-replays-button"
             >
               <Film /> Replays…
+            </Button>
+          )}
+          {canRule && (
+            <Button
+              variant="secondary"
+              className="flex-1"
+              onClick={onTournaments}
+              data-testid="playtest-tournaments-button"
+            >
+              <Trophy /> Tournaments…
             </Button>
           )}
         </div>

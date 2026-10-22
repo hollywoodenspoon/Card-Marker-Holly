@@ -9,14 +9,21 @@ import {
   Trophy,
   Undo2,
 } from '@/ui/icons'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { askConfirm } from '@/ui/components/feedback'
 import { Button, IconButton } from '@/ui/components/ui/button'
 import { NativeSelect } from '@/ui/components/ui/input'
 import { Sheet } from '@/ui/components/ui/sheet'
 import { useBackHandler, useEscapeToClose } from '@/ui/components/overlay'
 import { actor, type Move, type NewGame } from '@/adventure/engine'
-import type { ReplayRow, RushRow } from '@/playtest/library'
+import { recordGame } from '@/adventure/tournament/tournament'
+import {
+  listDecks,
+  playtestDb,
+  saveTournament,
+  type ReplayRow,
+  type RushRow,
+} from '@/playtest/library'
 import { presets } from '@/playtest/setup'
 import { ActionBar } from './ActionBar'
 import { ActionCallout } from './ActionCallout'
@@ -24,6 +31,9 @@ import { CardPreview } from './CardPreview'
 import { CombatStage } from './CombatStage'
 import { stagedIds, useStage } from './useStage'
 import { DeckBuilder } from '../decks/DeckBuilder'
+import { useDeckCards } from '../decks/useDeckCards'
+import { firstInitiative } from '../tournament/tournamentClient'
+import { TournamentView, type DeckOption } from '../tournament/TournamentView'
 import { CardZoom } from './CardZoom'
 import { LogPanel } from './LogPanel'
 import { StartPanel } from './StartPanel'
@@ -89,7 +99,11 @@ export function GameView({
   const [decksOpen, setDecksOpen] = useState(false)
   const replay = usePlaytest((s) => s.replay)
   // The Replays list or a Rush batch, over everything (and where a replay goes back to).
-  type Screen = { k: 'replays' } | { k: 'rush'; run?: RushRun; row?: RushRow } | null
+  type Screen =
+    | { k: 'replays' }
+    | { k: 'rush'; run?: RushRun; row?: RushRow }
+    | { k: 'tournaments'; openId?: string }
+    | null
   const [screen, setScreen] = useState<Screen>(null)
   const [afterReplay, setAfterReplay] = useState<Screen>(null)
   const watch = (game: NewGame, moves: Move[], title: string, back: Screen) => {
@@ -109,6 +123,53 @@ export function GameView({
     const { game, moves, rules: r } = usePlaytest.getState()
     if (game && r) watch(game, moves.flat(), `${r.players[0].name} vs ${r.players[1].name}`, null)
   }
+  // A tournament match being played on the table: its result is recorded when the game ends.
+  const [tourney, setTourney] = useState<{ id: string; matchId: string; game: NewGame } | null>(
+    null,
+  )
+  // The game last recorded, so a re-render doesn't record it twice.
+  const recorded = useRef<string | null>(null)
+  const deckCards = useDeckCards()
+  const [deckOptions, setDeckOptions] = useState<DeckOption[]>([])
+  useEffect(() => {
+    if (screen?.k !== 'tournaments') return
+    void listDecks(pack.id).then((rows) =>
+      setDeckOptions([
+        ...rows.map((d) => ({ id: d.id, name: d.name, cards: d.cards })),
+        ...pack.info.decks.map((d, i) => ({
+          id: `pack:${i}`,
+          name: d.name,
+          cards: Object.entries(d.counts)
+            .filter(([, n]) => n > 0)
+            .map(([id]) => id),
+        })),
+      ]),
+    )
+  }, [screen, pack])
+  useEffect(() => {
+    const w = rules?.winner
+    if (!tourney || !w) return
+    const key = `${tourney.matchId}#${tourney.game.seed}`
+    const pt = usePlaytest.getState()
+    if (recorded.current === key || pt.replay || pt.game?.seed !== tourney.game.seed) return
+    recorded.current = key
+    void (async () => {
+      const row = await playtestDb().tournaments.get(tourney.id)
+      if (!row) return
+      const moves = pt.moves.flat()
+      const g = tourney.game
+      const t = recordGame(row.t, tourney.matchId, {
+        seed: g.seed,
+        first: firstInitiative(g, moves),
+        ...(g.initiative !== undefined ? { initiative: g.initiative } : { opening: g.opening }),
+        winner: w.seat,
+        moves,
+        points: [rules.players[0].points, rules.players[1].points],
+        rounds: rules.round,
+      })
+      await saveTournament({ ...row, t })
+    })()
+  }, [rules, tourney])
   // Remounts the start panel after the Decks screen, so new decks are listed.
   const [deckRev, setDeckRev] = useState(0)
 
@@ -202,6 +263,11 @@ export function GameView({
                 <Film />
               </IconButton>
             )}
+            {!replay && deckCards.adventure && (
+              <IconButton label="Tournaments" onClick={() => setScreen({ k: 'tournaments' })}>
+                <Trophy />
+              </IconButton>
+            )}
             {!replay && (
               <Button
                 size="sm"
@@ -221,6 +287,7 @@ export function GameView({
           onDecks={() => setDecksOpen(true)}
           onReplays={() => setScreen({ k: 'replays' })}
           onRush={(run) => setScreen({ k: 'rush', run })}
+          onTournaments={() => setScreen({ k: 'tournaments' })}
         />
       ) : (
         <>
@@ -275,6 +342,18 @@ export function GameView({
                     {winner.seat === null ? 'The table' : setup.seats[winner.seat]?.name} wins!
                   </span>
                   <span className="text-xs text-muted-foreground">{winner.reason}</span>
+                  {tourney && (
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        setScreen({ k: 'tournaments', openId: tourney.id })
+                        setTourney(null)
+                      }}
+                      data-testid="back-to-tournament"
+                    >
+                      <Trophy /> Back to the tournament
+                    </Button>
+                  )}
                   {rules && usePlaytest.getState().game && (
                     <Button
                       size="sm"
@@ -327,6 +406,33 @@ export function GameView({
             watch(r.game, r.moves, `${r.names[0]} vs ${r.names[1]}`, { k: 'replays' })
           }
           onRush={(row) => setScreen({ k: 'rush', row })}
+        />
+      )}
+      {screen?.k === 'tournaments' && (
+        <TournamentView
+          key={screen.openId ?? 'list'}
+          packId={pack.id}
+          cards={deckCards.cards}
+          decks={deckOptions}
+          openId={screen.openId}
+          onClose={() => setScreen(null)}
+          onWatch={(game, moves, title, rowId) =>
+            watch(game, moves, title, { k: 'tournaments', openId: rowId })
+          }
+          onPlay={(row, m, game) => {
+            const a = row.t.entrants.find((e) => e.id === m.a)!
+            const b = row.t.entrants.find((e) => e.id === m.b)!
+            const asSetup = presets(pack.info.cardSize).find(
+              (x) => x.id === 'preset:adventure-scuffle',
+            )!
+            setPreview(null)
+            setScreen(null)
+            setTourney({ id: row.id, matchId: m.id, game })
+            usePlaytest.getState().startRules(pack.id, asSetup, game, {
+              hotseat: !a.bot && !b.bot,
+              bots: [a.bot, b.bot],
+            })
+          }}
         />
       )}
       {screen?.k === 'rush' && (

@@ -110,6 +110,16 @@ Rest costs (`restCost`) pick Support cards one at a time. Cards already promised
 
 The card ability tests (`effects/cards.test.ts`) build small boards from `fixtures/firstQuest.ts`, the 45 cards with ids `tfq01` to `tfq45`. `fixtures/randomGame.ts` plays random legal moves from a seed. A port can use it the same way, to check that games always end and no card is lost.
 
+## Tournaments
+
+`tournament/tournament.ts` holds tournaments as plain data:
+
+- **Starting:** `createTournament(spec, entrants, seed)` sets one up. `PRESETS` holds the official formats.
+- **Playing:** `currentMatches(t)` lists the round's matches. `nextGameStart(t, match)` says how a match's next game starts: the opening in game 1, then `initiative` for the player who went second the game before. `recordGame(t, matchId, game)` adds a result and pairs the next round once a round is complete.
+- **Results:** `standings(t, stage, ids)` and `placings(t)` give the tables and the final order.
+
+`tournament/series.ts` plays a whole bot-against-bot match for the worker.
+
 ## Step by step
 
 `applyFrames(state, move)` returns the states a move passes through, one per log line it adds, each taken just before the next line is logged (or at the end). The last one is `apply(state, move)`. It works through an optional recorder in `log()`, which `apply` never sets. The Playtest app uses it to show moves action by action, and to rebuild a replay from its start and moves.

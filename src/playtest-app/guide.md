@@ -76,6 +76,31 @@ Pick **Rush: many bot games** as the Rules, a deck and a bot level for each side
 
 The Rush screen counts as the games finish: each deck's win rate and wins as first player, the average number of rounds, and the cards each deck used most for Fighting Spirit and abilities. **Stop** ends the batch early. **Copy report** copies it all as text. Every match is listed: **Watch** replays it, and the pin keeps it with your replays. The last 5 batches stay under **Replays**.
 
+## Tournaments
+
+Press **Tournaments…** on the start screen (or the trophy at the top of the table), then **New tournament**.
+
+- **Format:** the official ladder from the game plan, or **Custom…** (round robin, Swiss with a top cut, groups then a knockout, or single elimination, at any size):
+
+  | Format             | Players | How it runs                                             | Match length               |
+  | ------------------ | ------- | ------------------------------------------------------- | -------------------------- |
+  | Locals             | 8       | Round robin                                             | Best of 1                  |
+  | Regionals          | 16      | 3 rounds of Swiss, then a top 4 knockout                | Best of 1                  |
+  | Nationals          | 32      | 5 rounds of Swiss, then a top 8 knockout                | Best of 1                  |
+  | Pro Tour           | 16      | 4 groups of 4, round robin; group winners to a knockout | Best of 3, final best of 5 |
+  | World Championship | 16      | 2 groups of 8, round robin; top 4 of each to a knockout | Best of 3, final best of 5 |
+
+- **Match length** can be changed for any tournament. In a match of more than one game, rock-paper-scissors (or a coin, if you pick that) decides only game 1. In every later game, the player who went second in the game before starts with the initiative.
+- **Entrants:** add people (a name and a deck) and **Fill with bots**: pick their level, and their decks: the pack's and your saved decks, auto-built Suboptimal or Optimal decks, or a mix.
+- **Playing:**
+  - Each round lists its matches. **Play** starts your next game on the table: against a bot, or against another person on the same device with the hand-over screen.
+  - When the game ends, **Back to the tournament** records it.
+  - **Settle bot matches** plays every bot-against-bot match of the round in the background, which takes seconds.
+  - The next round is paired once every match is done.
+- **Watching:** the eye (or **G1**, **G2**… in a longer match) replays any game that was played, with the step-by-step view and the combat stage.
+- **Standings** sort by points (3 for a match win), then opponents' match-win %, game-win % and opponents' game-win %. Groups have a table each, and the knockout shows its bracket.
+- **The end:** the placings and **Copy report**. Tournaments are saved as they go, so **Continue** picks one up after a reload.
+
 ## Replays
 
 Every rules game is kept as a replay when it ends, or when you start a new game after its first round. **Watch replay** on the winner's banner opens it straight away, and the **Replays** button (at the top of the table, or on the start screen) lists them all.

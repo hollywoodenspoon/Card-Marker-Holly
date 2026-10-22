@@ -44,7 +44,9 @@ export interface Match {
 /** Play one game with a bot on each seat, until it ends (or 4000 moves). */
 export function playMatch(game: NewGame, levels: [BotLevel, BotLevel], playouts?: number): Match {
   let s = createGame(game)
-  const first = s.initiative
+  // Who has the initiative in round 1 (after rock-paper-scissors, if any).
+  const opening = () => s.step.k === 'rps' || s.step.k === 'initiative'
+  let first = s.initiative
   const moves: Move[] = []
   const by: Seat[] = []
   try {
@@ -56,6 +58,7 @@ export function playMatch(game: NewGame, levels: [BotLevel, BotLevel], playouts?
       moves.push(m)
       by.push(seat)
       s = next
+      if (s.round === 1 && !opening()) first = s.initiative
       for (const x of [0, 1] as const) {
         const all = hidden(s, x)
         if (all.length !== 12 || new Set(all).size !== 12)

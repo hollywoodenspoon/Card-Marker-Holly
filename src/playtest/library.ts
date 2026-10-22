@@ -2,6 +2,7 @@ import Dexie, { type EntityTable } from 'dexie'
 import type { BotLevel } from '@/adventure/bot'
 import type { Move, NewGame } from '@/adventure/engine'
 import type { AsState, Seat } from '@/adventure/state'
+import type { Tournament } from '@/adventure/tournament/tournament'
 import { readPack, type PackInfo } from './pack'
 import type { GameSetup } from './setup'
 import type { TableState } from './state'
@@ -115,6 +116,16 @@ export interface CardValuesRow {
   savedAt: number
 }
 
+/** A tournament, saved as it goes so it can be continued after a reload. */
+export interface TournamentRow {
+  id: string
+  packId: string
+  name: string
+  createdAt: number
+  updatedAt: number
+  t: Tournament
+}
+
 export interface SetupRow {
   id: string
   setup: GameSetup
@@ -128,6 +139,7 @@ export class PlaytestDB extends Dexie {
   replays!: EntityTable<ReplayRow, 'id'>
   rush!: EntityTable<RushRow, 'id'>
   cardValues!: EntityTable<CardValuesRow, 'key'>
+  tournaments!: EntityTable<TournamentRow, 'id'>
 
   constructor(name = 'card-maker-playtest') {
     super(name)
@@ -135,6 +147,7 @@ export class PlaytestDB extends Dexie {
     this.version(2).stores({ decks: 'id, packId' })
     this.version(3).stores({ replays: 'id, packId, savedAt', rush: 'id, packId, savedAt' })
     this.version(4).stores({ cardValues: 'key, packId' })
+    this.version(5).stores({ tournaments: 'id, packId, updatedAt' })
   }
 }
 
@@ -208,3 +221,14 @@ export async function saveRush(row: RushRow, db = playtestDb()): Promise<void> {
 }
 
 export const deleteRush = (id: string, db = playtestDb()) => db.rush.delete(id)
+
+/** A pack's tournaments, newest change first. */
+export async function listTournaments(packId: string, db = playtestDb()): Promise<TournamentRow[]> {
+  const rows = await db.tournaments.where('packId').equals(packId).toArray()
+  return rows.sort((a, b) => b.updatedAt - a.updatedAt)
+}
+
+export const saveTournament = (row: TournamentRow, db = playtestDb()) =>
+  db.tournaments.put({ ...row, updatedAt: Date.now() })
+
+export const deleteTournament = (id: string, db = playtestDb()) => db.tournaments.delete(id)

@@ -349,8 +349,7 @@ export function TableCanvas({
     const { zoneId, seat } = parseZoneKey(key)
     if (regroup && shown && seat !== null && (seat === 0 || seat === 1)) {
       if (zoneId === 'support') return `Rest zone: Regroup hand (${count ?? 0})`
-      if (zoneId === 'rest')
-        return `Support set aside (${shown.players[seat].support.length})`
+      if (zoneId === 'rest') return `Support set aside (${shown.players[seat].support.length})`
     }
     return count === null ? name : `${name} (${count})`
   }

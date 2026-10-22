@@ -11,59 +11,20 @@ import {
   type LeagueResult,
 } from '@/adventure/deckgen/values'
 import { playtestDb } from '@/playtest/library'
+import { runJobs } from '../workerPool'
 
 /** League size for the card values: enough for a stable fit, quick bots, under a minute on a phone. */
 const LEAGUE_DECKS = 60
 const LEAGUE_GAMES = 1600
 const CHUNK = 40
 
-/** Workers: all but one core, at most 4. */
-const poolSize = () => Math.max(1, Math.min(4, (navigator.hardwareConcurrency || 2) - 1))
+const deckgenWorker = () =>
+  new Worker(new URL('../../adventure/deckgen/deckgen.worker.ts', import.meta.url), {
+    type: 'module',
+  })
 
-type Job = Omit<DeckgenJob, 'id'> & { id?: number }
-
-/** Run jobs on a pool of workers, a few at a time; results in job order. */
-async function runJobs<R>(
-  jobs: Job[],
-  onDone?: (done: number) => void,
-  stopped?: () => boolean,
-): Promise<R[]> {
-  const n = Math.min(poolSize(), jobs.length)
-  const out: R[] = new Array(jobs.length)
-  let nextJob = 0
-  let done = 0
-  const workers = Array.from(
-    { length: n },
-    () =>
-      new Worker(new URL('../../adventure/deckgen/deckgen.worker.ts', import.meta.url), {
-        type: 'module',
-      }),
-  )
-  try {
-    await Promise.all(
-      workers.map(
-        (w) =>
-          new Promise<void>((resolve, reject) => {
-            const give = () => {
-              if (stopped?.() || nextJob >= jobs.length) return resolve()
-              const i = nextJob++
-              w.onmessage = (e: MessageEvent<{ error?: string } & Record<string, unknown>>) => {
-                if (e.data.error) return reject(new Error(e.data.error))
-                out[i] = (e.data.results ?? e.data.score) as R
-                onDone?.(++done)
-                give()
-              }
-              w.postMessage({ ...jobs[i], id: i })
-            }
-            give()
-          }),
-      ),
-    )
-  } finally {
-    workers.forEach((w) => w.terminate())
-  }
-  return out
-}
+/** A job without its id (the pool numbers them). */
+type Job = DeckgenJob extends infer J ? (J extends DeckgenJob ? Omit<J, 'id'> : never) : never
 
 /**
  * The pack's card values: from the cache when the cards haven't changed,
@@ -83,7 +44,9 @@ export async function cardValues(
   const chunks: LeagueGame[][] = []
   for (let i = 0; i < plan.games.length; i += CHUNK) chunks.push(plan.games.slice(i, i + CHUNK))
   const parts = await runJobs<LeagueResult[]>(
-    chunks.map((games) => ({ kind: 'league', cards, decks: plan.decks, games })),
+    deckgenWorker,
+    chunks.map((games): Job => ({ kind: 'league', cards, decks: plan.decks, games })),
+    'results',
     (done) => onProgress?.(done / chunks.length),
     stopped,
   )
@@ -115,7 +78,16 @@ export async function veryOptimalDeck(
   const gameSeeds = Array.from({ length: seeds }, (_, i) => (seed * 7919 + i * 104729) >>> 0)
   const evaluate = async (deck: string[]) => {
     const scores = await runJobs<[number, number]>(
-      field.map((g) => ({ kind: 'gauntlet', cards, deck, gauntlet: [g], seeds: gameSeeds, level })),
+      deckgenWorker,
+      field.map((g): Job => ({
+        kind: 'gauntlet',
+        cards,
+        deck,
+        gauntlet: [g],
+        seeds: gameSeeds,
+        level,
+      })),
+      'score',
     )
     const [w, n] = scores.reduce((a, b) => [a[0] + b[0], a[1] + b[1]], [0, 0])
     return n ? w / n : 0
