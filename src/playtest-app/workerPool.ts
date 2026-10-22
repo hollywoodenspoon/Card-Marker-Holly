@@ -31,6 +31,14 @@ export async function runJobs<R>(
       workers.map(
         (w) =>
           new Promise<void>((resolve, reject) => {
+            // A worker that crashes (fails to load, runs out of memory, sends something
+            // that can't be read) ends the run with an error instead of hanging it.
+            w.onerror = (e) => {
+              e.preventDefault()
+              reject(new Error(e.message || 'A worker stopped unexpectedly.'))
+            }
+            w.onmessageerror = () =>
+              reject(new Error('A worker sent a result that could not be read.'))
             const give = () => {
               if (stopped?.() || nextJob >= jobs.length) return resolve()
               const i = nextJob++

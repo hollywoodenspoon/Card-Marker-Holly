@@ -45,7 +45,8 @@ export async function simulateRound(
       bestOf: m.bestOf,
       opening: t.spec.opening,
       // Enough seeds for the longest series plus replays of games nobody won.
-      seeds: Array.from({ length: m.bestOf + 3 }, (_, n) => gameSeed(t, m.id, n)),
+      // Seeds go on from games already recorded, so settling again plays new games.
+      seeds: Array.from({ length: m.bestOf + 3 }, (_, n) => gameSeed(t, m.id, m.games.length + n)),
     }
   })
   const results = await runJobs<GameRecord[]>(seriesWorker, jobs, 'games', (done) =>

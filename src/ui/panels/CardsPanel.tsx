@@ -313,7 +313,6 @@ const CardRow = memo(function CardRow({
 
 /** This card's layout as a new template (the side being shown), named by the user. */
 async function saveAsTemplate(card: Card) {
-  selectCard(card.id)
   const side = useEditor.getState().view.side
   const name = await askText({
     title: `Save this card's ${side} as a template`,
@@ -321,7 +320,9 @@ async function saveAsTemplate(card: Card) {
     initial: `${card.name} ${side}`,
     okLabel: 'Save template',
   })
-  if (name?.trim()) saveCurrentCardAsTemplate(name.trim())
+  if (!name?.trim()) return
+  selectCard(card.id)
+  saveCurrentCardAsTemplate(name.trim())
 }
 
 /** Change template ▸ Front / Back: every template of that side, the current one ticked. */
@@ -329,8 +330,7 @@ function ChangeTemplateMenu({ card }: { card: Card }) {
   const templates = useEditor((s) => s.doc?.templates)
   const list = Object.values(templates ?? {}).sort((a, b) => a.createdAt - b.createdAt)
   const pick = (id: string) => {
-    selectCard(card.id)
-    pickTemplateForCard(id)
+    if (pickTemplateForCard(id, card.id) === 'ok') selectCard(card.id)
   }
   return (
     <DropdownMenuSub>

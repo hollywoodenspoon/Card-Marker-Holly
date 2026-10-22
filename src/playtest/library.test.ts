@@ -98,6 +98,9 @@ describe('replays and Rush batches', () => {
     await pinReplay('r5', true, db)
     await deleteReplay('keep', db)
     expect((await listReplays('p1', db)).filter((r) => r.pinned).map((r) => r.id)).toEqual(['r5'])
+    // Saving the same game again (after an undo) keeps the pin.
+    await saveReplay(replay('r5'), db)
+    expect((await listReplays('p1', db)).find((r) => r.id === 'r5')?.pinned).toBe(true)
   })
 
   it('keeps the newest Rush batches', async () => {

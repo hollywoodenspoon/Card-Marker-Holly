@@ -1,6 +1,7 @@
 import { zipSync } from 'fflate'
 import { fieldNames, flatten } from '@/core/model/tree'
 import type { Id } from '@/core/model/types'
+import { plainText } from '@/core/text/richtext'
 import type { ImageExportInput } from '../image/exportImages'
 import { renderCardImage } from '../image/exportImages'
 import { buildPrintJob, type PrintCard } from '../job'
@@ -20,14 +21,19 @@ export interface TtsResult {
   uniqueBacks: boolean
 }
 
+/** A card number (`{#}`, `{#:3}`) differs on every card; `{total}` doesn't. */
+const NUMBERED = /\{#(?::\d{1,2})?\}/
+
 /** Does every card show exactly the same back (same template, nothing card-specific on it)? */
 function sharedBack(cards: PrintCard[], templates: ImageExportInput['templates']) {
   const first = cards[0]?.card.backTemplateId ?? null
+  const t = first ? templates[first] : undefined
+  const els = t ? flatten(t.elements) : []
+  if (els.some((e) => e.type === 'text' && NUMBERED.test(plainText(e.defaultText)))) return false
+  const ids = new Set(els.map((e) => e.id))
   return cards.every(({ card }) => {
     if (card.backTemplateId !== first || card.local.back.length) return false
-    const t = first ? templates[first] : undefined
     if (!t) return true
-    const ids = new Set(flatten(t.elements).map((e) => e.id))
     return (
       fieldNames(t.elements).every((f) => !(f in card.fields)) &&
       Object.keys(card.overrides).every((id) => !ids.has(id))

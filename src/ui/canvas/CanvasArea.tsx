@@ -117,7 +117,7 @@ export function CanvasArea({ layout }: { layout: LayoutKind }) {
       ) : (
         <div className="grid h-full place-items-center p-6 text-center text-sm text-white/90">
           {card
-            ? 'This side has no template. Pick one in the Templates panel.'
+            ? 'This side has no template. Pick a Front or Back template in Properties, or use Change template in the card’s ⋯ menu.'
             : 'No card selected.'}
         </div>
       )}

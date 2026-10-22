@@ -306,39 +306,51 @@ function Setup({
   const base = preset === 'custom' ? customSpec(custom, players, extra) : PRESETS[preset]
   const spec: TournamentSpec = { ...withLength(base, length), opening }
   const [entrants, setEntrants] = useState<Entrant[]>([])
-  const [person, setPerson] = useState({ name: 'You', deck: legalDecks[0]?.id ?? '' })
+  const [person, setPerson] = useState({ name: 'Player', deck: legalDecks[0]?.id ?? '' })
   const [level, setLevel] = useState<BotLevel>('normal')
   const [source, setSource] = useState<DeckSource>('mixed')
   const [busy, setBusy] = useState<string | null>(null)
   // Bots only: every entrant is a bot, and the whole tournament can play itself.
   const [botsOnly, setBotsOnly] = useState(false)
 
+  // The decks arrive after the form opens: until one is picked, the first legal deck
+  // (what the menu shows) is the person's.
+  const personDeck = legalDecks.find((x) => x.id === person.deck) ?? legalDecks[0]
+  const personEntrant = (): Entrant | null =>
+    personDeck
+      ? {
+          id: newId(),
+          name: person.name.trim() || 'Player',
+          bot: null,
+          deck: personDeck.cards,
+          deckName: personDeck.name,
+        }
+      : null
+  const hasPerson = entrants.some((e) => !e.bot)
   const addPerson = () => {
-    const d = legalDecks.find((x) => x.id === person.deck)
-    if (!d) return toast('Pick a legal deck first.')
-    setEntrants((e) => [
-      ...e,
-      {
-        id: newId(),
-        name: person.name.trim() || 'Player',
-        bot: null,
-        deck: d.cards,
-        deckName: d.name,
-      },
-    ])
+    const p = personEntrant()
+    if (!p) return toast('Pick a legal deck first.')
+    setEntrants((e) => [...e, p])
   }
   const fillBots = async () => {
-    const need = spec.players - entrants.length
-    if (need <= 0) return
+    // "You and bots": filling with bots puts you in first, if you aren't in yet.
+    let base = entrants
+    if (!botsOnly && !hasPerson) {
+      const p = personEntrant()
+      if (!p) return toast('Pick a deck for yourself first.')
+      base = [...entrants, p]
+    }
+    const need = spec.players - base.length
+    if (need <= 0) return setEntrants(base)
     setBusy('Getting the bots ready…')
     try {
       const wantsValues = source !== 'pack'
       const values = wantsValues ? await cardValues(packId, cards) : null
-      const used = new Set(entrants.map((e) => e.name))
+      const used = new Set(base.map((e) => e.name))
       const names = BOT_NAMES_POOL.filter((n) => !used.has(n))
       const made: Entrant[] = []
       // Pack decks are handed out in turn.
-      let packPicks = entrants.length
+      let packPicks = base.length
       for (let i = 0; i < need; i++) {
         const kind: DeckSource =
           source === 'mixed' ? (['pack', 'suboptimal', 'optimal'] as const)[i % 3] : source
@@ -355,13 +367,13 @@ function Setup({
         }
         made.push({
           id: newId(),
-          name: names[i] ?? `Bot ${entrants.length + i + 1}`,
+          name: names[i] ?? `Bot ${base.length + i + 1}`,
           bot: level,
           deck,
           deckName,
         })
       }
-      setEntrants((e) => [...e, ...made])
+      setEntrants([...base, ...made])
     } catch (e) {
       toast(e instanceof Error ? e.message : String(e))
     } finally {
@@ -525,7 +537,7 @@ function Setup({
           }}
           data-testid="tournament-who"
         >
-          <option value="mixed">People and bots</option>
+          <option value="mixed">You and bots (more people with Add a person)</option>
           <option value="bots">Bots only (the tournament plays itself)</option>
         </NativeSelect>
         <div className={cn('flex flex-wrap items-end gap-2', botsOnly && 'hidden')}>
@@ -538,7 +550,7 @@ function Setup({
           <NativeSelect
             aria-label="Person's deck"
             className="w-auto min-w-40"
-            value={person.deck}
+            value={personDeck?.id ?? ''}
             onChange={(e) => setPerson((p) => ({ ...p, deck: e.target.value }))}
           >
             {legalDecks.map((d) => (
@@ -592,6 +604,16 @@ function Setup({
           </Button>
         </div>
         {busy && <p className="text-xs text-muted-foreground">{busy}</p>}
+        {!botsOnly && (
+          <p className="text-xs text-muted-foreground" data-testid="tournament-you">
+            {hasPerson
+              ? `Playing: ${entrants
+                  .filter((e) => !e.bot)
+                  .map((e) => e.name)
+                  .join(', ')}.`
+              : 'No person has entered yet: Fill with bots adds you first.'}
+          </p>
+        )}
         <ol className="flex flex-col gap-0.5 text-sm" data-testid="tournament-entrants">
           {entrants.map((e, i) => (
             <li
@@ -620,7 +642,21 @@ function Setup({
       </section>
       <Button
         disabled={!full}
-        onClick={() => onStart(spec, entrants)}
+        onClick={async () => {
+          // "You and bots" with nobody but bots entered: say so before it plays itself.
+          if (
+            !botsOnly &&
+            !hasPerson &&
+            !(await askConfirm({
+              title: 'Start with bots only?',
+              description:
+                'No one in this tournament is a person, so you won’t play any games: it will play itself. To play, remove a bot and press Add a person.',
+              okLabel: 'Start anyway',
+            }))
+          )
+            return
+          onStart(spec, entrants)
+        }}
         data-testid="tournament-start"
       >
         <Trophy /> Start {spec.name}
@@ -694,7 +730,16 @@ function Running({
         setAuto(stageTitle(cur, cur.stage, cur.round))
         setBusy(0)
         const next = await simulateRound(cur, cards, setBusy)
-        if (next === cur) break
+        // Stop when nothing moved on: a match where no game found a winner would
+        // otherwise be replayed for ever.
+        const winners = (x: Tournament) => x.matches.filter((m) => m.winner !== null).length
+        if (next === cur || (winners(next) === winners(cur) && next.round === cur.round)) {
+          if (next !== cur) {
+            await store({ ...row, t: next })
+            toast('Some bot matches ended without a winner. Settle them again, or watch them.')
+          }
+          break
+        }
         cur = next
         await store({ ...row, t: cur })
       }
@@ -840,6 +885,8 @@ function Running({
             name={name}
             isBot={isBot}
             onPlay={(m) => onPlay(row, m, nextGame(t, m, cards, nextGameStart(t, m)))}
+            // Not while bots are settled: their result is saved over this copy.
+            playDisabled={busy !== null}
             onWatch={watch}
           />
         </section>
@@ -935,6 +982,7 @@ function MatchList({
   name,
   isBot,
   onPlay,
+  playDisabled,
   onWatch,
   compact,
 }: {
@@ -942,6 +990,7 @@ function MatchList({
   name: (id: string | null) => string
   isBot: (id: string | null) => boolean
   onPlay?: (m: Match) => void
+  playDisabled?: boolean
   onWatch: (m: Match, g: GameRecord, n: number) => void
   compact?: boolean
 }) {
@@ -973,7 +1022,12 @@ function MatchList({
               {m.b === null ? '' : name(m.b)}
             </span>
             {!compact && m.winner === null && person && onPlay && (
-              <Button size="sm" onClick={() => onPlay(m)} data-testid="tournament-play">
+              <Button
+                size="sm"
+                disabled={playDisabled}
+                onClick={() => onPlay(m)}
+                data-testid="tournament-play"
+              >
                 <Play /> {m.games.length ? `Game ${m.games.length + 1}` : 'Play'}
               </Button>
             )}

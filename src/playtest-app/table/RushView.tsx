@@ -23,7 +23,8 @@ export function RushView({
   run?: RushRun
   row?: RushRow
   onClose: () => void
-  onWatch: (game: NewGame, moves: RushMatch['moves'], title: string) => void
+  /** `back`: the batch as saved, to come back to after the replay (not a new run). */
+  onWatch: (game: NewGame, moves: RushMatch['moves'], title: string, back: RushRow) => void
 }) {
   const [row, setRow] = useState<RushRow>(
     () =>
@@ -40,6 +41,11 @@ export function RushView({
       },
   )
   const [running, setRunning] = useState(!savedRow)
+  // The latest tally, for saving from the stop handler.
+  const rowRef = useRef(row)
+  useEffect(() => {
+    rowRef.current = row
+  })
   /** Stops the batch early (it is saved as it stands). */
   const stopRef = useRef<(() => void) | null>(null)
   // Set when the batch ends (true: stopped early); the effect below saves it.
@@ -85,6 +91,9 @@ export function RushView({
     stopRef.current = () => {
       halt()
       stopRef.current = null
+      // Saved here too: Back stops the batch and closes the view at once, before
+      // the effect below would run.
+      void saveRush({ ...rowRef.current, savedAt: Date.now(), stopped: true })
       finish(true)
     }
     return halt
@@ -257,7 +266,7 @@ export function RushView({
                     variant="secondary"
                     disabled={running}
                     onClick={() =>
-                      onWatch(g, m.moves, `${g.names[0]} vs ${g.names[1]} (Rush ${n + 1})`)
+                      onWatch(g, m.moves, `${g.names[0]} vs ${g.names[1]} (Rush ${n + 1})`, shown)
                     }
                     data-testid="rush-watch"
                   >

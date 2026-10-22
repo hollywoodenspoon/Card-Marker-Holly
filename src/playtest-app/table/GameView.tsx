@@ -140,9 +140,13 @@ export function GameView({
     if (game && r) watch(game, moves.flat(), `${r.players[0].name} vs ${r.players[1].name}`, null)
   }
   // A tournament match being played on the table: its result is recorded when the game ends.
-  const [tourney, setTourney] = useState<{ id: string; matchId: string; game: NewGame } | null>(
-    null,
-  )
+  // Remembered on this device, so a reload mid-game still records the result.
+  const [tourney, setTourneyState] = useState<TourneyGame | null>(() => loadTourney(pack.id))
+  const setTourney = (t: TourneyGame | null) => {
+    setTourneyState(t)
+    saveTourney(pack.id, t)
+  }
+
   // The game last recorded, so a re-render doesn't record it twice.
   const recorded = useRef<string | null>(null)
   const deckCards = useDeckCards()
@@ -490,7 +494,10 @@ export function GameView({
           run={screen.run}
           row={screen.row}
           onClose={() => setScreen(null)}
-          onWatch={(game, moves, title) => watch(game, moves, title, screen)}
+          // Back to this batch as saved: coming back must not start a new run.
+          onWatch={(game, moves, title, back) =>
+            watch(game, moves, title, { k: 'rush', row: back })
+          }
         />
       )}
       {decksOpen && (
@@ -526,4 +533,27 @@ function UndoRedo() {
       </IconButton>
     </>
   )
+}
+
+/** The tournament match a game on the table belongs to. */
+interface TourneyGame {
+  id: string
+  matchId: string
+  game: NewGame
+}
+const tourneyKey = (packId: string) => `hs-tourney-game:${packId}`
+function loadTourney(packId: string): TourneyGame | null {
+  try {
+    return JSON.parse(localStorage.getItem(tourneyKey(packId)) ?? 'null') as TourneyGame | null
+  } catch {
+    return null
+  }
+}
+function saveTourney(packId: string, t: TourneyGame | null) {
+  try {
+    if (t) localStorage.setItem(tourneyKey(packId), JSON.stringify(t))
+    else localStorage.removeItem(tourneyKey(packId))
+  } catch {
+    /* storage unavailable */
+  }
 }

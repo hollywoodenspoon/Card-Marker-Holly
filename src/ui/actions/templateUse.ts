@@ -11,9 +11,11 @@ const keptBack = (n: number) =>
     `${n} card${n === 1 ? '' : 's'} kept ${n === 1 ? 'its' : 'their'} back: the back is a different size from the front.`,
   )
 
-export function pickTemplateForCard(templateId: Id) {
-  if (applyTemplate(templateId) === 'size')
+export function pickTemplateForCard(templateId: Id, cardId?: Id) {
+  const r = applyTemplate(templateId, cardId)
+  if (r === 'size')
     toast("That back is a different size from this card's front.", { tone: 'error' })
+  return r
 }
 
 export const pickBackForAllCards = (templateId: Id) => keptBack(applyBackToAll(templateId))

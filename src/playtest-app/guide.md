@@ -91,7 +91,7 @@ Press **Tournaments…** on the start screen (or the trophy at the top of the ta
   | World Championship | 16      | 2 groups of 8, round robin; top 4 of each to a knockout | Best of 3, final best of 5 |
 
 - **Match length** can be changed for any tournament. In a match of more than one game, rock-paper-scissors (or a coin, if you pick that) decides only game 1. In every later game, the player who went second in the game before starts with the initiative.
-- **Entrants:** add people (a name and a deck) and **Fill with bots**: pick their level, and their decks: the pack's and your saved decks, auto-built Suboptimal or Optimal decks, or a mix. **Bots only** leaves people out entirely, so the tournament can play itself.
+- **Entrants:** with **You and bots**, fill in your name and deck and press **Fill with bots**: it enters you first, then fills the other seats with bots. Pick the bots' level, and their decks: the pack's and your saved decks, auto-built Suboptimal or Optimal decks, or a mix. **Add a person** enters more people (for hot-seat games). **Bots only** leaves people out entirely, so the tournament can play itself; starting a You and bots tournament with no person asks first.
 - **Playing:**
   - Each round lists its matches. **Play** starts your next game on the table: against a bot, or against another person on the same device with the hand-over screen.
   - When the game ends, **Back to the tournament** records it.

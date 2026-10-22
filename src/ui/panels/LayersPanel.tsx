@@ -27,7 +27,7 @@ import { mergeLayers } from '@/core/model/layering'
 import type { Element } from '@/core/model/types'
 import { cn } from '@/lib/cn'
 import { toggleEditLock, toggleVisibility, renameElement } from '@/templates/commands'
-import { isVisibleOnCard } from '@/templates/resolve'
+import { isVisibleOnCard, lockedVisibility } from '@/templates/resolve'
 import { cachedDefaults, describeRule } from '@/templates/rules'
 import { IconButton } from '@/ui/components/ui/button'
 import { Tip } from '@/ui/components/fields'
@@ -276,11 +276,12 @@ function LayerRow({
         ) : (
           // A disabled button can't show a tooltip, and touch has none: say it plainly.
           <span
-            className="grid size-11 shrink-0 place-items-center text-muted-foreground/50 md:size-8"
-            title="Always shown (locked in the template)"
-            aria-label={`${el.name} is always shown`}
+            className="flex h-11 shrink-0 items-center justify-center gap-0.5 px-1 text-muted-foreground/50 md:h-8"
+            title={lockedVisibility(el, visible)}
+            aria-label={`${el.name}: ${lockedVisibility(el, visible)}`}
           >
-            <Lock className="size-3.5" />
+            {visible ? <Eye className="size-3.5" /> : <EyeOff className="size-3.5" />}
+            <Lock className="size-3" />
           </span>
         )}
         {editable && (
