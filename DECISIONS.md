@@ -644,4 +644,5 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 - **Not read yet, waiting on the owner:**
   - Final Blow and "the last one revealed this Engagement": the archive marks Final Blow as reconstructed, and the last card is only known when the Engagement ends, after this card's value is set.
   - "Reveal this card" with a keep clause on the same card (Whispering Bond, Dawnguard Gauntlet): under the TFQ-20 ruling the reveal already keeps the card, which would make the second clause do nothing.
-  - Lockouts, Bulwark, Hollow Presence, Sahuagin Reef-Strider's adjacent-defender check, and the Fear boss deck (Solo Mode, debuff tokens, X values).
+  - Lockouts, Sahuagin Reef-Strider's adjacent-defender check, and the Fear boss deck (Solo Mode, debuff tokens, X values).
+- **Cut by the owner:** Garrison Defender (Bulwark) and Hollow Presence. Neither keyword will be read.
