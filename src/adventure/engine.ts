@@ -575,6 +575,21 @@ function advance(d: D) {
       nextFsTurn(d, st.seat)
     } else if (
       st.k === 'place' &&
+      st.from === 'rest' &&
+      d.players[st.seat].rest.length === 0 &&
+      d.players[st.seat].support.length > 0 &&
+      d.players[st.seat].field.some((f) => !f.card)
+    ) {
+      // The rest zone can't fill every position (Runaway Familiar stayed in
+      // Support): the rest come from Support, the player choosing which. The
+      // rest-zone cards already placed stay where they are.
+      log(
+        d,
+        `${nameOf(d, st.seat)}'s rest zone is empty: the rest of the field is filled from Support.`,
+      )
+      d.step = { k: 'place', seat: st.seat, from: 'support', placed: [] }
+    } else if (
+      st.k === 'place' &&
       st.placed.length === 0 &&
       (d.players[st.seat][st.from].length === 0 || d.players[st.seat].field.every((f) => f.card))
     )
@@ -584,8 +599,8 @@ function advance(d: D) {
 }
 
 function finishPlace(d: D, seat: Seat) {
-  const st = d.step
-  const from = st.k === 'place' ? st.from : 'support'
+  // Setup places from Support; Regroup refills from the rest zone first.
+  const from = d.phase === 'regroup' ? 'rest' : 'support'
   if (seat === d.initiative) {
     d.step = { k: 'place', seat: other(seat), from, placed: [] }
     return

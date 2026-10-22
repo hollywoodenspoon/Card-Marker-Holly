@@ -1,7 +1,18 @@
-import { ChevronFirst, ChevronLast, LogOut, Pause, Play, StepBack, StepForward } from '@/ui/icons'
+import {
+  ChevronFirst,
+  ChevronLast,
+  Download,
+  LogOut,
+  Pause,
+  Play,
+  StepBack,
+  StepForward,
+} from '@/ui/icons'
 import { useMemo } from 'react'
 import { Button, IconButton } from '@/ui/components/ui/button'
 import { NativeSelect } from '@/ui/components/ui/input'
+import { usePack } from './packContext'
+import { exportReplay } from './replayFile'
 import { usePlaytest, type Speed } from './usePlaytest'
 
 /**
@@ -12,6 +23,7 @@ import { usePlaytest, type Speed } from './usePlaytest'
 export function ReplayBar({ onLeave }: { onLeave: () => void }) {
   const replay = usePlaytest((s) => s.replay)!
   const speed = usePlaytest((s) => s.speed)
+  const pack = usePack()
   const { seek, setReplayPlaying } = usePlaytest.getState()
   const { frames, i, playing, title } = replay
   // Where each round starts.
@@ -86,6 +98,18 @@ export function ReplayBar({ onLeave }: { onLeave: () => void }) {
           <option value="fast">Fast</option>
           <option value="rush">Rush</option>
         </NativeSelect>
+        <IconButton
+          label="Save as a replay file"
+          onClick={() =>
+            exportReplay(
+              { game: replay.game, moves: replay.moves, bots: [null, null], source: 'play' },
+              pack.info.name,
+            )
+          }
+          data-testid="replay-export"
+        >
+          <Download />
+        </IconButton>
         <Button size="sm" variant="secondary" onClick={onLeave} data-testid="replay-leave">
           <LogOut /> Leave
         </Button>

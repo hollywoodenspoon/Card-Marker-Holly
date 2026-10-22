@@ -32,7 +32,7 @@ A game pack holds every card's picture, the values of its fields (such as `A_AS`
 
 The bar at the bottom says whose turn it is and what to do. Cards you may use now glow green.
 
-- **Setup and Regroup:** tap a card in your Support, then tap an empty position on your field, or drag it there. In Regroup, as at a real table, your Support is set aside and your rest zone is laid out in its place as your hand ("Rest zone: Regroup hand"), so you can read every card while you refill the field. Your Support comes back when the Skirmish starts. **Fill randomly** fills the rest, and **Done** confirms. Until then you can move a card you just placed, or drag it back.
+- **Setup and Regroup:** tap a card in your Support, then tap an empty position on your field, or drag it there. In Regroup, as at a real table, your Support is set aside and your rest zone is laid out in its place as your hand ("Rest zone: Regroup hand"), so you can read every card while you refill the field. Your Support comes back when the Skirmish starts. If your rest zone runs out before every position is filled, the rest come from your Support, and you choose which cards. **Fill randomly** fills the rest, and **Done** confirms. Until then you can move a card you just placed, or drag it back.
 - **Skirmish:** tap 2 adjacent face-down cards on your opponent's field to reveal them (the first one you tap turns amber). After the opening pairs, you reveal 1 card at a time, next to one that is already revealed.
 - **Attack and defense** are worked out by Fate Number when everything is revealed: the lower half attacks, the upper half defends, and the lowest attacker is the Main Attacker (the cube).
 - **Combat:** the player with initiative picks which Engagement goes first. Then each player in turn reveals a Support card as Fighting Spirit, or passes. A pass locks your total for that Engagement. The bar shows the totals. If no defender is on or next to the attacked position, the attacker scores straight away.
@@ -108,6 +108,8 @@ Every rules game is kept as a replay when it ends, or when you start a new game 
 A replay plays like the game did, action by action, with the combat stage and card preview. Its bar has play and pause, one action back or forward, the previous or next round, a slider to jump anywhere, and the speed. The view menu at the top shows everything or one player's view. **Leave** goes back, and the game you had open is still there.
 
 The newest 100 replays of a pack are kept. Pin one to keep it for good.
+
+**Replay files:** the download button saves a game as a `.hsreplay.json` file. It's on each replay in the list, in the replay bar, and at the top of the table for the game you're playing, finished or not. **Import replay** in the list opens a file again. A file holds every card's values and every move, so if a game ever looks wrong, send its file in: it can be replayed and checked move by move.
 
 ## Building decks
 

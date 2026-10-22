@@ -70,7 +70,7 @@ Neighbours are orthogonal only. The mirrored position is the same row and the op
 4. **Regroup:**
    - Spent and unused Support cards go to the rest zone.
    - Active field cards go to Support. Ready cards stay.
-   - Each player refills the empty positions from their rest zone, face down.
+   - Each player refills the empty positions from their rest zone, face down. If the rest zone runs out first (Runaway Familiar stays in Support), the step switches to `from: 'support'` and the rest are filled from Support. The field always starts the Skirmish with 6 cards.
    - Initiative passes and the round number goes up.
 
 ## Card abilities
@@ -108,6 +108,8 @@ The reader wraps actions for their conditions: `withCost` ("Rest N:"), `oncePerR
 `observeAs(state, seat)` replaces the opponent's Support cards and face-down field cards with `"?"` and zeroes the seed. A bot is only given this view.
 
 ## Replaying games
+
+`check.ts`: `checkGame(game, moves)` replays a game and reports rule problems: a move that isn't legal, a card lost or doubled, a field that doesn't start the Skirmish with 6 cards, and Fighting Spirit above 3. `check.test.ts` runs it on 200 First Quest bot games. With `REPLAY=<file>` it also checks a replay file exported from Hearthside Table (`.hsreplay.json`, see `playtest-app/table/replayFile.ts`) and prints its log.
 
 `fixtures/games/*.json` holds `{format, cards, names, decks, seed, moves, expect: {winner, points, round, log}}`. The cards are `basicCards()` from `fixtures/basic.ts` (no abilities): card `i` has Fate `100 + 20i`. A port should replay every fixture and match the log line for line. `AS_WRITE_FIXTURES=1 npx vitest run src/adventure` writes them again after a deliberate rules change.
 
