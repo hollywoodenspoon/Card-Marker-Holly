@@ -445,7 +445,8 @@ function play(d: D, m: Move) {
           e.tried.push(m.card)
           const heads = coin(d)
           log(d, `${p.name} flips a coin for ${cardName(d, m.card)}: ${heads ? 'Heads' : 'Tails'}.`)
-          if (!heads) return nextFsTurn(d, seat)
+          // Tails: nothing happens, and the player still takes their turn.
+          if (!heads) return void (d.step = { k: 'fs', seat })
         }
         value = printed + rf.bonus
         e.fs[seat].push({ card: m.card, value, from: 'rest' })

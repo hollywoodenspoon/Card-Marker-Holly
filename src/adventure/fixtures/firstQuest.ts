@@ -1,7 +1,7 @@
 import type { AsCard } from '../cards'
 
 /**
- * The First Quest (v2 wording): the owner's 45 cards as Hearthside Cardworks
+ * The First Quest (v3): the owner's 45 cards as Hearthside Cardworks
  * exports them, for the card ability tests. Card id = code in lower case.
  */
 const row = (
@@ -71,7 +71,7 @@ export const FIRST_QUEST: AsCard[] = [
     3,
     550,
     "Adventurer's Guild",
-    'Defending Side, Rest 1: You may swap one of your attackers to one of your defenders.',
+    'Defending Side: You may swap one of your attackers to one of your defenders.',
   ),
   row(
     'TFQ-05',
@@ -115,7 +115,7 @@ export const FIRST_QUEST: AsCard[] = [
     2,
     332,
     "Adventurer's Guild",
-    "Swap target opponent's ready card on the field with a random card from their Support. The card that enters the field inherits the state of the card it swapped with.",
+    "Swap target opponent's ready card on the field with a random card from their Support. The card that enters the field inherits the state of the card it swapped with. The card it swapped with is rested.",
   ),
   row(
     'TFQ-09',
@@ -132,7 +132,7 @@ export const FIRST_QUEST: AsCard[] = [
     'TFQ-10',
     'Haughty Knight',
     'Flip',
-    3,
+    2,
     1,
     1,
     512,
@@ -148,7 +148,7 @@ export const FIRST_QUEST: AsCard[] = [
     1,
     229,
     "Adventurer's Guild",
-    "Swap a ready card's position with another ready card on your field.",
+    "Once per round: Swap a ready card's position with another ready card on your field. This card is not rested after use.",
   ),
   row(
     'TFQ-12',
@@ -159,7 +159,7 @@ export const FIRST_QUEST: AsCard[] = [
     2,
     344,
     "Adventurer's Guild",
-    "Rest 1: Target opponent's card on the field is turned to the ability-active position without resolving its ability.",
+    "Target opponent's card on the field is turned to the ability-active position without resolving its ability.",
   ),
   row(
     'TFQ-13',
@@ -258,7 +258,7 @@ export const FIRST_QUEST: AsCard[] = [
     2,
     396,
     "Hero's Retinue",
-    "Rest 1: Swap this card's position with another card on your field. This card inherits the state of the card it swapped with.",
+    "Swap this card's position with another card on your field. This card inherits the state of the card it swapped with.",
   ),
   row(
     'TFQ-22',
@@ -330,7 +330,7 @@ export const FIRST_QUEST: AsCard[] = [
     'TFQ-28',
     'Grave Whisperer',
     'Inherent',
-    1,
+    2,
     2,
     2,
     447,
@@ -467,13 +467,13 @@ export const FIRST_QUEST: AsCard[] = [
     3,
     589,
     'Bonus Cards',
-    'If you have exactly 3 cards in your rest zone: +2 {fightingspirit_as}.',
+    'If you have 2 or more cards in your rest zone: +1 {fightingspirit_as}.',
   ),
   row(
     'TFQ-41',
     'Runaway Familiar',
     'Inherent',
-    2,
+    1,
     2,
     1,
     280,
@@ -500,7 +500,7 @@ export const FIRST_QUEST: AsCard[] = [
     3,
     602,
     'Bonus Cards',
-    'Second Engagement: Flip a coin. Heads: you may use this card for Fighting Spirit this Engagement, and it gets +2 {fightingspirit_as}.',
+    'Second Engagement: Flip a coin. Heads: you may use this card for Fighting Spirit this Engagement, and it gets +2 {fightingspirit_as}. Tails: nothing happens, and you may still reveal Fighting Spirit or pass.',
   ),
   row(
     'TFQ-44',

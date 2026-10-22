@@ -522,3 +522,24 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
     - per card: the win rate of the decks it was in, Fighting Spirit reveals and ability uses per game
     - how often the player with the first initiative won
     - any game that broke a rule check (a refused move, or a card lost or doubled)
+
+## The First Quest v3 (balance)
+
+- **Changes:** the owner approved all of them, after the tier review with the smarter bots (300 random decks, 8,000 games per version, Skirmish and Combat Tricks).
+  - **Fighting Spirit:**
+    - Runaway Familiar 2 → 1 (the strongest card in every version, at about +8 points)
+    - Haughty Knight 3 → 2 (A in every version, and the most picked)
+    - Grave Whisperer 1 → 2 (C in every version)
+  - **Costs:**
+    - "Rest 1" is dropped from Hunter Dragoon (D in every version, about −9), Strategic Vanguard and Light Dragoon.
+    - Mission Handler is now once per round and stays in Support after use.
+  - **Effects:**
+    - Spatial Witch rests the card it swaps out (Azure Assassin is unchanged).
+    - Lucky Charm Bearer: "2 or more cards in your rest zone: +1 FS" (it was "exactly 3: +2", which held about 9% of the time).
+    - Gambler's Gambit: on Tails, the player still takes their Fighting Spirit turn.
+- **Before v3,** the premade decks were already close with the smarter bots: Retinue 56%, Guild 50%, Necromancer 44%. The old bots had made Necromancer look dominant. So the Retinue got no buffs, and Necromancer cards no nerfs.
+- **Where the changes live:**
+  - The test data (`fixtures/firstQuest.ts`) holds the v3 values and texts.
+  - The engine rules for the changed abilities are in `effects/cards.ts`.
+  - The Gambit's Tails is handled in `engine.ts`.
+  - The v3 CSV for Hearthside Cardworks is made from the v2 one, changing only these cards.

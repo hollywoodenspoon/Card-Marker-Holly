@@ -45,7 +45,9 @@ describe('Skirmish and Combat Tricks', () => {
   })
 
   it('value a Main Attacker that hits an undefended position', () => {
-    const s = beforeAssignment(3)!
+    let s: AsState | null = null
+    for (let seed = 1; !s && seed < 50; seed++) s = beforeAssignment(seed)
+    if (!s) throw new Error('no game reached the final response')
     const p = projectAssignment(s)
     const seat = 0
     const main = p.players[seat].mainAttacker!
