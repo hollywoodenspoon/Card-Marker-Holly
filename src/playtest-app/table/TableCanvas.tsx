@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { actor } from '@/adventure/engine'
 import { other } from '@/adventure/state'
 import { statsAt } from '@/adventure/stats'
-import { pieceId } from '@/adventure/table'
+import { pieceId, regroupHand } from '@/adventure/table'
 import { cn } from '@/lib/cn'
 import { seenBy } from '@/playtest/actions'
 import { pieceBoxes, targetAt, type PieceBox } from '@/playtest/geometry'
@@ -343,6 +343,17 @@ export function TableCanvas({
   }
 
   const label = Math.min(15, Math.max(10, 3.4 * k))
+  // Regroup: the Support row holds the rest zone, and the Support is set aside.
+  const regroup = !!shown && regroupHand(shown)
+  const zoneLabel = (key: string, name: string, count: number | null) => {
+    const { zoneId, seat } = parseZoneKey(key)
+    if (regroup && shown && seat !== null && (seat === 0 || seat === 1)) {
+      if (zoneId === 'support') return `Rest zone: Regroup hand (${count ?? 0})`
+      if (zoneId === 'rest')
+        return `Support set aside (${shown.players[seat].support.length})`
+    }
+    return count === null ? name : `${name} (${count})`
+  }
   const dropZone = drag?.zone
 
   const tokensAt = (key: string) =>
@@ -416,10 +427,7 @@ export function TableCanvas({
                     style={{ background: seatColor(seat) }}
                   />
                 )}
-                <span>
-                  {z.name}
-                  {z.kind === 'row' ? ` (${count})` : ''}
-                </span>
+                <span>{zoneLabel(pzn.key, z.name, z.kind === 'row' ? count : null)}</span>
                 {menu && (
                   <ZoneMenu
                     zoneKey={pzn.key}

@@ -61,7 +61,46 @@ export function RulesBar({
 
   let hint = ''
   let buttons: React.ReactNode = null
-  if (st.k === 'place') {
+  const mineNow = viewer === null || viewer === who
+  if (st.k === 'rps') {
+    hint = mineNow ? 'Your throw stays hidden until both have thrown.' : ''
+    buttons = mineNow
+      ? (
+          [
+            ['rock', '✊', 'Rock'],
+            ['paper', '✋', 'Paper'],
+            ['scissors', '✌️', 'Scissors'],
+          ] as const
+        ).map(([hand, icon, label]) => (
+          <Button
+            key={hand}
+            onClick={() => play({ t: 'throw', hand })}
+            data-testid={`rps-${hand}`}
+            className="min-w-24"
+          >
+            <span aria-hidden className="text-lg leading-none">
+              {icon}
+            </span>{' '}
+            {label}
+          </Button>
+        ))
+      : null
+  } else if (st.k === 'initiative') {
+    buttons = mineNow ? (
+      <>
+        <Button onClick={() => play({ t: 'initiative', take: true })} data-testid="initiative-take">
+          Take the initiative
+        </Button>
+        <Button
+          variant="secondary"
+          onClick={() => play({ t: 'initiative', take: false })}
+          data-testid="initiative-give"
+        >
+          Give it
+        </Button>
+      </>
+    ) : null
+  } else if (st.k === 'place') {
     hint = 'Tap a card, then an empty position (or drag it).'
     buttons = (
       <>

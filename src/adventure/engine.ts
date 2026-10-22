@@ -13,8 +13,11 @@ import {
   other,
   POINTS_TO_WIN,
   SEATS,
+  BEATS,
+  HANDS,
   type After,
   type AsState,
+  type Hand,
   type PlayerState,
   type Seat,
 } from './state'
@@ -39,6 +42,10 @@ export type Move =
   | { t: 'ability'; card: string }
   /** Answer a choice inside an ability. */
   | { t: 'choose'; id: string }
+  /** Rock-paper-scissors for the initiative. */
+  | { t: 'throw'; hand: Hand }
+  /** The rock-paper-scissors winner takes (or gives) the initiative. */
+  | { t: 'initiative'; take: boolean }
 
 export interface NewGame {
   cards: AsCard[]
@@ -46,15 +53,30 @@ export interface NewGame {
   decks: [string[], string[]]
   names: [string, string]
   seed: number
+  /**
+   * How the initiative is decided: a coin (the default), or rock-paper-scissors
+   * whose winner takes or gives it. Ignored when `initiative` is given.
+   */
+  opening?: 'coin' | 'rps'
+  /** A fixed starting initiative (a tournament's later games: who went second before). */
+  initiative?: Seat
 }
 
 type D = Draft<AsState>
 
 const nameOf = (d: D | AsState, seat: Seat) => d.players[seat].name
 
-export function createGame({ cards, decks, names, seed }: NewGame): AsState {
+export function createGame({
+  cards,
+  decks,
+  names,
+  seed,
+  opening,
+  initiative: fixed,
+}: NewGame): AsState {
   const [r, s] = nextInt(seed, 2)
-  const initiative = r as Seat
+  const initiative = fixed ?? (r as Seat)
+  const rps = fixed === undefined && opening === 'rps'
   const player = (seat: Seat): PlayerState => ({
     name: names[seat],
     field: Array.from({ length: SLOTS }, emptySlot),
@@ -85,6 +107,12 @@ export function createGame({ cards, decks, names, seed }: NewGame): AsState {
   }
   return produce(state, (d) => {
     log(d, `New game: ${names[0]} against ${names[1]}.`)
+    if (rps) {
+      d.rps = [null, null]
+      d.step = { k: 'rps', seat: 0 }
+      log(d, 'Rock-paper-scissors decides the initiative.')
+      return
+    }
     log(d, `${names[initiative]} has the initiative.`)
     advance(d)
   })
@@ -281,6 +309,13 @@ function continueAfter(d: D, after: After) {
 export function legalMoves(s: AsState): Move[] {
   const st = s.step
   switch (st.k) {
+    case 'rps':
+      return HANDS.map((hand) => ({ t: 'throw', hand }))
+    case 'initiative':
+      return [
+        { t: 'initiative', take: true },
+        { t: 'initiative', take: false },
+      ]
     case 'over':
       return []
     case 'place': {
@@ -357,6 +392,34 @@ function play(d: D, m: Move) {
   const seat = st.seat
   const p = d.players[seat]
   switch (m.t) {
+    case 'throw': {
+      if (st.k !== 'rps' || !d.rps) return
+      d.rps[seat] = m.hand
+      if (seat === 0) return void (d.step = { k: 'rps', seat: 1 })
+      const [a, b] = d.rps as [Hand, Hand]
+      const thrown = `${d.players[0].name} throws ${a}, ${d.players[1].name} throws ${b}`
+      if (a === b) {
+        log(d, `${thrown}: a tie, throw again.`)
+        d.rps = [null, null]
+        return void (d.step = { k: 'rps', seat: 0 })
+      }
+      const winner: Seat = BEATS[a] === b ? 0 : 1
+      log(
+        d,
+        `${thrown}: ${nameOf(d, winner)} wins (${winner === 0 ? a : b} beats ${winner === 0 ? b : a}).`,
+      )
+      return void (d.step = { k: 'initiative', seat: winner })
+    }
+    case 'initiative': {
+      if (st.k !== 'initiative') return
+      d.initiative = m.take ? seat : other(seat)
+      log(
+        d,
+        `${p.name} ${m.take ? 'takes' : 'gives'} the initiative: ${nameOf(d, d.initiative)} has the initiative.`,
+      )
+      d.step = { k: 'place', seat: d.initiative, from: 'support', placed: [] }
+      return
+    }
     case 'place': {
       if (st.k !== 'place') return
       const pool = p[st.from]
@@ -707,6 +770,10 @@ export function prompt(s: AsState): string {
     return s.winner ? `${nameOf(s, s.winner.seat)} wins (${s.winner.reason}).` : 'The game is over.'
   const who = nameOf(s, st.seat)
   switch (st.k) {
+    case 'rps':
+      return `${who}: rock, paper or scissors?`
+    case 'initiative':
+      return `${who} won rock-paper-scissors: take the initiative, or give it?`
     case 'place': {
       const empty = s.players[st.seat].field.filter((f) => !f.card).length
       const pool = s.players[st.seat][st.from].length

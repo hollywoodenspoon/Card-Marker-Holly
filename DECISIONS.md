@@ -575,3 +575,13 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 - **When it looks:** an open tab or installed app brought back from the background doesn't reload, so the browser never looked for updates. The app now looks when it comes back into view and every 30 minutes (`registration.update()` in `src/ui/pwa/pwa.ts`).
 - **Check for updates** (Home screen and ☰ menu, the Hearthside Table packs screen) asks the site at once. It says when the version is already the latest, or offers the update.
 - **A build stamp** (the commit and date from GitHub Actions, "dev" locally) is shown next to the version, so it's clear which version is running.
+
+## Regroup hand, and rock-paper-scissors for initiative
+
+- **Regroup is shown as at the table:** while players refill the field from the rest zone, each player's Support row shows their rest-zone cards (face up, since the rest zone is public), and the Support is set aside: not drawn, with its count in the rest-zone label. This is drawing only (`regroupHand` in `table.ts`); the rules state is unchanged. A card dragged back onto that row is taken back.
+- **Initiative:**
+  - **The opening:** `NewGame.opening: 'rps'` opens the game with rock-paper-scissors. Player 1 throws, then Player 2, and a throw is hidden from the other player until both have thrown (`observeAs`). A tie throws again. The winner takes or gives the initiative.
+  - **The default:** a coin, as before, so the sim, Rush and the saved test games are unchanged.
+  - **A fixed initiative:** `NewGame.initiative` sets the starting initiative directly. Tournament games after the first use it.
+  - **The app:** the start panel offers rock-paper-scissors (the default) or Random.
+  - **Bots:** every level throws at random and always takes the initiative, because the first player wins slightly more often in the sims.

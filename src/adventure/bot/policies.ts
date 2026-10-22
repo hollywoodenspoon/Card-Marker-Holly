@@ -24,6 +24,7 @@ export function easyMove(s: AsState, r: Rng): Move {
   if (s.step.k === 'place')
     return legal.find((m) => m.t === 'placeRandom') ?? legal.find((m) => m.t === 'done')!
   if (s.step.k === 'fs' && chance(r, 0.5)) return { t: 'pass' }
+  if (s.step.k === 'initiative') return { t: 'initiative', take: true }
   return legal[roll(r, legal.length)]
 }
 
@@ -59,6 +60,11 @@ export function quickMove(s: AsState, r: Rng): Move {
   if (st.k === 'over') return legal[0]
   const seat = st.seat
   switch (st.k) {
+    case 'rps':
+      return legal[roll(r, legal.length)]
+    case 'initiative':
+      // The first player wins a little more often: take it.
+      return { t: 'initiative', take: true }
     case 'place':
       return placeMove(s, seat)
     case 'reveal':

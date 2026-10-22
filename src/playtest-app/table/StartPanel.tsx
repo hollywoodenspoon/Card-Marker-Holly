@@ -26,6 +26,7 @@ function remembered(): {
   decks?: string[]
   mode?: Mode
   levels?: BotLevel[]
+  opening?: 'rps' | 'coin'
 } {
   try {
     return JSON.parse(localStorage.getItem(KEY) ?? '{}')
@@ -33,7 +34,13 @@ function remembered(): {
     return {}
   }
 }
-function remember(v: { setupId: string; decks: string[]; mode: Mode; levels: BotLevel[] }) {
+function remember(v: {
+  setupId: string
+  decks: string[]
+  mode: Mode
+  levels: BotLevel[]
+  opening: 'rps' | 'coin'
+}) {
   try {
     localStorage.setItem(KEY, JSON.stringify(v))
   } catch {
@@ -121,6 +128,7 @@ export function StartPanel({
   const canRule = setup.id === AS_SETUP && deckCardsInfo.adventure && setup.seats.length === 2
   const [mode, setMode] = useState<Mode>(last.mode ?? 'free')
   const [levels, setLevels] = useState<BotLevel[]>(last.levels ?? ['normal', 'normal'])
+  const [opening, setOpening] = useState<'rps' | 'coin'>(last.opening ?? 'rps')
   // Against the bot you are Player 1; the bot plays Player 2.
   const botSeats = mode === 'bot' ? [1] : mode === 'botbot' || mode === 'rush' ? [0, 1] : []
   const [games, setGames] = useState(50)
@@ -135,7 +143,7 @@ export function StartPanel({
 
   const start = () => {
     const picks = setup.seats.map((_, i) => chosen[i])
-    remember({ setupId: setup.id, decks: chosen, mode, levels })
+    remember({ setupId: setup.id, decks: chosen, mode, levels, opening })
     const pt = usePlaytest.getState()
     if (ruled && mode === 'rush') {
       const deckName = (i: number) =>
@@ -165,6 +173,7 @@ export function StartPanel({
             bots[i] ? `${setup.seats[i].name} (${BOT_NAMES[bots[i]!]} bot)` : setup.seats[i].name,
           ) as [string, string],
           seed: randomSeed(),
+          opening,
         },
         { hotseat: mode === 'hotseat', bots },
       )
@@ -253,6 +262,22 @@ export function StartPanel({
                 </NativeSelect>
               </div>
             ))}
+          </div>
+        )}
+        {ruled && mode !== 'rush' && (
+          <div className="flex items-center gap-2">
+            <Label htmlFor="pt-opening" className="w-28 shrink-0">
+              Initiative
+            </Label>
+            <NativeSelect
+              id="pt-opening"
+              value={opening}
+              onChange={(e) => setOpening(e.target.value as 'rps' | 'coin')}
+              data-testid="playtest-opening"
+            >
+              <option value="rps">Rock-paper-scissors (winner takes or gives)</option>
+              <option value="coin">Random</option>
+            </NativeSelect>
           </div>
         )}
         {ruled && mode === 'rush' && (

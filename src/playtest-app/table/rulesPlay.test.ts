@@ -1,3 +1,4 @@
+import { produce } from 'immer'
 import { describe, expect, it } from 'vitest'
 import { apply, createGame, legalMoves } from '@/adventure/engine'
 import { basicCards, basicDecks } from '@/adventure/fixtures/basic'
@@ -74,5 +75,45 @@ describe('rules on the table', () => {
       moves: [{ t: 'reveal', slots: [0, 1] }],
     })
     expect(tapPiece(s, [0], at(0))).toEqual({ kind: 'pick', picks: [] })
+  })
+
+  it('holds the rest zone in the Support row during Regroup, the Support set aside', () => {
+    // A Regroup refill: some field positions empty, cards waiting in the rest zone.
+    const s0 = placed(game())
+    const seat = s0.initiative
+    const s = produce(s0, (d) => {
+      const p = d.players[seat]
+      d.phase = 'regroup'
+      p.rest = [p.field[2].card!, p.field[5].card!]
+      p.field[2] = { card: null, faceUp: false, state: 'ready' }
+      p.field[5] = { card: null, faceUp: false, state: 'ready' }
+      d.step = { k: 'place', seat, from: 'rest', placed: [] }
+    })
+    const t = toTable(setup, s)
+    const p = s.players[seat]
+    expect(t.zones[zoneKey('support', seat)].items).toEqual(p.rest.map((c) => pieceId(seat, c)))
+    expect(t.zones[zoneKey('rest', seat)].items).toEqual([])
+    // The Support is set aside: its pieces exist but are in no zone.
+    const inZones = Object.values(t.zones).flatMap((z) => [
+      ...(z.items ?? []),
+      ...(z.slots ?? []).flat(),
+    ])
+    for (const c of p.support) {
+      expect(t.pieces[pieceId(seat, c)]).toBeDefined()
+      expect(inZones).not.toContain(pieceId(seat, c))
+    }
+    // Dragging from the hand row places; dragging back onto it takes the card back.
+    const piece = pieceId(seat, p.rest[0])
+    expect(
+      movesFor(s, { t: 'move', piece, to: { zone: zoneKey('field', seat), slot: 2 } }),
+    ).toEqual([{ t: 'place', card: p.rest[0], slot: 2 }])
+    const after = apply(s, { t: 'place', card: p.rest[0], slot: 2 })
+    expect(movesFor(after, { t: 'move', piece, to: { zone: zoneKey('support', seat) } })).toEqual([
+      { t: 'unplace', slot: 2 },
+    ])
+    // Outside Regroup the table is drawn as usual.
+    expect(toTable(setup, s0).zones[zoneKey('support', seat)].items).toEqual(
+      s0.players[seat].support.map((c) => pieceId(seat, c)),
+    )
   })
 })

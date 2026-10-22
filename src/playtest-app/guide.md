@@ -24,6 +24,7 @@ A game pack holds every card's picture, the values of its fields (such as `A_AS`
    - **Rules on: you against the bot**: you play Player 1 and the bot plays Player 2. Pick its level: **Easy**, **Normal** or **Hard** (Hard thinks longer).
    - **Rules on: watch bot against bot**: two bots play each other while you watch.
    - **Rush: many bot games**: bots play a batch of games (you pick how many) as fast as the device allows, with nothing drawn. See Rush below.
+   - **Initiative** (with the rules on): **Rock-paper-scissors**, as the rulebook recommends, or **Random**. With rock-paper-scissors each player picks Rock, Paper or Scissors in the bar (your throw stays hidden until both have thrown; a tie throws again), and the winner chooses **Take the initiative** or **Give it**. Bots always take it.
 3. Pick a **deck** for each player: one you built here (**Your decks**), or one from Hearthside Cardworks (**Decks in the pack**). **All cards** gives a player one of every card. A warning shows when a deck breaks a deck rule, or has a different number of cards than the game uses. With the rules on, both decks must be legal Free Companies.
 4. Press **Start**.
 
@@ -31,7 +32,7 @@ A game pack holds every card's picture, the values of its fields (such as `A_AS`
 
 The bar at the bottom says whose turn it is and what to do. Cards you may use now glow green.
 
-- **Setup and Regroup:** tap a card in your Support (or rest zone), then tap an empty position on your field, or drag it there. **Fill randomly** fills the rest, and **Done** confirms. Until then you can move a card you just placed, or drag it back.
+- **Setup and Regroup:** tap a card in your Support, then tap an empty position on your field, or drag it there. In Regroup, as at a real table, your Support is set aside and your rest zone is laid out in its place as your hand ("Rest zone: Regroup hand"), so you can read every card while you refill the field. Your Support comes back when the Skirmish starts. **Fill randomly** fills the rest, and **Done** confirms. Until then you can move a card you just placed, or drag it back.
 - **Skirmish:** tap 2 adjacent face-down cards on your opponent's field to reveal them (the first one you tap turns amber). After the opening pairs, you reveal 1 card at a time, next to one that is already revealed.
 - **Attack and defense** are worked out by Fate Number when everything is revealed: the lower half attacks, the upper half defends, and the lowest attacker is the Main Attacker (the cube).
 - **Combat:** the player with initiative picks which Engagement goes first. Then each player in turn reveals a Support card as Fighting Spirit, or passes. A pass locks your total for that Engagement. The bar shows the totals. If no defender is on or next to the attacked position, the attacker scores straight away.
