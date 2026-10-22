@@ -2,6 +2,7 @@ import { produce } from 'immer'
 import { describe, expect, it } from 'vitest'
 import { apply, createGame, isLegal, legalMoves, responseMoves, type Move } from '../engine'
 import { FIRST_QUEST, FIRST_QUEST_DECKS, fq } from '../fixtures/firstQuest'
+import type { AsCard } from '../cards'
 import type { AsState, CardState, Seat } from '../state'
 import { engagementSides, engagementTotals, statsAt } from '../stats'
 import { unreadParts } from './registry'
@@ -642,5 +643,154 @@ describe('Defense Unbound', () => {
     expect(engagementSides(s([2]), 0)!.defenders).toEqual([2])
     expect(engagementSides(s([2, 3, 5]), 0)!.defenders).toEqual([0, 2, 3])
     expect(engagementTotals(s([2, 3, 5]), s([2, 3, 5]).engagement!).defense).toBe(3 + 2 + 2)
+  })
+})
+
+describe('keywords from the design archive (new card texts)', () => {
+  /** Give card `n` another type and ability text. */
+  const retext = (
+    s: AsState,
+    n: number,
+    type: AsCard['type'],
+    ability: string,
+    archetypes?: string[],
+  ) =>
+    produce(s, (d) => {
+      d.cards[fq(n)] = { ...d.cards[fq(n)], type, ability, ...(archetypes && { archetypes }) }
+    })
+  const fight = (support0: number[], text: string) =>
+    retext(
+      combat(
+        {
+          field: [7, 9, 11, 3, 4, 6],
+          states: {
+            0: 'attacking',
+            1: 'attacking',
+            2: 'attacking',
+            3: 'defending',
+            4: 'defending',
+            5: 'defending',
+          },
+          main: 0,
+          support: support0,
+        },
+        {
+          field: [20, 21, 22, 23, 24, 30],
+          states: { 0: 'defending', 1: 'defending', 2: 'defending', 3: 'attacking' },
+        },
+        0,
+      ),
+      2,
+      'Battle',
+      text,
+    )
+
+  it('Onslaught N+ counts your cards counted for attack, the Main Attacker included', () => {
+    const text =
+      'Onslaught 2+: +1 {fightingspirit_as}. Onslaught 3+: an additional +1 {fightingspirit_as}.'
+    const s = fight([2], text)
+    const n = engagementSides(s, 0)!.attackers.length
+    expect(n).toBe(2)
+    expect(lastFs(fsMove(s, 2), 0)?.value).toBe(1 + 1)
+    const all3 = produce(s, (d) => void (d.players[0].round.attackUnbound = true))
+    expect(lastFs(fsMove(all3, 2), 0)?.value).toBe(1 + 2)
+  })
+
+  it('First Blood: the first card revealed this Engagement. Ambush: the opponent has passed', () => {
+    const first = 'First Blood: +1 {fightingspirit_as}.'
+    expect(lastFs(fsMove(fight([2], first), 2), 0)?.value).toBe(2)
+    let s = fsMove(fight([39, 2], first), 39)
+    s = must(s, { t: 'pass' })
+    expect(lastFs(fsMove(s, 2), 0)?.value).toBe(1)
+    const ambush = 'Ambush: +1 {fightingspirit_as}.'
+    expect(lastFs(fsMove(fight([2], ambush), 2), 0)?.value).toBe(1)
+    s = fsMove(fight([39, 2], ambush), 39)
+    s = must(s, { t: 'pass' })
+    expect(lastFs(fsMove(s, 2), 0)?.value).toBe(2)
+  })
+
+  it('Kindred Strike (W): a W card was revealed before it this Engagement', () => {
+    const text = 'Kindred Strike (Ghoulish): +2 {fightingspirit_as}.'
+    expect(lastFs(fsMove(fight([2], text), 2), 0)?.value).toBe(1)
+    let s = fsMove(fight([39, 2], text), 39)
+    s = must(s, { t: 'pass' })
+    expect(lastFs(fsMove(s, 2), 0)?.value).toBe(3)
+  })
+
+  it('Override, Rest 2: non-adjacent cards (or one archetype) count this round', () => {
+    let s = retext(
+      board({ field: [7], support: [5, 6, 8] }, {}),
+      7,
+      'Field',
+      'Defense Override, Rest 2: Non-adjacent cards are counted for defense.',
+    )
+    s = use(s, 7)
+    s = pick(s, fq(5))
+    s = pick(s, fq(6))
+    expect(s.players[0].round.unbound).toEqual([{ side: 'defense' }])
+    expect(s.players[0].rest).toEqual([fq(5), fq(6)])
+    // "Non-adjacent Deepdelver cards are counted for attack": only those cards join.
+    const c = combat(
+      {
+        field: [7, 9, 11, 3, 4, 6],
+        states: {
+          0: 'attacking',
+          1: 'defending',
+          2: 'attacking',
+          3: 'defending',
+          4: 'defending',
+          5: 'attacking',
+        },
+        main: 0,
+      },
+      { field: [20, 21, 22], states: { 2: 'defending' } },
+      0,
+    )
+    const tagged = produce(c, (d) => {
+      d.cards[fq(6)].archetypes = ['Deepdelver']
+      d.players[0].round.unbound = [{ side: 'attack', word: 'Deepdelver' }]
+    })
+    expect(engagementSides(tagged, 0)!.attackers).toEqual([0, 5])
+  })
+
+  it('returns any rest-zone card, and keeps the card with 3 or fewer in Support', () => {
+    const text =
+      'Put a card from your rest zone into your Support. This card does not need to be rested after use if you have 3 or fewer cards in Support.'
+    let s = use(retext(board({ support: [29], rest: [26] }, {}), 29, 'Support', text), 29)
+    expect([...s.players[0].support].sort()).toEqual([fq(26), fq(29)].sort())
+    s = use(retext(board({ support: [29, 1, 2, 3], rest: [26] }, {}), 29, 'Support', text), 29)
+    expect(s.players[0].rest).toEqual([fq(29)])
+  })
+
+  it('Target player rests a card from their Support: the owner picks the player', () => {
+    let s = retext(
+      board({ field: [7], support: [5] }, { support: [6] }),
+      7,
+      'Field',
+      'Target player rests a card from their Support.',
+    )
+    s = use(s, 7)
+    s = pick(s, 'seat:0')
+    expect(s.players[0].rest).toEqual([fq(5)])
+    expect(s.players[1].support).toEqual([fq(6)])
+  })
+
+  it("the opponent's Main Attacker in the Center, and a field card swapping itself", () => {
+    const text = "If opponent's Main Attacker is in the Center: +1 {attack_as} and +1 {defense_as}."
+    const s = retext(board({ field: [7] }, { field: [20, 21] }), 7, 'Inherent', text)
+    const base = statsAt(s, 0, 0)
+    const center = produce(s, (d) => void (d.players[1].mainAttacker = 1))
+    expect(statsAt(center, 0, 0)).toEqual({ a: base.a + 1, d: base.d + 1 })
+    const flank = produce(s, (d) => void (d.players[1].mainAttacker = 0))
+    expect(statsAt(flank, 0, 0)).toEqual(base)
+    let t = retext(
+      board({ field: [7, 9] }, {}),
+      7,
+      'Field',
+      "Swap this card's position with another card on your field.",
+    )
+    t = pick(use(t, 7), 1)
+    expect(t.players[0].field[1].card).toBe(fq(7))
+    expect(t.players[0].field[0].card).toBe(fq(9))
   })
 })

@@ -409,18 +409,19 @@ export const joinAttackers: Ability<null> = {
   },
 }
 
-/** Return a [word] card from your rest zone to your Support. */
-export function returnFromRest(word: string): Ability<string> {
+/** Return a [word] card (any card when `word` is null) from your rest zone to your Support. */
+export function returnFromRest(word: string | null): Ability<string> {
+  const what = word ? `a ${word} card` : 'a card'
   return {
-    name: `Return a ${word} card from your rest zone to Support`,
+    name: `Return ${what} from your rest zone to Support`,
     plan(io) {
       const own = io.ctx.owner
       return cardFromId(
         io.pick(
           own,
-          `Choose a ${word} card in your rest zone to return to your Support.`,
+          `Choose ${what} in your rest zone to return to your Support.`,
           io.s.players[own].rest
-            .filter((c) => c !== io.ctx.card && inArchetype(io.s, c, word))
+            .filter((c) => c !== io.ctx.card && (!word || inArchetype(io.s, c, word)))
             .map((c) => cardOption(io.s, c)),
         ),
       )
@@ -432,6 +433,91 @@ export function returnFromRest(word: string): Ability<string> {
       log(
         d,
         `${cardName(d, ctx.card)}: ${cardName(d, card)} returns from the rest zone to ${p.name}'s Support.`,
+      )
+    },
+  }
+}
+
+/** Target player rests a card from their Support (they choose the card). */
+export const playerRests: Ability<{ seat: Seat; card: string }> = {
+  name: 'A player rests a Support card',
+  can: (s) => s.players.some((p) => p.support.length > 0),
+  plan(io) {
+    const own = io.ctx.owner
+    const seats = ([own, other(own)] as Seat[]).filter((x) => io.s.players[x].support.length)
+    const seat = Number(
+      io
+        .pick(
+          own,
+          'Choose the player who rests a card from their Support.',
+          seats.map((x) => ({ id: `seat:${x}`, label: x === own ? 'You' : io.s.players[x].name })),
+        )
+        .slice(5),
+    ) as Seat
+    const card = cardFromId(
+      io.pick(
+        seat,
+        'choose a card from your Support to rest.',
+        io.s.players[seat].support.map((c) => cardOption(io.s, c)),
+      ),
+    )
+    return { seat, card }
+  },
+  apply(d, _ctx, { seat, card }) {
+    log(d, `${d.players[seat].name} rests ${cardName(d, card)} from their Support.`)
+    rest(d, seat, card)
+  },
+}
+
+/** A field card swaps its own position with another card on your field. */
+export function selfSwap(readyOnly: boolean): Ability<number> {
+  return {
+    name: `Swap with ${readyOnly ? 'a ready' : 'another'} card on your field`,
+    plan(io) {
+      const own = io.ctx.owner
+      const field = io.s.players[own].field
+      return slotFromId(
+        io.pick(
+          own,
+          `Choose the card ${cardName(io.s, io.ctx.card)} swaps places with.`,
+          field
+            .map((_, i) => i)
+            .filter(
+              (i) =>
+                field[i].card &&
+                field[i].card !== io.ctx.card &&
+                (!readyOnly || field[i].state === 'ready'),
+            )
+            .map((i) => slotOption(io.s, own, i, own)),
+        ),
+      )
+    },
+    apply(d, ctx, slot) {
+      const p = d.players[ctx.owner]
+      const self = p.field.findIndex((f) => f.card === ctx.card)
+      if (self < 0) return
+      log(
+        d,
+        `${cardName(d, ctx.card)}: ${p.name}'s ${slotName(self)} and ${slotName(slot)} cards swap places.`,
+      )
+      swapSlots(d, { seat: ctx.owner, slot: self }, { seat: ctx.owner, slot })
+    },
+  }
+}
+
+/** Non-adjacent cards (or only [word] cards) are counted for attack or defense this round. */
+export function unboundFor(side: 'attack' | 'defense', word: string | null): Ability<null> {
+  if (side === 'attack' && !word) return attackUnbound
+  const what = word ? `${word} cards` : 'cards'
+  return {
+    name: `Non-adjacent ${what} count for ${side} this round`,
+    plan: () => null,
+    apply(d, ctx) {
+      const r = d.players[ctx.owner].round
+      r.unbound = [...(r.unbound ?? []), word ? { side, word } : { side }]
+      log(
+        d,
+        `${cardName(d, ctx.card)}: all of ${d.players[ctx.owner].name}'s ${word ? `${word} ` : ''}${side === 'attack' ? 'attackers' : 'defenders'} count this round.`,
       )
     },
   }

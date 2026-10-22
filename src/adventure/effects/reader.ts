@@ -1,5 +1,6 @@
 import type { AsCard } from '../cards'
 import { other, type AsState, type Engagement, type Seat } from '../state'
+import { engagementSides } from '../stats'
 import * as B from './blocks'
 import { archInRest, archOnField, faceUp, inArchetype, isCenterSlot, restCount } from './helpers'
 import type { Ability, CardRules, Ctx, D } from './types'
@@ -93,6 +94,7 @@ const CONDITIONS: [RegExp, (g: Record<string, string>) => Test][] = [
   ],
   [/^center$/, () => (q) => q.slot !== undefined && isCenterSlot(q.slot)],
   [/^flank$/, () => (q) => q.slot !== undefined && !isCenterSlot(q.slot)],
+  [/^first engagement$/, () => (q) => !!q.e && B.fought(q.s).length === 0],
   [/^second engagement$/, () => (q) => !!q.e && B.fought(q.s).length === 1],
   [/^won (?:the )?first engagement$/, () => (q) => !!q.e && B.fought(q.s)[0]?.scorer === q.seat],
   [
@@ -103,12 +105,58 @@ const CONDITIONS: [RegExp, (g: Record<string, string>) => Test][] = [
     new RegExp(`^if an? ${W} card was revealed as fighting spirit this engagement$`),
     (g) => (q) => !!q.e && q.e.fs[q.seat].some((x) => inArchetype(q.s, x.card, g.w)),
   ],
+  // Kindred Strike (W) and Echo Bond: the same check (this card isn't counted:
+  // it is checked before it joins the Fighting Spirit).
+  [
+    new RegExp(`^kindred strike \\(${W}\\)$`),
+    (g) => (q) => !!q.e && q.e.fs[q.seat].some((x) => inArchetype(q.s, x.card, g.w)),
+  ],
+  [
+    new RegExp(
+      `^if another ${W} card was already revealed (?:as fighting spirit )?this engagement$`,
+    ),
+    (g) => (q) => !!q.e && q.e.fs[q.seat].some((x) => inArchetype(q.s, x.card, g.w)),
+  ],
+  [
+    /^if (?:your )?opponent has (?<n>\d+)(?:\+| or more) cards in their rest zone$/,
+    (g) => (q) => restCount(q.s, other(q.seat)) >= Number(g.n),
+  ],
+  [
+    /^if you have (?<n>\d+) or fewer cards in (?:your )?support$/,
+    (g) => (q) => q.s.players[q.seat].support.length <= Number(g.n),
+  ],
+  [
+    /^if (?:your )?opponent's main attacker is in the (?<pos>center|flank)$/,
+    (g) => (q) => {
+      const main = q.s.players[other(q.seat)].mainAttacker
+      return main !== null && isCenterSlot(main) === (g.pos === 'center')
+    },
+  ],
+  // Onslaught N+: your cards counted for attack this Engagement (the Main Attacker included).
+  [
+    /^onslaught (?<n>\d+)\+$/,
+    (g) => (q) =>
+      !!q.e &&
+      q.e.attacker === q.seat &&
+      (engagementSides(q.s, q.seat)?.attackers.length ?? 0) >= Number(g.n),
+  ],
+  // First Blood: the first card revealed this Engagement. Ambush: the opponent has passed.
+  [/^first blood$/, () => (q) => !!q.e && q.e.fs[0].length + q.e.fs[1].length === 0],
+  [/^ambush$/, () => (q) => !!q.e && q.e.passed[other(q.seat)]],
+]
+
+/** Keyword names before a colon whose rule the rest of the clause spells out. */
+const LABELS = [
+  new RegExp(`^kindred (?:return|maneuver|discount) \\(${W}\\)$`),
+  /^(?:field|fallen|echo) bond$/,
+  /^(?:attack|defense) (?:override|surge|unbound)$/,
 ]
 
 function readConds(text: string | undefined): Conds | null {
   const c: Conds = { tests: [], once: false, cost: 0 }
   if (!text) return c
-  for (const part of text.split(/, /)) {
+  for (const part of text.split(/: |, /)) {
+    if (LABELS.some((re) => re.test(part))) continue
     if (part === 'once per round') {
       c.once = true
       continue
@@ -197,8 +245,14 @@ function keep(
   return {
     body,
     read(g, c, b) {
-      if (b.mode !== 'support' || b.keep || actionOnly(c) || c.tests.length) return false
-      b.keep = when(g)
+      if (b.mode !== 'support' || b.keep || actionOnly(c)) return false
+      // Conditions before the colon, or after: "…after use if you have 3 or fewer cards in Support."
+      const tail = readConds(g.tail)
+      if (!tail) return false
+      const test = all({ ...c, tests: [...c.tests, ...tail.tests] })
+      const base = when(g)
+      b.keep = (d, ctx) =>
+        base(d, ctx) && test({ s: d as AsState, seat: ctx.owner, card: ctx.card, e: d.engagement })
       return true
     },
   }
@@ -238,7 +292,15 @@ const PHRASES: Phrase[] = [
     'flip a coin when revealed: heads \\+(?<h>\\d+) fs, tails \\+(?<t>\\d+) fs instead of (?:the |its )?printed value',
     (g, _c, b) => (b.rules.fsCoin = { heads: Number(g.h), tails: Number(g.t) }),
   ),
-  passive('\\+(?<n>\\d+) fs', (g, c, b) => b.fs.push({ test: all(c), n: Number(g.n) })),
+  // Only Battle Abilities change Fighting Spirit (Field, Flip and Inherent are A/D only).
+  {
+    body: '(?:an additional )?\\+(?<n>\\d+) fs',
+    read(g, c, b) {
+      if (actionOnly(c) || b.mode !== 'battle') return false
+      b.fs.push({ test: all(c), n: Number(g.n) })
+      return true
+    },
+  },
   // Stats while face up on the field.
   passive(
     '\\+(?<a>\\d+) (?<x>attack|defense)(?: and \\+(?<b>\\d+) (?<y>attack|defense))?',
@@ -273,7 +335,10 @@ const PHRASES: Phrase[] = [
   ),
   flag('this card cannot be rested to pay a cost', (r) => (r.unpayable = true)),
   // Actions.
-  action('attack unbound: non-adjacent cards are counted for attack', () => B.attackUnbound),
+  action(`non-adjacent (?:${W} )?cards are counted for (?<side>attack|defense)`, (g) =>
+    B.unboundFor(g.side as 'attack' | 'defense', g.w ? word(g.w) : null),
+  ),
+  action('target player rests a card from their support', () => B.playerRests),
   action('opponent rests a card from their support(?:, if able)?', (_g, b) =>
     b.mode === 'field' || b.mode === 'support'
       ? { ...B.opponentRests, can: (s, ctx) => s.players[other(ctx.owner)].support.length > 0 }
@@ -289,7 +354,9 @@ const PHRASES: Phrase[] = [
         ? may(g, B.decoy(!!g.ready))
         : b.mode === 'support'
           ? may(g, B.swapInSelf(!!g.ready, !!g.inherit))
-          : null,
+          : !g.inherit
+            ? may(g, B.selfSwap(!!g.ready))
+            : null,
   ),
   action("swap (?:the )?target opponent's card's position with another card on their field", () =>
     B.opponentPositionSwap(),
@@ -316,8 +383,8 @@ const PHRASES: Phrase[] = [
     'this card is included in your attacking group this round, regardless of its fate number(?: rank)?',
     () => B.joinAttackers,
   ),
-  action(`return an? ${W} card from your rest zone to your support`, (g) =>
-    B.returnFromRest(word(g.w)),
+  action(`(?:return|put) an? (?:${W} )?card from your rest zone (?:in)?to your support`, (g) =>
+    B.returnFromRest(g.w ? word(g.w) : null),
   ),
   action(
     "copy and use the field ability of a card on the opponent's field(?: \\(excluding abilities that themselves copy another ability\\))?",
@@ -328,7 +395,7 @@ const PHRASES: Phrase[] = [
   ),
   // Support cards that stay in Support.
   keep('reveal this card', always),
-  keep('this card (?:is not|does not need to be) rested after use', always),
+  keep('this card (?:is not|does not need to be) rested after use(?: (?<tail>if [^.¦]+))?', always),
   keep(
     `if an? ${W} card is in your rest zone, this card does not need to be rested after use`,
     (g) => (d, ctx) => archInRest(d, ctx.owner, g.w, ctx.card),
@@ -338,7 +405,7 @@ const PHRASES: Phrase[] = [
 /** Each phrase as a whole clause, with its conditions: "[conditions: ]phrase[.]". */
 const CLAUSES = PHRASES.map((p) => ({
   p,
-  re: new RegExp(`(?<=^|\\. |¦ ?)(?:(?<cond>[^:.¦]+): )?${p.body}\\.?`, 'g'),
+  re: new RegExp(`(?<=^|\\. |¦ ?)(?:(?<cond>[^:.¦]+(?:: [^:.¦]+)*): )?${p.body}\\.?`, 'g'),
 }))
 
 /** Lower case, symbols as words, one space, curly quotes straight, no ability label. */

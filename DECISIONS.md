@@ -628,3 +628,19 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
   - TFQ-39 Ghoulish Trickster and TFQ-30 Grave Reclaimer: "Swap the position of a [Ghoulish/Grave] card on your field (this card included) with another card on your field. To choose a face-down [Ghoulish/Grave] card, show it to your opponent; it stays face down."
   - With the v3.1 texts these three still read, but as printed: the Familiar can pay costs, and the Maneuver cards can't move themselves or a face-down card.
 - **Same play:** every card ability test passes unchanged with the rules the reader builds, so v3.2 plays exactly like v3.1 did with the per-card code.
+
+## Keywords from the design archive
+
+- **The owner's archive of cut and future cards** came with the old rulebook texts. The reader now knows the keywords those define:
+  - **Onslaught N+:** you attack and at least N of your cards count for attack, the Main Attacker included. The archive notes it was dropped from the Mutual Reveal rules because it depended on manual Attack actions. It still reads, since the count is well defined; its balance is the designer's call.
+  - **First Blood:** no card has been revealed as Fighting Spirit yet this Engagement. **Ambush:** the opponent has already passed this Engagement.
+  - **Kindred Strike (W)** and **Echo Bond:** you revealed a W card before this one this Engagement. A card's archetype check never counts itself, which matches how Strike already worked.
+  - **Kindred Return, Maneuver and Discount, Field and Fallen Bond, Attack and Defense Override, Surge and Unbound** are read as keyword names when the clause spells out their rule.
+  - **Overrides:** "Non-adjacent cards are counted for defense", and the archetype variant "Non-adjacent [W] cards are counted for attack", last for the round (`RoundFlags.unbound`).
+  - **Smaller phrases:** "Put a card from your rest zone into your Support" (any card), "Target player rests a card from their Support", a field card swapping itself with another field card, First Engagement, the opponent's rest-zone count, your Support count, and the opponent's Main Attacker in the Center or Flank.
+- **Only Battle Abilities give Fighting Spirit:** an "+N FS" clause on a Field, Flip, Inherent or Support card is left unread, as the rulebook says. The archive's Falconer Knight is the example.
+- **Support count includes the card itself** while it's still in Support ("if you have 3 or fewer cards in Support"), checked after the action, like the Discount.
+- **Not read yet, waiting on the owner:**
+  - Final Blow and "the last one revealed this Engagement": the archive marks Final Blow as reconstructed, and the last card is only known when the Engagement ends, after this card's value is set.
+  - "Reveal this card" with a keep clause on the same card (Whispering Bond, Dawnguard Gauntlet): under the TFQ-20 ruling the reveal already keeps the card, which would make the second clause do nothing.
+  - Lockouts, Bulwark, Hollow Presence, Sahuagin Reef-Strider's adjacent-defender check, and the Fear boss deck (Solo Mode, debuff tokens, X values).

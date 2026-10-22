@@ -45,6 +45,11 @@ export interface RoundFlags {
   used: string[]
   /** Cards that join the attackers whatever their Fate Number (Howling Barbarian). */
   extra: string[]
+  /**
+   * Other "non-adjacent cards are counted" abilities this round: for defense,
+   * or only for an archetype's cards (`word`).
+   */
+  unbound?: { side: 'attack' | 'defense'; word?: string }[]
 }
 
 export const newRound = (): RoundFlags => ({ attackUnbound: false, used: [], extra: [] })

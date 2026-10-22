@@ -58,6 +58,33 @@ describe('the card reader', () => {
     expect(readText('Flip', 'Rest 1: Opponent rests a card from their Support.').rules).toBeNull()
   })
 
+  it('gives Fighting Spirit only to Battle Abilities', () => {
+    // Falconer Knight's dead clause: Inherent Abilities never grant Fighting Spirit.
+    expect(
+      readText('Inherent', 'If a Falcon card is in your rest zone: +1 {fightingspirit_as}.').unread,
+    ).toEqual(['if a falcon card is in your rest zone: +1 fs'])
+    expect(readText('Battle', 'Initiative: +1 {fightingspirit_as}.').unread).toEqual([])
+  })
+
+  it('reads keyword names whose rule the clause spells out', () => {
+    for (const [type, text] of [
+      [
+        'Rest',
+        'Kindred Return (Unmade): If an Unmade card is also on your field: you may use this card for Fighting Spirit this Engagement. It gets +1 {fightingspirit_as}.',
+      ],
+      [
+        'Field',
+        'Kindred Maneuver (Unmade): Swap the position of an Unmade card on your field with another card on your field.',
+      ],
+      [
+        'Battle',
+        'Echo Bond: If another Whispering card was already revealed this Engagement: +1 {fightingspirit_as}.',
+      ],
+      ['Field', 'Attack Override, Rest 2: Non-adjacent cards are counted for attack.'],
+    ] as const)
+      expect(readText(type, text).unread, text).toEqual([])
+  })
+
   it('reads a card with no ability as nothing to do', () => {
     expect(readText('Field', '')).toEqual({ rules: {}, unread: [] })
   })
