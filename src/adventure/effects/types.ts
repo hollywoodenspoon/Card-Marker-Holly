@@ -82,6 +82,8 @@ export interface CardRules {
   unpayable?: boolean
   /** Copies other abilities, so it can't be copied itself. */
   copies?: boolean
+  /** Final Blow: +N Fighting Spirit when the Engagement ends, if this was the last card revealed. */
+  finalBlow?: number
 }
 
 export type D = Draft<AsState>

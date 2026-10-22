@@ -1,6 +1,7 @@
 import type { AsCard } from '../cards'
 import { other, type AsState, type Engagement, type Seat } from '../state'
 import * as B from './blocks'
+import { mirrored, neighbours } from '../board'
 import { archInRest, archOnField, faceUp, inArchetype, isCenterSlot, restCount } from './helpers'
 import type { Ability, CardRules, Ctx, D } from './types'
 
@@ -34,6 +35,8 @@ interface Conds {
   tests: Test[]
   once: boolean
   cost: number
+  /** Final Blow: the bonus waits for the end of the Engagement (Fighting Spirit only). */
+  final: boolean
 }
 
 const all =
@@ -130,18 +133,39 @@ const CONDITIONS: [RegExp, (g: Record<string, string>) => Test][] = [
   // First Blood: the first card revealed this Engagement. Ambush: the opponent has passed.
   [/^first blood$/, () => (q) => !!q.e && q.e.fs[0].length + q.e.fs[1].length === 0],
   [/^ambush$/, () => (q) => !!q.e && q.e.passed[other(q.seat)]],
+  // A defending card next to the attacked position (the Main Attacker's mirrored
+  // position), in the Center column.
+  [
+    /^if a defending card adjacent to the attacked position is in the center$/,
+    () => (q) => {
+      if (!q.e) return false
+      const main = q.s.players[q.e.attacker].mainAttacker
+      if (main === null) return false
+      const field = q.s.players[other(q.e.attacker)].field
+      return neighbours(mirrored(main)).some(
+        (i) => isCenterSlot(i) && !!field[i].card && field[i].state === 'defending',
+      )
+    },
+  ],
 ]
 
 /** Keyword names before a colon whose rule the rest of the clause spells out. */
 const LABELS = [/^(?:field|fallen|echo) bond$/, /^(?:attack|defense) (?:override|surge|unbound)$/]
 
 function readConds(text: string | undefined): Conds | null {
-  const c: Conds = { tests: [], once: false, cost: 0 }
+  const c: Conds = { tests: [], once: false, cost: 0, final: false }
   if (!text) return c
   for (const part of text.split(/: |, /)) {
     if (LABELS.some((re) => re.test(part))) continue
     if (part === 'once per round') {
       c.once = true
+      continue
+    }
+    if (
+      part === 'final blow' ||
+      part === 'if this card was the last one revealed this engagement'
+    ) {
+      c.final = true
       continue
     }
     const cost = /^rest (\d+)$/.exec(part)
@@ -168,7 +192,7 @@ interface Phrase {
 }
 
 /** Conditions that only make sense for an action ("Once per round", "Rest N"). */
-const actionOnly = (c: Conds) => c.once || c.cost > 0
+const actionOnly = (c: Conds) => c.once || c.cost > 0 || c.final
 
 /** A passive clause: no cost or once-per-round. */
 function passive(
@@ -203,7 +227,7 @@ function action(
   return {
     body,
     read(g, c, b) {
-      if (!b.mode || b.ability) return false
+      if (!b.mode || b.ability || c.final) return false
       // A cost or once-per-round only for abilities a player chooses to use.
       if (actionOnly(c) && b.mode !== 'field' && b.mode !== 'support') return false
       let ab = make(g, b)
@@ -279,7 +303,13 @@ const PHRASES: Phrase[] = [
   {
     body: '(?:an additional )?\\+(?<n>\\d+) fs',
     read(g, c, b) {
-      if (actionOnly(c) || b.mode !== 'battle') return false
+      if (c.once || c.cost > 0 || b.mode !== 'battle') return false
+      if (c.final) {
+        // Final Blow takes no other condition, and one bonus per card.
+        if (c.tests.length || b.rules.finalBlow) return false
+        b.rules.finalBlow = Number(g.n)
+        return true
+      }
       b.fs.push({ test: all(c), n: Number(g.n) })
       return true
     },
@@ -322,6 +352,14 @@ const PHRASES: Phrase[] = [
     B.unboundFor(g.side as 'attack' | 'defense', g.w ? word(g.w) : null),
   ),
   action('target player rests a card from their support', () => B.playerRests),
+  action(
+    "target opponent's card\\. turn it face down\\. it cannot attack, defend, or activate any ability for the rest of the round",
+    () => B.sealOpponent as Ability,
+  ),
+  action(
+    "target a card in (?:the )?opponent's rest zone\\. turn it face down\\. it cannot be used (?:(?<rest>for a rest ability)|(?<refill>to refill their field)) (?:for the rest of the game|during (?:the )?regroup phase)",
+    (g) => B.lockRestZone(g.rest ? 'rest' : 'refill') as Ability,
+  ),
   action('opponent rests a card from their support(?:, if able)?', (_g, b) =>
     b.mode === 'field' || b.mode === 'support'
       ? { ...B.opponentRests, can: (s, ctx) => s.players[other(ctx.owner)].support.length > 0 }

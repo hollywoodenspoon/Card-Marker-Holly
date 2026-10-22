@@ -86,6 +86,15 @@ Each card's rules are read from its printed ability (`Ability_AS`) and its type 
   - `defenseUnbound(s, seat)`
   - `runaway`: goes to Support instead of resting.
   - `unpayable`: can't pay a Rest cost.
+  - `finalBlow`: Final Blow's bonus. The Engagement records its last reveal (`engagement.last`), and the bonus is added when both players have passed, if that reveal is a Final Blow card (`finalBlow()` in `stats.ts`).
+
+Two locks live in the state:
+
+- **Sealed field cards:** `round.sealed`, set by Unmade Wretch. These are face down and ability-active, and `revealOptions` skips them but counts them as revealed for adjacency.
+- **Locked rest-zone cards:** `PlayerState.locked`, set by Kobold Grave-Robber and Kobold Trapsetter, as `{card, kind: 'rest' | 'refill'}`.
+  - A 'rest' lock is skipped by `restFsCards`. A 'refill' lock is skipped by `placePool` at Regroup.
+  - A locked card is hidden from archetype checks but counted by `restCount`. The table draws it face down.
+  - A lock ends when its card leaves the rest zone (checked after every move).
   - `copies`: can't be copied.
 
 An ability is `{name, optional?, can?, plan, apply, keep?}`.

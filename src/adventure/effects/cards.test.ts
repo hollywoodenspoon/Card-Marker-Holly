@@ -1,10 +1,22 @@
 import { produce } from 'immer'
 import { describe, expect, it } from 'vitest'
-import { apply, createGame, isLegal, legalMoves, responseMoves, type Move } from '../engine'
+import {
+  apply,
+  createGame,
+  isLegal,
+  legalMoves,
+  placePool,
+  responseMoves,
+  restFsCards,
+  revealOptions,
+  type Move,
+} from '../engine'
+import { ARCHIVE_SETS } from '../fixtures/archiveSets'
 import { FIRST_QUEST, FIRST_QUEST_DECKS, fq } from '../fixtures/firstQuest'
 import type { AsCard } from '../cards'
 import type { AsState, CardState, Seat } from '../state'
 import { engagementSides, engagementTotals, statsAt } from '../stats'
+import { archInRest, isLocked, restCount } from './helpers'
 import { unreadParts } from './registry'
 
 /** One player's side for a test board. Field cards are face up and Ready unless listed. */
@@ -97,6 +109,10 @@ const canUse = (s: AsState, seat: Seat, n: number) =>
 describe('every First Quest card has its rules', () => {
   it('reads all 45 from their printed text', () => {
     for (const c of FIRST_QUEST) expect(unreadParts(c), c.code).toEqual([])
+  })
+
+  it('reads all 39 cards of the archive sets', () => {
+    for (const c of ARCHIVE_SETS) expect(unreadParts(c), c.code).toEqual([])
   })
 })
 
@@ -788,5 +804,152 @@ describe('keywords from the design archive (new card texts)', () => {
     t = pick(use(t, 7), 1)
     expect(t.players[0].field[1].card).toBe(fq(7))
     expect(t.players[0].field[0].card).toBe(fq(9))
+  })
+})
+
+describe('the archive sets: Final Blow, locks, Reef-Strider, Breakthrough', () => {
+  const retext = (s: AsState, n: number, type: AsCard['type'], ability: string) =>
+    produce(s, (d) => {
+      d.cards[fq(n)] = { ...d.cards[fq(n)], type, ability }
+    })
+  /** Ann attacks from Front Line Left (attackers at 0, 1, 2); Bo defends at 0, 1, 2. */
+  const fight = (support0: number[]) =>
+    combat(
+      {
+        field: [7, 9, 11, 3, 4, 6],
+        states: { 0: 'attacking', 1: 'attacking', 2: 'attacking', 3: 'defending' },
+        main: 0,
+        support: support0,
+      },
+      {
+        field: [20, 21, 22, 23, 24, 30],
+        states: { 0: 'defending', 1: 'defending', 2: 'defending', 3: 'attacking' },
+      },
+      0,
+    )
+  const lastResult = (s: AsState) => s.results.at(-1)!
+
+  it('Final Blow: +1 when the Engagement ends, if it is still the last card revealed', () => {
+    const fb = (s: AsState) => retext(s, 2, 'Battle', 'Final Blow: +1 {fightingspirit_as}.')
+    // Ann reveals it, Bo passes, Ann passes: it was the last card.
+    let s = fsMove(fb(fight([2])), 2)
+    const before = engagementTotals(s, s.engagement!).attack
+    expect(s.log.at(-1)!.text).toMatch(/Final Blow \+1 if it stays the last card revealed/)
+    s = must(must(s, { t: 'pass' }), { t: 'pass' })
+    expect(s.log.some((l) => l.text.startsWith('Final Blow:'))).toBe(true)
+    expect(lastResult(s).attack).toBe(before + 1)
+    // Bo reveals after it: no bonus.
+    let t = fsMove(fb(fight([2])), 2)
+    const base = engagementTotals(t, t.engagement!).attack
+    t = fsMove(t, 18)
+    // Ann passes; Bo has no Support left, so the Engagement ends.
+    t = must(t, { t: 'pass' })
+    expect(t.log.some((l) => l.text.startsWith('Final Blow:'))).toBe(false)
+    expect(lastResult(t).attack).toBe(base)
+  })
+
+  it('Unmade Wretch: the card turns face down and ability-active, and cannot be revealed again', () => {
+    const text =
+      "Rest 2: Target opponent's card. Turn it face down. It cannot attack, defend, or activate any ability for the rest of the round."
+    let s = retext(
+      board({ field: [7], support: [5, 6, 8] }, { field: [2, 1, 3], down: [2, 5] }),
+      7,
+      'Field',
+      text,
+    )
+    s = use(s, 7)
+    s = pick(s, fq(5))
+    s = pick(s, fq(6))
+    // Crimson Duelist (TFQ-01) can't be the target of an opponent's Field Ability.
+    const options = (s.step as { options: { slot?: number }[] }).options.map((o) => o.slot)
+    expect(options).not.toContain(1)
+    s = pick(s, 0)
+    expect(s.players[1].field[0]).toMatchObject({ card: fq(2), faceUp: false, state: 'ability' })
+    expect(s.players[1].round.sealed).toEqual([fq(2)])
+    // Only the cards face down before can be revealed.
+    const revealable = revealOptions(s, 0, 1).flat()
+    expect(revealable).not.toContain(0)
+    expect(revealable).toContain(2)
+  })
+
+  it('Rest Zone Lockouts: no Rest Ability, no refill; counted, archetype hidden; freed on leaving', () => {
+    const lock = (kind: string) =>
+      `Rest 1: Target a card in opponent's rest zone. Turn it face down. It cannot be used ${kind}.`
+    // Bo has Ghoulish Assassin (Rest, needs a Ghoulish card on the field) resting.
+    let s = retext(
+      board({ field: [7], support: [5] }, { field: [39], rest: [32, 33] }),
+      7,
+      'Field',
+      lock('for a Rest Ability for the rest of the game'),
+    )
+    const withEngagement = (x: AsState) =>
+      produce(x, (d) => {
+        d.engagement = { attacker: 0, fs: [[], []], passed: [false, false], tried: [] }
+      })
+    expect(restFsCards(withEngagement(s), 1)).toContain(fq(32))
+    s = use(s, 7)
+    s = pick(s, fq(32))
+    expect(s.players[1].locked).toEqual([{ card: fq(32), kind: 'rest' }])
+    expect(restFsCards(withEngagement(s), 1)).not.toContain(fq(32))
+    // Still counted in the rest zone, but its archetype is hidden.
+    expect(restCount(s, 1)).toBe(2)
+    expect(archInRest(s, 1, 'Ghoulish', 'x')).toBe(true) // Ghoulish Mammoth still shows
+    expect(isLocked(s, 1, fq(32), 'rest')).toBe(true)
+    // Leaving the rest zone ends the lock.
+    const freed = apply(
+      produce(s, (d) => {
+        d.players[1].rest = [fq(33)]
+        d.players[1].support.push(fq(32))
+      }),
+      legalMoves(s)[0],
+    )
+    expect(freed.players[1].locked ?? []).toEqual([])
+    // Trapsetter: a locked card can't refill the field.
+    let t = retext(
+      board({ field: [7], support: [5] }, { rest: [32, 33] }),
+      7,
+      'Field',
+      lock('to refill their field during Regroup Phase'),
+    )
+    t = use(t, 7)
+    t = pick(t, fq(33))
+    const refill = produce(t, (d) => {
+      d.phase = 'regroup'
+      d.step = { k: 'place', seat: 1, from: 'rest', placed: [] }
+    })
+    expect(placePool(refill, 1)).toEqual([fq(32)])
+  })
+
+  it('Sahuagin Reef-Strider: a defender next to the attacked position, in the Center (defending side only)', () => {
+    const text =
+      'Defending Side, if a defending card adjacent to the attacked position is in the Center: +1 {fightingspirit_as}.'
+    // Ann's Main Attacker at 0 attacks Bo's 2; Bo's 1 (Center) defends next to it.
+    // Bo keeps a spare Support card, so the Engagement goes on after the reveal.
+    const spare = produce(fight([]), (d) => void d.players[1].support.push(fq(16)))
+    const s = must(retext(spare, 18, 'Battle', text), { t: 'pass' })
+    expect(lastFs(fsMove(s, 18), 1)?.value).toBe(2)
+    const noCenter = produce(s, (d) => void (d.players[1].field[1].state = 'attacking'))
+    expect(lastFs(fsMove(noCenter, 18), 1)?.value).toBe(1)
+    // A Center target: the Rear Guard Center below it counts.
+    const center = produce(s, (d) => {
+      d.players[0].mainAttacker = 1
+      d.players[1].field[4].state = 'defending'
+      d.players[1].field[1].state = 'defending'
+    })
+    expect(lastFs(fsMove(center, 18), 1)?.value).toBe(2)
+  })
+
+  it('Deepdelver Vanguard (Breakthrough): the attack turns Unbound when it is revealed', () => {
+    const s = retext(
+      fight([2]),
+      2,
+      'Battle',
+      'Attacking Side: Non-adjacent cards are counted for attack.',
+    )
+    expect(engagementSides(s, 0)!.attackers).toEqual([0, 1])
+    const before = engagementTotals(s, s.engagement!).attack
+    const t = fsMove(s, 2)
+    expect(engagementSides(t, 0)!.attackers).toEqual([0, 1, 2])
+    expect(engagementTotals(t, t.engagement!).attack).toBe(before + statsAt(t, 0, 2).a + 1)
   })
 })

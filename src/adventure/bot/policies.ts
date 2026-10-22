@@ -1,5 +1,5 @@
 import { nextInt } from '@/playtest/rng'
-import { fsPreview, legalMoves, type Move } from '../engine'
+import { fsPreview, legalMoves, placePool, type Move } from '../engine'
 import { other, type AsState, type Seat } from '../state'
 import { engagementTotals } from '../stats'
 
@@ -41,7 +41,7 @@ function placeMove(s: AsState, seat: Seat): Move {
   if (st.k !== 'place') return { t: 'done' }
   const p = s.players[seat]
   const empty = p.field.flatMap((f, i) => (f.card ? [] : [i]))
-  const pool = [...p[st.from]]
+  const pool = [...placePool(s, seat)]
   if (!empty.length || !pool.length) return { t: 'done' }
   const want = empty.length
   // At setup, the cards with the least Fighting Spirit go on the field.
