@@ -1,6 +1,7 @@
 import {
   ArrowLeft,
   CircleHelp,
+  Download,
   Eye,
   Film,
   Plus,
@@ -39,6 +40,7 @@ import { LogPanel } from './LogPanel'
 import { StartPanel } from './StartPanel'
 import { TableCanvas } from './TableCanvas'
 import { Tracker } from './Tracker'
+import { exportReplay } from './replayFile'
 import { usePack } from './packContext'
 import { ReplayBar } from './ReplayBar'
 import { keepReplay } from './replays'
@@ -78,6 +80,8 @@ export function GameView({
   // Hot-seat: the table is shown to one player at a time; hand it over when the other must act.
   const toAct = rules ? actor(rules) : null
   const bots = usePlaytest((s) => s.bots)
+  // A game resumed from before replays existed has no record of its start.
+  const hasStart = usePlaytest((s) => !!s.game)
   // Only when two people share the device (a bot needs no hand-over).
   const twoPeople = !bots[0] && !bots[1]
   const showing = usePlaytest((s) => !!s.playback)
@@ -117,6 +121,15 @@ export function GameView({
     usePlaytest.getState().leaveReplay()
     setPreview(null)
     setScreen(afterReplay)
+  }
+  /** Save the open rules game (finished or not) as a replay file. */
+  const exportThisGame = () => {
+    const { game, moves, bots: b } = usePlaytest.getState()
+    if (game)
+      exportReplay(
+        { game, moves: moves.flat(), bots: b, source: b.some(Boolean) ? 'bot' : 'play' },
+        pack.info.name,
+      )
   }
   const watchThisGame = async () => {
     await keepReplay()
@@ -258,6 +271,15 @@ export function GameView({
             <IconButton label="Game log" active={logOpen} onClick={() => setLogOpen((o) => !o)}>
               <ScrollText />
             </IconButton>
+            {!replay && rules && hasStart && (
+              <IconButton
+                label="Save this game as a replay file"
+                onClick={exportThisGame}
+                data-testid="game-export"
+              >
+                <Download />
+              </IconButton>
+            )}
             {!replay && (
               <IconButton label="Replays" onClick={() => setScreen({ k: 'replays' })}>
                 <Film />

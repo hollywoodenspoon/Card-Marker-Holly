@@ -50,6 +50,9 @@ export interface Replay {
   i: number
   playing: boolean
   title: string
+  /** The game watched, as its start and moves (to save it as a file). */
+  game: NewGame
+  moves: Move[]
   stash: Stash
 }
 
@@ -330,7 +333,16 @@ export const usePlaytest = create<PlaytestStore>((set, get) => ({
       s = f.at(-1)!
     })
     set({
-      replay: { frames, move, i: 0, playing: true, title, stash: cur.replay?.stash ?? stash },
+      replay: {
+        frames,
+        move,
+        i: 0,
+        playing: true,
+        title,
+        game,
+        moves,
+        stash: cur.replay?.stash ?? stash,
+      },
       setup,
       state: toTable(setup, frames[0]),
       rules: frames[0],

@@ -1,5 +1,5 @@
-import { ArrowLeft, Eye, Pin, PinOff, Trash2, Zap } from '@/ui/icons'
-import { useEffect, useState } from 'react'
+import { ArrowLeft, Download, Eye, Pin, PinOff, Trash2, Upload, Zap } from '@/ui/icons'
+import { useEffect, useRef, useState } from 'react'
 import { BOT_NAMES } from '@/adventure/bot'
 import {
   deleteReplay,
@@ -8,10 +8,14 @@ import {
   listRush,
   pinReplay,
   REPLAYS_KEPT,
+  saveReplay,
   type ReplayRow,
   type RushRow,
 } from '@/playtest/library'
+import { toast } from '@/ui/components/feedback'
 import { Button, IconButton } from '@/ui/components/ui/button'
+import { usePack } from './packContext'
+import { exportReplay, missingCards, readReplayFile } from './replayFile'
 import { rushTally } from './rushTally'
 
 const when = (t: number) =>
@@ -45,6 +49,23 @@ export function ReplaysView({
     }
   }, [packId, rev])
   const refresh = () => setRev((n) => n + 1)
+  const pack = usePack()
+  const fileInput = useRef<HTMLInputElement>(null)
+  const importFile = async (f: File) => {
+    try {
+      const row = readReplayFile(await f.text(), packId)
+      await saveReplay(row)
+      const missing = missingCards(row, pack.info.cards)
+      toast(
+        missing.length
+          ? `Replay imported. ${missing.length} of its cards aren't in this pack, so their pictures are missing.`
+          : 'Replay imported.',
+      )
+      refresh()
+    } catch (e) {
+      toast(e instanceof Error ? e.message : 'This replay file could not be read.')
+    }
+  }
   return (
     <div
       className="h-app pt-safe pb-safe fixed inset-0 z-40 flex flex-col bg-background"
@@ -57,13 +78,34 @@ export function ReplaysView({
         <IconButton label="Back" onClick={onClose}>
           <ArrowLeft />
         </IconButton>
-        <div className="text-sm font-semibold">Replays</div>
+        <div className="flex-1 text-sm font-semibold">Replays</div>
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={() => fileInput.current?.click()}
+          data-testid="replay-import"
+        >
+          <Upload /> Import replay
+        </Button>
+        <input
+          ref={fileInput}
+          type="file"
+          accept=".json,application/json"
+          className="hidden"
+          data-testid="replay-import-input"
+          onChange={(e) => {
+            const f = e.target.files?.[0]
+            e.target.value = ''
+            if (f) void importFile(f)
+          }}
+        />
       </header>
       <div className="min-h-0 flex-1 overflow-auto p-3">
         <div className="mx-auto flex max-w-2xl flex-col gap-3">
           <p className="text-xs text-muted-foreground">
             Rules games are kept when they end (or when you leave one after its first round). The
-            newest {REPLAYS_KEPT} are kept; pin a replay to keep it for good.
+            newest {REPLAYS_KEPT} are kept; pin a replay to keep it for good. Save a replay as a
+            file to share it, or to send it in when a game looks wrong.
           </p>
           {replays?.length === 0 && (
             <p className="rounded-xl border bg-panel p-4 text-sm text-muted-foreground">
@@ -94,6 +136,24 @@ export function ReplaysView({
                     onClick={() => void pinReplay(r.id, !r.pinned).then(refresh)}
                   >
                     {r.pinned ? <PinOff /> : <Pin />}
+                  </IconButton>
+                  <IconButton
+                    label="Save as a replay file"
+                    onClick={() =>
+                      exportReplay(
+                        {
+                          game: r.game,
+                          moves: r.moves,
+                          bots: r.bots,
+                          source: r.source,
+                          decks: r.decks,
+                        },
+                        pack.info.name,
+                      )
+                    }
+                    data-testid="replay-export"
+                  >
+                    <Download />
                   </IconButton>
                   <IconButton label="Delete" onClick={() => void deleteReplay(r.id).then(refresh)}>
                     <Trash2 />

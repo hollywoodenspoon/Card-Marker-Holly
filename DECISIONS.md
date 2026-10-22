@@ -646,3 +646,10 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
   - "Reveal this card" with a keep clause on the same card (Whispering Bond, Dawnguard Gauntlet): under the TFQ-20 ruling the reveal already keeps the card, which would make the second clause do nothing.
   - Lockouts, Sahuagin Reef-Strider's adjacent-defender check, and the Fear boss deck (Solo Mode, debuff tokens, X values).
 - **Cut by the owner:** Garrison Defender (Bulwark) and Hollow Presence. Neither keyword will be read.
+
+## Regroup refill and replay files
+
+- **The field always starts a round with 6 cards** (owner's ruling). Runaway Familiar dodges Regroup's resting of unused Support, so the rest zone can come up one card short. When the rest zone runs out before every empty position is filled, the rest are filled face down from Support, and the player chooses which cards. This replaces the v2 rulebook line "If your rest zone has fewer cards than you have empty positions, fill what you can." The rest-zone cards already placed stay where they are once the switch happens.
+- **Old replays:** a saved replay that hit the short refill used to end the refill early. Under this ruling, its recorded "done" is no longer legal, so it stops at that point. The saved engine fixtures use cards without abilities and aren't affected.
+- **A game checker** (`src/adventure/check.ts`) replays a game and reports rule problems: illegal moves, lost or doubled cards, a short field at the start of a round, and Fighting Spirit over 3. It runs on 200 First Quest bot games in the tests, which would have caught the short field.
+- **Replay files** (`.hsreplay.json`, kind `hearthside-replay`, version 1) hold a replay's start (every card's values included), its moves and its result, plus the app version and the pack name. Any replay, the replay being watched, and the open game (finished or not) can be saved as one. Import adds it to the open pack's replays. Pictures come from the open pack, and a note says when cards are missing from it.
