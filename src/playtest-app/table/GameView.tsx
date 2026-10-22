@@ -15,6 +15,7 @@ import { TableCanvas } from './TableCanvas'
 import { Tracker } from './Tracker'
 import { usePack } from './packContext'
 import { RulesBar } from './RulesBar'
+import { useBotDriver } from './useBotDriver'
 import { usePlaytest } from './usePlaytest'
 import { ZoneSheet } from './ZoneSheet'
 
@@ -45,7 +46,12 @@ export function GameView({
   const rules = usePlaytest((s) => s.rules)
   // Hot-seat: the table is shown to one player at a time; hand it over when the other must act.
   const toAct = rules ? actor(rules) : null
-  const handOver = rules && viewer !== null && toAct !== null && toAct !== viewer ? toAct : null
+  const bots = usePlaytest((s) => s.bots)
+  // Only when two people share the device (a bot needs no hand-over).
+  const twoPeople = !bots[0] && !bots[1]
+  const handOver =
+    rules && twoPeople && viewer !== null && toAct !== null && toAct !== viewer ? toAct : null
+  const driver = useBotDriver()
   const playing = !!setup && !!state && ownPack
   const [zone, setZone] = useState<string | null>(null)
   const [zoom, setZoom] = useState<string | null>(null)
@@ -208,7 +214,7 @@ export function GameView({
             )}
           </div>
           {rules ? (
-            <RulesBar onZoom={setZoom} />
+            <RulesBar onZoom={setZoom} botToAct={driver.botToAct} onBotStep={driver.step} />
           ) : (
             <>
               <ActionBar onZoom={setZoom} />

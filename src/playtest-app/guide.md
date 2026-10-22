@@ -19,6 +19,8 @@ A game pack holds every card's picture, the values of its fields (such as `A_AS`
    - **Free table**: you move every card yourself and nothing is checked.
    - **Rules on: two players, one device**: the app runs the rules and hides each player's cards until the device is handed over.
    - **Rules on: see both sides**: the app runs the rules and you play both players, seeing everything. Good for playtesting alone.
+   - **Rules on: you against the bot**: you play Player 1 and the bot plays Player 2. Pick its level: **Easy**, **Normal** or **Hard** (Hard thinks longer).
+   - **Rules on: watch bot against bot**: two bots play each other while you watch.
 3. Pick a **deck** for each player: one you built here (**Your decks**), or one from Hearthside Cardworks (**Decks in the pack**). **All cards** gives a player one of every card. A warning shows when a deck breaks a deck rule, or has a different number of cards than the game uses. With the rules on, both decks must be legal Free Companies.
 4. Press **Start**.
 
@@ -44,6 +46,18 @@ With **two players, one device**, a screen asks you to pass the device whenever 
 - The card zoom shows the ability text. A card whose code the rules engine doesn't know yet says so and plays with its stats.
 
 Undo works move by move, and the game log names every card that is revealed. A ⚑ in the log marks something the rules don't settle yet, such as a player left with no attacking card.
+
+## Playing against the bot
+
+The bot only knows what a player at the table would: your Support and face-down cards stay hidden from it. It does know which cards are in your Free Company (as if decklists were shown before the game), not where they are.
+
+- **Easy** plays any legal move.
+- **Normal** places and reveals by rules of thumb, and plays **Skirmish Tricks** and **Combat Tricks**:
+  - It times swaps, Maneuvers and locks for the coming combat. It works out from the Fate Numbers who will attack whom, tries each option against guesses of your hidden cards, and keeps an ability for later unless using it now clearly pays.
+  - In Combat, it uses rest-zone Fighting Spirit cards, weighs switching attackers and defenders, and spends Support freely in the round's last Engagement, since unused Support is rested anyway.
+- **Hard** plays the same Tricks. For Fighting Spirit and the First Engagement, it also plays the round out many times against guesses of your hidden cards and keeps the choice that goes best.
+
+While the bot is thinking, the bar says so. The speed menu sets how long each of its moves stays on screen, **Pause** stops it, and **Next move** then plays one move at a time. **Undo** against the bot goes back to your own last decision.
 
 ## Building decks
 
@@ -121,4 +135,4 @@ The **game log** lists everything that happened, such as "Spatial Witch: Attacki
 
 ## What's next
 
-A computer opponent, and games of bot against bot to watch, are planned next.
+For balance testing, `npm run as:sim` (in the project folder) plays many bot games without a screen and writes a report of win rates per deck and per card.

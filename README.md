@@ -7,6 +7,7 @@ A card editor built with React, TypeScript, Vite and a Konva canvas. It runs as 
 ```bash
 npm install            # install dependencies
 npm run dev            # website dev server at http://localhost:5173 (Playtest app: /playtest/)
+npm run as:sim         # Adventure Scuffle balance run: bot games and a Markdown report (options are listed at the top of scripts/as-sim.mjs)
 npm run build          # type-check and build the website to dist/
 npm test               # unit tests (Vitest)
 npm run lint           # ESLint
@@ -200,7 +201,7 @@ The gallery and the print preview use the card editor's controls: hold **Space**
 
 ### Playtest (separate app)
 
-Rail → _Playtest_ (or ☰ → _Playtest (export game pack)…_) exports a **game pack** (`.cmpack`): every card's picture (as printed), its field values by field name (text as text, icon rows as numbers, hidden layers included) and your decks. **Playtest now** (in a browser) opens it straight in **Hearthside Table**, a companion app at `playtest/` on the same site (installable, offline); **Save game pack** gives a file for any device or a friend. There you can **build decks** from the pack's whole card pool (Free Company rules checked: 12 different cards, at most one Ace marked `{ace}`; saved per pack, exportable as `.asdeck.json`), pick a table and a deck per player, and play by hand: drag or tap cards between fields, hands and piles, flip and turn them, place tokens, keep score, coin and dice, _View as_ a player for hot-seat play, undo, and a copyable game log. Games are saved per pack. Built in: an Adventure Scuffle! table and a simple board-game table. For Adventure Scuffle, **Rules on** runs the Mutual Reveal rules (hot-seat with hand-over, or both sides for solo playtesting); all 45 First Quest card abilities are applied, by card code. The rules engine is described in `docs/adventure-rules-engine.md`.
+Rail → _Playtest_ (or ☰ → _Playtest (export game pack)…_) exports a **game pack** (`.cmpack`): every card's picture (as printed), its field values by field name (text as text, icon rows as numbers, hidden layers included) and your decks. **Playtest now** (in a browser) opens it straight in **Hearthside Table**, a companion app at `playtest/` on the same site (installable, offline); **Save game pack** gives a file for any device or a friend. There you can **build decks** from the pack's whole card pool (Free Company rules checked: 12 different cards, at most one Ace marked `{ace}`; saved per pack, exportable as `.asdeck.json`), pick a table and a deck per player, and play by hand: drag or tap cards between fields, hands and piles, flip and turn them, place tokens, keep score, coin and dice, _View as_ a player for hot-seat play, undo, and a copyable game log. Games are saved per pack. Built in: an Adventure Scuffle! table and a simple board-game table. For Adventure Scuffle, **Rules on** runs the Mutual Reveal rules (hot-seat with hand-over, or both sides for solo playtesting); all 45 First Quest card abilities are applied, by card code. Play against an **Easy, Normal or Hard bot**, or watch bot against bot. The rules engine is described in `docs/adventure-rules-engine.md`.
 
 ### Tabletop Simulator
 

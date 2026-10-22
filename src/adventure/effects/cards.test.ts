@@ -22,7 +22,7 @@ interface Side {
 function board(a: Side, b: Side, opts: { initiative?: Seat; respond?: Seat } = {}): AsState {
   const s = createGame({
     cards: FIRST_QUEST,
-    decks: [FIRST_QUEST_DECKS.guild, FIRST_QUEST_DECKS.retinue],
+    decks: [FIRST_QUEST_DECKS["Adventurer's Guild"], FIRST_QUEST_DECKS["Hero's Retinue"]],
     names: ['Ann', 'Bo'],
     seed: 9,
   })
@@ -225,9 +225,10 @@ describe('Battle Abilities (Fighting Spirit at reveal)', () => {
     expect([...values].sort()).toEqual([0, 2])
   })
 
-  it('TFQ-40 Lucky Charm Bearer: exactly 3 in the rest zone +2', () => {
-    expect(lastFs(fsMove(fight(0, 0, [40], [], { rest: [2, 3, 5] }), 40), 0)?.value).toBe(3)
-    expect(lastFs(fsMove(fight(0, 0, [40], [], { rest: [2, 3, 5, 6] }), 40), 0)?.value).toBe(1)
+  it('TFQ-40 Lucky Charm Bearer: 2 or more in the rest zone +1', () => {
+    expect(lastFs(fsMove(fight(0, 0, [40], [], { rest: [2] }), 40), 0)?.value).toBe(1)
+    expect(lastFs(fsMove(fight(0, 0, [40], [], { rest: [2, 3] }), 40), 0)?.value).toBe(2)
+    expect(lastFs(fsMove(fight(0, 0, [40], [], { rest: [2, 3, 5, 6] }), 40), 0)?.value).toBe(2)
   })
 
   it('TFQ-15 Saboteur Guard: Attacking Side, the opponent rests a Support card', () => {
@@ -241,17 +242,17 @@ describe('Battle Abilities (Fighting Spirit at reveal)', () => {
     expect(s.players[1].support).toHaveLength(3)
   })
 
-  it('TFQ-04 Strategic Vanguard: Defending Side, Rest 1: switch an attacker and a defender, maybe the Main Attacker', () => {
+  it('TFQ-04 Strategic Vanguard: Defending Side: switch an attacker and a defender, maybe the Main Attacker', () => {
     // Bo attacks; Ann defends and reveals the Vanguard.
     let s = fsMove(fight(1, 0, [4, 8], []), 4)
     s = pick(s, 'use')
-    s = pick(s, fq(8)) // Rest 1: Spatial Witch pays.
     s = pick(s, 0) // Ann's Main Attacker (position 0) becomes a defender…
     s = pick(s, 3) // …and the defender at 3 attacks.
     const f = s.players[0].field
     expect(f[0].state).toBe('defending')
     expect(f[3].state).toBe('attacking')
-    expect(s.players[0].rest).toContain(fq(8))
+    // No cost: Spatial Witch stays in Support.
+    expect(s.players[0].support).toContain(fq(8))
     expect(s.players[0].mainAttacker).toBe(3)
     // Ann's attack (not fought yet) now targets the mirror of 3: position 5.
     expect(engagementSides(s, 0)!.target).toBe(5)
@@ -318,15 +319,17 @@ describe('Rest-zone Fighting Spirit (Rest Abilities)', () => {
     expect(restMoves(fight([35, 36], [7, 8, 9], [{ ...won[0], scorer: null }]))).toEqual([])
   })
 
-  it("TFQ-43 Gambler's Gambit: Second Engagement, a coin; Heads +2 FS, once per Engagement", () => {
+  it("TFQ-43 Gambler's Gambit: Second Engagement, a coin; Heads +2 FS, Tails keeps the turn; once per Engagement", () => {
     const done = [{ attacker: 1 as Seat, attack: 1, defense: 1, scorer: null }]
     const results = new Set<string>()
     for (let seed = 0; seed < 20; seed++) {
       let s = produce(fight([43], [7, 8, 9], done), (d) => void (d.seed = seed))
       s = fsMove(s, 43, 'rest')
-      results.add(lastFs(s, 0) ? `heads ${lastFs(s, 0)!.value}` : 'tails')
-      expect(s.step).toEqual({ k: 'fs', seat: 1 })
-      s = must(s, { t: 'pass' })
+      const heads = !!lastFs(s, 0)
+      results.add(heads ? `heads ${lastFs(s, 0)!.value}` : 'tails')
+      // Heads: the turn passes to Bo. Tails: Ann still takes her turn, without the Gambit.
+      expect(s.step).toEqual({ k: 'fs', seat: heads ? 1 : 0 })
+      if (heads) s = must(s, { t: 'pass' })
       expect(restMoves(s)).toEqual([])
     }
     expect([...results].sort()).toEqual(['heads 3', 'tails'])
@@ -353,11 +356,12 @@ describe('Field Abilities (responses)', () => {
     expect(canUse(board({ field: [7] }, {}), 0, 7)).toBe(false)
   })
 
-  it('TFQ-08 Spatial Witch: an opponent ready card swaps with a random Support card, which takes its state and face', () => {
+  it('TFQ-08 Spatial Witch: an opponent ready card swaps with a random Support card (state and face kept), and is rested', () => {
     let s = use(board({ field: [8] }, { field: [20, 21], down: [1], support: [5] }), 8)
     s = pick(s, 1)
     expect(s.players[1].field[1]).toEqual({ card: fq(5), faceUp: false, state: 'ready' })
-    expect(s.players[1].support).toEqual([fq(21)])
+    expect(s.players[1].support).toEqual([])
+    expect(s.players[1].rest).toEqual([fq(21)])
     // Ability-active cards can't be targeted (ready only).
     s = use(board({ field: [8] }, { field: [20, 21], states: { 0: 'ability' }, support: [5] }), 8)
     expect((s.step as { options: { slot?: number }[] }).options.map((o) => o.slot)).toEqual([1, 5])
@@ -424,10 +428,13 @@ describe('Field Abilities (responses)', () => {
 
   it('TFQ-30 Grave Reclaimer: Maneuver (Grave)', () => {
     let s = use(board({ field: [30, 26, 7] }, {}), 30)
+    s = pick(s, 1)
     s = pick(s, 2)
     expect(s.players[0].field.map((f) => f.card).slice(0, 3)).toEqual([fq(30), fq(7), fq(26)])
-    // No other face-up Grave card: it can't be used.
-    expect(canUse(board({ field: [30, 7] }, {}), 0, 30)).toBe(false)
+    // It may move itself: with no other Grave card, it swaps with any card.
+    s = use(board({ field: [30, 7] }, {}), 30)
+    s = pick(s, 1)
+    expect(s.players[0].field.map((f) => f.card).slice(0, 2)).toEqual([fq(7), fq(30)])
   })
 
   it('TFQ-31 Grave Keeper: Rest 1, an opponent ready card turns ability-active', () => {
@@ -454,21 +461,25 @@ describe('Field Abilities (responses)', () => {
 })
 
 describe('Support Abilities', () => {
-  it('TFQ-11 Mission Handler: two ready cards swap places; the Handler rests', () => {
+  it('TFQ-11 Mission Handler: once per round, two ready cards swap places; it stays in Support', () => {
     let s = use(board({ field: [2, 3], support: [11] }, {}), 11)
     s = pick(s, 0)
     s = pick(s, 1)
     expect(s.players[0].field[0].card).toBe(fq(3))
-    expect(s.players[0].rest).toEqual([fq(11)])
+    expect(s.players[0].rest).toEqual([])
+    expect(s.players[0].support).toEqual([fq(11)])
+    s = produce(s, (d) => void (d.step = { k: 'respond', seat: 0, final: false }))
+    expect(canUse(s, 0, 11)).toBe(false)
   })
 
-  it('TFQ-12 Hunter Dragoon: Rest 1, any opponent field card turns ability-active (a Crimson Duelist too)', () => {
+  it('TFQ-12 Hunter Dragoon: any opponent field card turns ability-active (a Crimson Duelist too), no cost', () => {
     let s = use(board({ support: [12, 2] }, { field: [1] }), 12)
     s = pick(s, 0)
     expect(s.players[1].field[0].state).toBe('ability')
-    expect([...s.players[0].rest].sort()).toEqual([fq(12), fq(2)].sort())
-    s = board({ support: [12] }, { field: [1] })
-    expect(canUse(s, 0, 12)).toBe(false)
+    expect(s.players[0].rest).toEqual([fq(12)])
+    expect(s.players[0].support).toEqual([fq(2)])
+    // Usable on its own (nothing to pay).
+    expect(canUse(board({ support: [12] }, { field: [1] }), 0, 12)).toBe(true)
   })
 
   it('TFQ-20 Rianz Sentinel: see a random opponent Support card; it stays in Support, once per round', () => {
@@ -480,12 +491,12 @@ describe('Support Abilities', () => {
     expect(canUse(s, 0, 20)).toBe(false)
   })
 
-  it('TFQ-21 Light Dragoon: Rest 1, takes the place (and state) of a field card, which goes to Support', () => {
+  it('TFQ-21 Light Dragoon: takes the place (and state) of a field card, which goes to Support; no cost', () => {
     let s = use(board({ field: [2, 3], states: { 1: 'ability' }, support: [21, 5] }, {}), 21)
     s = pick(s, 1)
     expect(s.players[0].field[1]).toEqual({ card: fq(21), faceUp: true, state: 'ability' })
-    expect(s.players[0].support).toEqual([fq(3)])
-    expect(s.players[0].rest).toEqual([fq(5)])
+    expect([...s.players[0].support].sort()).toEqual([fq(3), fq(5)].sort())
+    expect(s.players[0].rest).toEqual([])
   })
 
   it('TFQ-29 Grave Acolyte: returns a Grave card; Discount keeps it with another Grave card resting', () => {
@@ -568,11 +579,23 @@ describe('Flip Abilities', () => {
     expect(s.players[0].mainAttacker).toBe(0)
   })
 
-  it('TFQ-39 Ghoulish Trickster: Maneuver (Ghoulish)', () => {
+  it('TFQ-39 Ghoulish Trickster: Maneuver (Ghoulish), itself or a shown face-down Ghoulish card', () => {
     let s = reveal(39, { field: [null, 32, 7] }, {})
+    s = pick(s, 1)
     s = pick(s, 2)
     expect(s.players[0].field[1].card).toBe(fq(7))
     expect(s.players[0].field[2].card).toBe(fq(32))
+    // Alone, it moves itself.
+    s = reveal(39, { field: [null, 7] }, {})
+    s = pick(s, 1)
+    expect(s.players[0].field[0].card).toBe(fq(7))
+    expect(s.players[0].field[1]).toMatchObject({ card: fq(39), faceUp: true })
+    // A face-down Ghoulish card is shown to prove it, and stays face down.
+    s = reveal(39, { field: [null, 7, 32], down: [2] }, {})
+    s = pick(s, 2)
+    s = pick(s, 1)
+    expect(s.players[0].field[1]).toMatchObject({ card: fq(32), faceUp: false })
+    expect(s.log.some((l) => /shows the face-down Ghoulish Assassin/.test(l.text))).toBe(true)
   })
 
   it('TFQ-45 Wildcard Wanderer: swap a field card with a Support card (Ready)', () => {

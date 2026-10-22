@@ -483,4 +483,63 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 - **Tests:**
   - One test per card or group of cards (`effects/cards.test.ts`).
   - The First Quest cards as test data (`fixtures/firstQuest.ts`).
-  - 200 random-move games over four legal decks, which check that every game ends and no card is lost or duplicated (`selfplay.test.ts`).
+  - 200 random-move games over the three premade decks and a Bonus Card test mix, which check that every game ends and no card is lost or duplicated (`selfplay.test.ts`).
+
+## Maneuver (Ghoulish Trickster, Grave Reclaimer)
+
+- **A Maneuver card may move itself:** it is a card of its own archetype (owner's ruling). This is an exception to "never counts itself".
+- **A face-down card of the archetype may be the one moved.** Its owner shows it to the opponent to prove the archetype, and it stays face down. The game log names it, so both players know it.
+- **The point** is to set up the field to look like one attack, then move the likely Main Attacker (the lowest Fate Ready card) to hit the opponent's weakest position. The bots don't plan this yet, so their numbers undervalue these cards.
+
+## Hearthside Table: bots and balance runs
+
+- **Three levels in `src/adventure/bot/`**, all choosing from `legalMoves`:
+  - **Easy:** a random legal move.
+  - **Normal:** rules of thumb for placing and revealing (`policies.ts`), plus **Skirmish and Combat Tricks** (`tricks.ts`) for every ability response and choice, owner's terms.
+    - Each option is tried on 3 guesses of the hidden cards (the same guesses for every option), with the bot's next own choice tried too.
+    - The board after it is scored by `evaluate`: points so far, plus the expected points of this round's Engagements. Those are predicted from the Attack/Defense Assignment the engine will make (`projectAssignment`), the Attack and Defense on each side, and each side's Fighting Spirit left.
+    - **Timing:** before the final response, an ability is used only when it beats passing by at least 0.12 expected points. Otherwise it is kept for later, when more of the board is known.
+    - **Fighting Spirit:** free rest-zone cards first. In the round's last Engagement, Support is spent while it can still change the result, since unused Support is rested at Regroup. A tie is taken when the opponent has locked their total.
+    - Normal beat the plain rules of thumb in 63–65% of 120 games, at about 0.3 s a game.
+  - **Hard:** the same Tricks for abilities and choices. For Fighting Spirit and the First Engagement it uses determinized Monte Carlo: for each candidate move (at most 8, pass always among them) it guesses the hidden cards, plays to the end of the round with quick rules of thumb on both sides, and scores the points gained, a win, and the Support kept. The number of playouts is its strength: 96 by default in the app.
+- **Fair play:**
+  - The bots read only what their seat may know, plus the options of the choice they are making.
+  - A test checks that Easy and Normal pick the same move however the opponent's hidden cards are arranged.
+  - Hard guesses by shuffling the opponent's hidden cards. That assumes open decklists: the bot knows which 12 cards the opponent's Free Company holds, not where they are.
+- **In the app:**
+  - The bot runs in a Web Worker. Its moves wait for the chosen speed (slow 1.6 s, normal 0.75 s, fast 0.12 s), so they can be followed.
+  - Pause, and step one move at a time.
+  - Against the bot you play Player 1. You see your side, and there is no hand-over screen.
+  - Undo goes back past the bot's moves to your own last decision.
+  - Bot against bot shows everything.
+  - Taps on the table do nothing while it is the bot's turn.
+  - The bot levels are saved with the game.
+- **Balance runs** (`npm run as:sim`, `scripts/as-sim.mjs`) load the rules through Vite in Node.
+  - Without `--pack`, they play The First Quest's three premade decks (the Bonus Cards aren't a Free Company of their own). With `--pack`, they play every legal deck in a game pack.
+  - Every pairing is played in turn, and seats swap on alternate games.
+  - The Markdown report has:
+    - win rates per deck, deck against deck, and per bot level
+    - per card: the win rate of the decks it was in, Fighting Spirit reveals and ability uses per game
+    - how often the player with the first initiative won
+    - any game that broke a rule check (a refused move, or a card lost or doubled)
+
+## The First Quest v3 (balance)
+
+- **Changes:** the owner approved all of them, after the tier review with the smarter bots (300 random decks, 8,000 games per version, Skirmish and Combat Tricks).
+  - **Fighting Spirit:**
+    - Runaway Familiar 2 → 1 (the strongest card in every version, at about +8 points)
+    - Haughty Knight 3 → 2 (A in every version, and the most picked)
+    - Grave Whisperer 1 → 2 (C in every version)
+  - **Costs:**
+    - "Rest 1" is dropped from Hunter Dragoon (D in every version, about −9), Strategic Vanguard and Light Dragoon.
+    - Mission Handler is now once per round and stays in Support after use.
+  - **Effects:**
+    - Spatial Witch rests the card it swaps out (Azure Assassin is unchanged).
+    - Lucky Charm Bearer: "2 or more cards in your rest zone: +1 FS" (it was "exactly 3: +2", which held about 9% of the time).
+    - Gambler's Gambit: on Tails, the player still takes their Fighting Spirit turn.
+- **Before v3,** the premade decks were already close with the smarter bots: Retinue 56%, Guild 50%, Necromancer 44%. The old bots had made Necromancer look dominant. So the Retinue got no buffs, and Necromancer cards no nerfs.
+- **Where the changes live:**
+  - The test data (`fixtures/firstQuest.ts`) holds the v3 values and texts.
+  - The engine rules for the changed abilities are in `effects/cards.ts`.
+  - The Gambit's Tails is handled in `engine.ts`.
+  - The v3 CSV for Hearthside Cardworks is made from the v2 one, changing only these cards.

@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { FIRST_QUEST, FIRST_QUEST_DECKS } from './fixtures/firstQuest'
+import { FIRST_QUEST, TEST_DECKS } from './fixtures/firstQuest'
 import { randomGame } from './fixtures/randomGame'
 
 describe('First Quest self-play', () => {
-  const decks = Object.values(FIRST_QUEST_DECKS)
-  it('has four legal decks', () => {
+  const decks = Object.values(TEST_DECKS)
+  it('has legal test decks', () => {
     for (const d of decks) {
       expect(d).toHaveLength(12)
       expect(new Set(d).size).toBe(12)

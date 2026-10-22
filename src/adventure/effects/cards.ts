@@ -149,7 +149,11 @@ const ownSwapIn: Ability<[number, string]> = {
   },
 }
 
-/** Maneuver: swap the position of a [word] card on your field with another card on your field. */
+/**
+ * Maneuver: swap the position of a [word] card on your field with another card
+ * on your field. The card may move itself (owner's ruling). A face-down [word]
+ * card may be chosen by showing it to the opponent; it stays face down.
+ */
 function maneuver(word: string): Ability<[number, number]> {
   return {
     name: `Swap a ${word} card with another of your field cards`,
@@ -160,9 +164,10 @@ function maneuver(word: string): Ability<[number, number]> {
         io.pick(
           own,
           `Choose a ${word} card on your field.`,
-          faceUp(io.s, own)
-            .filter((x) => x.card !== io.ctx.card && nameHas(io.s, x.card, word))
-            .map((x) => slotOption(io.s, own, x.slot, own)),
+          field
+            .map((_, i) => i)
+            .filter((i) => field[i].card && nameHas(io.s, field[i].card!, word))
+            .map((i) => slotOption(io.s, own, i, own)),
         ),
       )
       const b = slotFromId(
@@ -178,9 +183,16 @@ function maneuver(word: string): Ability<[number, number]> {
       return [a, b]
     },
     apply(d, ctx, [a, b]) {
+      const p = d.players[ctx.owner]
+      const moved = p.field[a]
+      if (!moved.faceUp)
+        log(
+          d,
+          `${p.name} shows the face-down ${cardName(d, moved.card)} at ${slotName(a)}, a ${word} card; it stays face down.`,
+        )
       log(
         d,
-        `${cardName(d, ctx.card)}: ${d.players[ctx.owner].name}'s ${slotName(a)} and ${slotName(b)} cards swap places.`,
+        `${cardName(d, ctx.card)}: ${p.name}'s ${slotName(a)} and ${slotName(b)} cards swap places.`,
       )
       swapSlots(d, { seat: ctx.owner, slot: a }, { seat: ctx.owner, slot: b })
     },
@@ -277,15 +289,14 @@ export const CARD_RULES: Record<string, CardRules> = {
   'TFQ-03': {
     fs: (s, seat, e, v) => v + (initiative(s, seat) ? 1 : 0) + (e.attacker !== seat ? 1 : 0),
   },
-  // Strategic Vanguard: Defending Side, Rest 1: one attacker becomes a defender and one defender an attacker.
+  // Strategic Vanguard: Defending Side: one attacker becomes a defender and one defender an attacker.
   'TFQ-04': {
     battle: {
-      name: 'Rest 1: switch an attacker and a defender',
+      name: 'Switch an attacker and a defender',
       optional: true,
       can: (s, ctx) => !!s.engagement && s.engagement.attacker !== ctx.owner,
       plan(io) {
         const own = io.ctx.owner
-        const pay = restCost(io, 1)
         const field = io.s.players[own].field
         const with_ = (state: string) =>
           field
@@ -298,11 +309,10 @@ export const CARD_RULES: Record<string, CardRules> = {
         const def = slotFromId(
           io.pick(own, 'Choose a defender to become an attacker.', with_('defending')),
         )
-        return { pay, atk, def }
+        return { atk, def }
       },
-      apply(d, ctx, { pay, atk, def }) {
+      apply(d, ctx, { atk, def }) {
         const p = d.players[ctx.owner]
-        payCost(d, ctx, pay)
         p.field[atk].state = 'defending'
         p.field[def].state = 'attacking'
         log(
@@ -314,7 +324,7 @@ export const CARD_RULES: Record<string, CardRules> = {
           log(d, `${cardName(d, p.field[def].card)} is ${p.name}'s new Main Attacker.`)
         }
       },
-    } satisfies Ability<{ pay: string[]; atk: number; def: number }>,
+    } satisfies Ability<{ atk: number; def: number }>,
   },
   // Decoy Ninja: No-Initiative: swap with a ready card on your field (that card becomes the Fighting Spirit).
   'TFQ-05': {
@@ -364,15 +374,32 @@ export const CARD_RULES: Record<string, CardRules> = {
     field: { ...opponentRests, can: (s, ctx) => s.players[other(ctx.owner)].support.length > 0 },
   },
   // Spatial Witch: Field: swap target opponent's ready card with a random Support card.
-  'TFQ-08': { field: opponentSwapOut },
+  // Spatial Witch: Field: swap target opponent's ready card with a random Support card; the swapped-out card is rested.
+  'TFQ-08': {
+    field: {
+      ...opponentSwapOut,
+      name: "Swap an opponent's ready card with a random Support card (it is rested)",
+      apply(d, ctx, slot) {
+        const opp = other(ctx.owner)
+        const old = d.players[opp].field[slot].card
+        opponentSwapOut.apply(d, ctx, slot)
+        if (old && d.players[opp].support.includes(old)) {
+          log(d, `${cardName(d, ctx.card)}: the card swapped out is rested.`)
+          rest(d, opp, old)
+        }
+      },
+    } satisfies Ability<number>,
+  },
   // Guild Quarter Master: Field: swap a field card with a Support card (placed Ready).
   'TFQ-09': { field: ownSwapIn },
   // Haughty Knight: Flip: swap target opponent's card's position with another of theirs.
   'TFQ-10': { flip: opponentPositionSwap() },
-  // Mission Handler: Support: swap two ready cards on your field.
+  // Mission Handler: Support, once per round: swap two ready cards on your field; it isn't rested.
   'TFQ-11': {
     support: {
       name: 'Swap two ready cards on your field',
+      can: (s, ctx) => !s.players[ctx.owner].round.used.includes(ctx.card),
+      keep: () => true,
       plan(io) {
         const own = io.ctx.owner
         const field = io.s.players[own].field
@@ -391,11 +418,12 @@ export const CARD_RULES: Record<string, CardRules> = {
           `${cardName(d, ctx.card)}: ${d.players[ctx.owner].name}'s ${slotName(a)} and ${slotName(b)} cards swap places.`,
         )
         swapSlots(d, { seat: ctx.owner, slot: a }, { seat: ctx.owner, slot: b })
+        d.players[ctx.owner].round.used.push(ctx.card)
       },
     } satisfies Ability<[number, number]>,
   },
-  // Hunter Dragoon: Support, Rest 1: an opponent's field card turns ability-active.
-  'TFQ-12': { support: lockOpponent(1, false) },
+  // Hunter Dragoon: Support: an opponent's field card turns ability-active.
+  'TFQ-12': { support: lockOpponent(0, false) },
   // Hero of Rianz {ace}: Field: Attack Unbound this round.
   'TFQ-13': {
     field: {
@@ -449,13 +477,12 @@ export const CARD_RULES: Record<string, CardRules> = {
       keep: () => true,
     },
   },
-  // Light Dragoon: Support, Rest 1: takes the place of a field card (and its state); that card goes to Support.
+  // Light Dragoon: Support: takes the place of a field card (and its state); that card goes to Support.
   'TFQ-21': {
     support: {
-      name: 'Rest 1: take the place of a card on your field',
+      name: 'Take the place of a card on your field',
       plan(io) {
         const own = io.ctx.owner
-        const pay = restCost(io, 1)
         const field = io.s.players[own].field
         const slot = slotFromId(
           io.pick(
@@ -467,10 +494,9 @@ export const CARD_RULES: Record<string, CardRules> = {
               .map((i) => slotOption(io.s, own, i, own)),
           ),
         )
-        return { pay, slot }
+        return { slot }
       },
-      apply(d, ctx, { pay, slot }) {
-        payCost(d, ctx, pay)
+      apply(d, ctx, { slot }) {
         log(
           d,
           `${cardName(d, ctx.card)} takes the place of the card at ${slotName(slot)}, which goes to Support.`,
@@ -478,7 +504,7 @@ export const CARD_RULES: Record<string, CardRules> = {
         swapIn(d, ctx.owner, slot, ctx.card, false)
       },
       keep: () => true,
-    } satisfies Ability<{ pay: string[]; slot: number }>,
+    } satisfies Ability<{ slot: number }>,
   },
   // Ranger of the Tower: can't be repositioned by an opponent's ability.
   'TFQ-22': { fixed: true },
@@ -571,15 +597,15 @@ export const CARD_RULES: Record<string, CardRules> = {
   'TFQ-38': { fsCoin: { heads: 2, tails: 0 } },
   // Ghoulish Trickster: Flip, Maneuver (Ghoulish).
   'TFQ-39': { flip: maneuver('Ghoulish') },
-  // Lucky Charm Bearer: exactly 3 cards in your rest zone: +2 FS.
-  'TFQ-40': { fs: (s, seat, _e, v) => v + (restCount(s, seat) === 3 ? 2 : 0) },
+  // Lucky Charm Bearer: 2 or more cards in your rest zone: +1 FS.
+  'TFQ-40': { fs: (s, seat, _e, v) => v + (restCount(s, seat) >= 2 ? 1 : 0) },
   // Runaway Familiar: whenever it would be rested, it goes to your Support instead.
   'TFQ-41': { runaway: true },
   // Backwards Blade: 2+ Rest Zone: its A and D are swapped.
   'TFQ-42': {
     stat: (s, seat, _slot, v) => (restCount(s, seat) >= 2 ? { a: v.d, d: v.a } : v),
   },
-  // Gambler's Gambit: Second Engagement: a coin; Heads: Fighting Spirit from the rest zone, +2 FS.
+  // Gambler's Gambit: Second Engagement: a coin; Heads: Fighting Spirit from the rest zone, +2 FS; Tails: the turn goes on.
   'TFQ-43': { restFs: restFs((s) => secondEngagement(s), 2, true) },
   // Doppelganger Thief: Field, Rest 2: copy and use the Field Ability of a face-up opponent card.
   'TFQ-44': { copies: true, field: copyAbility() },

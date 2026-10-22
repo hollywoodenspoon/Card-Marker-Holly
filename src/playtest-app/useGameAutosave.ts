@@ -11,7 +11,16 @@ export function useGameAutosave(packId: string | null) {
     if (!packId) return
     let timer: ReturnType<typeof setTimeout> | undefined
     const save = () => {
-      const { setup, state, past, packId: owner, rules, rulesPast, viewer } = usePlaytest.getState()
+      const {
+        setup,
+        state,
+        past,
+        packId: owner,
+        rules,
+        rulesPast,
+        viewer,
+        bots,
+      } = usePlaytest.getState()
       const db = playtestDb()
       if (owner !== packId) return
       if (!setup || !state) return void db.games.delete(packId)
@@ -20,7 +29,9 @@ export function useGameAutosave(packId: string | null) {
         setup,
         state,
         past: rules ? [] : past.slice(-SAVED_HISTORY),
-        ...(rules && { rules: { state: rules, past: rulesPast.slice(-SAVED_HISTORY), viewer } }),
+        ...(rules && {
+          rules: { state: rules, past: rulesPast.slice(-SAVED_HISTORY), viewer, bots },
+        }),
         savedAt: Date.now(),
       })
     }

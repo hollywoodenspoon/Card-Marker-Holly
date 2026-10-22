@@ -1,5 +1,6 @@
 import { MoreHorizontal } from '@/ui/icons'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { actor } from '@/adventure/engine'
 import { other } from '@/adventure/state'
 import { statsAt } from '@/adventure/stats'
 import { pieceId } from '@/adventure/table'
@@ -61,7 +62,11 @@ export function TableCanvas({ onOpenZone }: { onOpenZone: (key: string) => void 
   const picks = usePlaytest((s) => s.picks)
   const tapRules = usePlaytest((s) => s.tapRules)
   // With the rules on: what the player to act may tap.
-  const hint = useMemo(() => (rules ? ruleHints(rules, picks) : null), [rules, picks])
+  const bots = usePlaytest((s) => s.bots)
+  const hint = useMemo(() => {
+    const a = rules ? actor(rules) : null
+    return rules && !(a !== null && bots[a]) ? ruleHints(rules, picks) : null
+  }, [rules, picks, bots])
   const pickedIds = useMemo(() => {
     const st = rules?.step
     if (!rules || st?.k !== 'reveal') return new Set<string>()
