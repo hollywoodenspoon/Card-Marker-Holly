@@ -251,7 +251,7 @@ Rail → **Data** (or ☰ → _Card data_) shows every card as a spreadsheet-sty
 
 ## Licence
 
-Proprietary. Copyright © 2026 Hanielle Marie N. Armas, all rights reserved: see [LICENSE](LICENSE). That covers the code, the apps' names and the Adventure Scuffle! game content (cards, rules, art). Third-party parts keep their own licences, listed in `public/THIRD_PARTY_NOTICES.txt`; run `npm run notices` after changing dependencies (a test checks it's up to date).
+Proprietary. The code and the apps' names: copyright © 2026 Hanielle Marie N. Armas, all rights reserved. The Adventure Scuffle! game content (cards, rules, art) belongs to Village Wizard, © 2026, all rights reserved. See [LICENSE](LICENSE). Third-party parts keep their own licences, listed in `public/THIRD_PARTY_NOTICES.txt`; run `npm run notices` after changing dependencies (a test checks it's up to date).
 
 ## Credits
 

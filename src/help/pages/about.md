@@ -6,7 +6,9 @@ The version you're using is shown at the bottom of the ☰ menu and on the Home 
 
 ## Licence
 
-Copyright © 2026 Hanielle Marie N. Armas. All rights reserved. Hearthside Cardworks, Hearthside Table and the Adventure Scuffle! game content are proprietary: they may not be copied, changed, shared or sold without the owner's written permission.
+Hearthside Cardworks and Hearthside Table: copyright © 2026 Hanielle Marie N. Armas. All rights reserved. They are proprietary: they may not be copied, changed, shared or sold without the owner's written permission.
+
+Adventure Scuffle! and its cards, rules and art are the property of Village Wizard, © 2026, all rights reserved.
 
 The icons, fonts and open-source libraries the app uses keep their own licences. They are listed in **THIRD_PARTY_NOTICES.txt**, which comes with the app: next to the program in the desktop app's resources folder, and at the site's address in the browser.
 
