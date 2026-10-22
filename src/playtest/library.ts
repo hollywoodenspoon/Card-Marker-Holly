@@ -1,6 +1,7 @@
 import Dexie, { type EntityTable } from 'dexie'
 import type { BotLevel } from '@/adventure/bot'
 import type { Move, NewGame } from '@/adventure/engine'
+import type { LabResult } from '@/adventure/lab/run'
 import type { AsState, Seat } from '@/adventure/state'
 import type { Tournament } from '@/adventure/tournament/tournament'
 import { readPack, type PackInfo } from './pack'
@@ -126,6 +127,18 @@ export interface TournamentRow {
   t: Tournament
 }
 
+/** A Balance lab run, with its Markdown report. */
+export interface SimRow {
+  id: string
+  packId: string
+  savedAt: number
+  result: LabResult
+  report: string
+}
+
+/** Balance lab runs kept per pack. */
+export const SIMS_KEPT = 10
+
 export interface SetupRow {
   id: string
   setup: GameSetup
@@ -140,6 +153,7 @@ export class PlaytestDB extends Dexie {
   rush!: EntityTable<RushRow, 'id'>
   cardValues!: EntityTable<CardValuesRow, 'key'>
   tournaments!: EntityTable<TournamentRow, 'id'>
+  sims!: EntityTable<SimRow, 'id'>
 
   constructor(name = 'card-maker-playtest') {
     super(name)
@@ -148,6 +162,7 @@ export class PlaytestDB extends Dexie {
     this.version(3).stores({ replays: 'id, packId, savedAt', rush: 'id, packId, savedAt' })
     this.version(4).stores({ cardValues: 'key, packId' })
     this.version(5).stores({ tournaments: 'id, packId, updatedAt' })
+    this.version(6).stores({ sims: 'id, packId, savedAt' })
   }
 }
 
@@ -221,6 +236,21 @@ export async function saveRush(row: RushRow, db = playtestDb()): Promise<void> {
 }
 
 export const deleteRush = (id: string, db = playtestDb()) => db.rush.delete(id)
+
+/** Balance lab runs of a pack, newest first. */
+export async function listSims(packId: string, db = playtestDb()): Promise<SimRow[]> {
+  const rows = await db.sims.where('packId').equals(packId).toArray()
+  return rows.sort((a, b) => b.savedAt - a.savedAt)
+}
+
+/** Keep a Balance lab run, then drop the oldest beyond `SIMS_KEPT`. */
+export async function saveSim(row: SimRow, db = playtestDb()): Promise<void> {
+  await db.sims.put(row)
+  const extra = (await listSims(row.packId, db)).slice(SIMS_KEPT)
+  if (extra.length) await db.sims.bulkDelete(extra.map((r) => r.id))
+}
+
+export const deleteSim = (id: string, db = playtestDb()) => db.sims.delete(id)
 
 /** A pack's tournaments, newest change first. */
 export async function listTournaments(packId: string, db = playtestDb()): Promise<TournamentRow[]> {

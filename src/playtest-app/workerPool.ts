@@ -1,5 +1,10 @@
-/** Workers to use for a batch: all but one core, at most 4. */
-export const poolSize = () => Math.max(1, Math.min(4, (navigator.hardwareConcurrency || 2) - 1))
+import { desktop } from '@/platform/desktop'
+
+/** The computer's threads, less one for the app itself. */
+export const maxThreads = () => Math.max(1, (navigator.hardwareConcurrency || 2) - 1)
+
+/** Workers to use for a batch: all but one core, at most 4 (the Balance lab may ask for more). */
+export const poolSize = () => Math.min(4, maxThreads())
 
 /**
  * Run jobs on a pool of workers (made by `make`, so Vite can bundle each
@@ -12,12 +17,15 @@ export async function runJobs<R>(
   key: string,
   onDone?: (done: number) => void,
   stopped?: () => boolean,
+  threads = poolSize(),
 ): Promise<R[]> {
-  const n = Math.min(poolSize(), jobs.length)
+  const n = Math.max(1, Math.min(threads, maxThreads(), jobs.length))
   const out: R[] = new Array(jobs.length)
   let nextJob = 0
   let done = 0
   const workers = Array.from({ length: n }, make)
+  // The desktop app keeps the computer awake while a batch runs.
+  void desktop()?.keepAwake?.(true)
   try {
     await Promise.all(
       workers.map(
@@ -40,6 +48,7 @@ export async function runJobs<R>(
     )
   } finally {
     workers.forEach((w) => w.terminate())
+    void desktop()?.keepAwake?.(false)
   }
   return out
 }

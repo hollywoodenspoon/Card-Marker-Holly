@@ -667,3 +667,21 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 
 - **"Who plays: Bots only"** in tournament setup hides the person row and fills every seat with bots. All-bot tournaments were already possible by filling with bots alone; this makes it a clear choice.
 - **Play to the end:** in a tournament where every entrant is a bot, one button plays each round in turn (the same worker pool as "Settle bot matches"), saving after every round, until there's a winner. "Stop after this round" halts it between rounds.
+
+## Hearthside Table in the desktop app
+
+- **Its own window** (owner's choice): ☰ → Open Hearthside Table, Playtest now and the dialog's Playtest app link open `app://cardmaker/playtest/` in a second window, or bring it up and load the pack. Web links still go to the browser; anything else is refused. Closing the editor closes the table, and the app quits.
+- **It shares the editor's storage** (same `app://` origin), so Playtest now hands a pack straight over. A browser's packs stay in that browser.
+- **Long runs:** the table window doesn't slow down in the background, and while bot workers run the app holds a `prevent-app-suspension` power blocker (released when the run ends or the window closes).
+- **Fixed along the way:** the desktop build didn't define `__APP_BUILD__` (the app wouldn't start), and `app://` served the editor for a folder such as `playtest/`. Both came after 0.1.0-alpha.3, so no release had them.
+
+## Balance lab
+
+- **The First Quest is the core set and the balance priority.** It will be printed and sold, probably early next year. It isn't frozen, but it is balanced first and most carefully, and every later set is balanced with it in mind, so nothing breaks a core-set deck.
+- **The goal is a decent play rate, not perfect balance:** every card has a deck where it's worth a slot, no card is a must-play in nearly every strong deck, and no card is so weak nobody plays it.
+- **No deck picking** (owner's call): coverage decks deal every card in turn from shuffled copies of the pool, so each appears about equally often, and stay legal. The budget splits about 60/25/15 between the card league, the constructed check and the premade matrix (70/30 without two legal premades). The core view gets 40% of each of the first two stages, and the full pool 60%.
+- **Values** are the league's logistic fit (as for the auto-builder), now with its seat term, so a pair's wins above prediction can be measured. **Tiers** go by rank: 10% S, 20% A, 40% B, 20% C, 10% D.
+- **Picked rate:** 40 Optimal decks, each built from a random two-thirds of the pool with noise of half the values' spread. A card's rate is its picks out of the builds it could have joined.
+- **Flags:** only outliers about two standard errors clear of the mean count. Too strong: 2.5 spreads above the mean, or 1.5 above it and picked into 85% or more of builds. Too weak: the same from below, with a 5% pick rate. Power creep: a new card above the core set's 90th percentile, and half a spread above the core card closest to it (same type, nearest stats). Pairs: at least 3 league decks and 30 games, winning 10 points or more above what their values predict.
+- **Suggestions are ranked:** core set first, then what breaks the game once the new sets arrive (power creep, too strong, core-and-new combos, an Optimal deck winning 70% or more), then the rest. For a core-and-new combo, the option is to change the new card.
+- **The rules checker** runs on 1 game in 50. Results keep the last 10 runs per pack (Dexie version 6, `sims`). A `.hssim.json` file (kind `hearthside-sim`, version 1) holds the options, the results and the Markdown report.
