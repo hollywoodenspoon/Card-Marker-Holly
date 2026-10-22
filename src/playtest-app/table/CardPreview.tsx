@@ -1,6 +1,6 @@
 import { Maximize2, X } from '@/ui/icons'
 import { abilityText } from '@/adventure/cards'
-import { implemented } from '@/adventure/effects/registry'
+import { implemented, unreadParts } from '@/adventure/effects/registry'
 import { statsAt } from '@/adventure/stats'
 import { parsePieceId } from '@/adventure/table'
 import { cn } from '@/lib/cn'
@@ -81,9 +81,10 @@ export function CardPreview({
       {card.ability && (
         <p className="min-h-0 overflow-auto text-xs leading-snug" data-testid="preview-ability">
           {abilityText(card.ability)}
-          {!implemented(card.code) && (
+          {!implemented(card) && (
             <span className="block text-amber-600 dark:text-amber-400">
-              Not in the rules engine yet: it plays with its stats.
+              The rules engine can't read “{unreadParts(card).join('”, “')}”: it plays with its
+              stats.
             </span>
           )}
         </p>

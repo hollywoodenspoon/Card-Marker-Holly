@@ -47,7 +47,7 @@ With **two players, one device**, a screen asks you to pass the device whenever 
 - **Battle Abilities** happen when the card is revealed as Fighting Spirit. The Fighting Spirit buttons show what each card would add now. Rest-zone cards whose condition is met are listed too.
 - **Choices**, such as a target or a card to rest, are asked in the bar. The cards you can pick glow, so you can tap one on the table instead. When there is only one possible choice, it is made for you.
 - A field card whose Attack or Defense is changed by an ability shows its current values in a small badge.
-- The card zoom shows the ability text. A card whose code the rules engine doesn't know yet says so and plays with its stats.
+- The card zoom shows the ability text. The rules engine reads each ability from that text. If it can't read part of it, the zoom quotes the words it couldn't read, and the card plays with its stats. `docs/card-text-phrases.md` lists the phrases it knows.
 
 ### Following the game
 

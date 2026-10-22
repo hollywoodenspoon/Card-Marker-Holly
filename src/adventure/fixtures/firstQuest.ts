@@ -1,7 +1,7 @@
 import { archetypeList, type AsCard } from '../cards'
 
 /**
- * The First Quest (v3): the owner's 45 cards as Hearthside Cardworks
+ * The First Quest (v3.2): the owner's 45 cards as Hearthside Cardworks
  * exports them, for the card ability tests. Card id = code in lower case.
  */
 const row = (
@@ -367,7 +367,7 @@ export const FIRST_QUEST: AsCard[] = [
     2,
     460,
     'Necromancer Deck',
-    'Swap the position of a Grave card on your field with another card on your field.',
+    'Swap the position of a Grave card on your field (this card included) with another card on your field. To choose a face-down Grave card, show it to your opponent; it stays face down.',
     'Grave',
   ),
   row(
@@ -471,7 +471,7 @@ export const FIRST_QUEST: AsCard[] = [
     2,
     486,
     'Bonus Cards',
-    'Flip Ability: Swap the position of a Ghoulish card on your field with another card on your field.',
+    'Flip Ability: Swap the position of a Ghoulish card on your field (this card included) with another card on your field. To choose a face-down Ghoulish card, show it to your opponent; it stays face down.',
     'Ghoulish',
   ),
   row(
@@ -494,7 +494,7 @@ export const FIRST_QUEST: AsCard[] = [
     1,
     280,
     'Bonus Cards',
-    'Whenever this card would be rested, it goes to your Support instead.',
+    'Whenever this card would be rested, it goes to your Support instead. This card cannot be rested to pay a cost.',
   ),
   row(
     'TFQ-42',

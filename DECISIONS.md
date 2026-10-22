@@ -449,7 +449,7 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
   - TFQ-08 Spatial Witch and TFQ-16 Azure Assassin: "ready card".
   - TFQ-11 Mission Handler: the +1 A is dropped.
   - TFQ-29 Grave Acolyte: "Return a Grave card from your rest zone to your Support" with its Discount.
-- **Abilities are code, registered by `Code_AS`** in `src/adventure/effects/cards.ts`. They use the keyword helpers in `effects/helpers.ts`, never the printed text. A card whose code isn't registered plays with its stats, and the card zoom says so.
+- **Abilities were first code, registered by `Code_AS`.** Since v3.2 they are read from the card text instead (see "Effects from the card text" below).
 - **An ability declares its parts:**
   - an Inherent `stat`
   - a Battle `fs` value
@@ -540,7 +540,7 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 - **Before v3,** the premade decks were already close with the smarter bots: Retinue 56%, Guild 50%, Necromancer 44%. The old bots had made Necromancer look dominant. So the Retinue got no buffs, and Necromancer cards no nerfs.
 - **Where the changes live:**
   - The test data (`fixtures/firstQuest.ts`) holds the v3 values and texts.
-  - The engine rules for the changed abilities are in `effects/cards.ts`.
+  - The engine rules for the changed abilities came from `effects/cards.ts`, which the card reader has since replaced.
   - The Gambit's Tails is handled in `engine.ts`.
   - The v3 CSV for Hearthside Cardworks is made from the v2 one, changing only these cards.
 
@@ -609,3 +609,40 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
   - Every game's seed comes from the tournament seed, the match and the game number, so a result can be reproduced.
 - **Watching:** as with the roadmap's spectating, any played game can be watched afterwards with the replay player and its speed controls. Tournament games are kept in the tournament, not in the Replays list, so a big event doesn't push your own replays out. Your own games are also kept as normal replays.
 - **Saving:** each tournament is saved in the `tournaments` table (Dexie version 5) after every change.
+
+## Effects from the card text (v3.2)
+
+- **No Effect_AS field.** The owner asked why a card needs a hidden effect field when `Ability_AS` already says what it does. The rules engine now reads every ability from `Ability_AS` and `Type_AS` (`src/adventure/effects/reader.ts`). There is no per-card code and no code lookup.
+- **How it reads:** each clause is `[Conditions: ]Phrase.`, matched against a closed list of phrases and conditions. Archetype words, numbers and conditions combine freely, so a new card written with the known phrases plays without a code change. `docs/card-text-phrases.md` lists them and doubles as the writing guide.
+- **The card type decides how an action is used:** Field, Support, Flip or Battle. Inherent and Rest cards have no action. A card has at most one action.
+- **A card the reader can't fully read plays with its stats only.** It isn't blocked, so a half-written set still plays. The deck builder lists it with the other card problems, and the card zoom and preview quote the words it couldn't read.
+- **General reading rules, from the owner's answers:**
+  - "Swap this card's position with a card on your field" from Support: each card goes where the other was (TFQ-21 Light Dragoon).
+  - The same swap from a Fighting Spirit card: the field card takes its place as the Fighting Spirit (TFQ-05 Decoy Ninja).
+  - "Reveal this card": the card stays in Support (TFQ-20 Rianz Sentinel).
+  - Being swapped off the field counts as being repositioned (TFQ-22 Ranger of the Tower).
+  - Swapping an attacker and a defender: they change roles, and the combat rules work out the new Main Attacker and the totals (TFQ-04 Strategic Vanguard).
+  - A copied Field Ability is used as the copier's own, with its own costs and choices (TFQ-44 Doppelganger Thief).
+- **The First Quest v3.2** rewords three cards so their text says everything the engine did:
+  - TFQ-41 Runaway Familiar adds "This card cannot be rested to pay a cost."
+  - TFQ-39 Ghoulish Trickster and TFQ-30 Grave Reclaimer: "Swap the position of a [Ghoulish/Grave] card on your field (this card included) with another card on your field. To choose a face-down [Ghoulish/Grave] card, show it to your opponent; it stays face down."
+  - With the v3.1 texts these three still read, but as printed: the Familiar can pay costs, and the Maneuver cards can't move themselves or a face-down card.
+- **Same play:** every card ability test passes unchanged with the rules the reader builds, so v3.2 plays exactly like v3.1 did with the per-card code.
+
+## Keywords from the design archive
+
+- **The owner's archive of cut and future cards** came with the old rulebook texts. The reader now knows the keywords those define:
+  - **First Blood:** no card has been revealed as Fighting Spirit yet this Engagement. **Ambush:** the opponent has already passed this Engagement.
+  - **Echo Bond:** you revealed a W card before this one this Engagement. A card's archetype check never counts itself, which matches how the First Quest's "a Ghoulish card was revealed" already worked.
+  - **Field and Fallen Bond, Attack and Defense Override, Surge and Unbound** are read as keyword names when the clause spells out their rule.
+  - **The Kindred names are not read** (owner's ruling). The owner retired the word Kindred and its types (Strike, Return, Maneuver, Discount). Their effects live on as plain text on the archetype cards, which the reader already knows. A card still worded with Kindred gets the can't-read warning, so it's reworded.
+  - **Overrides:** "Non-adjacent cards are counted for defense", and the archetype variant "Non-adjacent [W] cards are counted for attack", last for the round (`RoundFlags.unbound`).
+  - **Smaller phrases:** "Put a card from your rest zone into your Support" (any card), "Target player rests a card from their Support", a field card swapping itself with another field card, First Engagement, the opponent's rest-zone count, your Support count, and the opponent's Main Attacker in the Center or Flank.
+- **Only Battle Abilities give Fighting Spirit:** an "+N FS" clause on a Field, Flip, Inherent or Support card is left unread, as the rulebook says. The archive's Falconer Knight is the example.
+- **Support count includes the card itself** while it's still in Support ("if you have 3 or fewer cards in Support"), checked after the action, like the Discount.
+- **Onslaught is not read** (owner's call). Its rule counts "your own cards (including itself)" that are attacking, but its bonus is Fighting Spirit, which only a card revealed from Support gets, and such a card is never on the field. The archive's Onslaught cards play on their stats with the usual warning until they're redesigned.
+- **Not read yet, waiting on the owner:**
+  - Final Blow and "the last one revealed this Engagement": the archive marks Final Blow as reconstructed, and the last card is only known when the Engagement ends, after this card's value is set.
+  - "Reveal this card" with a keep clause on the same card (Whispering Bond, Dawnguard Gauntlet): under the TFQ-20 ruling the reveal already keeps the card, which would make the second clause do nothing.
+  - Lockouts, Sahuagin Reef-Strider's adjacent-defender check, and the Fear boss deck (Solo Mode, debuff tokens, X values).
+- **Cut by the owner:** Garrison Defender (Bulwark) and Hollow Presence. Neither keyword will be read.

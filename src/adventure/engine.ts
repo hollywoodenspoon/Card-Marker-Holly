@@ -209,7 +209,7 @@ export function fsPreview(s: AsState, seat: Seat, card: string, from?: 'rest'): 
   const printed = fightingSpirit(s, seat, card)
   if (from === 'rest') return r?.restFs?.coin ? null : printed + (r?.restFs?.bonus ?? 0)
   if (r?.fsCoin) return null
-  return r?.fs && s.engagement ? r.fs(s, seat, s.engagement, printed) : printed
+  return r?.fs && s.engagement ? r.fs(s, seat, s.engagement, printed, card) : printed
 }
 
 /** The ability a response move would use, for its button. */
@@ -541,7 +541,7 @@ function play(d: D, m: Move) {
           const heads = coin(d)
           value = heads ? r.fsCoin.heads : r.fsCoin.tails
           log(d, `${cardName(d, m.card)}: coin flip, ${heads ? 'Heads' : 'Tails'}.`)
-        } else value = r?.fs ? r.fs(d, seat, e, printed) : printed
+        } else value = r?.fs ? r.fs(d, seat, e, printed, m.card) : printed
         p.support.splice(p.support.indexOf(m.card), 1)
         e.fs[seat].push({ card: m.card, value, from: 'support' })
         p.spent.push(m.card)

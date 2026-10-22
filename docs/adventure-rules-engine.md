@@ -14,7 +14,7 @@ The Mutual Reveal rules as code, in `src/adventure/`. It is plain TypeScript wit
 | `stats.ts`   | Card values and Engagement totals                                                                  |
 | `observe.ts` | `observeAs`: the game as one player may know it                                                    |
 | `table.ts`   | `toTable`: draws a game on the Hearthside Table setup                                              |
-| `effects/`   | Card abilities: `types.ts`, `helpers.ts` (keywords), `cards.ts` (by code), `registry.ts`           |
+| `effects/`   | Card abilities: `reader.ts` (reads the text), `blocks.ts`, `helpers.ts` (keywords), `registry.ts`  |
 | `fixtures/`  | Test cards (basic and The First Quest), random games, saved scripted games (JSON)                  |
 
 ## The field
@@ -75,16 +75,17 @@ Neighbours are orthogonal only. The mirrored position is the same row and the op
 
 ## Card abilities
 
-Each card's rules live in `effects/cards.ts` under its code (`Code_AS`). A card without an entry plays with its printed stats. An entry may have:
+Each card's rules are read from its printed ability (`Ability_AS`) and its type (`Type_AS`) by `effects/reader.ts`. There is no per-card code. The reader matches the text clause by clause against a list of phrases and conditions (`docs/card-text-phrases.md`), and builds the rules from the abilities in `effects/blocks.ts`. A card with any clause it can't read plays with its printed stats, and `unreadParts(card)` in `registry.ts` gives the words. A port should carry the phrase list over, not the cards. The rules may have:
 
 - `stat(s, seat, slot, {a, d})`: Inherent A/D changes while face up on the field.
-- `fs(s, seat, engagement, printed)`: the Fighting Spirit value at reveal. `fsCoin` sets it by a coin instead.
+- `fs(s, seat, engagement, printed, card)`: the Fighting Spirit value at reveal. `fsCoin` sets it by a coin instead.
 - `field`, `support`, `flip` and `battle`: abilities (below). `restFs`: Fighting Spirit from the rest zone, with a condition, a bonus and an optional coin.
 - Flags:
   - `fieldProof`: not a target of opponent Field Abilities.
   - `fixed`: not moved by opponent abilities.
   - `defenseUnbound(s, seat)`
   - `runaway`: goes to Support instead of resting.
+  - `unpayable`: can't pay a Rest cost.
   - `copies`: can't be copied.
 
 An ability is `{name, optional?, can?, plan, apply, keep?}`.
@@ -99,6 +100,8 @@ An ability is `{name, optional?, can?, plan, apply, keep?}`.
 - An ability is offered only if `can` holds and a trial `plan`, taking the first option of every choice, completes.
 
 Rest costs (`restCost`) pick Support cards one at a time. Cards already promised to a cost in the same plan (`io.reserved`) are excluded, so a copied ability that has its own cost can't pay twice with one card. Resting always goes through `rest()`, which sends a Runaway Familiar to Support instead.
+
+The reader wraps actions for their conditions: `withCost` ("Rest N:"), `oncePerRound` and `when` (conditions such as "Defending Side:").
 
 ## Hidden information
 

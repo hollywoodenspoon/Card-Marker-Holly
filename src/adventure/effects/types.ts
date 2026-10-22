@@ -2,9 +2,9 @@ import type { Draft } from 'immer'
 import type { AsState, Engagement, Seat } from '../state'
 
 /**
- * What a card's ability can do, as data and small functions. Each card is
- * registered by its code (`Code_AS`) in `cards.ts`; the engine asks the
- * registry, never a card's printed text.
+ * What a card's ability can do, as data and small functions. The reader
+ * (`reader.ts`) builds them from each card's printed ability text; the engine
+ * asks the registry for them.
  */
 
 /** Who is using an ability, with which card, and how. */
@@ -61,7 +61,7 @@ export interface CardRules {
   /** Inherent A/D changes while face up on the field. */
   stat?(s: AsState, seat: Seat, slot: number, v: { a: number; d: number }): { a: number; d: number }
   /** Fighting Spirit when revealed (Battle conditions), from the printed value. */
-  fs?(s: AsState, seat: Seat, e: Engagement, printed: number): number
+  fs?(s: AsState, seat: Seat, e: Engagement, printed: number, card: string): number
   /** Coin-Toss Bravo: Fighting Spirit by a coin instead of the printed value. */
   fsCoin?: { heads: number; tails: number }
   field?: Ability
@@ -78,6 +78,8 @@ export interface CardRules {
   defenseUnbound?(s: AsState, seat: Seat): boolean
   /** Goes to Support instead whenever it would be rested. */
   runaway?: boolean
+  /** Can't be rested to pay a cost. */
+  unpayable?: boolean
   /** Copies other abilities, so it can't be copied itself. */
   copies?: boolean
 }

@@ -1,4 +1,5 @@
 import { mirrored, neighbours } from './board'
+import { inArchetype } from './effects/helpers'
 import { rulesOf } from './effects/registry'
 import { other, type AsState, type Engagement, type Seat } from './state'
 
@@ -52,8 +53,23 @@ export function engagementSides(s: AsState, attacker: Seat): EngagementSides | n
   const theirs = s.players[def].field
   const target = mirrored(main)
   const all = [0, 1, 2, 3, 4, 5]
-  const atkSlots = s.players[attacker].round.attackUnbound ? all : [main, ...neighbours(main)]
-  const defSlots = defenseUnbound(s, def) ? all : [target, ...neighbours(target)]
+  /** Slots a round's "non-adjacent cards are counted" ability adds for one side. */
+  const unbound = (seat: Seat, side: 'attack' | 'defense') => {
+    const field = s.players[seat].field
+    const list = (s.players[seat].round.unbound ?? []).filter((u) => u.side === side)
+    if (list.some((u) => !u.word)) return all
+    return all.filter((i) => {
+      const card = field[i].card
+      return card && list.some((u) => inArchetype(s, card, u.word!))
+    })
+  }
+  const near = (slot: number) => [slot, ...neighbours(slot)]
+  const atkSlots = s.players[attacker].round.attackUnbound
+    ? all
+    : [...new Set([...near(main), ...unbound(attacker, 'attack')])]
+  const defSlots = defenseUnbound(s, def)
+    ? all
+    : [...new Set([...near(target), ...unbound(def, 'defense')])]
   const attackers = atkSlots.filter((i) => own[i].card && own[i].state === 'attacking')
   if (!attackers.includes(main)) attackers.push(main)
   const defenders = defSlots.filter((i) => theirs[i].card && theirs[i].state === 'defending')
