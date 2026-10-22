@@ -1,4 +1,4 @@
-import { Layers, Play, TriangleAlert } from '@/ui/icons'
+import { Film, Layers, Play, TriangleAlert, Zap } from '@/ui/icons'
 import { useEffect, useMemo, useState } from 'react'
 import { BOT_LEVELS, BOT_NAMES, type BotLevel } from '@/adventure/bot'
 import { checkDeck } from '@/adventure/deck'
@@ -7,9 +7,10 @@ import { randomSeed } from '@/playtest/rng'
 import { presets, validateSetup, type GameSetup } from '@/playtest/setup'
 import { deckCards } from '@/playtest/state'
 import { Button } from '@/ui/components/ui/button'
-import { Label, NativeSelect } from '@/ui/components/ui/input'
+import { Input, Label, NativeSelect } from '@/ui/components/ui/input'
 import { useDeckCards } from '../decks/useDeckCards'
 import { usePack } from './packContext'
+import type { RushRun } from './rushTally'
 import { usePlaytest, type Bots } from './usePlaytest'
 
 const ALL = '__all'
@@ -17,7 +18,7 @@ const SAVED = 'saved:'
 const KEY = 'cardmaker.playtest'
 
 const AS_SETUP = 'preset:adventure-scuffle'
-type Mode = 'free' | 'hotseat' | 'open' | 'bot' | 'botbot'
+type Mode = 'free' | 'hotseat' | 'open' | 'bot' | 'botbot' | 'rush'
 
 /** Last setup and decks, per device (only a convenience). */
 function remembered(): {
@@ -41,7 +42,16 @@ function remember(v: { setupId: string; decks: string[]; mode: Mode; levels: Bot
 }
 
 /** Pick a game setup and a deck for each player, then start. */
-export function StartPanel({ onDecks }: { onDecks: () => void }) {
+export function StartPanel({
+  onDecks,
+  onReplays,
+  onRush,
+}: {
+  onDecks: () => void
+  onReplays: () => void
+  /** Rush: many bot games with nothing drawn, in their own screen. */
+  onRush: (run: RushRun) => void
+}) {
   const pack = usePack()
   const { info } = pack
   const deckCardsInfo = useDeckCards()
@@ -112,7 +122,8 @@ export function StartPanel({ onDecks }: { onDecks: () => void }) {
   const [mode, setMode] = useState<Mode>(last.mode ?? 'free')
   const [levels, setLevels] = useState<BotLevel[]>(last.levels ?? ['normal', 'normal'])
   // Against the bot you are Player 1; the bot plays Player 2.
-  const botSeats = mode === 'bot' ? [1] : mode === 'botbot' ? [0, 1] : []
+  const botSeats = mode === 'bot' ? [1] : mode === 'botbot' || mode === 'rush' ? [0, 1] : []
+  const [games, setGames] = useState(50)
   const bots = [0, 1].map((i) => (botSeats.includes(i) ? (levels[i] ?? 'normal') : null)) as Bots
   const ruled = canRule && mode !== 'free'
   const ids = (i: number) => cardsFor(chosen[i])?.map((c) => c.cardId) ?? []
@@ -126,6 +137,23 @@ export function StartPanel({ onDecks }: { onDecks: () => void }) {
     const picks = setup.seats.map((_, i) => chosen[i])
     remember({ setupId: setup.id, decks: chosen, mode, levels })
     const pt = usePlaytest.getState()
+    if (ruled && mode === 'rush') {
+      const deckName = (i: number) =>
+        savedDeck(chosen[i])?.name ?? decks.find((d) => d.id === chosen[i])?.name ?? 'All cards'
+      const names = [deckName(0), deckName(1)]
+      // The same deck on both sides still needs two names to tell them apart.
+      if (names[0] === names[1]) names[1] = `${names[1]} (2)`
+      return onRush({
+        packId: pack.id,
+        cards: deckCardsInfo.cards,
+        decks: [
+          { name: names[0], cards: ids(0) },
+          { name: names[1], cards: ids(1) },
+        ],
+        levels: [levels[0] ?? 'normal', levels[1] ?? 'normal'],
+        games: Math.max(1, Math.min(500, games)),
+      })
+    }
     if (ruled)
       pt.startRules(
         pack.id,
@@ -184,6 +212,7 @@ export function StartPanel({ onDecks }: { onDecks: () => void }) {
               <option value="open">Rules on: see both sides (playtest alone)</option>
               <option value="bot">Rules on: you against the bot</option>
               <option value="botbot">Rules on: watch bot against bot</option>
+              <option value="rush">Rush: many bot games, results and replays</option>
             </NativeSelect>
             <p className="text-xs text-muted-foreground">
               {mode === 'free'
@@ -194,12 +223,14 @@ export function StartPanel({ onDecks }: { onDecks: () => void }) {
                     ? 'The app runs the Mutual Reveal rules and you play both players, seeing everything. Card abilities are applied as the cards say.'
                     : mode === 'bot'
                       ? `You play ${setup.seats[0].name}; the bot plays ${setup.seats[1].name}. It only knows what a player would.`
-                      : 'Two bots play each other while you watch, with speed controls. Good for seeing how decks play.'}
+                      : mode === 'rush'
+                        ? "Bots play many games as fast as the device allows, with nothing drawn: you get each deck's win rate, and can watch any match as a replay. Decks swap seats every other game and keep their bot level."
+                        : 'Two bots play each other while you watch, with speed controls. Good for seeing how decks play.'}
             </p>
             {botSeats.map((i) => (
               <div key={i} className="flex items-center gap-2">
                 <Label htmlFor={`pt-bot-${i}`} className="w-28 shrink-0">
-                  {setup.seats[i].name}'s bot
+                  {mode === 'rush' ? `Deck ${i + 1}'s bot` : `${setup.seats[i].name}'s bot`}
                 </Label>
                 <NativeSelect
                   id={`pt-bot-${i}`}
@@ -222,6 +253,23 @@ export function StartPanel({ onDecks }: { onDecks: () => void }) {
                 </NativeSelect>
               </div>
             ))}
+          </div>
+        )}
+        {ruled && mode === 'rush' && (
+          <div className="flex items-center gap-2">
+            <Label htmlFor="pt-rush-games" className="w-28 shrink-0">
+              Games
+            </Label>
+            <Input
+              id="pt-rush-games"
+              type="number"
+              min={1}
+              max={500}
+              value={games}
+              onChange={(e) => setGames(Number(e.target.value) || 1)}
+              className="w-28"
+              data-testid="rush-games"
+            />
           </div>
         )}
         {setup.deal &&
@@ -285,9 +333,26 @@ export function StartPanel({ onDecks }: { onDecks: () => void }) {
               </div>
             )
           })}
-        <Button variant="secondary" onClick={onDecks} data-testid="playtest-decks-button">
-          <Layers /> Build decks…
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="secondary"
+            className="flex-1"
+            onClick={onDecks}
+            data-testid="playtest-decks-button"
+          >
+            <Layers /> Build decks…
+          </Button>
+          {canRule && (
+            <Button
+              variant="secondary"
+              className="flex-1"
+              onClick={onReplays}
+              data-testid="playtest-replays-button"
+            >
+              <Film /> Replays…
+            </Button>
+          )}
+        </div>
         {decks.length === 0 && saved.length === 0 && setup.deal && (
           <p className="text-xs text-muted-foreground">
             Tip: build a deck for each player with Build decks…, or in Hearthside Cardworks' Decks
@@ -312,7 +377,15 @@ export function StartPanel({ onDecks }: { onDecks: () => void }) {
           disabled={errors.length > 0 || blocked}
           data-testid="playtest-start-button"
         >
-          <Play /> Start
+          {ruled && mode === 'rush' ? (
+            <>
+              <Zap /> Start Rush
+            </>
+          ) : (
+            <>
+              <Play /> Start
+            </>
+          )}
         </Button>
       </div>
     </div>

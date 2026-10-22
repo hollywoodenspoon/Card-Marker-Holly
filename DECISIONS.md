@@ -550,3 +550,22 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 - **Which source decides:** when the list isn't empty, it alone decides a card's archetypes. A card named "Grave …" but tagged "Ghoulish" is not a Grave card. When it is empty, the archetype comes from the name, as before (the word appears anywhere in the name), so older packs play the same.
 - **Where it's used:** every archetype check goes through `inArchetype` in `effects/helpers.ts`. That covers Field, Fallen, Strike, Maneuver, Discount and Return, and the Grave, Ghoulish and Rianz conditions. The deck builder's search matches archetypes too.
 - **The First Quest v3.1 CSV** adds the column: Grave for the six Grave cards, Ghoulish for the four Ghoulish cards, and Rianz for the four Rianz cards, Hero of Rianz included. It plays exactly the same as v3.
+
+## Playtest readability, Rush and replays
+
+- **Action by action:** `applyFrames` in the engine gives one state per log line a move produces, so the table can show a move step by step. `apply` is unchanged, and so are the bots, the sim and the fixtures. The Engagement is now cleared just after its result line instead of just before, so the step-by-step view still shows the finished combat. Rules and logs are the same.
+- **Action speed** (Slow 1.8 s, Normal 1 s, Fast 0.35 s per action, and Rush with no pauses) applies to every move, the player's own too, and replaces the bot speed. It is saved per device. Rush stands in for an "instant" setting.
+- **Choices wait** until the step-by-step view is over (or Skip). The hot-seat hand-over waits too.
+- **Cues** come from comparing two frames (`cues.ts`): a glow per kind of change, a double-headed arrow for two cards that trade places (or a card that replaces another on the field), and a one-way arrow for a card moving onto the field.
+- **The card preview** opens on a tap on any card the viewer can see and never blocks the tap's move. It is a corner window on a desktop and a strip along the bottom on a phone.
+- **The combat stage** shows only while an Engagement is fought, up to its result and score lines. It is centred on the table, with the attacker on the left on a wide screen, or on their own side of the table on a tall one.
+  - **Attackers:** the Main Attacker stands upright, and the other attackers that count lie sideways behind it, turned clockwise (swords up), each showing a quarter of the card width.
+  - **Defenders:** all lie sideways, turned counter-clockwise (shields up), with no upright card (the owner's choice).
+  - **Fighting Spirit cards** stand beside their stack, the newest in front and older ones stepping up behind, showing their flames.
+  - **On the field,** the stage's cards are drawn faint.
+- **Rush** plays one deck against the other only (not the sim's mirror pairings), with seats swapped every other game and each deck keeping its bot level. Game `g` has a fixed seed, so the batch is split over up to 4 workers. A batch is saved as one row: its decks, its cards, the card-use counts and each match's seed and moves. The last 5 batches per pack are kept.
+- **Replays** store the start (cards, decks, names, seed) and the moves. The engine is deterministic, so that is the whole game.
+  - **When they're kept:** when a rules game ends, and when it is left by New game after round 1. The id follows the game, so a game replayed after an undo replaces its own replay.
+  - **How many:** the newest 100 unpinned per pack, and pinned ones are never pruned.
+  - **Older saves:** a game saved before this change has no record of its start, so it can't become a replay.
+  - **The open game:** watching a replay puts the open game aside, unsaved changes included, and gives it back on Leave. Autosave skips while a replay is on screen.

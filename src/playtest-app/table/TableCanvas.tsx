@@ -25,10 +25,11 @@ import {
 } from '@/ui/components/ui/dropdown'
 import { usePanZoom } from '@/ui/components/usePanZoom'
 import { ZoomBar } from '@/ui/components/ZoomBar'
+import { cues, type ArrowEnd } from './cues'
 import { PieceFace, PieceView, TokenShape } from './Piece'
 import { usePack } from './packContext'
 import { hints as ruleHints } from './rulesPlay'
-import { usePlaytest } from './usePlaytest'
+import { shownBefore, shownRules, usePlaytest } from './usePlaytest'
 
 /** Space around the table (mm), so labels above the top zones show. */
 const MARGIN = 10
@@ -50,7 +51,17 @@ type Gesture = {
  * drag it to move it (onto an occupied slot to swap), drag the empty table
  * to pan, pinch or Ctrl + wheel to zoom.
  */
-export function TableCanvas({ onOpenZone }: { onOpenZone: (key: string) => void }) {
+export function TableCanvas({
+  onOpenZone,
+  onPreview,
+  staged,
+}: {
+  onOpenZone: (key: string) => void
+  /** A card the viewer can see was tapped: show it in the preview window. */
+  onPreview?: (pieceId: string) => void
+  /** Cards drawn on the combat stage (faint on the table). */
+  staged?: Set<string>
+}) {
   const setup = usePlaytest((s) => s.setup)!
   const state = usePlaytest((s) => s.state)!
   const selected = usePlaytest((s) => s.selected)
@@ -63,10 +74,18 @@ export function TableCanvas({ onOpenZone }: { onOpenZone: (key: string) => void 
   const tapRules = usePlaytest((s) => s.tapRules)
   // With the rules on: what the player to act may tap.
   const bots = usePlaytest((s) => s.bots)
+  const watching = usePlaytest((s) => !!s.playback || !!s.replay)
+  const shown = usePlaytest(shownRules)
+  const before = usePlaytest(shownBefore)
   const hint = useMemo(() => {
     const a = rules ? actor(rules) : null
-    return rules && !(a !== null && bots[a]) ? ruleHints(rules, picks) : null
-  }, [rules, picks, bots])
+    return rules && !watching && !(a !== null && bots[a]) ? ruleHints(rules, picks) : null
+  }, [rules, picks, bots, watching])
+  // While actions are shown: what the one on screen changed.
+  const cue = useMemo(
+    () => (shown && before && shown.log.length > before.log.length ? cues(before, shown) : null),
+    [shown, before],
+  )
   const pickedIds = useMemo(() => {
     const st = rules?.step
     if (!rules || st?.k !== 'reveal') return new Set<string>()
@@ -76,16 +95,16 @@ export function TableCanvas({ onOpenZone }: { onOpenZone: (key: string) => void 
   // Face-up field cards whose Attack or Defense differs from print, with the values now.
   const badges = useMemo(() => {
     const out: Record<string, string> = {}
-    if (!rules) return out
+    if (!shown) return out
     for (const seat of [0, 1] as const)
-      rules.players[seat].field.forEach((f, slot) => {
+      shown.players[seat].field.forEach((f, slot) => {
         if (!f.card || !f.faceUp) return
-        const v = statsAt(rules, seat, slot)
-        const c = rules.cards[f.card]
+        const v = statsAt(shown, seat, slot)
+        const c = shown.cards[f.card]
         if (c && (v.a !== c.a || v.d !== c.d)) out[pieceId(seat, f.card)] = `A${v.a} D${v.d}`
       })
     return out
-  }, [rules])
+  }, [shown])
   const pack = usePack()
   const faces = pack.faces
   const defaultSize = pack.info.cardSize
@@ -101,6 +120,23 @@ export function TableCanvas({ onOpenZone }: { onOpenZone: (key: string) => void 
     () => pieceBoxes(setup, layout, state, sizeOf),
     [setup, layout, state, sizeOf],
   )
+  /** Where an arrow end sits, in table mm. */
+  const endAt = (e: ArrowEnd): { x: number; y: number } | null => {
+    if ('piece' in e) {
+      const b = boxes.find((x) => x.id === e.piece)
+      if (b) return { x: b.cx, y: b.cy }
+      const key = Object.keys(state.zones).find((z) => {
+        const zc = state.zones[z]
+        return zc.items?.includes(e.piece) || zc.slots?.some((ids) => ids.includes(e.piece))
+      })
+      return key ? endAt({ zone: key }) : null
+    }
+    const pzn = layout.zones.find((z) => z.key === e.zone)
+    if (!pzn) return null
+    if (e.slot === undefined) return { x: pzn.x + pzn.w / 2, y: pzn.y + pzn.h / 2 }
+    const r = slotRect(pzn.zone, e.slot, pzn.turned)
+    return { x: pzn.x + r.x + r.w / 2, y: pzn.y + r.y + r.h / 2 }
+  }
   // Token and board pictures from assets aren't in game packs yet (shapes and card boards are).
   const urls = NO_URLS
   const seatColor = (seat: number | null) =>
@@ -285,6 +321,8 @@ export function TableCanvas({ onOpenZone }: { onOpenZone: (key: string) => void 
   }
 
   const tap = (cur: Gesture, p: { x: number; y: number }) => {
+    if (cur.kind === 'piece' && onPreview && seenBy(setup, state, cur.id, viewer) !== 'back')
+      onPreview(cur.id)
     // With the rules on, a tap on a card can be a move (a reveal) or pick a card to place.
     if (rules && cur.kind === 'piece') {
       const same = selected?.kind === 'piece' && selected.id === cur.id
@@ -469,9 +507,59 @@ export function TableCanvas({ onOpenZone }: { onOpenZone: (key: string) => void 
               tokenColor={tokenColor}
               tokenUrl={tokenUrl}
               dragging={drag?.kind === 'piece' && drag.id === b.id}
+              cue={cue?.glow[b.id]}
+              dim={staged?.has(b.id)}
             />
           )
         })}
+        {cue && cue.arrows.length > 0 && (
+          <svg
+            className="pointer-events-none absolute inset-0 z-[300] overflow-visible"
+            width={layout.w * k}
+            height={layout.h * k}
+            aria-hidden
+            data-testid="cue-arrows"
+          >
+            <defs>
+              <marker
+                id="cue-head"
+                viewBox="0 0 10 10"
+                refX="8"
+                refY="5"
+                markerWidth="4"
+                markerHeight="4"
+                orient="auto-start-reverse"
+              >
+                <path d="M0 0 L10 5 L0 10 z" fill="#67e8f9" />
+              </marker>
+            </defs>
+            {cue.arrows.map((a, i) => {
+              const f = endAt(a.from)
+              const t = endAt(a.to)
+              if (!f || !t) return null
+              // Stop short of the card centres, so the heads sit on the cards.
+              const len = Math.hypot(t.x - f.x, t.y - f.y) || 1
+              const cut = Math.min(6, len / 4)
+              const ux = (t.x - f.x) / len
+              const uy = (t.y - f.y) / len
+              return (
+                <line
+                  key={i}
+                  x1={(f.x + ux * cut) * k}
+                  y1={(f.y + uy * cut) * k}
+                  x2={(t.x - ux * cut) * k}
+                  y2={(t.y - uy * cut) * k}
+                  stroke="#67e8f9"
+                  strokeWidth={Math.max(3, 1.2 * k)}
+                  strokeLinecap="round"
+                  markerEnd="url(#cue-head)"
+                  markerStart={a.both ? 'url(#cue-head)' : undefined}
+                  className="drop-shadow"
+                />
+              )
+            })}
+          </svg>
+        )}
       </div>
       {drag && (
         <div

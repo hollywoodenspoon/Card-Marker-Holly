@@ -5,6 +5,7 @@ import type { Seen } from '@/playtest/actions'
 import type { PieceBox } from '@/playtest/geometry'
 import type { TokenDef } from '@/playtest/setup'
 import type { Piece, TokenInst } from '@/playtest/state'
+import { CUE_RING, type CueKind } from './cues'
 import type { Face } from './packContext'
 
 /** A card back for cards without a back template: neutral, in the owner's colour. */
@@ -118,6 +119,8 @@ export const PieceView = memo(function PieceView({
   tokenColor,
   tokenUrl,
   dragging,
+  cue,
+  dim,
 }: {
   box: PieceBox
   k: number
@@ -138,6 +141,10 @@ export const PieceView = memo(function PieceView({
   tokenColor: (t: TokenInst) => string
   tokenUrl: (def: TokenDef) => string | undefined
   dragging: boolean
+  /** What just happened to it (while actions are shown). */
+  cue?: CueKind
+  /** It's drawn on the combat stage: faint here. */
+  dim?: boolean
 }) {
   const w = box.w * k
   const h = box.h * k
@@ -149,12 +156,14 @@ export const PieceView = memo(function PieceView({
       aria-label={seen === 'back' ? 'Face-down card' : piece.name}
       aria-pressed={selected}
       data-hint={hint || undefined}
+      data-cue={cue}
       className={cn(
         'absolute touch-none rounded-[5%] shadow-md transition-[transform,box-shadow] duration-150 select-none',
         selected && 'ring-4 ring-accent',
         picked && !selected && 'ring-4 ring-amber-400',
         hint && !selected && !picked && 'ring-4 ring-emerald-400',
-        dragging && 'opacity-40',
+        cue && !selected && cn('ring-4 motion-safe:animate-pulse', CUE_RING[cue]),
+        (dragging || dim) && 'opacity-40',
       )}
       style={{
         left: (box.cx - box.w / 2) * k,

@@ -23,6 +23,7 @@ A game pack holds every card's picture, the values of its fields (such as `A_AS`
    - **Rules on: see both sides**: the app runs the rules and you play both players, seeing everything. Good for playtesting alone.
    - **Rules on: you against the bot**: you play Player 1 and the bot plays Player 2. Pick its level: **Easy**, **Normal** or **Hard** (Hard thinks longer).
    - **Rules on: watch bot against bot**: two bots play each other while you watch.
+   - **Rush: many bot games**: bots play a batch of games (you pick how many) as fast as the device allows, with nothing drawn. See Rush below.
 3. Pick a **deck** for each player: one you built here (**Your decks**), or one from Hearthside Cardworks (**Decks in the pack**). **All cards** gives a player one of every card. A warning shows when a deck breaks a deck rule, or has a different number of cards than the game uses. With the rules on, both decks must be legal Free Companies.
 4. Press **Start**.
 
@@ -47,6 +48,13 @@ With **two players, one device**, a screen asks you to pass the device whenever 
 - A field card whose Attack or Defense is changed by an ability shows its current values in a small badge.
 - The card zoom shows the ability text. A card whose code the rules engine doesn't know yet says so and plays with its stats.
 
+### Following the game
+
+- **One action at a time:** after every move, the table shows what happened step by step. A box at the top names the action and shows the cards it is about. Cards light up for what just happened to them (revealed, used, attacking, defending, Fighting Spirit, moved). Cards that swap places get a double-headed arrow, and a card that moves gets a one-way arrow. Choices wait until the step-by-step view is over.
+- **Action speed** (in the bar) sets how long each action stays on screen: Slow, Normal or Fast. **Rush** plays without pauses. **Skip** jumps to the end of the move. On a phone, tap the action box to open the whole log.
+- **Card preview:** tap any card you can see to read it in a small window, with its current A, D and FS and its ability. The tap still does what it would (a reveal, for example). The window's arrows enlarge the card; × closes it.
+- **The combat stage:** during an Engagement, its cards gather in the middle of the table. The Main Attacker stands upright, and the other attackers that count lie sideways behind it with their swords showing. The defenders that count lie sideways the other way, shields showing. Fighting Spirit cards stand beside their side's stack with their flames showing, each with the value it added. The totals sit between the stacks. **Hide stage** shows the field underneath.
+
 Undo works move by move, and the game log names every card that is revealed. A ⚑ in the log marks something the rules don't settle yet, such as a player left with no attacking card.
 
 ## Playing against the bot
@@ -59,7 +67,21 @@ The bot only knows what a player at the table would: your Support and face-down 
   - In Combat, it uses rest-zone Fighting Spirit cards, weighs switching attackers and defenders, and spends Support freely in the round's last Engagement, since unused Support is rested anyway.
 - **Hard** plays the same Tricks. For Fighting Spirit and the First Engagement, it also plays the round out many times against guesses of your hidden cards and keeps the choice that goes best.
 
-While the bot is thinking, the bar says so. The speed menu sets how long each of its moves stays on screen, **Pause** stops it, and **Next move** then plays one move at a time. **Undo** against the bot goes back to your own last decision.
+While the bot is thinking, the bar says so. Its moves are shown action by action like yours, at the Action speed. **Pause** stops it, and **Next move** then plays one move at a time. **Undo** against the bot goes back to your own last decision.
+
+## Rush
+
+Pick **Rush: many bot games** as the Rules, a deck and a bot level for each side, and the number of games, then press **Start Rush**. The decks swap seats every other game, and each keeps its bot level.
+
+The Rush screen counts as the games finish: each deck's win rate and wins as first player, the average number of rounds, and the cards each deck used most for Fighting Spirit and abilities. **Stop** ends the batch early. **Copy report** copies it all as text. Every match is listed: **Watch** replays it, and the pin keeps it with your replays. The last 5 batches stay under **Replays**.
+
+## Replays
+
+Every rules game is kept as a replay when it ends, or when you start a new game after its first round. **Watch replay** on the winner's banner opens it straight away, and the **Replays** button (at the top of the table, or on the start screen) lists them all.
+
+A replay plays like the game did, action by action, with the combat stage and card preview. Its bar has play and pause, one action back or forward, the previous or next round, a slider to jump anywhere, and the speed. The view menu at the top shows everything or one player's view. **Leave** goes back, and the game you had open is still there.
+
+The newest 100 replays of a pack are kept. Pin one to keep it for good.
 
 ## Building decks
 

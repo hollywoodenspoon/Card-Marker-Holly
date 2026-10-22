@@ -1,4 +1,13 @@
-import { Check, Maximize2, Pause, Play, Shuffle, StepForward, Swords } from '@/ui/icons'
+import {
+  Check,
+  FastForward,
+  Maximize2,
+  Pause,
+  Play,
+  Shuffle,
+  StepForward,
+  Swords,
+} from '@/ui/icons'
 import { abilityText } from '@/adventure/cards'
 import {
   abilityName,
@@ -14,7 +23,7 @@ import { engagementTotals } from '@/adventure/stats'
 import { seenBy } from '@/playtest/actions'
 import { Button, IconButton } from '@/ui/components/ui/button'
 import { NativeSelect } from '@/ui/components/ui/input'
-import { usePlaytest, type BotSpeed } from './usePlaytest'
+import { usePlaytest, type Speed } from './usePlaytest'
 
 /**
  * With the rules on: what to do now, in words, and the buttons for choices
@@ -32,7 +41,8 @@ export function RulesBar({
   onBotStep: () => void
 }) {
   const bots = usePlaytest((s) => s.bots)
-  const botSpeed = usePlaytest((s) => s.botSpeed)
+  const speed = usePlaytest((s) => s.speed)
+  const showing = usePlaytest((s) => !!s.playback)
   const botPaused = usePlaytest((s) => s.botPaused)
   const setup = usePlaytest((s) => s.setup)!
   const state = usePlaytest((s) => s.state)!
@@ -176,19 +186,31 @@ export function RulesBar({
     hint = botPaused ? 'Paused.' : 'The bot is thinking…'
     buttons = null
   }
+  // The last move is still being shown: choices wait until it's done.
+  if (showing) {
+    hint = 'Showing what happened…'
+    buttons = (
+      <Button size="sm" variant="secondary" onClick={() => usePlaytest.getState().skip()}>
+        <FastForward /> Skip
+      </Button>
+    )
+  }
+  const speedPicker = st.k !== 'over' && (
+    <NativeSelect
+      aria-label="Action speed"
+      className="w-auto"
+      value={speed}
+      onChange={(e) => usePlaytest.getState().setSpeed(e.target.value as Speed)}
+      data-testid="action-speed"
+    >
+      <option value="slow">Slow</option>
+      <option value="normal">Normal speed</option>
+      <option value="fast">Fast</option>
+      <option value="rush">Rush (no pauses)</option>
+    </NativeSelect>
+  )
   const botControls = bots.some(Boolean) && st.k !== 'over' && (
     <>
-      <NativeSelect
-        aria-label="Bot speed"
-        className="w-auto"
-        value={botSpeed}
-        onChange={(e) => usePlaytest.getState().setBotSpeed(e.target.value as BotSpeed)}
-        data-testid="bot-speed"
-      >
-        <option value="slow">Slow</option>
-        <option value="normal">Normal speed</option>
-        <option value="fast">Fast</option>
-      </NativeSelect>
       <IconButton
         label={botPaused ? 'Let the bot play' : 'Pause the bot'}
         onClick={() => usePlaytest.getState().setBotPaused(!botPaused)}
@@ -222,10 +244,11 @@ export function RulesBar({
           {hint && <span className="text-muted-foreground"> {hint}</span>}
         </span>
       </p>
-      {(buttons || zoomable || botControls) && (
+      {(buttons || zoomable || botControls || speedPicker) && (
         <div className="flex items-center gap-1.5 overflow-x-auto">
           {buttons}
           <span className="flex-1" />
+          {speedPicker}
           {botControls}
           {zoomable && (
             <Button size="sm" variant="ghost" onClick={() => onZoom(zoomable)}>

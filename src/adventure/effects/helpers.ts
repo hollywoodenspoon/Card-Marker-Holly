@@ -8,7 +8,15 @@ import type { Ctx, D, Option, PlanIO } from './types'
 
 type S = AsState | D
 
+let recorder: ((d: D) => void) | null = null
+
+/** Watch every log line (`applyFrames`): called just before each line is added. */
+export function recordLog(r: ((d: D) => void) | null) {
+  recorder = r
+}
+
 export function log(d: D, text: string, flag?: boolean) {
+  recorder?.(d)
   d.log.push(flag ? { n: d.log.length + 1, text, flag } : { n: d.log.length + 1, text })
 }
 

@@ -1,4 +1,4 @@
-import { apply, createGame, type Move } from '../engine'
+import { apply, createGame, type Move, type NewGame } from '../engine'
 import type { AsCard } from '../cards'
 import { botMove, BOT_NAMES, type BotLevel } from '../bot'
 import type { AsState, Seat } from '../state'
@@ -20,6 +20,52 @@ export interface SimOptions {
   playouts?: number
   /** Called after each game (for a progress line). */
   onGame?: (done: number) => void
+  /** Called with each finished game, its moves included (for replays). */
+  onMatch?: (m: {
+    game: number
+    seed: number
+    decks: [string, string]
+    levels: [BotLevel, BotLevel]
+    match: Match
+  }) => void
+}
+
+/** One bot-against-bot game: every move in order, and who made it. */
+export interface Match {
+  state: AsState
+  moves: Move[]
+  by: Seat[]
+  /** Who had the initiative in round 1. */
+  first: Seat
+  /** What went wrong, if anything (a refused move, a lost card). */
+  problem?: string
+}
+
+/** Play one game with a bot on each seat, until it ends (or 4000 moves). */
+export function playMatch(game: NewGame, levels: [BotLevel, BotLevel], playouts?: number): Match {
+  let s = createGame(game)
+  const first = s.initiative
+  const moves: Move[] = []
+  const by: Seat[] = []
+  try {
+    for (let n = 0; n < 4000 && s.step.k !== 'over'; n++) {
+      const seat = s.step.seat
+      const m = botMove(s, levels[seat], game.seed + n * 31, { playouts })
+      const next = apply(s, m)
+      if (next === s) throw new Error(`a bot's move was refused: ${JSON.stringify(m)}`)
+      moves.push(m)
+      by.push(seat)
+      s = next
+      for (const x of [0, 1] as const) {
+        const all = hidden(s, x)
+        if (all.length !== 12 || new Set(all).size !== 12)
+          throw new Error(`a card went missing or doubled (player ${x + 1})`)
+      }
+    }
+  } catch (e) {
+    return { state: s, moves, by, first, problem: e instanceof Error ? e.message : String(e) }
+  }
+  return { state: s, moves, by, first }
 }
 
 interface CardStat {
@@ -30,7 +76,7 @@ interface CardStat {
 }
 
 export interface SimResult {
-  options: Omit<SimOptions, 'onGame' | 'cards'>
+  options: Omit<SimOptions, 'onGame' | 'onMatch' | 'cards'>
   cardNames: Record<string, string>
   played: number
   unfinished: number
@@ -87,34 +133,19 @@ export function simulate(o: SimOptions): SimResult {
     const deckNames: [string, string] = swap ? [db, da] : [da, db]
     const levels: [BotLevel, BotLevel] = swap ? [o.levels[1], o.levels[0]] : o.levels
     const seed = (base * 1_000_003 + g * 7919) >>> 0
-    let s = createGame({
+    const game: NewGame = {
       cards: o.cards,
       decks: [o.decks[deckNames[0]], o.decks[deckNames[1]]],
       names: [deckNames[0], deckNames[1]],
       seed,
-    })
-    const first = s.initiative
-    const used: Move[][] = [[], []]
-    let n = 0
-    try {
-      for (; n < 4000 && s.step.k !== 'over'; n++) {
-        const seat = s.step.seat
-        const m = botMove(s, levels[seat], seed + n * 31, { playouts: o.playouts })
-        const next = apply(s, m)
-        if (next === s) throw new Error(`a bot's move was refused: ${JSON.stringify(m)}`)
-        used[seat].push(m)
-        s = next
-        for (const x of [0, 1] as const) {
-          const all = hidden(s, x)
-          if (all.length !== 12 || new Set(all).size !== 12)
-            throw new Error(`a card went missing or doubled (player ${x + 1})`)
-        }
-      }
-    } catch (e) {
-      res.problems.push(
-        `Game ${g + 1} (seed ${seed}): ${e instanceof Error ? e.message : String(e)}`,
-      )
     }
+    const m = playMatch(game, levels, o.playouts)
+    const s = m.state
+    const first = m.first
+    const n = m.moves.length
+    const used: Move[][] = [[], []]
+    m.moves.forEach((mv, i) => used[m.by[i]].push(mv))
+    if (m.problem) res.problems.push(`Game ${g + 1} (seed ${seed}): ${m.problem}`)
     res.played++
     res.moves += n
     res.rounds += s.round
@@ -151,6 +182,7 @@ export function simulate(o: SimOptions): SimResult {
       const id = o.cards.find((c) => c.name === flip)?.id
       if (id) card(id).abilities++
     }
+    o.onMatch?.({ game: g + 1, seed, decks: deckNames, levels, match: m })
     o.onGame?.(g + 1)
   }
   return res

@@ -108,6 +108,10 @@ Rest costs (`restCost`) pick Support cards one at a time. Cards already promised
 
 The card ability tests (`effects/cards.test.ts`) build small boards from `fixtures/firstQuest.ts`, the 45 cards with ids `tfq01` to `tfq45`. `fixtures/randomGame.ts` plays random legal moves from a seed. A port can use it the same way, to check that games always end and no card is lost.
 
+## Step by step
+
+`applyFrames(state, move)` returns the states a move passes through, one per log line it adds, each taken just before the next line is logged (or at the end). The last one is `apply(state, move)`. It works through an optional recorder in `log()`, which `apply` never sets. The Playtest app uses it to show moves action by action, and to rebuild a replay from its start and moves.
+
 ## Bots and balance runs
 
 `bot/index.ts`: `botMove(state, level, seed, {playouts})` returns a move for the player to act, given as `'easy'`, `'normal'` or `'hard'`.
@@ -123,6 +127,8 @@ The card ability tests (`effects/cards.test.ts`) build small boards from `fixtur
 
 - results per deck, per pairing, per level and per card
 - any game that refused a bot's move or lost a card
+
+`playMatch(game, levels, playouts)` plays one game with a bot on each seat and returns its moves (and who made each). `simulate` uses it, and its `onMatch` callback passes each finished game. `sim/rush.ts` plays one deck against another for the app's Rush mode, in `sim/rush.worker.ts`.
 
 `report(result)` turns them into Markdown. `npm run as:sim -- --games 500 --levels normal,hard --pack my.cmpack --out report.md` runs it from the command line.
 
