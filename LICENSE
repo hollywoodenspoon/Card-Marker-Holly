@@ -8,14 +8,23 @@ Owner"). That includes:
   - the source code, its build files and its compiled programs;
   - the look and design of the apps;
   - the names "Hearthside Cardworks", "Hearthside Table" and "Hearthside
-    Cardworks Cozy Edition";
-  - the game Adventure Scuffle! and its content: card names, card text,
-    stats, Fate Numbers, rules, rulebooks, set names and card art,
-    wherever they appear (for example in test files, CSV files and notes).
+    Cardworks Cozy Edition".
+
+Adventure Scuffle!
+Copyright (c) 2026 Village Wizard. All rights reserved.
+
+The game Adventure Scuffle! and its content belong to Village Wizard, not to
+the Owner: its name, card names, card text, stats, Fate Numbers, rules,
+rulebooks, set names and card art, wherever they appear in this repository
+(for example in test files, CSV files and notes). They are here with Village
+Wizard's permission, only to build and test these apps. The same
+restrictions below apply to them, and permission to use them can only come
+from Village Wizard.
 
 No licence is granted. You may not copy, modify, merge, publish, distribute,
 sublicense, sell, rent or create derivative works from any of it, in whole
-or in part, without the Owner's prior written permission.
+or in part, without the prior written permission of the Owner (or, for Adventure
+Scuffle!, of Village Wizard).
 
 Being able to see this repository (for example on GitHub) does not grant any
 of these rights. GitHub's own terms of service allow viewing and forking on
@@ -38,4 +47,4 @@ OWNER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
 ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-For permission, contact the Owner.
+For permission, contact the Owner (for Adventure Scuffle!, Village Wizard).
