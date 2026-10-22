@@ -1,9 +1,19 @@
+import type { AsCard } from '../cards'
 import type { AsState } from '../state'
-import { CARD_RULES } from './cards'
+import { readCard } from './reader'
 import type { CardRules } from './types'
 
-/** A card's rules, by its code (Code_AS). Cards without an entry play with their stats only. */
-export const rulesOf = (s: Pick<AsState, 'cards'>, card: string): CardRules | undefined =>
-  CARD_RULES[s.cards[card]?.code ?? '']
+/**
+ * A card's rules, read from its printed ability. A card whose text the reader
+ * can't fully read plays with its stats only.
+ */
+export const rulesOf = (s: Pick<AsState, 'cards'>, card: string): CardRules | undefined => {
+  const c = s.cards[card]
+  return (c && readCard(c).rules) || undefined
+}
 
-export const implemented = (code: string) => code in CARD_RULES
+/** Can the rules engine read this card's ability? */
+export const implemented = (card: Pick<AsCard, 'type' | 'ability'>) => readCard(card).rules !== null
+
+/** The parts of a card's ability the rules engine can't read (empty: all of it). */
+export const unreadParts = (card: Pick<AsCard, 'type' | 'ability'>) => readCard(card).unread

@@ -4,7 +4,7 @@ import { apply, createGame, isLegal, legalMoves, responseMoves, type Move } from
 import { FIRST_QUEST, FIRST_QUEST_DECKS, fq } from '../fixtures/firstQuest'
 import type { AsState, CardState, Seat } from '../state'
 import { engagementSides, engagementTotals, statsAt } from '../stats'
-import { implemented } from './registry'
+import { unreadParts } from './registry'
 
 /** One player's side for a test board. Field cards are face up and Ready unless listed. */
 interface Side {
@@ -94,8 +94,8 @@ const canUse = (s: AsState, seat: Seat, n: number) =>
   responseMoves(s, seat).some((m) => m.t === 'ability' && m.card === fq(n))
 
 describe('every First Quest card has its rules', () => {
-  it('registers all 45 codes', () => {
-    for (const c of FIRST_QUEST) expect(implemented(c.code), c.code).toBe(true)
+  it('reads all 45 from their printed text', () => {
+    for (const c of FIRST_QUEST) expect(unreadParts(c), c.code).toEqual([])
   })
 })
 

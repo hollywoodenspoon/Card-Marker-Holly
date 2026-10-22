@@ -449,7 +449,7 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
   - TFQ-08 Spatial Witch and TFQ-16 Azure Assassin: "ready card".
   - TFQ-11 Mission Handler: the +1 A is dropped.
   - TFQ-29 Grave Acolyte: "Return a Grave card from your rest zone to your Support" with its Discount.
-- **Abilities are code, registered by `Code_AS`** in `src/adventure/effects/cards.ts`. They use the keyword helpers in `effects/helpers.ts`, never the printed text. A card whose code isn't registered plays with its stats, and the card zoom says so.
+- **Abilities were first code, registered by `Code_AS`.** Since v3.2 they are read from the card text instead (see "Effects from the card text" below).
 - **An ability declares its parts:**
   - an Inherent `stat`
   - a Battle `fs` value
@@ -540,7 +540,7 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 - **Before v3,** the premade decks were already close with the smarter bots: Retinue 56%, Guild 50%, Necromancer 44%. The old bots had made Necromancer look dominant. So the Retinue got no buffs, and Necromancer cards no nerfs.
 - **Where the changes live:**
   - The test data (`fixtures/firstQuest.ts`) holds the v3 values and texts.
-  - The engine rules for the changed abilities are in `effects/cards.ts`.
+  - The engine rules for the changed abilities came from `effects/cards.ts`, which the card reader has since replaced.
   - The Gambit's Tails is handled in `engine.ts`.
   - The v3 CSV for Hearthside Cardworks is made from the v2 one, changing only these cards.
 
@@ -609,3 +609,22 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
   - Every game's seed comes from the tournament seed, the match and the game number, so a result can be reproduced.
 - **Watching:** as with the roadmap's spectating, any played game can be watched afterwards with the replay player and its speed controls. Tournament games are kept in the tournament, not in the Replays list, so a big event doesn't push your own replays out. Your own games are also kept as normal replays.
 - **Saving:** each tournament is saved in the `tournaments` table (Dexie version 5) after every change.
+
+## Effects from the card text (v3.2)
+
+- **No Effect_AS field.** The owner asked why a card needs a hidden effect field when `Ability_AS` already says what it does. The rules engine now reads every ability from `Ability_AS` and `Type_AS` (`src/adventure/effects/reader.ts`). There is no per-card code and no code lookup.
+- **How it reads:** each clause is `[Conditions: ]Phrase.`, matched against a closed list of phrases and conditions. Archetype words, numbers and conditions combine freely, so a new card written with the known phrases plays without a code change. `docs/card-text-phrases.md` lists them and doubles as the writing guide.
+- **The card type decides how an action is used:** Field, Support, Flip or Battle. Inherent and Rest cards have no action. A card has at most one action.
+- **A card the reader can't fully read plays with its stats only.** It isn't blocked, so a half-written set still plays. The deck builder lists it with the other card problems, and the card zoom and preview quote the words it couldn't read.
+- **General reading rules, from the owner's answers:**
+  - "Swap this card's position with a card on your field" from Support: each card goes where the other was (TFQ-21 Light Dragoon).
+  - The same swap from a Fighting Spirit card: the field card takes its place as the Fighting Spirit (TFQ-05 Decoy Ninja).
+  - "Reveal this card": the card stays in Support (TFQ-20 Rianz Sentinel).
+  - Being swapped off the field counts as being repositioned (TFQ-22 Ranger of the Tower).
+  - Swapping an attacker and a defender: they change roles, and the combat rules work out the new Main Attacker and the totals (TFQ-04 Strategic Vanguard).
+  - A copied Field Ability is used as the copier's own, with its own costs and choices (TFQ-44 Doppelganger Thief).
+- **The First Quest v3.2** rewords three cards so their text says everything the engine did:
+  - TFQ-41 Runaway Familiar adds "This card cannot be rested to pay a cost."
+  - TFQ-39 Ghoulish Trickster and TFQ-30 Grave Reclaimer: "Swap the position of a [Ghoulish/Grave] card on your field (this card included) with another card on your field. To choose a face-down [Ghoulish/Grave] card, show it to your opponent; it stays face down."
+  - With the v3.1 texts these three still read, but as printed: the Familiar can pay costs, and the Maneuver cards can't move themselves or a face-down card.
+- **Same play:** every card ability test passes unchanged with the rules the reader builds, so v3.2 plays exactly like v3.1 did with the per-card code.

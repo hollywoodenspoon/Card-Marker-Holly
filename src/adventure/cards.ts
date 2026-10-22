@@ -1,4 +1,5 @@
 import type { PackCard, PackValue } from '@/playtest/pack'
+import { unreadParts } from './effects/registry'
 
 /**
  * Adventure Scuffle cards, read from a game pack's field values (the `_AS`
@@ -116,6 +117,16 @@ export function cardsFromPack(cards: PackCard[]): { cards: AsCard[]; issues: Car
     if (same.length > 1)
       for (const c of same)
         issues.push({ cardId: c.id, name: c.name, problem: `Card code ${code} is used twice.` })
+  // The rules engine reads each ability from its text; a card it can't read plays with its stats.
+  for (const c of out) {
+    const unread = unreadParts(c)
+    if (unread.length)
+      issues.push({
+        cardId: c.id,
+        name: c.name,
+        problem: `The rules engine can't read “${unread.join('”, “')}” in its ability, so it plays with its stats only.`,
+      })
+  }
   return { cards: out, issues }
 }
 

@@ -1,5 +1,5 @@
 import { abilityText } from '@/adventure/cards'
-import { implemented } from '@/adventure/effects/registry'
+import { implemented, unreadParts } from '@/adventure/effects/registry'
 import { seenBy } from '@/playtest/actions'
 import { Dialog, DialogContent } from '@/ui/components/ui/dialog'
 import { PieceFace } from './Piece'
@@ -35,9 +35,10 @@ export function CardZoom({ pieceId, onClose }: { pieceId: string | null; onClose
           {card && visible && card.ability && (
             <p className="text-sm" data-testid="zoom-ability">
               {abilityText(card.ability)}
-              {!implemented(card.code) && (
+              {!implemented(card) && (
                 <span className="block text-xs text-amber-600 dark:text-amber-400">
-                  This ability isn't in the rules engine yet: the card plays with its stats.
+                  The rules engine can't read “{unreadParts(card).join('”, “')}” in this ability, so
+                  the card plays with its stats.
                 </span>
               )}
             </p>

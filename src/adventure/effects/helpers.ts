@@ -106,9 +106,9 @@ export function touchable(
   return true
 }
 
-/** Cards that may pay a Rest cost: Support cards other than the ability's own, not a Runaway Familiar. */
+/** Cards that may pay a Rest cost: Support cards other than the ability's own, not one that can't. */
 export const payable = (s: S, seat: Seat, self: string) =>
-  s.players[seat].support.filter((c) => c !== self && !rulesOf(s, c)?.runaway)
+  s.players[seat].support.filter((c) => c !== self && !rulesOf(s, c)?.unpayable)
 
 export const canPay = (s: S, seat: Seat, self: string, n: number) =>
   payable(s, seat, self).length >= n
