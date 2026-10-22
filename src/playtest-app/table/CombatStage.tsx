@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { cn } from '@/lib/cn'
 import { seenBy } from '@/playtest/actions'
 import { Button } from '@/ui/components/ui/button'
-import { PieceFace } from './Piece'
+import { PieceFace, TokenShape } from './Piece'
 import { usePack } from './packContext'
 import type { Stage, StageGroup } from './stage'
 import { usePlaytest } from './usePlaytest'
@@ -47,7 +47,7 @@ export function CombatStage({
   const groupsH = wide ? Math.max(atk.h, def.h) : atk.h + def.h + MIDDLE * cw * 0.6
   const k = Math.min(
     (box.w * 0.94) / groupsW,
-    (box.h * (wide ? 0.72 : 0.82)) / groupsH,
+    (box.h * (wide ? 0.72 : 0.74)) / groupsH,
     MAX_CARD_PX / cw,
   )
   const name = (seat: 0 | 1) => stage.names[seat]
@@ -78,7 +78,24 @@ export function CombatStage({
           const w = cw * k
           const h = Math.max(size.w, size.h) * k
           const seen = seenBy(setup, state, c.id, viewer)
-          return (
+          const cube = c.kind === 'main' && setup.tokens.find((t) => t.id === 'main-attacker')
+          return [
+            // The Main Attacker cube sits on its card's top strip, which always shows.
+            cube && (
+              <span
+                key={`${c.id}:main`}
+                className="pointer-events-none absolute"
+                style={{
+                  left: c.cx * k - (turned ? h : w) / 2 + 4,
+                  top: c.cy * k - (turned ? w : h) / 2 + 4,
+                  zIndex: 90,
+                }}
+                title="Main Attacker"
+                data-testid="stage-main-cube"
+              >
+                <TokenShape def={cube} color={color(p.owner)} px={Math.max(16, 0.16 * w)} />
+              </span>
+            ),
             <button
               key={c.id}
               type="button"
@@ -106,8 +123,8 @@ export function CombatStage({
                   +{c.value}
                 </span>
               )}
-            </button>
-          )
+            </button>,
+          ]
         })}
       </div>
     </div>
@@ -127,15 +144,18 @@ export function CombatStage({
           variant="secondary"
           onClick={() => setHidden((h) => !h)}
           aria-pressed={!hidden}
+          aria-label={hidden ? 'Show stage' : 'Hide stage'}
           data-testid="stage-toggle"
         >
-          {hidden ? <Eye /> : <EyeOff />} {hidden ? 'Show stage' : 'Hide stage'}
+          {hidden ? <Eye /> : <EyeOff />}
+          {/* Just the icon on a phone, clear of the stack's label. */}
+          <span className="hidden sm:inline">{hidden ? 'Show stage' : 'Hide stage'}</span>
         </Button>
       </div>
       {!hidden && box.w > 0 && (
         <div
           className={cn(
-            'absolute inset-0 flex items-center justify-center gap-3 rounded-t-xl bg-canvas/90 backdrop-blur-sm',
+            'absolute inset-0 flex items-center justify-center gap-3 rounded-t-xl pt-12 sm:pt-0 bg-canvas/90 backdrop-blur-sm',
             wide ? 'flex-row' : 'flex-col',
           )}
         >

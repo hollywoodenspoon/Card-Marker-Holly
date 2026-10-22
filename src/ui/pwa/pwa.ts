@@ -20,6 +20,7 @@ export const usePwa = create<PwaState>(() => ({
 
 let installEvent: InstallPromptEvent | null = null
 let updateSW: ((reload?: boolean) => Promise<void>) | null = null
+let registration: ServiceWorkerRegistration | null = null
 
 /** How often an open app looks for a new version (it also looks when it comes back into view). */
 const CHECK_EVERY_MS = 30 * 60 * 1000
@@ -46,6 +47,7 @@ export function initPwa() {
     // back into view, and now and then while it stays open.
     onRegisteredSW: (_url, reg) => {
       if (!reg) return
+      registration = reg
       const check = () => {
         if (navigator.onLine) void reg.update().catch(() => {})
       }
@@ -63,6 +65,41 @@ export async function promptInstall() {
   await installEvent.userChoice
   installEvent = null
   usePwa.setState({ canInstall: false })
+}
+
+/**
+ * "Check for updates": ask the site now. 'update' means the new version is
+ * downloaded and the Update message is showing; 'latest' that there is none;
+ * 'offline' that the site couldn't be reached; 'none' that this copy has no
+ * offline support to update (the desktop app, or a local dev server).
+ */
+export async function checkForUpdates(): Promise<'update' | 'latest' | 'offline' | 'none'> {
+  const reg = registration
+  if (!reg) return 'none'
+  if (!navigator.onLine) return 'offline'
+  try {
+    await reg.update()
+  } catch {
+    return 'offline'
+  }
+  // A new version found: wait for it to download, then the Update message shows.
+  const installing = reg.installing
+  if (installing)
+    await new Promise<void>((done) => {
+      const watch = () => {
+        if (installing.state !== 'installing') {
+          installing.removeEventListener('statechange', watch)
+          done()
+        }
+      }
+      installing.addEventListener('statechange', watch)
+      watch()
+    })
+  if (reg.waiting) {
+    usePwa.setState({ needRefresh: true })
+    return 'update'
+  }
+  return 'latest'
 }
 
 export function applyUpdate() {

@@ -559,9 +559,8 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 - **Cues** come from comparing two frames (`cues.ts`): a glow per kind of change, a double-headed arrow for two cards that trade places (or a card that replaces another on the field), and a one-way arrow for a card moving onto the field.
 - **The card preview** opens on a tap on any card the viewer can see and never blocks the tap's move. It is a corner window on a desktop and a strip along the bottom on a phone.
 - **The combat stage** shows only while an Engagement is fought, up to its result and score lines. It is centred on the table, with the attacker on the left on a wide screen, or on their own side of the table on a tall one.
-  - **Attackers:** the Main Attacker stands upright, and the other attackers that count lie sideways behind it, turned clockwise (swords up), each showing a quarter of the card width.
-  - **Defenders:** all lie sideways, turned counter-clockwise (shields up), with no upright card (the owner's choice).
-  - **Fighting Spirit cards** stand beside their stack, the newest in front and older ones stepping up behind, showing their flames.
+  - **Active cards lie sideways,** as on the table. The attackers that count are turned clockwise (swords up), with the Main Attacker in front (marked with its cube) and the others stepping up behind it, each showing a quarter of the card width. The defenders that count are turned counter-clockwise (shields up). The owner's picture shows this: its upright card is the Fighting Spirit card, not the Main Attacker.
+  - **Fighting Spirit cards** stand upright in front of their stack, below its strips, the newest lowest and in front (an older one's flames show above it).
   - **On the field,** the stage's cards are drawn faint.
 - **Rush** plays one deck against the other only (not the sim's mirror pairings), with seats swapped every other game and each deck keeping its bot level. Game `g` has a fixed seed, so the batch is split over up to 4 workers. A batch is saved as one row: its decks, its cards, the card-use counts and each match's seed and moves. The last 5 batches per pack are kept.
 - **Replays** store the start (cards, decks, names, seed) and the moves. The engine is deterministic, so that is the whole game.
@@ -574,4 +573,5 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 
 - **Offered, not forced:** a new version is offered by the "A new version is available. Update" message (`registerType: 'prompt'`), never applied by itself. A game in progress or a card being edited is never reloaded underneath the user. Both are autosaved, so Update resumes them.
 - **When it looks:** an open tab or installed app brought back from the background doesn't reload, so the browser never looked for updates. The app now looks when it comes back into view and every 30 minutes (`registration.update()` in `src/ui/pwa/pwa.ts`).
+- **Check for updates** (Home screen and ☰ menu, the Hearthside Table packs screen) asks the site at once. It says when the version is already the latest, or offers the update.
 - **A build stamp** (the commit and date from GitHub Actions, "dev" locally) is shown next to the version, so it's clear which version is running.

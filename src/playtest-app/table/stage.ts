@@ -5,19 +5,18 @@ import { pieceId } from '@/adventure/table'
 
 /**
  * The combat stage: an Engagement's cards stacked so their values can be
- * counted. The Main Attacker stands upright; the other attackers that count
- * lie sideways behind it (turned clockwise: their sword edge shows). The
- * defenders that count all lie sideways the other way (shield edge showing).
- * Fighting Spirit cards stand beside their side's stack, the newest in front,
- * older ones stepping up behind (flame edge showing).
+ * counted. As on the table, every Active card lies sideways: the attackers
+ * that count turned clockwise (sword edge up), the Main Attacker in front and
+ * the others stepping up behind it; the defenders that count turned the other
+ * way (shield edge up). Fighting Spirit cards stand upright in front of their
+ * side's stack, below its strips, the newest lowest and in front (an older
+ * one's flame edge shows above it).
  */
 
 /** How much of a sideways card shows above the one in front, as a share of the card width. */
 export const STRIP = 0.25
 /** How much of an older Fighting Spirit card shows above the newer one, as a share of its height. */
 export const FS_STRIP = 0.2
-/** Gap between a stack and its Fighting Spirit cards, as a share of the card width. */
-const FS_GAP = 0.08
 
 export interface StageCard {
   id: string
@@ -77,80 +76,64 @@ export function stageLayout(s: AsState, e: Engagement, size: { w: number; h: num
   const atkField = s.players[e.attacker].field
   const defField = s.players[def].field
   const main = sides?.main ?? null
-  const mainCard = main === null ? null : atkField[main].card
   const others = (sides?.attackers ?? []).filter((i) => i !== main).map((i) => atkField[i].card!)
+  // The Main Attacker is the front card of its stack.
+  const attackers = main === null ? others : [atkField[main].card!, ...others]
   const defenders = (sides?.defenders ?? []).map((i) => defField[i].card!)
   return {
     names: [s.players[0].name, s.players[1].name],
     attacker: e.attacker,
-    atk: group(e.attacker, mainCard, others, 90, e.fs[e.attacker], w, h),
-    def: group(def, null, defenders, -90, e.fs[def], w, h),
+    atk: group(e.attacker, attackers, main !== null, 90, e.fs[e.attacker], w, h),
+    def: group(def, defenders, false, -90, e.fs[def], w, h),
     totals: engagementTotals(s, e),
   }
 }
 
+/**
+ * One side: `sideways` front card first. Sideways cards are h wide and w tall;
+ * each one behind shows a strip above the next.
+ */
 function group(
   seat: Seat,
-  front: string | null,
   sideways: string[],
+  hasMain: boolean,
   rotation: 90 | -90,
   fs: Engagement['fs'][number],
   w: number,
   h: number,
 ): StageGroup {
   const cards: StageCard[] = []
-  // Sideways cards are h wide and w tall; each one shows a strip above the next.
   const strip = STRIP * w
-  const stackW = sideways.length ? h : w
-  const above = sideways.length ? (front ? sideways.length : sideways.length - 1) * strip : 0
-  const frontH = front ? h : sideways.length ? w : 0
-  const stackH = above + frontH
-  const bottom = stackH
-  if (front)
-    cards.push({
-      id: pieceId(seat, front),
-      card: front,
-      kind: 'main',
-      cx: stackW / 2,
-      cy: bottom - h / 2,
-      rotation: 0,
-      z: 100,
-    })
-  // The nearest sideways card sits right behind the front one (or is the front).
+  const n = sideways.length
+  const width = n ? h : w
+  // The front card's top, below the strips of the cards behind it.
+  const frontTop = n ? (n - 1) * strip : 0
   sideways.forEach((card, k) => {
-    const top = front ? bottom - h - (k + 1) * strip : bottom - w - k * strip
     cards.push({
       id: pieceId(seat, card),
       card,
-      kind: front ? 'attacker' : 'defender',
-      cx: stackW / 2,
-      cy: top + w / 2,
+      kind: k === 0 && hasMain ? 'main' : hasMain ? 'attacker' : 'defender',
+      cx: width / 2,
+      cy: frontTop - k * strip + w / 2,
       rotation,
-      z: 99 - k,
+      z: 50 - k,
     })
   })
-  // Fighting Spirit beside the stack: newest in front at the bottom.
-  const fsX = fs.length ? stackW + FS_GAP * w + w / 2 : 0
-  const fsH = fs.length ? h + (fs.length - 1) * FS_STRIP * h : 0
-  const height = Math.max(stackH, fsH)
-  const shift = height - stackH
-  for (const c of cards) c.cy += shift
-  ;[...fs].reverse().forEach((f, k) => {
+  // Fighting Spirit in front, below the front card's strip: the oldest highest.
+  const fsTop = n ? frontTop + strip : 0
+  fs.forEach((f, k) => {
     cards.push({
       id: pieceId(seat, f.card),
       card: f.card,
       kind: 'fs',
-      cx: fsX,
-      cy: height - h / 2 - k * FS_STRIP * h,
+      cx: width / 2,
+      cy: fsTop + k * FS_STRIP * h + h / 2,
       rotation: 0,
-      z: 100 - k,
+      z: 60 + k,
       value: f.value,
     })
   })
-  return {
-    seat,
-    cards,
-    w: fs.length ? fsX + w / 2 : stackW,
-    h: height,
-  }
+  const stackBottom = n ? frontTop + w : 0
+  const fsBottom = fs.length ? fsTop + (fs.length - 1) * FS_STRIP * h + h : 0
+  return { seat, cards, w: width, h: Math.max(stackBottom, fsBottom) }
 }
