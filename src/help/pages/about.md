@@ -4,6 +4,12 @@
 
 The version you're using is shown at the bottom of the ☰ menu and on the Home screen.
 
+## Licence
+
+Copyright © 2026 Hanielle Marie N. Armas. All rights reserved. Hearthside Cardworks, Hearthside Table and the Adventure Scuffle! game content are proprietary: they may not be copied, changed, shared or sold without the owner's written permission.
+
+The icons, fonts and open-source libraries the app uses keep their own licences. They are listed in **THIRD_PARTY_NOTICES.txt**, which comes with the app: next to the program in the desktop app's resources folder, and at the site's address in the browser.
+
 ## Earlier name
 
 Hearthside Cardworks used to be called **Card Maker**. Your projects, settings and backup files from Card Maker keep working: the app still reads and writes the same formats and storage. On the desktop app, an existing **Documents/Card Maker** projects folder or **Card Maker data** folder keeps being used.

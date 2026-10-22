@@ -3,7 +3,7 @@
 # appId stays fixed so a rename never loses settings.
 appId: io.github.hollywoodenspoon.cardmaker
 productName: Hearthside Cardworks
-copyright: Copyright © 2026 hollywoodenspoon
+copyright: Copyright © 2026 Hanielle Marie N. Armas. All rights reserved.
 
 directories:
   output: release
@@ -15,6 +15,12 @@ files:
   - package.json
   - '!node_modules/**/*'
 asar: true
+# The licence and the third-party notices sit next to the program.
+extraResources:
+  - from: LICENSE
+    to: LICENSE.txt
+  - from: public/THIRD_PARTY_NOTICES.txt
+    to: THIRD_PARTY_NOTICES.txt
 # Updates come from GitHub Releases (only when the user turns them on). CI builds with
 # --publish never and the Release workflow uploads the files, including latest*.yml.
 publish:
@@ -28,7 +34,7 @@ linux:
     - pacman
   category: Graphics
   icon: public/pwa-512.png
-  maintainer: hollywoodenspoon
+  maintainer: Hanielle Marie N. Armas
   synopsis: Design cards and print them on A4 sheets
   artifactName: hearthside-cardworks-${version}-${arch}.${ext}
 
