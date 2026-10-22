@@ -14,6 +14,10 @@ on:
         description: Publish a GitHub Release (untick to only build the files)
         type: boolean
         default: true
+      pacman_only:
+        description: Only build the Arch package and update the pacman repository (no Windows, no AppImage, no versioned release)
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -21,12 +25,12 @@ permissions:
 jobs:
   build:
     strategy:
+      # One platform failing doesn't cancel the other's build.
+      fail-fast: false
+      # Windows: the targets in electron-builder.yml (Setup and portable). A pacman-only run
+      # builds just the Arch package (tag pushes have no inputs, so they always build everything).
       matrix:
-        include:
-          - os: ubuntu-latest
-            args: --linux AppImage pacman
-          - os: windows-latest
-            args: --win # the targets in electron-builder.yml: Setup (nsis) and portable
+        include: ${{ fromJSON(github.event_name == 'workflow_dispatch' && inputs.pacman_only && '[{"os":"ubuntu-latest","args":"--linux pacman"}]' || '[{"os":"ubuntu-latest","args":"--linux AppImage pacman"},{"os":"windows-latest","args":"--win"}]') }}
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -78,6 +82,7 @@ jobs:
           path: out
           merge-multiple: true
       - name: Create the release
+        if: ${{ !inputs.pacman_only }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |

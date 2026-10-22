@@ -108,29 +108,34 @@ describe('bots', () => {
 })
 
 describe('balance runs', () => {
-  it('play bot games and report per deck, deck against deck and per card', () => {
-    const r = simulate({
-      cards: FIRST_QUEST,
-      decks: FIRST_QUEST_DECKS,
-      games: 16,
-      levels: ['normal', 'easy'],
-      seed: 3,
-    })
-    expect(r.played).toBe(16)
-    expect(r.unfinished).toBe(0)
-    expect(r.problems).toEqual([])
-    const wins = Object.values(r.decks).reduce((n, [, w]) => n + w, 0)
-    expect(wins).toBe(16)
-    expect(r.levels.Normal[0] + r.levels.Easy[0]).toBe(32)
-    const md = report(r)
-    for (const h of [
-      '# Adventure Scuffle balance run',
-      '## Decks',
-      '## Deck against deck',
-      '## Bot levels',
-      '## Cards',
-    ])
-      expect(md).toContain(h)
-    expect(md).toContain('| Crimson Duelist |')
-  })
+  // 16 Normal-bot games: a second or two here, but slower on a Windows CI runner.
+  it(
+    'play bot games and report per deck, deck against deck and per card',
+    { timeout: 60_000 },
+    () => {
+      const r = simulate({
+        cards: FIRST_QUEST,
+        decks: FIRST_QUEST_DECKS,
+        games: 16,
+        levels: ['normal', 'easy'],
+        seed: 3,
+      })
+      expect(r.played).toBe(16)
+      expect(r.unfinished).toBe(0)
+      expect(r.problems).toEqual([])
+      const wins = Object.values(r.decks).reduce((n, [, w]) => n + w, 0)
+      expect(wins).toBe(16)
+      expect(r.levels.Normal[0] + r.levels.Easy[0]).toBe(32)
+      const md = report(r)
+      for (const h of [
+        '# Adventure Scuffle balance run',
+        '## Decks',
+        '## Deck against deck',
+        '## Bot levels',
+        '## Cards',
+      ])
+        expect(md).toContain(h)
+      expect(md).toContain('| Crimson Duelist |')
+    },
+  )
 })
