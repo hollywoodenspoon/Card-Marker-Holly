@@ -14,7 +14,7 @@ import { zoneKey, type GameSetup } from '@/playtest/setup'
 import type { TableState } from '@/playtest/state'
 import { Button, IconButton } from '@/ui/components/ui/button'
 import { TokenShape } from './Piece'
-import { usePlaytest } from './usePlaytest'
+import { shownRules, usePlaytest } from './usePlaytest'
 
 const PHASE_NAMES = {
   setup: 'Setup',
@@ -30,7 +30,7 @@ export function Tracker({ phone }: { phone: boolean }) {
   const state = usePlaytest((s) => s.state)!
   const act = usePlaytest((s) => s.act)
   // With the rules on, the rules keep score; the tracker only shows it.
-  const rules = usePlaytest((s) => s.rules)
+  const rules = usePlaytest(shownRules)
   if (rules)
     return (
       <div

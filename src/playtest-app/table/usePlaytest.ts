@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import type { BotLevel } from '@/adventure/bot'
-import { actor, apply, createGame, type Move, type NewGame } from '@/adventure/engine'
+import { actor, apply, applyFrames, createGame, type Move, type NewGame } from '@/adventure/engine'
 import type { AsState } from '@/adventure/state'
 import { toTable } from '@/adventure/table'
 import { applyAction, type TableAction } from '@/playtest/actions'
@@ -13,8 +13,62 @@ const HISTORY = 500
 
 /** A bot level per seat (null: a person plays that seat). */
 export type Bots = [BotLevel | null, BotLevel | null]
-export type BotSpeed = 'slow' | 'normal' | 'fast'
+/** How long each action stays on screen; Rush plays without pauses. */
+export type Speed = 'slow' | 'normal' | 'fast' | 'rush'
+export const SPEED_MS: Record<Speed, number> = { slow: 1800, normal: 1000, fast: 350, rush: 0 }
 const NO_BOTS: Bots = [null, null]
+const SPEED_KEY = 'hearthside-table-speed'
+
+function savedSpeed(): Speed {
+  try {
+    const v = localStorage.getItem(SPEED_KEY)
+    return v && v in SPEED_MS ? (v as Speed) : 'normal'
+  } catch {
+    return 'normal'
+  }
+}
+
+/**
+ * A move being shown one action at a time: `frames` from `applyFrames` (one
+ * per log line), `from` the state before it. `rules` already holds the result.
+ */
+export interface Playback {
+  from: AsState
+  frames: AsState[]
+  i: number
+}
+
+/**
+ * Watching a finished game. The game that was open is put aside (`stash`) and
+ * comes back on leaving.
+ */
+export interface Replay {
+  /** Every frame of the game, from the start. */
+  frames: AsState[]
+  /** Per frame: the move it belongs to. */
+  move: number[]
+  i: number
+  playing: boolean
+  title: string
+  stash: Stash
+}
+
+type Stash = Pick<
+  PlaytestStore,
+  | 'setup'
+  | 'state'
+  | 'past'
+  | 'future'
+  | 'viewer'
+  | 'rules'
+  | 'rulesPast'
+  | 'rulesFuture'
+  | 'bots'
+  | 'game'
+  | 'moves'
+  | 'movesFuture'
+  | 'packId'
+>
 
 const NO_RULES = {
   rules: null,
@@ -23,6 +77,10 @@ const NO_RULES = {
   picks: [],
   bots: NO_BOTS,
   botPaused: false,
+  playback: null,
+  game: null,
+  moves: [],
+  movesFuture: [],
 }
 
 /** Who sees the table at the start: the one person against a bot, or the player to act. */
@@ -58,8 +116,16 @@ interface PlaytestStore {
   picks: number[]
   /** Seats the bot plays, and how fast it moves. */
   bots: Bots
-  botSpeed: BotSpeed
+  speed: Speed
   botPaused: boolean
+  /** The move being shown action by action (null: nothing to show). */
+  playback: Playback | null
+  /** A finished game being watched (the open game waits in its stash). */
+  replay: Replay | null
+  /** How the rules game began, and its moves, one group per `play` (for replays). */
+  game: NewGame | null
+  moves: Move[][]
+  movesFuture: Move[][]
   start: (packId: string, setup: GameSetup, decks: (DeckCards | null)[]) => void
   /**
    * Start a game with the rules on. `hotseat`: two people share the device, so
@@ -77,9 +143,27 @@ interface PlaytestStore {
     setup: GameSetup,
     state: TableState,
     past: TableState[],
-    rules?: { state: AsState; past: AsState[]; viewer: number | null; bots?: Bots },
+    rules?: {
+      state: AsState
+      past: AsState[]
+      viewer: number | null
+      bots?: Bots
+      game?: NewGame
+      moves?: Move[][]
+    },
   ) => void
-  setBotSpeed: (s: BotSpeed) => void
+  setSpeed: (s: Speed) => void
+  /** Show the next action of the playback (or end it). */
+  nextFrame: () => void
+  /** Jump to the end of the playback. */
+  skip: () => void
+  /** Watch a game from its start and moves. */
+  watch: (setup: GameSetup, game: NewGame, moves: Move[], title: string) => void
+  /** Go to a frame of the replay. */
+  seek: (i: number) => void
+  setReplayPlaying: (p: boolean) => void
+  /** Leave the replay: the open game comes back. */
+  leaveReplay: () => void
   setBotPaused: (p: boolean) => void
   act: (a: TableAction) => void
   /** Play rule moves as one undo step. */
@@ -111,8 +195,13 @@ export const usePlaytest = create<PlaytestStore>((set, get) => ({
   rulesFuture: [],
   picks: [],
   bots: NO_BOTS,
-  botSpeed: 'normal',
+  speed: savedSpeed(),
   botPaused: false,
+  playback: null,
+  replay: null,
+  game: null,
+  moves: [],
+  movesFuture: [],
   start: (packId, setup, decks) =>
     set({
       packId,
@@ -140,6 +229,10 @@ export const usePlaytest = create<PlaytestStore>((set, get) => ({
       picks: [],
       bots,
       botPaused: false,
+      playback: null,
+      game,
+      moves: [],
+      movesFuture: [],
       viewer: firstViewer(rules, bots, hotseat),
     })
   },
@@ -161,28 +254,125 @@ export const usePlaytest = create<PlaytestStore>((set, get) => ({
             viewer: rules.viewer,
             bots: rules.bots ?? NO_BOTS,
             botPaused: false,
+            playback: null,
+            game: rules.game ?? null,
+            moves: rules.moves ?? [],
+            movesFuture: [],
           }
         : NO_RULES),
     }),
   play: (moves) => {
-    const { setup, rules, rulesPast } = get()
-    if (!setup || !rules) return
+    const { setup, rules, rulesPast, speed, replay, game } = get()
+    if (!setup || !rules || replay) return
+    // Moves played while a playback runs (a bot's, a quick tap) end it first.
     let next = rules
-    for (const m of Array.isArray(moves) ? moves : [moves]) next = apply(next, m)
+    const frames: AsState[] = []
+    const played: Move[] = []
+    for (const m of Array.isArray(moves) ? moves : [moves]) {
+      const f = speed === 'rush' ? [apply(next, m)] : applyFrames(next, m)
+      if (!f.length || f.at(-1) === next) continue
+      frames.push(...f)
+      played.push(m)
+      next = f.at(-1)!
+    }
     if (next === rules) return
+    const show = speed !== 'rush' && frames.length > 0
     set({
       rules: next,
-      state: toTable(setup, next),
+      state: toTable(setup, show ? frames[0] : next),
       rulesPast: [...rulesPast, rules].slice(-HISTORY),
       rulesFuture: [],
+      playback: show ? { from: rules, frames, i: 0 } : null,
+      moves: game ? [...get().moves, played] : [],
+      movesFuture: [],
       picks: [],
       selected: null,
       placing: false,
     })
   },
+  nextFrame: () => {
+    const { setup, playback, rules } = get()
+    if (!setup || !playback || !rules) return
+    const i = playback.i + 1
+    if (i >= playback.frames.length) return get().skip()
+    set({ playback: { ...playback, i }, state: toTable(setup, playback.frames[i]) })
+  },
+  skip: () => {
+    const { setup, playback, rules } = get()
+    if (!setup || !playback || !rules) return
+    set({ playback: null, state: toTable(setup, rules) })
+  },
+  watch: (setup, game, moves, title) => {
+    const cur = get()
+    const stash: Stash = {
+      setup: cur.setup,
+      state: cur.state,
+      past: cur.past,
+      future: cur.future,
+      viewer: cur.viewer,
+      rules: cur.replay ? cur.replay.stash.rules : cur.rules,
+      rulesPast: cur.rulesPast,
+      rulesFuture: cur.rulesFuture,
+      bots: cur.bots,
+      game: cur.game,
+      moves: cur.moves,
+      movesFuture: cur.movesFuture,
+      packId: cur.packId,
+    }
+    let s = createGame(game)
+    const frames = [s]
+    const move = [-1]
+    moves.forEach((m, n) => {
+      const f = applyFrames(s, m)
+      if (!f.length) return
+      frames.push(...f)
+      move.push(...f.map(() => n))
+      s = f.at(-1)!
+    })
+    set({
+      replay: { frames, move, i: 0, playing: true, title, stash: cur.replay?.stash ?? stash },
+      setup,
+      state: toTable(setup, frames[0]),
+      rules: frames[0],
+      past: [],
+      future: [],
+      rulesPast: [],
+      rulesFuture: [],
+      playback: null,
+      bots: NO_BOTS,
+      viewer: null,
+      picks: [],
+      selected: null,
+      placing: false,
+    })
+  },
+  seek: (i) => {
+    const { replay, setup } = get()
+    if (!replay || !setup) return
+    const at = Math.max(0, Math.min(replay.frames.length - 1, i))
+    set({
+      replay: { ...replay, i: at, playing: replay.playing && at < replay.frames.length - 1 },
+      rules: replay.frames[at],
+      state: toTable(setup, replay.frames[at]),
+    })
+  },
+  setReplayPlaying: (playing) => {
+    const { replay } = get()
+    if (!replay) return
+    const atEnd = replay.i >= replay.frames.length - 1
+    set({ replay: { ...replay, playing, i: playing && atEnd ? 0 : replay.i } })
+    if (playing && atEnd) get().seek(0)
+  },
+  leaveReplay: () => {
+    const { replay } = get()
+    if (!replay) return
+    set({ ...replay.stash, replay: null, playback: null, picks: [], selected: null })
+  },
   tapRules: (pieceId) => {
-    const { rules, picks, play, select, bots } = get()
+    const { rules, picks, play, select, bots, playback, replay } = get()
     if (!rules) return false
+    // Watching: taps only look.
+    if (playback || replay) return false
     // The bot's turn: taps only look.
     const a = actor(rules)
     if (a !== null && bots[a]) return false
@@ -198,7 +388,8 @@ export const usePlaytest = create<PlaytestStore>((set, get) => ({
     if (!setup || !state) return
     if (rules) {
       const who = actor(rules)
-      const moves = who !== null && get().bots[who] ? null : movesFor(rules, a)
+      const watching = get().playback || get().replay
+      const moves = watching || (who !== null && get().bots[who]) ? null : movesFor(rules, a)
       if (moves) get().play(moves)
       else set({ placing: false })
       return
@@ -208,7 +399,8 @@ export const usePlaytest = create<PlaytestStore>((set, get) => ({
     set({ state: next, past: [...past, state].slice(-HISTORY), future: [], placing: false })
   },
   undo: () => {
-    const { setup, rules, rulesPast, rulesFuture, bots } = get()
+    const { setup, rules, rulesPast, rulesFuture, bots, replay, moves, movesFuture } = get()
+    if (replay) return
     if (setup && rules) {
       if (!rulesPast.length) return
       // Against a bot, undo goes back to your own last decision (the bot's moves too).
@@ -225,6 +417,9 @@ export const usePlaytest = create<PlaytestStore>((set, get) => ({
         state: toTable(setup, prev),
         rulesPast: rulesPast.slice(0, -n),
         rulesFuture: [...rulesPast.slice(-n + 1 || rulesPast.length), rules, ...rulesFuture],
+        moves: moves.slice(0, Math.max(0, moves.length - n)),
+        movesFuture: [...moves.slice(Math.max(0, moves.length - n)), ...movesFuture],
+        playback: null,
         picks: [],
         placing: false,
         botPaused: againstBot ? false : get().botPaused,
@@ -240,7 +435,8 @@ export const usePlaytest = create<PlaytestStore>((set, get) => ({
     })
   },
   redo: () => {
-    const { setup, rules, rulesPast, rulesFuture } = get()
+    const { setup, rules, rulesPast, rulesFuture, replay, moves, movesFuture } = get()
+    if (replay) return
     if (setup && rules) {
       if (!rulesFuture.length) return
       const next = rulesFuture[0]
@@ -249,6 +445,9 @@ export const usePlaytest = create<PlaytestStore>((set, get) => ({
         state: toTable(setup, next),
         rulesPast: [...rulesPast, rules],
         rulesFuture: rulesFuture.slice(1),
+        moves: movesFuture.length ? [...moves, movesFuture[0]] : moves,
+        movesFuture: movesFuture.slice(1),
+        playback: null,
         picks: [],
         placing: false,
       })
@@ -280,6 +479,25 @@ export const usePlaytest = create<PlaytestStore>((set, get) => ({
     }),
   select: (selected, placing = false) => set({ selected, placing }),
   setViewer: (viewer) => set({ viewer }),
-  setBotSpeed: (botSpeed) => set({ botSpeed }),
+  setSpeed: (speed) => {
+    try {
+      localStorage.setItem(SPEED_KEY, speed)
+    } catch {
+      // Not saved (private mode): the choice still holds for this visit.
+    }
+    if (speed === 'rush') get().skip()
+    set({ speed })
+  },
   setBotPaused: (botPaused) => set({ botPaused }),
 }))
+
+/** The rules state on screen: the playback's current action, or the game itself. */
+export const shownRules = (s: PlaytestStore): AsState | null =>
+  s.playback ? s.playback.frames[s.playback.i] : s.rules
+
+/** The moment before the one on screen, while actions are being shown (for the cues). */
+export const shownBefore = (s: PlaytestStore): AsState | null => {
+  if (s.playback) return s.playback.i > 0 ? s.playback.frames[s.playback.i - 1] : s.playback.from
+  if (s.replay) return s.replay.i > 0 ? s.replay.frames[s.replay.i - 1] : null
+  return null
+}

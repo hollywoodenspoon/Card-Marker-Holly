@@ -4,18 +4,18 @@ The Mutual Reveal rules as code, in `src/adventure/`. It is plain TypeScript wit
 
 ## Files
 
-| File         | What it holds                                                                            |
-| ------------ | ---------------------------------------------------------------------------------------- |
-| `cards.ts`   | `AsCard`: a card's values read from the pack's `_AS` fields                              |
-| `deck.ts`    | Free Company check: 12 different cards, at most 1 Ace                                    |
-| `board.ts`   | The 2 × 3 field: slot numbers, neighbours, mirrored positions, names                     |
-| `state.ts`   | `AsState`, the whole game as plain data                                                  |
-| `engine.ts`  | `createGame`, `legalMoves`, `apply`, `prompt`                                            |
-| `stats.ts`   | Card values and Engagement totals                                                        |
-| `observe.ts` | `observeAs`: the game as one player may know it                                          |
-| `table.ts`   | `toTable`: draws a game on the Hearthside Table setup                                    |
-| `effects/`   | Card abilities: `types.ts`, `helpers.ts` (keywords), `cards.ts` (by code), `registry.ts` |
-| `fixtures/`  | Test cards (basic and The First Quest), random games, saved scripted games (JSON)        |
+| File         | What it holds                                                                                      |
+| ------------ | -------------------------------------------------------------------------------------------------- |
+| `cards.ts`   | `AsCard`: a card's values read from the pack's `_AS` fields, with `archetypes` from `Archetype_AS` |
+| `deck.ts`    | Free Company check: 12 different cards, at most 1 Ace                                              |
+| `board.ts`   | The 2 × 3 field: slot numbers, neighbours, mirrored positions, names                               |
+| `state.ts`   | `AsState`, the whole game as plain data                                                            |
+| `engine.ts`  | `createGame`, `legalMoves`, `apply`, `prompt`                                                      |
+| `stats.ts`   | Card values and Engagement totals                                                                  |
+| `observe.ts` | `observeAs`: the game as one player may know it                                                    |
+| `table.ts`   | `toTable`: draws a game on the Hearthside Table setup                                              |
+| `effects/`   | Card abilities: `types.ts`, `helpers.ts` (keywords), `cards.ts` (by code), `registry.ts`           |
+| `fixtures/`  | Test cards (basic and The First Quest), random games, saved scripted games (JSON)                  |
 
 ## The field
 
@@ -108,6 +108,10 @@ Rest costs (`restCost`) pick Support cards one at a time. Cards already promised
 
 The card ability tests (`effects/cards.test.ts`) build small boards from `fixtures/firstQuest.ts`, the 45 cards with ids `tfq01` to `tfq45`. `fixtures/randomGame.ts` plays random legal moves from a seed. A port can use it the same way, to check that games always end and no card is lost.
 
+## Step by step
+
+`applyFrames(state, move)` returns the states a move passes through, one per log line it adds, each taken just before the next line is logged (or at the end). The last one is `apply(state, move)`. It works through an optional recorder in `log()`, which `apply` never sets. The Playtest app uses it to show moves action by action, and to rebuild a replay from its start and moves.
+
 ## Bots and balance runs
 
 `bot/index.ts`: `botMove(state, level, seed, {playouts})` returns a move for the player to act, given as `'easy'`, `'normal'` or `'hard'`.
@@ -124,4 +128,8 @@ The card ability tests (`effects/cards.test.ts`) build small boards from `fixtur
 - results per deck, per pairing, per level and per card
 - any game that refused a bot's move or lost a card
 
+`playMatch(game, levels, playouts)` plays one game with a bot on each seat and returns its moves (and who made each). `simulate` uses it, and its `onMatch` callback passes each finished game. `sim/rush.ts` plays one deck against another for the app's Rush mode, in `sim/rush.worker.ts`.
+
 `report(result)` turns them into Markdown. `npm run as:sim -- --games 500 --levels normal,hard --pack my.cmpack --out report.md` runs it from the command line.
+
+Archetype checks go through `inArchetype(s, card, word)` (`effects/helpers.ts`). A card's `archetypes` list decides when it isn't empty. Otherwise the word must appear in the card's name.

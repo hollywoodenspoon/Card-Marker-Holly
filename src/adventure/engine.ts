@@ -1,8 +1,8 @@
-import { produce, type Draft } from 'immer'
+import { current, produce, type Draft } from 'immer'
 import { nextInt, shuffle } from '@/playtest/rng'
 import type { AsCard } from './cards'
 import { ADJACENT_PAIRS, neighbours, SLOTS, slotName } from './board'
-import { log, rest, coin } from './effects/helpers'
+import { coin, log, recordLog, rest } from './effects/helpers'
 import { rulesOf } from './effects/registry'
 import type { Ability, Ctx, Option, PlanIO } from './effects/types'
 import { engagementSides, engagementTotals, fightingSpirit } from './stats'
@@ -328,6 +328,29 @@ export function apply(s: AsState, m: Move): AsState {
   })
 }
 
+/**
+ * `apply`, step by step for the screen: one state per log line the move adds,
+ * each holding every change that line describes (taken just before the next
+ * line, or at the end). The last frame is `apply(s, m)`. An illegal move gives
+ * no frames; a move that logs nothing gives just the result.
+ */
+export function applyFrames(s: AsState, m: Move): AsState[] {
+  if (!isLegal(s, m)) return []
+  const frames: AsState[] = []
+  const start = s.log.length
+  let final: AsState
+  recordLog((d) => {
+    if (d.log.length > start) frames.push(current(d) as AsState)
+  })
+  try {
+    final = apply(s, m)
+  } finally {
+    recordLog(null)
+  }
+  frames.push(final)
+  return frames
+}
+
 function play(d: D, m: Move) {
   const st = d.step
   if (st.k === 'over') return
@@ -607,8 +630,9 @@ function nextEngagement(d: D) {
   d.engagement = { attacker, fs: [[], []], passed: [false, false], tried: [] }
   const t = engagementTotals(d, d.engagement)
   if (sides.defenders.length === 0) {
-    d.engagement = null
     log(d, `No defender is on or next to that position: ${nameOf(d, attacker)} scores.`)
+    // Cleared after the line, so a step-by-step view still shows the Engagement.
+    d.engagement = null
     return score(d, {
       attacker,
       attack: t.attack,
@@ -630,11 +654,11 @@ function nextFsTurn(d: D, acted: Seat) {
     const t = engagementTotals(d, e)
     const scorer =
       t.attack > t.defense ? e.attacker : t.defense > t.attack ? other(e.attacker) : null
-    d.engagement = null
     log(
       d,
       `Attack ${t.attack} vs Defense ${t.defense}: ${scorer === null ? 'a tie, no points' : `${nameOf(d, scorer)} scores`}.`,
     )
+    d.engagement = null
     score(d, { attacker: e.attacker, attack: t.attack, defense: t.defense, scorer })
   }
 }

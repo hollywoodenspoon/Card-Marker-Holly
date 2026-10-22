@@ -8,7 +8,15 @@ import type { Ctx, D, Option, PlanIO } from './types'
 
 type S = AsState | D
 
+let recorder: ((d: D) => void) | null = null
+
+/** Watch every log line (`applyFrames`): called just before each line is added. */
+export function recordLog(r: ((d: D) => void) | null) {
+  recorder = r
+}
+
 export function log(d: D, text: string, flag?: boolean) {
+  recorder?.(d)
   d.log.push(flag ? { n: d.log.length + 1, text, flag } : { n: d.log.length + 1, text })
 }
 
@@ -22,9 +30,16 @@ export function rand(d: D, n: number) {
 /** A coin flip: true for Heads. */
 export const coin = (d: D) => rand(d, 2) === 0
 
-/** Archetype: the card's name contains the word (Hero of Rianz is a Rianz card). */
-export const nameHas = (s: S, card: string, word: string) =>
-  new RegExp(`\\b${word}\\b`, 'i').test(s.cards[card]?.name ?? '')
+/**
+ * Is the card of this archetype? Its `Archetype_AS` list decides when it has
+ * one; otherwise its name containing the word does (Hero of Rianz is a Rianz card).
+ */
+export function inArchetype(s: S, card: string, word: string) {
+  const c = s.cards[card]
+  if (!c) return false
+  if (c.archetypes?.length) return c.archetypes.some((a) => a.toLowerCase() === word.toLowerCase())
+  return new RegExp(`\\b${word}\\b`, 'i').test(c.name)
+}
 
 /** Face-up cards on a player's field (abilities and "on your field" checks see only these). */
 export const faceUp = (s: S, seat: Seat) =>
@@ -34,11 +49,11 @@ export const faceUp = (s: S, seat: Seat) =>
 
 /** "If a [word] card is also on your field" (never counting the card itself). */
 export const archOnField = (s: S, seat: Seat, word: string, self: string) =>
-  faceUp(s, seat).some((x) => x.card !== self && nameHas(s, x.card, word))
+  faceUp(s, seat).some((x) => x.card !== self && inArchetype(s, x.card, word))
 
 /** "If a [word] card is in your rest zone." */
 export const archInRest = (s: S, seat: Seat, word: string, self: string) =>
-  s.players[seat].rest.some((c) => c !== self && nameHas(s, c, word))
+  s.players[seat].rest.some((c) => c !== self && inArchetype(s, c, word))
 
 export const restCount = (s: S, seat: Seat) => s.players[seat].rest.length
 export const isCenterSlot = (slot: number) => colOf(slot) === 1

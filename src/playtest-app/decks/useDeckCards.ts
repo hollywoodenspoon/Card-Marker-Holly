@@ -20,6 +20,7 @@ export function useDeckCards() {
       fate: 0,
       ability: '',
       group: '',
+      archetypes: [],
     }))
     return { adventure: false, cards, issues: [] }
   }, [info.cards])

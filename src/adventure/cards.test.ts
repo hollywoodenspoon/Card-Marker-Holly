@@ -27,6 +27,13 @@ const as = (i: number, extra: PackCard['fields'] = {}) =>
   })
 
 describe('reading Adventure Scuffle cards', () => {
+  it('reads Archetype_AS as a list, empty when absent', () => {
+    expect(cardsFromPack([as(1)]).cards[0].archetypes).toEqual([])
+    expect(
+      cardsFromPack([as(1, { Archetype_AS: 'Rianz, Hero; Knight' })]).cards[0].archetypes,
+    ).toEqual(['Rianz', 'Hero', 'Knight'])
+  })
+
   it('reads stats, the code and the group, with numbers from text or icon rows', () => {
     const { cards, issues } = cardsFromPack([as(1)])
     expect(issues).toEqual([])

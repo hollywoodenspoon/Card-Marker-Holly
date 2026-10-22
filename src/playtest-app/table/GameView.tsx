@@ -1,12 +1,28 @@
-import { ArrowLeft, CircleHelp, Plus, Redo2, ScrollText, Trophy, Undo2 } from '@/ui/icons'
-import { useEffect, useState } from 'react'
+import {
+  ArrowLeft,
+  CircleHelp,
+  Eye,
+  Film,
+  Plus,
+  Redo2,
+  ScrollText,
+  Trophy,
+  Undo2,
+} from '@/ui/icons'
+import { useEffect, useMemo, useState } from 'react'
 import { askConfirm } from '@/ui/components/feedback'
 import { Button, IconButton } from '@/ui/components/ui/button'
 import { NativeSelect } from '@/ui/components/ui/input'
 import { Sheet } from '@/ui/components/ui/sheet'
 import { useBackHandler, useEscapeToClose } from '@/ui/components/overlay'
-import { actor } from '@/adventure/engine'
+import { actor, type Move, type NewGame } from '@/adventure/engine'
+import type { ReplayRow, RushRow } from '@/playtest/library'
+import { presets } from '@/playtest/setup'
 import { ActionBar } from './ActionBar'
+import { ActionCallout } from './ActionCallout'
+import { CardPreview } from './CardPreview'
+import { CombatStage } from './CombatStage'
+import { stagedIds, useStage } from './useStage'
 import { DeckBuilder } from '../decks/DeckBuilder'
 import { CardZoom } from './CardZoom'
 import { LogPanel } from './LogPanel'
@@ -14,8 +30,13 @@ import { StartPanel } from './StartPanel'
 import { TableCanvas } from './TableCanvas'
 import { Tracker } from './Tracker'
 import { usePack } from './packContext'
+import { ReplayBar } from './ReplayBar'
+import { keepReplay } from './replays'
+import { ReplaysView } from './ReplaysView'
 import { RulesBar } from './RulesBar'
-import { useBotDriver } from './useBotDriver'
+import { RushView } from './RushView'
+import type { RushRun } from './rushTally'
+import { useBotDriver, useFrameTimer } from './useBotDriver'
 import { usePlaytest } from './usePlaytest'
 import { ZoneSheet } from './ZoneSheet'
 
@@ -49,15 +70,45 @@ export function GameView({
   const bots = usePlaytest((s) => s.bots)
   // Only when two people share the device (a bot needs no hand-over).
   const twoPeople = !bots[0] && !bots[1]
+  const showing = usePlaytest((s) => !!s.playback)
+  // The hand-over waits until the last move has been shown.
   const handOver =
-    rules && twoPeople && viewer !== null && toAct !== null && toAct !== viewer ? toAct : null
+    rules && twoPeople && !showing && viewer !== null && toAct !== null && toAct !== viewer
+      ? toAct
+      : null
   const driver = useBotDriver()
+  useFrameTimer()
+  const stage = useStage()
+  const staged = useMemo(() => stagedIds(stage), [stage])
+  const [preview, setPreview] = useState<string | null>(null)
   const playing = !!setup && !!state && ownPack
   const [zone, setZone] = useState<string | null>(null)
   const [zoom, setZoom] = useState<string | null>(null)
   const [logOpen, setLogOpen] = useState(!phone)
   const [winSeen, setWinSeen] = useState<string | null>(null)
   const [decksOpen, setDecksOpen] = useState(false)
+  const replay = usePlaytest((s) => s.replay)
+  // The Replays list or a Rush batch, over everything (and where a replay goes back to).
+  type Screen = { k: 'replays' } | { k: 'rush'; run?: RushRun; row?: RushRow } | null
+  const [screen, setScreen] = useState<Screen>(null)
+  const [afterReplay, setAfterReplay] = useState<Screen>(null)
+  const watch = (game: NewGame, moves: Move[], title: string, back: Screen) => {
+    const asSetup = presets(pack.info.cardSize).find((x) => x.id === 'preset:adventure-scuffle')!
+    setPreview(null)
+    setScreen(null)
+    setAfterReplay(back)
+    usePlaytest.getState().watch(asSetup, game, moves, title)
+  }
+  const leaveReplay = () => {
+    usePlaytest.getState().leaveReplay()
+    setPreview(null)
+    setScreen(afterReplay)
+  }
+  const watchThisGame = async () => {
+    await keepReplay()
+    const { game, moves, rules: r } = usePlaytest.getState()
+    if (game && r) watch(game, moves.flat(), `${r.players[0].name} vs ${r.players[1].name}`, null)
+  }
   // Remounts the start panel after the Decks screen, so new decks are listed.
   const [deckRev, setDeckRev] = useState(0)
 
@@ -100,6 +151,9 @@ export function GameView({
       }))
     )
       return
+    // A game left after its first round is kept as a replay.
+    const r = usePlaytest.getState().rules
+    if (r && !r.winner && r.round > 1) await keepReplay()
     usePlaytest.getState().end()
   }
 
@@ -139,29 +193,52 @@ export function GameView({
                 </option>
               ))}
             </NativeSelect>
-            <UndoRedo />
+            {!replay && <UndoRedo />}
             <IconButton label="Game log" active={logOpen} onClick={() => setLogOpen((o) => !o)}>
               <ScrollText />
             </IconButton>
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={() => void newGame()}
-              aria-label="New game"
-            >
-              <Plus /> <span className="hidden sm:inline">New game</span>
-            </Button>
+            {!replay && (
+              <IconButton label="Replays" onClick={() => setScreen({ k: 'replays' })}>
+                <Film />
+              </IconButton>
+            )}
+            {!replay && (
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => void newGame()}
+                aria-label="New game"
+              >
+                <Plus /> <span className="hidden sm:inline">New game</span>
+              </Button>
+            )}
           </>
         )}
       </header>
       {!playing ? (
-        <StartPanel key={deckRev} onDecks={() => setDecksOpen(true)} />
+        <StartPanel
+          key={deckRev}
+          onDecks={() => setDecksOpen(true)}
+          onReplays={() => setScreen({ k: 'replays' })}
+          onRush={(run) => setScreen({ k: 'rush', run })}
+        />
       ) : (
         <>
           <Tracker phone={phone} />
           <div className="flex min-h-0 flex-1">
             <div className="relative flex min-w-0 flex-1 flex-col">
-              <TableCanvas onOpenZone={setZone} />
+              <TableCanvas onOpenZone={setZone} onPreview={setPreview} staged={staged} />
+              {stage && <CombatStage stage={stage} onPreview={setPreview} />}
+              <ActionCallout
+                onPreview={setPreview}
+                onLog={phone ? () => setLogOpen(true) : undefined}
+              />
+              <CardPreview
+                pieceId={preview}
+                phone={phone}
+                onClose={() => setPreview(null)}
+                onEnlarge={setZoom}
+              />
               {handOver !== null && (
                 <div
                   className="absolute inset-0 z-[500] grid place-items-center bg-canvas p-4"
@@ -188,7 +265,7 @@ export function GameView({
                   </div>
                 </div>
               )}
-              {winner && winKey !== winSeen && (
+              {winner && winKey !== winSeen && !replay && (
                 <div
                   className="absolute bottom-3 left-3 z-[400] flex max-w-[calc(100%-1.5rem)] flex-wrap items-center gap-3 rounded-xl border bg-panel px-4 py-2 shadow-xl"
                   role="status"
@@ -198,6 +275,16 @@ export function GameView({
                     {winner.seat === null ? 'The table' : setup.seats[winner.seat]?.name} wins!
                   </span>
                   <span className="text-xs text-muted-foreground">{winner.reason}</span>
+                  {rules && usePlaytest.getState().game && (
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() => void watchThisGame()}
+                      data-testid="watch-this-game"
+                    >
+                      <Eye /> Watch replay
+                    </Button>
+                  )}
                   <Button size="sm" variant="ghost" onClick={() => setWinSeen(winKey)}>
                     Keep playing
                   </Button>
@@ -213,7 +300,9 @@ export function GameView({
               </aside>
             )}
           </div>
-          {rules ? (
+          {replay ? (
+            <ReplayBar onLeave={leaveReplay} />
+          ) : rules ? (
             <RulesBar onZoom={setZoom} botToAct={driver.botToAct} onBotStep={driver.step} />
           ) : (
             <>
@@ -229,6 +318,26 @@ export function GameView({
           <ZoneSheet zone={zone} onClose={() => setZone(null)} phone={phone} />
           <CardZoom pieceId={zoom} onClose={() => setZoom(null)} />
         </>
+      )}
+      {screen?.k === 'replays' && (
+        <ReplaysView
+          packId={pack.id}
+          onClose={() => setScreen(null)}
+          onWatch={(r: ReplayRow) =>
+            watch(r.game, r.moves, `${r.names[0]} vs ${r.names[1]}`, { k: 'replays' })
+          }
+          onRush={(row) => setScreen({ k: 'rush', row })}
+        />
+      )}
+      {screen?.k === 'rush' && (
+        <RushView
+          // A new batch, or a saved one: each its own view.
+          key={screen.row?.id ?? 'run'}
+          run={screen.run}
+          row={screen.row}
+          onClose={() => setScreen(null)}
+          onWatch={(game, moves, title) => watch(game, moves, title, screen)}
+        />
       )}
       {decksOpen && (
         <DeckBuilder

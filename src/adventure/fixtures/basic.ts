@@ -20,6 +20,7 @@ export function basicCards(n = 24): AsCard[] {
       fate: 100 + 20 * i,
       ability: '',
       group: '',
+      archetypes: [],
     }
   })
 }

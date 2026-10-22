@@ -1,4 +1,4 @@
-import type { AsCard } from '../cards'
+import { archetypeList, type AsCard } from '../cards'
 
 /**
  * The First Quest (v3): the owner's 45 cards as Hearthside Cardworks
@@ -14,6 +14,7 @@ const row = (
   fate: number,
   group: string,
   ability: string,
+  archetypes = '',
 ): AsCard => ({
   id: code.toLowerCase().replace('-', ''),
   code,
@@ -26,6 +27,7 @@ const row = (
   fate,
   ability,
   group,
+  archetypes: archetypeList(archetypes),
 })
 
 export const FIRST_QUEST: AsCard[] = [
@@ -171,6 +173,7 @@ export const FIRST_QUEST: AsCard[] = [
     113,
     "Hero's Retinue",
     'Attack Unbound: Non-adjacent cards are counted for attack.',
+    'Rianz',
   ),
   row(
     'TFQ-14',
@@ -215,6 +218,7 @@ export const FIRST_QUEST: AsCard[] = [
     370,
     "Hero's Retinue",
     "Swap the target opponent's card's position with another card on their field.",
+    'Rianz',
   ),
   row(
     'TFQ-18',
@@ -248,6 +252,7 @@ export const FIRST_QUEST: AsCard[] = [
     383,
     "Hero's Retinue",
     'Reveal this card. Once per round: your opponent reveals a random card from their Support to you.',
+    'Rianz',
   ),
   row(
     'TFQ-21',
@@ -281,6 +286,7 @@ export const FIRST_QUEST: AsCard[] = [
     422,
     "Hero's Retinue",
     'If a Rianz card is also on your field: +1 {attack_as}. If a Rianz card is in your rest zone: +1 {defense_as}.',
+    'Rianz',
   ),
   row(
     'TFQ-24',
@@ -314,6 +320,7 @@ export const FIRST_QUEST: AsCard[] = [
     177,
     'Necromancer Deck',
     'Initiative, 3+ Rest Zone: +1 {fightingspirit_as}. If a Grave card is also on your field: +1 {fightingspirit_as}.',
+    'Grave',
   ),
   row(
     'TFQ-27',
@@ -325,6 +332,7 @@ export const FIRST_QUEST: AsCard[] = [
     434,
     'Necromancer Deck',
     'No-Initiative, 3+ Rest Zone: +1 {fightingspirit_as}. If a Grave card is also on your field: +1 {fightingspirit_as}.',
+    'Grave',
   ),
   row(
     'TFQ-28',
@@ -336,6 +344,7 @@ export const FIRST_QUEST: AsCard[] = [
     447,
     'Necromancer Deck',
     'If a Grave card is also on your field: +1 {attack_as}. If a Grave card is in your rest zone: +1 {defense_as}.',
+    'Grave',
   ),
   row(
     'TFQ-29',
@@ -347,6 +356,7 @@ export const FIRST_QUEST: AsCard[] = [
     627,
     'Necromancer Deck',
     'Return a Grave card from your rest zone to your Support. If a Grave card is in your rest zone, this card does not need to be rested after use.',
+    'Grave',
   ),
   row(
     'TFQ-30',
@@ -358,6 +368,7 @@ export const FIRST_QUEST: AsCard[] = [
     460,
     'Necromancer Deck',
     'Swap the position of a Grave card on your field with another card on your field.',
+    'Grave',
   ),
   row(
     'TFQ-31',
@@ -369,6 +380,7 @@ export const FIRST_QUEST: AsCard[] = [
     473,
     'Necromancer Deck',
     "Rest 1: Target a ready card on the opponent's field. It is turned to the ability-active position without resolving its ability.",
+    'Grave',
   ),
   row(
     'TFQ-32',
@@ -380,6 +392,7 @@ export const FIRST_QUEST: AsCard[] = [
     254,
     'Necromancer Deck',
     'If a Ghoulish card is also on your field: You may use this card for Fighting Spirit this Engagement. It gets +1 {fightingspirit_as}.',
+    'Ghoulish',
   ),
   row(
     'TFQ-33',
@@ -391,6 +404,7 @@ export const FIRST_QUEST: AsCard[] = [
     640,
     'Necromancer Deck',
     'If a Ghoulish card is in your rest zone: You may use this card for Fighting Spirit this Engagement. It gets +1 {fightingspirit_as}.',
+    'Ghoulish',
   ),
   row(
     'TFQ-34',
@@ -402,6 +416,7 @@ export const FIRST_QUEST: AsCard[] = [
     190,
     'Necromancer Deck',
     'If a Ghoulish card was revealed as Fighting Spirit this Engagement: +1 {fightingspirit_as}.',
+    'Ghoulish',
   ),
   row(
     'TFQ-35',
@@ -457,6 +472,7 @@ export const FIRST_QUEST: AsCard[] = [
     486,
     'Bonus Cards',
     'Flip Ability: Swap the position of a Ghoulish card on your field with another card on your field.',
+    'Ghoulish',
   ),
   row(
     'TFQ-40',
