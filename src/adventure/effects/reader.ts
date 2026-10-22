@@ -104,12 +104,8 @@ const CONDITIONS: [RegExp, (g: Record<string, string>) => Test][] = [
     new RegExp(`^if an? ${W} card was revealed as fighting spirit this engagement$`),
     (g) => (q) => !!q.e && q.e.fs[q.seat].some((x) => inArchetype(q.s, x.card, g.w)),
   ],
-  // Kindred Strike (W) and Echo Bond: the same check (this card isn't counted:
-  // it is checked before it joins the Fighting Spirit).
-  [
-    new RegExp(`^kindred strike \\(${W}\\)$`),
-    (g) => (q) => !!q.e && q.e.fs[q.seat].some((x) => inArchetype(q.s, x.card, g.w)),
-  ],
+  // Echo Bond: the same check (this card isn't counted: it is checked before it
+  // joins the Fighting Spirit).
   [
     new RegExp(
       `^if another ${W} card was already revealed (?:as fighting spirit )?this engagement$`,
@@ -137,11 +133,7 @@ const CONDITIONS: [RegExp, (g: Record<string, string>) => Test][] = [
 ]
 
 /** Keyword names before a colon whose rule the rest of the clause spells out. */
-const LABELS = [
-  new RegExp(`^kindred (?:return|maneuver|discount) \\(${W}\\)$`),
-  /^(?:field|fallen|echo) bond$/,
-  /^(?:attack|defense) (?:override|surge|unbound)$/,
-]
+const LABELS = [/^(?:field|fallen|echo) bond$/, /^(?:attack|defense) (?:override|surge|unbound)$/]
 
 function readConds(text: string | undefined): Conds | null {
   const c: Conds = { tests: [], once: false, cost: 0 }

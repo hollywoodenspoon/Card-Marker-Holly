@@ -633,8 +633,9 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 
 - **The owner's archive of cut and future cards** came with the old rulebook texts. The reader now knows the keywords those define:
   - **First Blood:** no card has been revealed as Fighting Spirit yet this Engagement. **Ambush:** the opponent has already passed this Engagement.
-  - **Kindred Strike (W)** and **Echo Bond:** you revealed a W card before this one this Engagement. A card's archetype check never counts itself, which matches how Strike already worked.
-  - **Kindred Return, Maneuver and Discount, Field and Fallen Bond, Attack and Defense Override, Surge and Unbound** are read as keyword names when the clause spells out their rule.
+  - **Echo Bond:** you revealed a W card before this one this Engagement. A card's archetype check never counts itself, which matches how the First Quest's "a Ghoulish card was revealed" already worked.
+  - **Field and Fallen Bond, Attack and Defense Override, Surge and Unbound** are read as keyword names when the clause spells out their rule.
+  - **The Kindred names are not read** (owner's ruling). The owner retired the word Kindred and its types (Strike, Return, Maneuver, Discount). Their effects live on as plain text on the archetype cards, which the reader already knows. A card still worded with Kindred gets the can't-read warning, so it's reworded.
   - **Overrides:** "Non-adjacent cards are counted for defense", and the archetype variant "Non-adjacent [W] cards are counted for attack", last for the round (`RoundFlags.unbound`).
   - **Smaller phrases:** "Put a card from your rest zone into your Support" (any card), "Target player rests a card from their Support", a field card swapping itself with another field card, First Engagement, the opponent's rest-zone count, your Support count, and the opponent's Main Attacker in the Center or Flank.
 - **Only Battle Abilities give Fighting Spirit:** an "+N FS" clause on a Field, Flip, Inherent or Support card is left unread, as the rulebook says. The archive's Falconer Knight is the example.

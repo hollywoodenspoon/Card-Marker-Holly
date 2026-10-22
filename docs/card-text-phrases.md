@@ -32,27 +32,29 @@ A card has at most one action. An action on an Inherent or Rest card isn't read.
 
 Put these before a colon. They work with any phrase that takes conditions.
 
-| Condition                                                                                  | Holds when…                                                            |
-| ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
-| `Attacking Side` / `Defending Side`                                                        | you attack / defend in this Engagement                                 |
-| `Initiative` / `No-Initiative`                                                             | you have / don't have the initiative                                   |
-| `N+ Rest Zone`, or `If you have N or more cards in your rest zone`                         | your rest zone holds at least N cards                                  |
-| `If a [W] card is also on your field`                                                      | another face-up [W] card is on your field                              |
-| `If a [W] card is in your rest zone`                                                       | another [W] card is in your rest zone                                  |
-| `If opponent has an Ace on their field`                                                    | the opponent has a face-up Ace on their field                          |
-| `Center` / `Flank`                                                                         | this card is in the middle column / a side column                      |
-| `First Engagement` / `Second Engagement`                                                   | this is the round's first / second Engagement                          |
-| `Won First Engagement`                                                                     | you scored the round's first Engagement                                |
-| `Lost Previous Engagement`                                                                 | your opponent scored the Engagement before this one                    |
-| `If a [W] card was revealed as Fighting Spirit this Engagement`, or `Kindred Strike ([W])` | you revealed a [W] card before this one this Engagement                |
-| `If another [W] card was already revealed this Engagement` (Echo Bond)                     | the same                                                               |
-| `If opponent has N+ cards in their rest zone`                                              | the opponent's rest zone holds at least N cards                        |
-| `If you have N or fewer cards in Support`                                                  | your Support holds at most N cards (this card included, if it's there) |
-| `If opponent's Main Attacker is in the Center` / `… in the Flank`                          | the opponent's Main Attacker this Engagement stands there              |
-| `First Blood`                                                                              | no card has been revealed as Fighting Spirit yet this Engagement       |
-| `Ambush`                                                                                   | your opponent has already passed this Engagement                       |
+| Condition                                                              | Holds when…                                                            |
+| ---------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| `Attacking Side` / `Defending Side`                                    | you attack / defend in this Engagement                                 |
+| `Initiative` / `No-Initiative`                                         | you have / don't have the initiative                                   |
+| `N+ Rest Zone`, or `If you have N or more cards in your rest zone`     | your rest zone holds at least N cards                                  |
+| `If a [W] card is also on your field`                                  | another face-up [W] card is on your field                              |
+| `If a [W] card is in your rest zone`                                   | another [W] card is in your rest zone                                  |
+| `If opponent has an Ace on their field`                                | the opponent has a face-up Ace on their field                          |
+| `Center` / `Flank`                                                     | this card is in the middle column / a side column                      |
+| `First Engagement` / `Second Engagement`                               | this is the round's first / second Engagement                          |
+| `Won First Engagement`                                                 | you scored the round's first Engagement                                |
+| `Lost Previous Engagement`                                             | your opponent scored the Engagement before this one                    |
+| `If a [W] card was revealed as Fighting Spirit this Engagement`        | you revealed a [W] card before this one this Engagement                |
+| `If another [W] card was already revealed this Engagement` (Echo Bond) | the same                                                               |
+| `If opponent has N+ cards in their rest zone`                          | the opponent's rest zone holds at least N cards                        |
+| `If you have N or fewer cards in Support`                              | your Support holds at most N cards (this card included, if it's there) |
+| `If opponent's Main Attacker is in the Center` / `… in the Flank`      | the opponent's Main Attacker this Engagement stands there              |
+| `First Blood`                                                          | no card has been revealed as Fighting Spirit yet this Engagement       |
+| `Ambush`                                                               | your opponent has already passed this Engagement                       |
 
-**Keyword names** may stand before a colon when the clause spells out their rule. They add no condition of their own: `Kindred Return ([W])`, `Kindred Maneuver ([W])`, `Kindred Discount ([W])`, `Field Bond`, `Fallen Bond`, `Echo Bond`, `Attack Override` / `Surge` / `Unbound` and `Defense Override` / `Surge` / `Unbound`. Kindred Strike is the one keyword that does add its condition, because its clause has no other.
+**Keyword names** may stand before a colon when the clause spells out their rule. They add no condition of their own: `Field Bond`, `Fallen Bond`, `Echo Bond`, `Attack Override` / `Surge` / `Unbound` and `Defense Override` / `Surge` / `Unbound`.
+
+The retired **Kindred** names (Kindred Strike, Return, Maneuver, Discount) aren't read. Write those effects in plain text, as The First Quest does: for example "If a Grave card is in your rest zone, this card does not need to be rested after use."
 
 Two more go before a colon on Field and Support actions only:
 

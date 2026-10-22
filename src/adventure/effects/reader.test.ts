@@ -69,18 +69,35 @@ describe('the card reader', () => {
   it('reads keyword names whose rule the clause spells out', () => {
     for (const [type, text] of [
       [
-        'Rest',
-        'Kindred Return (Unmade): If an Unmade card is also on your field: you may use this card for Fighting Spirit this Engagement. It gets +1 {fightingspirit_as}.',
-      ],
-      [
-        'Field',
-        'Kindred Maneuver (Unmade): Swap the position of an Unmade card on your field with another card on your field.',
-      ],
-      [
         'Battle',
         'Echo Bond: If another Whispering card was already revealed this Engagement: +1 {fightingspirit_as}.',
       ],
       ['Field', 'Attack Override, Rest 2: Non-adjacent cards are counted for attack.'],
+    ] as const)
+      expect(readText(type, text).unread, text).toEqual([])
+  })
+
+  it('no longer reads the retired Kindred names, but reads the same effects in plain text', () => {
+    expect(readText('Battle', 'Kindred Strike (Unmade): +2 {fightingspirit_as}.').rules).toBeNull()
+    expect(
+      readText(
+        'Rest',
+        'Kindred Return (Unmade): If an Unmade card is also on your field: you may use this card for Fighting Spirit this Engagement. It gets +1 {fightingspirit_as}.',
+      ).rules,
+    ).toBeNull()
+    for (const [type, text] of [
+      [
+        'Battle',
+        'If an Unmade card was revealed as Fighting Spirit this Engagement: +2 {fightingspirit_as}.',
+      ],
+      [
+        'Rest',
+        'If an Unmade card is also on your field: You may use this card for Fighting Spirit this Engagement. It gets +1 {fightingspirit_as}.',
+      ],
+      [
+        'Field',
+        'Swap the position of an Unmade card on your field (this card included) with another card on your field. To choose a face-down Unmade card, show it to your opponent; it stays face down.',
+      ],
     ] as const)
       expect(readText(type, text).unread, text).toEqual([])
   })

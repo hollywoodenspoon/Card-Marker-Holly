@@ -704,8 +704,9 @@ describe('keywords from the design archive (new card texts)', () => {
     expect(lastFs(fsMove(s, 2), 0)?.value).toBe(2)
   })
 
-  it('Kindred Strike (W): a W card was revealed before it this Engagement', () => {
-    const text = 'Kindred Strike (Ghoulish): +2 {fightingspirit_as}.'
+  it('a W card revealed before it this Engagement (this card not counted)', () => {
+    const text =
+      'If a Ghoulish card was revealed as Fighting Spirit this Engagement: +2 {fightingspirit_as}.'
     expect(lastFs(fsMove(fight([2], text), 2), 0)?.value).toBe(1)
     let s = fsMove(fight([39, 2], text), 39)
     s = must(s, { t: 'pass' })
