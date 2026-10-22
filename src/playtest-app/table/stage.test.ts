@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest'
 import { createGame } from '@/adventure/engine'
 import { FIRST_QUEST, FIRST_QUEST_DECKS } from '@/adventure/fixtures/firstQuest'
 import type { AsState, CardState } from '@/adventure/state'
-import { pieceId } from '@/adventure/table'
 import { FS_STRIP, STRIP, stageFrame, stageLayout } from './stage'
 
 const [guild, retinue] = Object.values(FIRST_QUEST_DECKS)
@@ -33,20 +32,31 @@ function engagement(): AsState {
 }
 
 describe('stageLayout', () => {
-  it('stacks the counting attackers behind the upright Main Attacker', () => {
+  it('lays every counting attacker sideways, the Main Attacker in front', () => {
     const s = engagement()
-    const st = stageLayout(s, s.engagement!, SIZE)
-    const atk = st.atk.cards
+    const atk = stageLayout(s, s.engagement!, SIZE).atk.cards
     expect(atk.map((c) => c.kind)).toEqual(['main', 'attacker', 'attacker'])
     const field = s.players[0].field
-    expect(atk[0].id).toBe(pieceId(0, field[1].card!))
-    expect(atk.slice(1).map((c) => c.card)).toEqual([field[0].card, field[2].card])
-    expect(atk.slice(1).every((c) => c.rotation === 90)).toBe(true)
-    // Each sideways card shows one strip above the one in front of it.
-    const top = (c: (typeof atk)[number]) => c.cy - (c.rotation ? SIZE.w : SIZE.h) / 2
+    expect(atk.map((c) => c.card)).toEqual([field[1].card, field[0].card, field[2].card])
+    // Active cards lie sideways, swords up: none stands upright.
+    expect(atk.every((c) => c.rotation === 90)).toBe(true)
+    // Each one behind shows one strip above the one in front of it.
+    const top = (c: (typeof atk)[number]) => c.cy - SIZE.w / 2
     expect(top(atk[0]) - top(atk[1])).toBeCloseTo(STRIP * SIZE.w)
     expect(top(atk[1]) - top(atk[2])).toBeCloseTo(STRIP * SIZE.w)
     expect(atk[0].z).toBeGreaterThan(atk[1].z)
+    expect(top(atk[2])).toBeCloseTo(0)
+  })
+
+  it('lays a lone Main Attacker sideways too', () => {
+    const s = produce(engagement(), (d) => {
+      d.players[0].field[0].state = 'defending'
+      d.players[0].field[2].state = 'defending'
+    })
+    const atk = stageLayout(s, s.engagement!, SIZE).atk
+    expect(atk.cards.map((c) => [c.kind, c.rotation])).toEqual([['main', 90]])
+    expect(atk.h).toBeCloseTo(SIZE.w)
+    expect(atk.w).toBeCloseTo(SIZE.h)
   })
 
   it('counts every attacker with Attack Unbound', () => {
@@ -63,7 +73,7 @@ describe('stageLayout', () => {
     )
   })
 
-  it('fans Fighting Spirit beside the stack, newest in front', () => {
+  it('stands Fighting Spirit upright in front of the stack, newest lowest', () => {
     const s0 = engagement()
     const [a, b] = s0.players[0].support
     const s = produce(s0, (d) => {
@@ -73,17 +83,22 @@ describe('stageLayout', () => {
       ]
     })
     const g = stageLayout(s, s.engagement!, SIZE).atk
+    const stack = g.cards.filter((c) => c.kind !== 'fs')
     const fs = g.cards.filter((c) => c.kind === 'fs')
-    expect(fs.map((c) => [c.card, c.value])).toEqual([
-      [b, 3],
-      [a, 2],
+    expect(fs.map((c) => [c.card, c.value, c.rotation])).toEqual([
+      [a, 2, 0],
+      [b, 3, 0],
     ])
-    expect(fs[0].z).toBeGreaterThan(fs[1].z)
-    expect(fs[0].cy - fs[1].cy).toBeCloseTo(FS_STRIP * SIZE.h)
-    // Beside the stack, inside the group.
-    expect(fs[0].cx - SIZE.w / 2).toBeGreaterThan(SIZE.h)
-    expect(g.w).toBeCloseTo(fs[0].cx + SIZE.w / 2)
-    for (const c of g.cards) expect(c.cy).toBeGreaterThan(0)
+    // In front of the stack, the newest in front and one flame strip lower.
+    expect(Math.min(...fs.map((c) => c.z))).toBeGreaterThan(Math.max(...stack.map((c) => c.z)))
+    expect(fs[1].z).toBeGreaterThan(fs[0].z)
+    expect(fs[1].cy - fs[0].cy).toBeCloseTo(FS_STRIP * SIZE.h)
+    // Below the front card's strip, so every sideways strip still shows.
+    const frontTop = stack[0].cy - SIZE.w / 2
+    expect(fs[0].cy - SIZE.h / 2).toBeCloseTo(frontTop + STRIP * SIZE.w)
+    // Centred on the stack, inside the group.
+    expect(fs[0].cx).toBeCloseTo(g.w / 2)
+    expect(g.h).toBeCloseTo(fs[1].cy + SIZE.h / 2)
   })
 })
 
