@@ -19,10 +19,12 @@ import {
   PenTool,
   Sheet,
   Swords,
+  RefreshCw,
 } from '@/ui/icons'
 import { APP_NAME, VERSION_LABEL } from '@/app/appInfo'
 import { goHome } from '@/app/session'
 import { openHelp } from '@/help/openHelp'
+import { checkNow } from '@/ui/pwa/checkNow'
 import { folderStore } from '@/storage'
 import { redo, undo, useEditor } from '@/core/editor/editorStore'
 import { Button, IconButton } from '@/ui/components/ui/button'
@@ -158,6 +160,9 @@ function AppMenu({ phone }: { phone: boolean }) {
         <DropdownMenuSeparator />
         <SettingsMenu onHelp={() => openHelp()} onUnits={() => ui().setUnitsOpen(true)} />
         <DropdownMenuSeparator />
+        <DropdownMenuItem onSelect={() => void checkNow()}>
+          <RefreshCw /> Check for updates
+        </DropdownMenuItem>
         <div className="px-2 py-1.5 text-xs text-muted-foreground">
           {APP_NAME} {VERSION_LABEL}
         </div>

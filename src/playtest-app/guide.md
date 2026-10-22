@@ -159,7 +159,7 @@ The **game log** lists everything that happened, such as "Spatial Witch: Attacki
 
 ## Getting the latest version
 
-The app works offline, so it keeps a copy on your device. When a newer version is out, a message says **A new version is available.** Press **Update** to switch: a game in progress is saved and carries on. The version and build are shown at the bottom of the packs screen.
+The app works offline, so it keeps a copy on your device. When a newer version is out, a message says **A new version is available.** Press **Update** to switch: a game in progress is saved and carries on. The version and build are shown at the bottom of the packs screen, next to **Check for updates**, which looks for a new version right away.
 
 If a phone keeps showing an old version, open `chrome://serviceworker-internals` in Chrome, press **Unregister** under this site's entry, then open the app again. Your packs, decks, games and replays stay. Don't use "Clear site data": it deletes them.
 

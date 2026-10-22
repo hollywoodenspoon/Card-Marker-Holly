@@ -31,7 +31,7 @@ Most browsers can install the website as an app with its own window and icon:
 
 After your first visit, Hearthside Cardworks works without an internet connection, including PDF export. A message says **Ready to work offline.** when it's ready.
 
-When a newer version is available, a message says **A new version is available.** Press **Update** to switch to it. Your projects aren't affected. The app looks for a new version when you open it, when you come back to it, and every half hour while it stays open. It never switches by itself, so nothing reloads in the middle of your work. The version and build are shown at the bottom of the Home screen and in the ☰ menu.
+When a newer version is available, a message says **A new version is available.** Press **Update** to switch to it. Your projects aren't affected. The app looks for a new version when you open it, when you come back to it, and every half hour while it stays open. It never switches by itself, so nothing reloads in the middle of your work. The version and build are shown at the bottom of the Home screen and in the ☰ menu. To look right away, press **Check for updates** there.
 
 If a phone keeps showing an old version, open `chrome://serviceworker-internals` in Chrome, press **Unregister** under this site's entry, then open the app again. That removes only the offline copy; your projects stay. Don't use "Clear site data" for this: it deletes your projects.
 

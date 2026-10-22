@@ -14,6 +14,7 @@ import { useEffect, useState } from 'react'
 import { APP_NAME, VERSION_LABEL } from '@/app/appInfo'
 import { openProject } from '@/app/session'
 import { openHelp } from '@/help/openHelp'
+import { UpdateButton } from '@/ui/pwa/UpdateButton'
 import { SettingsMenu } from '@/ui/settings/SettingsMenu'
 import { pathLabel } from '@/platform/desktop'
 import { folderStore, getBackend } from '@/storage'
@@ -249,8 +250,11 @@ export function HomeScreen() {
           </>
         )}
       </main>
-      <footer className="shrink-0 px-4 pb-3 text-center text-xs text-muted-foreground">
-        {APP_NAME} {VERSION_LABEL}
+      <footer className="flex shrink-0 flex-wrap items-center justify-center gap-x-2 px-4 pb-3 text-center text-xs text-muted-foreground">
+        <span>
+          {APP_NAME} {VERSION_LABEL}
+        </span>
+        <UpdateButton />
       </footer>
 
       <NewProjectDialog open={creating} onOpenChange={setCreating} />

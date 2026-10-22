@@ -573,4 +573,5 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 
 - **Offered, not forced:** a new version is offered by the "A new version is available. Update" message (`registerType: 'prompt'`), never applied by itself. A game in progress or a card being edited is never reloaded underneath the user. Both are autosaved, so Update resumes them.
 - **When it looks:** an open tab or installed app brought back from the background doesn't reload, so the browser never looked for updates. The app now looks when it comes back into view and every 30 minutes (`registration.update()` in `src/ui/pwa/pwa.ts`).
+- **Check for updates** (Home screen and ☰ menu, the Hearthside Table packs screen) asks the site at once. It says when the version is already the latest, or offers the update.
 - **A build stamp** (the commit and date from GitHub Actions, "dev" locally) is shown next to the version, so it's clear which version is running.
