@@ -632,7 +632,6 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 ## Keywords from the design archive
 
 - **The owner's archive of cut and future cards** came with the old rulebook texts. The reader now knows the keywords those define:
-  - **Onslaught N+:** you attack and at least N of your cards count for attack, the Main Attacker included. The archive notes it was dropped from the Mutual Reveal rules because it depended on manual Attack actions. It still reads, since the count is well defined; its balance is the designer's call.
   - **First Blood:** no card has been revealed as Fighting Spirit yet this Engagement. **Ambush:** the opponent has already passed this Engagement.
   - **Kindred Strike (W)** and **Echo Bond:** you revealed a W card before this one this Engagement. A card's archetype check never counts itself, which matches how Strike already worked.
   - **Kindred Return, Maneuver and Discount, Field and Fallen Bond, Attack and Defense Override, Surge and Unbound** are read as keyword names when the clause spells out their rule.
@@ -640,6 +639,7 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
   - **Smaller phrases:** "Put a card from your rest zone into your Support" (any card), "Target player rests a card from their Support", a field card swapping itself with another field card, First Engagement, the opponent's rest-zone count, your Support count, and the opponent's Main Attacker in the Center or Flank.
 - **Only Battle Abilities give Fighting Spirit:** an "+N FS" clause on a Field, Flip, Inherent or Support card is left unread, as the rulebook says. The archive's Falconer Knight is the example.
 - **Support count includes the card itself** while it's still in Support ("if you have 3 or fewer cards in Support"), checked after the action, like the Discount.
+- **Onslaught is not read** (owner's call). Its rule counts "your own cards (including itself)" that are attacking, but its bonus is Fighting Spirit, which only a card revealed from Support gets, and such a card is never on the field. The archive's Onslaught cards play on their stats with the usual warning until they're redesigned.
 - **Not read yet, waiting on the owner:**
   - Final Blow and "the last one revealed this Engagement": the archive marks Final Blow as reconstructed, and the last card is only known when the Engagement ends, after this card's value is set.
   - "Reveal this card" with a keep clause on the same card (Whispering Bond, Dawnguard Gauntlet): under the TFQ-20 ruling the reveal already keeps the card, which would make the second clause do nothing.

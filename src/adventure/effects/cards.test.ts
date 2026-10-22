@@ -685,15 +685,10 @@ describe('keywords from the design archive (new card texts)', () => {
       text,
     )
 
-  it('Onslaught N+ counts your cards counted for attack, the Main Attacker included', () => {
-    const text =
-      'Onslaught 2+: +1 {fightingspirit_as}. Onslaught 3+: an additional +1 {fightingspirit_as}.'
-    const s = fight([2], text)
-    const n = engagementSides(s, 0)!.attackers.length
-    expect(n).toBe(2)
-    expect(lastFs(fsMove(s, 2), 0)?.value).toBe(1 + 1)
-    const all3 = produce(s, (d) => void (d.players[0].round.attackUnbound = true))
-    expect(lastFs(fsMove(all3, 2), 0)?.value).toBe(1 + 2)
+  it('Onslaught is left unread (it would count the card itself as an attacker)', () => {
+    const s = fight([2], 'Onslaught 2+: +1 {fightingspirit_as}.')
+    expect(lastFs(fsMove(s, 2), 0)?.value).toBe(1)
+    expect(unreadParts(s.cards[fq(2)])).toEqual(['onslaught 2+: +1 fs'])
   })
 
   it('First Blood: the first card revealed this Engagement. Ambush: the opponent has passed', () => {

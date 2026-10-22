@@ -1,6 +1,5 @@
 import type { AsCard } from '../cards'
 import { other, type AsState, type Engagement, type Seat } from '../state'
-import { engagementSides } from '../stats'
 import * as B from './blocks'
 import { archInRest, archOnField, faceUp, inArchetype, isCenterSlot, restCount } from './helpers'
 import type { Ability, CardRules, Ctx, D } from './types'
@@ -131,14 +130,6 @@ const CONDITIONS: [RegExp, (g: Record<string, string>) => Test][] = [
       const main = q.s.players[other(q.seat)].mainAttacker
       return main !== null && isCenterSlot(main) === (g.pos === 'center')
     },
-  ],
-  // Onslaught N+: your cards counted for attack this Engagement (the Main Attacker included).
-  [
-    /^onslaught (?<n>\d+)\+$/,
-    (g) => (q) =>
-      !!q.e &&
-      q.e.attacker === q.seat &&
-      (engagementSides(q.s, q.seat)?.attackers.length ?? 0) >= Number(g.n),
   ],
   // First Blood: the first card revealed this Engagement. Ambush: the opponent has passed.
   [/^first blood$/, () => (q) => !!q.e && q.e.fs[0].length + q.e.fs[1].length === 0],
