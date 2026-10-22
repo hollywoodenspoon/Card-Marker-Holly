@@ -3,7 +3,6 @@ import { useMemo, useState } from 'react'
 import { APP_VERSION } from '@/app/appInfo'
 import { isAndroidApp } from '@/app/isAndroidApp'
 import { useEditor } from '@/core/editor/editorStore'
-import { desktop } from '@/platform/desktop'
 import { packFieldValues } from '@/print/pack/exportPack'
 import { deckSize } from '@/templates/deckCommands'
 import { downloadBlob } from '@/ui/actions/download'
@@ -39,7 +38,8 @@ function PackForm({ onDone }: { onDone: () => void }) {
   const cards = Object.values(doc.cards)
   const [busy, setBusy] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const web = !desktop() && !isAndroidApp()
+  // Playtest now opens Hearthside Table: a new tab on the web, its own window in the desktop app.
+  const canPlayNow = !isAndroidApp()
   // The field names the Playtest app will be able to read.
   const fields = useMemo(() => {
     const names = new Set<string>()
@@ -128,13 +128,13 @@ function PackForm({ onDone }: { onDone: () => void }) {
       )}
       <div className="flex flex-wrap justify-end gap-2">
         <Button
-          variant={web ? 'secondary' : 'default'}
+          variant={canPlayNow ? 'secondary' : 'default'}
           onClick={() => void run(false)}
           disabled={!!busy || !cards.length}
         >
           {busy ? <Loader2 className="animate-spin" /> : <FileDown />} {busy ?? 'Save game pack'}
         </Button>
-        {web && (
+        {canPlayNow && (
           <Button onClick={() => void run(true)} disabled={!!busy || !cards.length}>
             <Play /> Playtest now
           </Button>

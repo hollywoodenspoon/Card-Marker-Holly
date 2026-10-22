@@ -21,7 +21,9 @@ import {
   Swords,
   RefreshCw,
 } from '@/ui/icons'
-import { APP_NAME, VERSION_LABEL } from '@/app/appInfo'
+import { APP_NAME, PLAYTEST_NAME, VERSION_LABEL } from '@/app/appInfo'
+import { isAndroidApp } from '@/app/isAndroidApp'
+import { playtestUrl } from '@/ui/export/playtestUrl'
 import { goHome } from '@/app/session'
 import { openHelp } from '@/help/openHelp'
 import { checkNow } from '@/ui/pwa/checkNow'
@@ -150,6 +152,12 @@ function AppMenu({ phone }: { phone: boolean }) {
         <DropdownMenuItem onSelect={() => ui().setTtsOpen(true)}>
           <Dices /> Export for Tabletop Simulator…
         </DropdownMenuItem>
+        {!isAndroidApp() && (
+          // A new tab on the web; its own window in the desktop app.
+          <DropdownMenuItem onSelect={() => window.open(playtestUrl(), '_blank')}>
+            <Swords /> Open {PLAYTEST_NAME}
+          </DropdownMenuItem>
+        )}
         <ShowFolderMenuItem />
         <DropdownMenuItem onSelect={() => void exportOpenProject()}>
           <Download /> Export backup file

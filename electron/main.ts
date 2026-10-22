@@ -9,6 +9,7 @@ import {
   ipcMain,
   Menu,
   net,
+  powerSaveBlocker,
   protocol,
   session,
   shell,
@@ -18,6 +19,7 @@ import { APP_NAME } from '../src/app/appInfo'
 import { AllowedRoots, isInside } from './paths'
 import { isUpdateHost } from './updateHosts'
 import { initUpdates, updatesEnabled } from './updater'
+import { routeOpen } from './windows'
 
 /**
  * The desktop app: the same build as the website, served from disk, with a
@@ -98,6 +100,12 @@ function registerIpc(win: () => BrowserWindow | null) {
     })
 
   handle('fs:paths', () => ({ userData: app.getPath('userData'), documents: documentsDir() }))
+
+  // Long bot runs (Rush, tournaments, the Balance lab) keep the computer awake.
+  ipcMain.handle('power:keepAwake', (e, on: unknown) => {
+    if (!isOwnUrl(e.senderFrame?.url ?? '')) throw new Error('Not allowed')
+    keepAwake(e.sender.id, on === true)
+  })
 
   handle('fs:read', async (p: string) => {
     try {
@@ -207,6 +215,9 @@ function serveApp() {
   protocol.handle('app', async (req) => {
     const { pathname } = new URL(req.url)
     let file = path.join(distDir, decodeURIComponent(pathname))
+    // A folder serves its own page (playtest/ is Hearthside Table); anything else the editor.
+    if (isInside(distDir, file) && existsSync(file) && statSync(file).isDirectory())
+      file = path.join(file, 'index.html')
     if (!isInside(distDir, file) || !existsSync(file) || statSync(file).isDirectory())
       file = path.join(distDir, 'index.html')
     const res = await net.fetch(pathToFileURL(file).toString())
@@ -240,6 +251,84 @@ function stayOffline() {
 }
 
 let mainWindow: BrowserWindow | null = null
+// Hearthside Table, in its own window (opened from the editor).
+let tableWindow: BrowserWindow | null = null
+
+// Each long run asks to stay awake (counted per window); the computer may sleep
+// again once no run is left, or the window that asked is gone.
+const awake = new Map<number, number>()
+let blocker: number | null = null
+function keepAwake(windowId: number, on: boolean | null) {
+  const n = on === null ? 0 : Math.max(0, (awake.get(windowId) ?? 0) + (on ? 1 : -1))
+  if (n) awake.set(windowId, n)
+  else awake.delete(windowId)
+  if (awake.size && blocker === null) blocker = powerSaveBlocker.start('prevent-app-suspension')
+  if (!awake.size && blocker !== null) {
+    powerSaveBlocker.stop(blocker)
+    blocker = null
+  }
+}
+
+const ownOrigins = () => [APP_ORIGIN, ...(devUrl ? [new URL(devUrl).origin] : [])]
+
+const webPreferences = () => ({
+  preload: path.join(__dirname, 'preload.cjs'),
+  contextIsolation: true,
+  sandbox: true,
+  nodeIntegration: false,
+  spellcheck: true,
+})
+
+/** Links and keys every window shares: web links open in the browser, the table in its window. */
+function guard(win: BrowserWindow) {
+  const id = win.webContents.id
+  win.on('closed', () => keepAwake(id, null))
+  void win.webContents.setVisualZoomLevelLimits(1, 1)
+  win.webContents.on('before-input-event', (e, input) => {
+    const mod = input.control || input.meta
+    if (input.type !== 'keyDown') return
+    if (input.key === 'F12' || (mod && input.shift && input.key.toLowerCase() === 'i')) {
+      win.webContents.toggleDevTools()
+      e.preventDefault()
+    }
+  })
+  win.webContents.setWindowOpenHandler(({ url }) => {
+    const route = routeOpen(url, ownOrigins())
+    if (route === 'table') openTable(url)
+    else if (route === 'external') void shell.openExternal(url)
+    return { action: 'deny' }
+  })
+  win.webContents.on('will-navigate', (e, url) => {
+    if (!isOwnUrl(url)) e.preventDefault()
+  })
+}
+
+/** Open Hearthside Table (with a pack, when the URL names one), or bring its window up. */
+function openTable(url: string) {
+  if (tableWindow && !tableWindow.isDestroyed()) {
+    void tableWindow.loadURL(url)
+    if (tableWindow.isMinimized()) tableWindow.restore()
+    tableWindow.focus()
+    return
+  }
+  const win = new BrowserWindow({
+    width: 1400,
+    height: 900,
+    minWidth: 360,
+    minHeight: 480,
+    title: 'Hearthside Table',
+    show: false,
+    backgroundColor: '#1c1c1f',
+    icon: path.join(distDir, 'pwa-512.png'),
+    // Bot runs keep full speed while the window is behind others.
+    webPreferences: { ...webPreferences(), backgroundThrottling: false },
+  })
+  tableWindow = win
+  win.once('ready-to-show', () => win.show())
+  guard(win)
+  win.on('closed', () => (tableWindow = null))
+  void win.loadURL(url)
+}
 // Set once the page has saved for an update install, so closing doesn't wait again.
 let savedForUpdate = false
 
@@ -267,33 +356,12 @@ function createWindow() {
     show: false,
     backgroundColor: '#1c1c1f',
     icon: path.join(distDir, 'pwa-512.png'),
-    webPreferences: {
-      preload: path.join(__dirname, 'preload.cjs'),
-      contextIsolation: true,
-      sandbox: true,
-      nodeIntegration: false,
-      spellcheck: true,
-    },
+    webPreferences: webPreferences(),
   })
   mainWindow = win
   win.once('ready-to-show', () => win.show())
   // The app has its own zoom (Ctrl + wheel, pinch); never zoom the whole page.
-  void win.webContents.setVisualZoomLevelLimits(1, 1)
-  win.webContents.on('before-input-event', (e, input) => {
-    const mod = input.control || input.meta
-    if (input.type !== 'keyDown') return
-    if (input.key === 'F12' || (mod && input.shift && input.key.toLowerCase() === 'i')) {
-      win.webContents.toggleDevTools()
-      e.preventDefault()
-    }
-  })
-  win.webContents.setWindowOpenHandler(({ url }) => {
-    if (url.startsWith('https://')) void shell.openExternal(url)
-    return { action: 'deny' }
-  })
-  win.webContents.on('will-navigate', (e, url) => {
-    if (!isOwnUrl(url)) e.preventDefault()
-  })
+  guard(win)
 
   // Let the page finish saving before the window goes away.
   let closing = false
@@ -308,7 +376,11 @@ function createWindow() {
     setTimeout(done, 5000)
     win.webContents.send('app:before-close')
   })
-  win.on('closed', () => (mainWindow = null))
+  win.on('closed', () => {
+    mainWindow = null
+    // The table goes with the editor (the app quits).
+    tableWindow?.close()
+  })
 
   void (devUrl ? win.loadURL(devUrl) : win.loadURL(`${APP_ORIGIN}/index.html`))
 }

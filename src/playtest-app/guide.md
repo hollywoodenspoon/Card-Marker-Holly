@@ -102,6 +102,26 @@ Press **Tournaments…** on the start screen (or the trophy at the top of the ta
 - **Standings** sort by points (3 for a match win), then opponents' match-win %, game-win % and opponents' game-win %. Groups have a table each, and the knockout shows its bracket.
 - **The end:** the placings and **Copy report**. Tournaments are saved as they go, so **Continue** picks one up after a reload.
 
+## Balance lab
+
+Press **Balance lab…** on the start screen (or the flask at the top of the table). There are no decks to pick: the lab builds its own and tests every card in the pack.
+
+- **Settings:**
+  - **Games:** Quick check (2,000), Standard (10,000), Overnight (100,000), or any number.
+  - **Bots:** Quick for big runs, or Normal (about ten times slower, plays better).
+  - **Seed:** the same seed and settings give the same run.
+  - **Threads:** how many of the computer's threads to use (all but one by default).
+  - **Core set:** the code prefixes on the cards (TFQ, PU, CH…), remembered per pack. The core set is tested on its own, then used as the baseline for every other card. The First Quest is ticked by default.
+- **One run, three stages:**
+  1. **Every card tested:** random decks that hold every card about equally often play a league. Each card gets a value (how much it adds to a deck's chance to win; 0 is average) and a tier from S to D.
+  2. **Constructed check:** Optimal decks auto-built from those values, from many random parts of the pool, plus Suboptimal ones and the premades, play each other. How often a card makes the Optimal deck when it could is its **Picked** rate.
+  3. **Premade matrix:** the pack's own decks against each other, on both seats.
+- **Results:** ranked suggestions (core set first, then cards that break the game once the new sets arrive, then the rest), each with stat and text options; a card table per view; pairs of cards that win far more together than apart; how the auto-built decks did; the premade matrix; and anything the rules checker found in a sample of the games.
+  - **Power creep:** a new card above the core set's range, and clearly above the core card it's closest to.
+  - A small run gives rough values. Use Standard or Overnight before changing cards.
+- **Stop** ends the run early and reports on what was played. The last 10 runs stay in the lab. **Save results** writes a `.hssim.json` file (send it over for a closer look), and **Copy report** copies the report as text.
+- In the desktop app, the computer stays awake while a run goes, and the table keeps full speed behind other windows.
+
 ## Replays
 
 Every rules game is kept as a replay when it ends, or when you start a new game after its first round. **Watch replay** on the winner's banner opens it straight away, and the **Replays** button (at the top of the table, or on the start screen) lists them all.
@@ -193,6 +213,10 @@ The **game log** lists everything that happened, such as "Spatial Witch: Attacki
 
 **New game** clears the table and goes back to the start.
 
+## In the desktop app
+
+Hearthside Cardworks for Windows and Linux has Hearthside Table built in: ☰ → **Open Hearthside Table**, or **Playtest now** when exporting a game pack. It opens in its own window and updates with the app. Packs, decks, games and replays kept in a browser stay in that browser: bring packs over with **Playtest now** or **Import game pack**, and replays and decks as files.
+
 ## Getting the latest version
 
 The app works offline, so it keeps a copy on your device. When a newer version is out, a message says **A new version is available.** Press **Update** to switch: a game in progress is saved and carries on. The version and build are shown at the bottom of the packs screen, next to **Check for updates**, which looks for a new version right away.
@@ -201,4 +225,4 @@ If a phone keeps showing an old version, open `chrome://serviceworker-internals`
 
 ## What's next
 
-For balance testing, `npm run as:sim` (in the project folder) plays many bot games without a screen and writes a report of win rates per deck and per card.
+For whole-pack balance testing, use the **Balance lab**. `npm run as:sim` (in the project folder) still plays bot games between given decks without a screen and writes a report of win rates per deck and per card.

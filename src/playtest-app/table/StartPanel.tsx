@@ -1,4 +1,4 @@
-import { Film, Layers, Play, Trophy, TriangleAlert, Zap } from '@/ui/icons'
+import { Film, FlaskConical, Layers, Play, Trophy, TriangleAlert, Zap } from '@/ui/icons'
 import { useEffect, useMemo, useState } from 'react'
 import { BOT_LEVELS, BOT_NAMES, type BotLevel } from '@/adventure/bot'
 import { checkDeck } from '@/adventure/deck'
@@ -54,10 +54,13 @@ export function StartPanel({
   onReplays,
   onRush,
   onTournaments,
+  onLab,
 }: {
   onDecks: () => void
   onReplays: () => void
   onTournaments: () => void
+  /** The Balance lab: whole-pack balance runs. */
+  onLab: () => void
   /** Rush: many bot games with nothing drawn, in their own screen. */
   onRush: (run: RushRun) => void
 }) {
@@ -387,6 +390,16 @@ export function StartPanel({
               data-testid="playtest-tournaments-button"
             >
               <Trophy /> Tournaments…
+            </Button>
+          )}
+          {canRule && (
+            <Button
+              variant="secondary"
+              className="flex-1"
+              onClick={onLab}
+              data-testid="playtest-lab-button"
+            >
+              <FlaskConical /> Balance lab…
             </Button>
           )}
         </div>

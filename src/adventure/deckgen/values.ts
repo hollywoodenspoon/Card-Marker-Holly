@@ -91,8 +91,18 @@ export function fitValues(
   cardIds: string[],
   decks: string[][],
   results: LeagueResult[],
-  { steps = 400, rate = 0.5, l2 = 0.02 } = {},
+  opts: { steps?: number; rate?: number; l2?: number } = {},
 ): Record<string, number> {
+  return fitModel(cardIds, decks, results, opts).values
+}
+
+/** The fit with its seat term (log-odds of seat A winning when the decks are equal). */
+export function fitModel(
+  cardIds: string[],
+  decks: string[][],
+  results: Pick<LeagueResult, 'a' | 'b' | 'winner'>[],
+  { steps = 400, rate = 0.5, l2 = 0.02 } = {},
+): { values: Record<string, number>; bias: number } {
   const index = new Map(cardIds.map((id, i) => [id, i]))
   const rows = results
     .filter((r) => r.winner !== null)
@@ -104,7 +114,7 @@ export function fitValues(
     })
   const w = new Float64Array(cardIds.length)
   let bias = 0
-  if (!rows.length) return Object.fromEntries(cardIds.map((id) => [id, 0]))
+  if (!rows.length) return { values: Object.fromEntries(cardIds.map((id) => [id, 0])), bias: 0 }
   for (let step = 0; step < steps; step++) {
     const g = new Float64Array(cardIds.length)
     let gb = 0
@@ -118,7 +128,7 @@ export function fitValues(
     for (let i = 0; i < w.length; i++) w[i] -= rate * (g[i] / rows.length + l2 * w[i])
     bias -= (rate * gb) / rows.length
   }
-  return Object.fromEntries(cardIds.map((id, i) => [id, w[i]]))
+  return { values: Object.fromEntries(cardIds.map((id, i) => [id, w[i]])), bias }
 }
 
 /** A short fingerprint of the cards' rule values, so cached values follow card changes. */

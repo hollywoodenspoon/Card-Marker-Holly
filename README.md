@@ -1,6 +1,6 @@
 # Hearthside Cardworks
 
-Version **0.1.0-alpha.3** (early alpha). Formerly _Card Maker_; its playtest app is **Hearthside Table**.
+Version **0.1.0-alpha.4** (early alpha). Formerly _Card Maker_; its playtest app is **Hearthside Table**.
 
 A card editor built with React, TypeScript, Vite and a Konva canvas. It runs as a website (projects stored in the browser), or as a desktop app for Windows and Linux (projects stored as folders of ordinary files). There is no backend, and it works offline.
 
@@ -77,6 +77,7 @@ A small _Make your first card_ checklist on the canvas ticks these steps off as 
 - **Settings and the Recent list** are kept with the app:
   - portable exe: in a `Hearthside Cardworks data` folder next to the exe, so nothing goes into AppData
   - Linux: in `~/.config/card-maker`
+- **Hearthside Table is built in:** ☰ → **Open Hearthside Table**, or **Playtest now** in the game pack export, opens it in its own window. Long bot runs (Rush, tournaments, the Balance lab) keep the computer awake and run at full speed behind other windows.
 - **Updates:** at first start the app asks whether to check for updates. With checks on, it asks GitHub once per start and nothing else; the Setup exe and the AppImage install new versions themselves, the portable exe says when one is out, and the Arch package updates with `sudo pacman -Syu`. With checks off it never goes online. ☰ has **Check for updates** and **Automatic update checks**, and shows the version.
 
 ### Android app (paused)
@@ -201,7 +202,7 @@ The gallery and the print preview use the card editor's controls: hold **Space**
 
 ### Playtest (separate app)
 
-Rail → _Playtest_ (or ☰ → _Playtest (export game pack)…_) exports a **game pack** (`.cmpack`): every card's picture (as printed), its field values by field name (text as text, icon rows as numbers, hidden layers included) and your decks. **Playtest now** (in a browser) opens it straight in **Hearthside Table**, a companion app at `playtest/` on the same site (installable, offline); **Save game pack** gives a file for any device or a friend. There you can **build decks** from the pack's whole card pool (Free Company rules checked: 12 different cards, at most one Ace marked `{ace}`; saved per pack, exportable as `.asdeck.json`), pick a table and a deck per player, and play by hand: drag or tap cards between fields, hands and piles, flip and turn them, place tokens, keep score, coin and dice, _View as_ a player for hot-seat play, undo, and a copyable game log. Games are saved per pack. Built in: an Adventure Scuffle! table and a simple board-game table. For Adventure Scuffle, **Rules on** runs the Mutual Reveal rules (hot-seat with hand-over, or both sides for solo playtesting); all 45 First Quest card abilities are applied, by card code. Play against an **Easy, Normal or Hard bot**, or watch bot against bot. The rules engine is described in `docs/adventure-rules-engine.md`.
+Rail → _Playtest_ (or ☰ → _Playtest (export game pack)…_) exports a **game pack** (`.cmpack`): every card's picture (as printed), its field values by field name (text as text, icon rows as numbers, hidden layers included) and your decks. **Playtest now** (in a browser) opens it straight in **Hearthside Table**, a companion app at `playtest/` on the same site (installable, offline); **Save game pack** gives a file for any device or a friend. There you can **build decks** from the pack's whole card pool (Free Company rules checked: 12 different cards, at most one Ace marked `{ace}`; saved per pack, exportable as `.asdeck.json`), pick a table and a deck per player, and play by hand: drag or tap cards between fields, hands and piles, flip and turn them, place tokens, keep score, coin and dice, _View as_ a player for hot-seat play, undo, and a copyable game log. Games are saved per pack. Built in: an Adventure Scuffle! table and a simple board-game table. For Adventure Scuffle, **Rules on** runs the Mutual Reveal rules (hot-seat with hand-over, or both sides for solo playtesting); all 45 First Quest card abilities are applied, by card code. Play against an **Easy, Normal or Hard bot**, or watch bot against bot. The **Balance lab** builds its own decks, tests every card in the pack, and ranks what to change, with The First Quest as the core set. The rules engine is described in `docs/adventure-rules-engine.md`.
 
 ### Tabletop Simulator
 

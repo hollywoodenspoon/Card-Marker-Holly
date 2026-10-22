@@ -14,6 +14,7 @@ const bridge: DesktopBridge = {
   pickFolder: (opts) => ipcRenderer.invoke('dialog:pickFolder', opts),
   saveFile: (name, data) => ipcRenderer.invoke('dialog:save', name, data),
   reveal: (p) => ipcRenderer.invoke('shell:reveal', p),
+  keepAwake: (on) => ipcRenderer.invoke('power:keepAwake', on),
   updates: {
     get: () => ipcRenderer.invoke('updates:get'),
     set: (enabled) => ipcRenderer.invoke('updates:set', enabled),

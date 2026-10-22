@@ -7,6 +7,7 @@ import {
   Plus,
   Redo2,
   ScrollText,
+  FlaskConical,
   Trophy,
   Undo2,
 } from '@/ui/icons'
@@ -47,6 +48,7 @@ import { keepReplay } from './replays'
 import { ReplaysView } from './ReplaysView'
 import { RulesBar } from './RulesBar'
 import { RushView } from './RushView'
+import { BalanceLab } from '../lab/BalanceLab'
 import type { RushRun } from './rushTally'
 import { useBotDriver, useFrameTimer } from './useBotDriver'
 import { usePlaytest } from './usePlaytest'
@@ -107,6 +109,7 @@ export function GameView({
     | { k: 'replays' }
     | { k: 'rush'; run?: RushRun; row?: RushRow }
     | { k: 'tournaments'; openId?: string }
+    | { k: 'lab' }
     | null
   const [screen, setScreen] = useState<Screen>(null)
   const [afterReplay, setAfterReplay] = useState<Screen>(null)
@@ -143,6 +146,14 @@ export function GameView({
   // The game last recorded, so a re-render doesn't record it twice.
   const recorded = useRef<string | null>(null)
   const deckCards = useDeckCards()
+  const packPremades = useMemo(
+    () =>
+      pack.info.decks.map((d) => ({
+        name: d.name,
+        cards: Object.entries(d.counts).flatMap(([id, n]) => Array<string>(n).fill(id)),
+      })),
+    [pack],
+  )
   const [deckOptions, setDeckOptions] = useState<DeckOption[]>([])
   useEffect(() => {
     if (screen?.k !== 'tournaments') return
@@ -290,6 +301,11 @@ export function GameView({
                 <Trophy />
               </IconButton>
             )}
+            {!replay && deckCards.adventure && (
+              <IconButton label="Balance lab" onClick={() => setScreen({ k: 'lab' })}>
+                <FlaskConical />
+              </IconButton>
+            )}
             {!replay && (
               <Button
                 size="sm"
@@ -310,6 +326,7 @@ export function GameView({
           onReplays={() => setScreen({ k: 'replays' })}
           onRush={(run) => setScreen({ k: 'rush', run })}
           onTournaments={() => setScreen({ k: 'tournaments' })}
+          onLab={() => setScreen({ k: 'lab' })}
         />
       ) : (
         <>
@@ -455,6 +472,15 @@ export function GameView({
               bots: [a.bot, b.bot],
             })
           }}
+        />
+      )}
+      {screen?.k === 'lab' && (
+        <BalanceLab
+          packId={pack.id}
+          packName={pack.info.name}
+          cards={deckCards.cards}
+          premades={packPremades}
+          onClose={() => setScreen(null)}
         />
       )}
       {screen?.k === 'rush' && (

@@ -33,6 +33,8 @@ export interface DesktopBridge {
   /** "Save as" dialog; resolves to the chosen path, or null when cancelled. */
   saveFile(name: string, data: Uint8Array): Promise<string | null>
   reveal(path: string): Promise<void>
+  /** Keep the computer awake during a long run (desktop app; call again with false when done). */
+  keepAwake?(on: boolean): Promise<void>
   /** Desktop app updates from GitHub Releases (absent on Android). */
   updates?: DesktopUpdates
   /** Called when the window is about to close or the app goes to the background; the app saves. */

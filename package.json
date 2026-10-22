@@ -1,7 +1,7 @@
 {
   "name": "card-maker",
   "private": true,
-  "version": "0.1.0-alpha.3",
+  "version": "0.1.0-alpha.4",
   "description": "Design cards and print them on A4 sheets. Works offline.",
   "author": "hollywoodenspoon",
   "main": "dist-electron/main.cjs",

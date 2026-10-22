@@ -8,6 +8,7 @@ import {
   listDecks,
   listReplays,
   listRush,
+  listSims,
   pinReplay,
   PlaytestDB,
   REPLAYS_KEPT,
@@ -15,6 +16,8 @@ import {
   saveDeck,
   saveReplay,
   saveRush,
+  saveSim,
+  SIMS_KEPT,
 } from './library'
 import { buildPack } from './pack'
 
@@ -119,6 +122,16 @@ describe('replays and Rush batches', () => {
       )
     }
     expect((await listRush('p1', db)).map((r) => r.id)).toEqual(['b6', 'b5', 'b4', 'b3', 'b2'])
+  })
+
+  it('keeps the newest Balance lab runs', async () => {
+    const db = new PlaytestDB('test-playtest-sims')
+    for (let i = 0; i < SIMS_KEPT + 2; i++)
+      await saveSim({ id: `s${i}`, packId: 'p1', savedAt: i, result: {} as never, report: '' }, db)
+    const kept = (await listSims('p1', db)).map((r) => r.id)
+    expect(kept).toHaveLength(SIMS_KEPT)
+    expect(kept[0]).toBe(`s${SIMS_KEPT + 1}`)
+    expect(kept).not.toContain('s0')
   })
 
   it('opens a version 2 database and adds the new tables', async () => {

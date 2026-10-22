@@ -34,7 +34,10 @@ function setEnabled(enabled: boolean) {
 
 /** The Arch package (installed under /opt): pacman updates it from the cardworks repository. */
 const pacman = () =>
-  app.isPackaged && process.platform === 'linux' && !process.env.APPIMAGE && __dirname.startsWith('/opt/')
+  app.isPackaged &&
+  process.platform === 'linux' &&
+  !process.env.APPIMAGE &&
+  __dirname.startsWith('/opt/')
 
 export function updateMode(): UpdateMode {
   if (!app.isPackaged) return 'notify'
