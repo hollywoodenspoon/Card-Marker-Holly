@@ -25,6 +25,8 @@ permissions:
 jobs:
   build:
     strategy:
+      # One platform failing doesn't cancel the other's build.
+      fail-fast: false
       # Windows: the targets in electron-builder.yml (Setup and portable). A pacman-only run
       # builds just the Arch package (tag pushes have no inputs, so they always build everything).
       matrix:
