@@ -37,8 +37,13 @@ const playtestManifest = (): Plugin => ({
   },
 })
 
+/** Which build this is: the commit (from GitHub Actions) and the day, or "dev" locally. */
+const build = process.env.GITHUB_SHA
+  ? `${process.env.GITHUB_SHA.slice(0, 7)} · ${new Date().toISOString().slice(0, 10)}`
+  : 'dev'
+
 export default defineConfig({
-  define: { __APP_VERSION__: JSON.stringify(pkg.version) },
+  define: { __APP_VERSION__: JSON.stringify(pkg.version), __APP_BUILD__: JSON.stringify(build) },
   // GitHub Pages serves the app under /<repo>/; local dev and preview stay at /.
   base: process.env.BASE_PATH ?? '/',
   plugins: [
@@ -47,7 +52,8 @@ export default defineConfig({
     themes(),
     VitePWA({
       disable: nativeApp,
-      registerType: 'autoUpdate',
+      // A new version is offered ("Update"), never applied under a game in progress.
+      registerType: 'prompt',
       includeAssets: ['icon.svg', 'apple-touch-icon.png'],
       manifest: {
         name: 'Hearthside Cardworks',

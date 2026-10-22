@@ -9,3 +9,6 @@ export const APP_NAME = 'Hearthside Cardworks'
 /** The companion app that plays game packs (also a working title; see playtest/index.html and its manifest). */
 export const PLAYTEST_NAME = 'Hearthside Table'
 export const APP_VERSION: string = __APP_VERSION__
+export const APP_BUILD: string = __APP_BUILD__
+/** The version as shown to people: "0.4.0 (abc1234 · 2026-10-22)". */
+export const VERSION_LABEL = `${APP_VERSION} (${APP_BUILD})`

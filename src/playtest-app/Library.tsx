@@ -1,6 +1,6 @@
 import { CircleHelp, FileUp, Menu, Play, Trash2 } from '@/ui/icons'
 import { useEffect, useRef, useState } from 'react'
-import { PLAYTEST_NAME } from '@/app/appInfo'
+import { PLAYTEST_NAME, VERSION_LABEL } from '@/app/appInfo'
 import { cn } from '@/lib/cn'
 import { addPack, playtestDb, type PackRow } from '@/playtest/library'
 import { PACK_EXT } from '@/playtest/pack'
@@ -158,6 +158,9 @@ export function Library({ onOpen, onHelp }: { onOpen: (id: string) => void; onHe
           </ul>
         </div>
       </main>
+      <footer className="pb-safe shrink-0 px-4 pt-1 pb-3 text-center text-xs text-muted-foreground">
+        {PLAYTEST_NAME} {VERSION_LABEL}
+      </footer>
     </div>
   )
 }

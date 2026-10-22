@@ -21,6 +21,9 @@ export const usePwa = create<PwaState>(() => ({
 let installEvent: InstallPromptEvent | null = null
 let updateSW: ((reload?: boolean) => Promise<void>) | null = null
 
+/** How often an open app looks for a new version (it also looks when it comes back into view). */
+const CHECK_EVERY_MS = 30 * 60 * 1000
+
 /** Register the service worker (offline support) and listen for the install prompt. */
 export function initPwa() {
   // The desktop app is already installed and offline; it has no service worker.
@@ -38,6 +41,19 @@ export function initPwa() {
   updateSW = registerSW({
     onOfflineReady: () => usePwa.setState({ offlineReady: true }),
     onNeedRefresh: () => usePwa.setState({ needRefresh: true }),
+    // A tab or installed app brought back from the background doesn't reload,
+    // so the browser never looks for an update by itself: look when it comes
+    // back into view, and now and then while it stays open.
+    onRegisteredSW: (_url, reg) => {
+      if (!reg) return
+      const check = () => {
+        if (navigator.onLine) void reg.update().catch(() => {})
+      }
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') check()
+      })
+      setInterval(check, CHECK_EVERY_MS)
+    },
   })
 }
 

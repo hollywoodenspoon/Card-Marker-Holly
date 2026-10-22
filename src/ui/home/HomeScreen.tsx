@@ -11,7 +11,7 @@ import {
   Upload,
 } from '@/ui/icons'
 import { useEffect, useState } from 'react'
-import { APP_NAME, APP_VERSION } from '@/app/appInfo'
+import { APP_NAME, VERSION_LABEL } from '@/app/appInfo'
 import { openProject } from '@/app/session'
 import { openHelp } from '@/help/openHelp'
 import { SettingsMenu } from '@/ui/settings/SettingsMenu'
@@ -250,7 +250,7 @@ export function HomeScreen() {
         )}
       </main>
       <footer className="shrink-0 px-4 pb-3 text-center text-xs text-muted-foreground">
-        {APP_NAME} {APP_VERSION}
+        {APP_NAME} {VERSION_LABEL}
       </footer>
 
       <NewProjectDialog open={creating} onOpenChange={setCreating} />

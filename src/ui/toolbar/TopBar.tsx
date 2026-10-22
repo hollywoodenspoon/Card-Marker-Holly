@@ -20,7 +20,7 @@ import {
   Sheet,
   Swords,
 } from '@/ui/icons'
-import { APP_NAME, APP_VERSION } from '@/app/appInfo'
+import { APP_NAME, VERSION_LABEL } from '@/app/appInfo'
 import { goHome } from '@/app/session'
 import { openHelp } from '@/help/openHelp'
 import { folderStore } from '@/storage'
@@ -159,7 +159,7 @@ function AppMenu({ phone }: { phone: boolean }) {
         <SettingsMenu onHelp={() => openHelp()} onUnits={() => ui().setUnitsOpen(true)} />
         <DropdownMenuSeparator />
         <div className="px-2 py-1.5 text-xs text-muted-foreground">
-          {APP_NAME} {APP_VERSION}
+          {APP_NAME} {VERSION_LABEL}
         </div>
       </DropdownMenuContent>
     </DropdownMenu>

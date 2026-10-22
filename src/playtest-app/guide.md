@@ -157,6 +157,12 @@ The **game log** lists everything that happened, such as "Spatial Witch: Attacki
 
 **New game** clears the table and goes back to the start.
 
+## Getting the latest version
+
+The app works offline, so it keeps a copy on your device. When a newer version is out, a message says **A new version is available.** Press **Update** to switch: a game in progress is saved and carries on. The version and build are shown at the bottom of the packs screen.
+
+If a phone keeps showing an old version, open `chrome://serviceworker-internals` in Chrome, press **Unregister** under this site's entry, then open the app again. Your packs, decks, games and replays stay. Don't use "Clear site data": it deletes them.
+
 ## What's next
 
 For balance testing, `npm run as:sim` (in the project folder) plays many bot games without a screen and writes a report of win rates per deck and per card.

@@ -569,3 +569,9 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
   - **How many:** the newest 100 unpinned per pack, and pinned ones are never pruned.
   - **Older saves:** a game saved before this change has no record of its start, so it can't become a replay.
   - **The open game:** watching a replay puts the open game aside, unsaved changes included, and gives it back on Leave. Autosave skips while a replay is on screen.
+
+## App updates (website)
+
+- **Offered, not forced:** a new version is offered by the "A new version is available. Update" message (`registerType: 'prompt'`), never applied by itself. A game in progress or a card being edited is never reloaded underneath the user. Both are autosaved, so Update resumes them.
+- **When it looks:** an open tab or installed app brought back from the background doesn't reload, so the browser never looked for updates. The app now looks when it comes back into view and every 30 minutes (`registration.update()` in `src/ui/pwa/pwa.ts`).
+- **A build stamp** (the commit and date from GitHub Actions, "dev" locally) is shown next to the version, so it's clear which version is running.
