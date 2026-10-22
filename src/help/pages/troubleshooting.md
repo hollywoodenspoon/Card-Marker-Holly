@@ -69,12 +69,12 @@ The website keeps projects in your browser. They disappear if the browser's data
 
 If you have a backup file, press **Import** on the Home screen to bring the project back. If not, they can't be recovered. From now on:
 
-- export a backup file now and then (☰ → **Export backup file**),
+- export a backup file now and then (**Export ▾** → **Project backup file**),
 - or use the desktop app, which saves ordinary files you can copy.
 
 ## The save indicator says Not saved
 
-Something stopped the save, such as a full disk or a folder the app can no longer reach. Export a backup file (☰ → **Export backup file**) straight away so nothing is lost, then sort out the cause and keep working.
+Something stopped the save, such as a full disk or a folder the app can no longer reach. Export a backup file (**Export ▾** → **Project backup file**) straight away so nothing is lost, then sort out the cause and keep working.
 
 ## See also
 

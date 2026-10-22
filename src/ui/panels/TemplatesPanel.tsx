@@ -1,14 +1,4 @@
-import {
-  Check,
-  Copy,
-  Download,
-  MoreHorizontal,
-  Pencil,
-  Plus,
-  Save,
-  Trash2,
-  Upload,
-} from '@/ui/icons'
+import { Check, Copy, Download, MoreHorizontal, Pencil, Plus, Trash2, Upload } from '@/ui/icons'
 import { useMemo, useState } from 'react'
 import { registerProjectFonts } from '@/assets/fonts'
 import { useEditor } from '@/core/editor/editorStore'
@@ -22,7 +12,6 @@ import {
   editTemplate,
   newTemplate,
   renameTemplate,
-  saveCurrentCardAsTemplate,
   uploadTemplate,
 } from '@/templates/commands'
 import { cardsUsingTemplate } from '@/templates/fields'
@@ -64,20 +53,10 @@ export function TemplatesPanel({ onPicked }: { onPicked?: () => void }) {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-auto pb-4">
-      <div className="flex flex-wrap gap-2 p-3">
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() =>
-            setNameDialog({
-              title: 'Save this card as a template',
-              initial: `${currentCard(useEditor.getState())?.name ?? 'Card'} layout`,
-              run: (n) => saveCurrentCardAsTemplate(n),
-            })
-          }
-        >
-          <Save /> Save card as template
-        </Button>
+      <div className="flex flex-wrap items-center gap-2 p-3">
+        <p className="min-w-0 flex-1 text-xs text-muted-foreground">
+          Click a template to edit its layout. To make one from a card, use that card's ⋯ menu.
+        </p>
         <Button
           size="sm"
           variant="ghost"
@@ -200,8 +179,8 @@ function TemplateRow({
         type="button"
         className="flex min-w-0 flex-1 items-center gap-2.5 text-left"
         onClick={() => {
-          // Opening the Templates tab means editing layouts: a click edits this one.
-          // Using it for the current card is in ⋯.
+          // A click on a template edits it (opening the tab alone changes nothing).
+          // Using it for the current card is in ⋯, and in the card's own ⋯ menu.
           editTemplate(t.id)
           onPicked?.()
         }}

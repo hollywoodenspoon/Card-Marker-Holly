@@ -4,7 +4,7 @@ Hearthside Cardworks has a companion app, **Hearthside Table**, for playing your
 
 ## Exporting a game pack
 
-1. Press **Playtest** in the left rail (on a phone, ☰ → **Playtest (export game pack)…**).
+1. Open **Export ▾** in the top bar → **Game pack for Hearthside Table…** (on a phone, ☰ → the same item).
 2. The dialog shows what goes into the pack: **every card** in the project (also cards that are in no deck), your **decks**, and the **fields** it found.
 3. Choose:
    - **Playtest now** (Hearthside Cardworks in a browser): opens the Playtest app in a new tab with the pack ready to play.

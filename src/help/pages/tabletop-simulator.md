@@ -4,7 +4,7 @@ You can playtest your game in Tabletop Simulator before printing anything. Heart
 
 ## Exporting the deck
 
-1. Open ☰ → **Export for Tabletop Simulator…**.
+1. Open **Export ▾** in the top bar → **Tabletop Simulator…** (on a phone, ☰ → **Tabletop Simulator…**).
 2. Under **Cards**, pick one of your decks, or **Print list (with its copies)** to use the cards and copies from the print view.
 3. Check the summary, for example "60 cards · 1 sheet".
 4. Press **Export**. The app saves a zip file named after your project (and the deck), ending in "Tabletop Simulator.zip".

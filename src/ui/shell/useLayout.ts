@@ -5,7 +5,8 @@ export type LayoutKind = 'phone' | 'tablet' | 'desktop'
 const phoneQ = '(max-width: 767px)'
 const desktopQ = '(min-width: 1200px)'
 
-function get(): LayoutKind {
+/** The layout right now (outside React, e.g. in an action). */
+export function currentLayout(): LayoutKind {
   if (matchMedia(phoneQ).matches) return 'phone'
   if (matchMedia(desktopQ).matches) return 'desktop'
   return 'tablet'
@@ -23,7 +24,7 @@ function subscribe(cb: () => void) {
 }
 
 export function useLayout(): LayoutKind {
-  return useSyncExternalStore(subscribe, get)
+  return useSyncExternalStore(subscribe, currentLayout)
 }
 
 /** True when the primary pointer is coarse (finger) — used for larger handles. */

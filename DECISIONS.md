@@ -692,3 +692,12 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 - **Dots** are 0.6 mm long with 0.9 mm between them, drawn as short separate segments. That way they come out the same in the PDF, the preview and the greyscale draft, with no dash support needed in the PDF code.
 - **With no bleed** the bleed edge is the card edge, so only the solid marks print.
 - **Guide lines** get dotted bleed-edge lines too when bleed marks are on.
+
+## UI/UX review: card vs template, rail and Export
+
+- **Tabs only show:** opening the Templates (or Cards) tab no longer switches between Card and Template mode. This replaces "tabs follow mode" in the other direction. What you edit changes only through the Card / Template switch, by clicking a template, or with Edit template. When the mode changes, the tab still follows it, so the Templates tab opens with Template mode.
+- **Save … as template** moved from the Templates tab to each card's ⋯ menu ("Save front as template…" for the side being shown), next to a new **Change template ▸** (Front / Back lists).
+- **Card mode properties** show the card's front and back templates and its size read-only ("Set by Basic front · 3 cards", with **Change size**, which opens the template). The size controls stay in Template mode, where it's clear they change the template.
+- **Locked template parts** read "Always shown (locked in the template)" with a lock, instead of a switch that looks off. Layers shows a lock instead of a dim eye.
+- **The rail holds places only:** Cards, Templates, Decks, Fonts and Keywords (Keywords moved from a dialog into a tab). Then the views (Gallery, Data, Vector), and Help at the bottom with a plain "?" icon.
+- **Outputs live in the top bar:** Print, and **Export ▾**: card images, Tabletop Simulator, the game pack, and the project backup. They left the rail and ☰. ☰ keeps Find and replace, Open Hearthside Table, All projects and Settings.

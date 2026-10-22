@@ -272,10 +272,10 @@ function LayerRow({
           // A disabled button can't show a tooltip, and touch has none: say it plainly.
           <span
             className="grid size-11 shrink-0 place-items-center text-muted-foreground/50 md:size-8"
-            title="This part is always shown (set in the template)"
+            title="Always shown (locked in the template)"
             aria-label={`${el.name} is always shown`}
           >
-            <Eye className="size-4" />
+            <Lock className="size-3.5" />
           </span>
         )}
         {editable && (

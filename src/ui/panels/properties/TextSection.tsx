@@ -33,7 +33,7 @@ import { Label, NativeSelect } from '@/ui/components/ui/input'
 import { Switch } from '@/ui/components/ui/switch'
 import { ColorField, NumberField, Row, Section } from '@/ui/components/fields'
 import { useFontFamilies } from '@/ui/text/useFontFamilies'
-import { useUi } from '@/ui/uiStore'
+import { openPanel } from '@/ui/actions/openPanel'
 import { askConfirm, askText } from '@/ui/components/feedback'
 
 export function TextSection({ el, editable }: { el: TextElement; editable: boolean }) {
@@ -313,7 +313,7 @@ export function TextSection({ el, editable }: { el: TextElement; editable: boole
             aria-label="Style keywords in this text"
           />
         </label>
-        <Button variant="outline" size="sm" onClick={() => useUi.getState().setKeywordsOpen(true)}>
+        <Button variant="outline" size="sm" onClick={() => openPanel('keywords')}>
           <Highlighter /> Edit keywords…
         </Button>
       </Section>

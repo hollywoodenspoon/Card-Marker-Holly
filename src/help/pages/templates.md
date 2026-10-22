@@ -35,9 +35,9 @@ What a field shows before a card fills it in is its default: the template's text
 
 Open the **Templates** tab in the left rail (on a phone, ☰ → **Templates**). Templates are listed under **Fronts** and **Backs** with a thumbnail, and how many cards use each. A tick marks the ones the current card uses.
 
-- Click a template to edit it (Template mode opens on it).
+- Click a template to edit it (Template mode opens on it). Just opening the tab changes nothing: you stay on your card until you click one.
 - **+** next to **Fronts** or **Backs** makes a new, empty template.
-- ⋯ has **Use for this card** (it switches back to Card mode), **Rename**, **Duplicate**, **Export file** and **Delete**. Back templates also have **Use as back for all cards**.
+- ⋯ has **Use for this card** (it switches back to Card mode; a card's own ⋯ → **Change template** and the **Front template** / **Back template** boxes in its properties do the same), **Rename**, **Duplicate**, **Export file** and **Delete**. Back templates also have **Use as back for all cards**.
 
 ![The Templates tab](templates.webp)
 
@@ -47,7 +47,7 @@ Deleting a template that cards use moves those cards to another template of the 
 
 ## Saving a card as a template
 
-**Save card as template** (at the top of the Templates tab) makes a new template from what the current side of this card shows: its template's parts, with the card's own text, art and counts as the new defaults, plus anything you added to this card only. Parts hidden on the card are hidden by default in the new template.
+In the **Cards** tab, open the card's ⋯ menu and choose **Save front as template…** (or **Save back as template…** when the back is shown). It makes a new template from what the current side of this card shows: its template's parts, with the card's own text, art and counts as the new defaults, plus anything you added to this card only. Parts hidden on the card are hidden by default in the new template.
 
 ## Exporting and importing templates
 

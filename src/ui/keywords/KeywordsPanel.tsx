@@ -5,25 +5,19 @@ import type { Keyword, TextStyle } from '@/core/model/types'
 import { cn } from '@/lib/cn'
 import { setKeywords } from '@/templates/keywordCommands'
 import { Button, IconButton } from '@/ui/components/ui/button'
-import { Dialog, DialogContent } from '@/ui/components/ui/dialog'
 import { Input, NativeSelect } from '@/ui/components/ui/input'
-import { useUi } from '@/ui/uiStore'
 import { useFontFamilies } from '@/ui/text/useFontFamilies'
 
-/** Project keywords: words styled automatically in every card text. */
-export function KeywordsDialog() {
-  const open = useUi((s) => s.keywordsOpen)
-  const close = () => useUi.getState().setKeywordsOpen(false)
+/** Project keywords (a left-pane tab): words styled automatically in every card text. */
+export function KeywordsPanel() {
   return (
-    <Dialog open={open} onOpenChange={(o) => !o && close()}>
-      <DialogContent
-        title="Keywords"
-        description="Words and phrases styled automatically wherever they appear in card text (any capitals, whole words only)."
-        className="max-w-xl"
-      >
-        {open && <KeywordList />}
-      </DialogContent>
-    </Dialog>
+    <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-auto p-3">
+      <p className="text-xs text-muted-foreground">
+        Words and phrases styled automatically wherever they appear in card text (any capitals,
+        whole words only).
+      </p>
+      <KeywordList />
+    </div>
   )
 }
 
@@ -64,6 +58,8 @@ function KeywordList() {
               <Input
                 aria-label="Keyword"
                 placeholder="Word or phrase"
+                // A keyword just added (still empty) is ready to type into.
+                autoFocus={!k.word && k.id === keywords.at(-1)?.id}
                 value={k.word}
                 onChange={(e) => update(k.id, { word: e.target.value }, `kw:${k.id}`)}
                 className="flex-1"

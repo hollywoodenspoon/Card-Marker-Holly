@@ -6,7 +6,7 @@ Three things change text automatically when a card is shown or printed: keywords
 
 Keywords are words or phrases such as "Flying" or "Deal damage" that should look the same on every card.
 
-1. Press **Keywords** in the left rail (on a phone, ☰ → **Keywords…**).
+1. Open the **Keywords** tab in the left rail (on a phone, ☰ → **Keywords**).
 2. Press **Add keyword** and type the word or phrase.
 3. Choose its look: **Bold**, **Italic**, **Underline**, a colour, and a font (**Same font** keeps the text's own font). A sample line shows the result.
 

@@ -1,13 +1,17 @@
-import { Images, Layers, LayoutTemplate, Library, SquareStack, Type } from '@/ui/icons'
+import { Highlighter, Images, Layers, LayoutTemplate, Library, SquareStack, Type } from '@/ui/icons'
 
-export type PanelId = 'cards' | 'decks' | 'templates' | 'assets' | 'fonts' | 'layers'
+export type PanelId = 'cards' | 'decks' | 'templates' | 'assets' | 'fonts' | 'keywords' | 'layers'
 
-/** Tabs of the left rail (desktop and tablet). Assets is docked below the panel instead. */
+/**
+ * Tabs of the left rail (desktop and tablet): the places where the project's parts
+ * live. Assets is docked below the panel instead; views and exports are elsewhere.
+ */
 export const LEFT_PANELS: { id: PanelId; label: string; icon: typeof Layers }[] = [
-  { id: 'templates', label: 'Templates', icon: LayoutTemplate },
   { id: 'cards', label: 'Cards', icon: SquareStack },
+  { id: 'templates', label: 'Templates', icon: LayoutTemplate },
   { id: 'decks', label: 'Decks', icon: Library },
   { id: 'fonts', label: 'Fonts', icon: Type },
+  { id: 'keywords', label: 'Keywords', icon: Highlighter },
 ]
 
 export const ASSETS_ICON = Images

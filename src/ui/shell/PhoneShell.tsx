@@ -5,7 +5,6 @@ import { PanelBody } from '@/ui/panels/PanelBody'
 import { PropertiesPanel } from '@/ui/panels/PropertiesPanel'
 import { AddGrid } from '@/ui/toolbar/AddMenu'
 import { TopBar } from '@/ui/toolbar/TopBar'
-import { setEditMode } from '@/ui/panels/editMode'
 import { useUi } from '@/ui/uiStore'
 import { CanvasArea } from '@/ui/canvas/CanvasArea'
 
@@ -25,6 +24,7 @@ const TITLES: Record<string, string> = {
   add: 'Add',
   assets: 'Assets',
   fonts: 'Fonts',
+  keywords: 'Keywords',
   properties: 'Edit',
 }
 
@@ -44,10 +44,7 @@ export function PhoneShell() {
           <button
             key={t.id}
             type="button"
-            onClick={() => {
-              if (t.id === 'cards' && phoneSheet !== 'cards') setEditMode('card')
-              setPhoneSheet(phoneSheet === t.id ? null : t.id)
-            }}
+            onClick={() => setPhoneSheet(phoneSheet === t.id ? null : t.id)}
             aria-pressed={phoneSheet === t.id}
             className={cn(
               'flex h-16 min-w-14 flex-1 flex-col items-center justify-center gap-1 text-[11px] font-medium text-muted-foreground',

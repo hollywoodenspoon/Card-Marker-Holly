@@ -2,7 +2,7 @@ import { useShallow } from 'zustand/react/shallow'
 import { distributeSelection, groupSelection } from '@/core/editor/elementCommands'
 import { useEditor } from '@/core/editor/editorStore'
 import { setBleed, setCornerGuide, setNumberStart, setSafe } from '@/core/editor/projectCommands'
-import { isLayoutEditable, selectedElements } from '@/core/editor/selectors'
+import { currentCard, isLayoutEditable, selectedElements } from '@/core/editor/selectors'
 import { Button } from '@/ui/components/ui/button'
 import { Switch } from '@/ui/components/ui/switch'
 import { NumberField, Row, Section } from '@/ui/components/fields'
@@ -14,7 +14,11 @@ import { ImageFieldSection, ImageSection } from './properties/ImageSection'
 import { PartSection } from './properties/PartSection'
 import { ShapeSection } from './properties/ShapeSection'
 import { TextSection } from './properties/TextSection'
-import { renameElement } from '@/templates/commands'
+import { editTemplate, renameElement } from '@/templates/commands'
+import { cardsUsingTemplate } from '@/templates/fields'
+import { pickTemplateForCard } from '@/ui/actions/templateUse'
+import { Label, NativeSelect } from '@/ui/components/ui/input'
+import { LayoutTemplate } from '@/ui/icons'
 
 export function PropertiesPanel() {
   const els = useEditor(useShallow(selectedElements))
@@ -104,10 +108,11 @@ function typeLabel(t: string) {
 
 function DocumentProperties() {
   const project = useEditor((s) => s.doc!.project)
+  const mode = useEditor((s) => s.view.mode)
   return (
     <div>
       <Section title="Card">
-        <CardSizeControls />
+        {mode === 'card' ? <CardTemplates /> : <CardSizeControls />}
         <ProjectUnitsControls />
       </Section>
       <Section title="Print area">
@@ -176,6 +181,67 @@ function DocumentProperties() {
           for 001, and {'{total}'} for the number of cards. Add → Card number adds one.
         </p>
       </Section>
+    </div>
+  )
+}
+
+/**
+ * Card mode: which templates this card uses (switch them here), and its size,
+ * which belongs to the templates and is changed by editing them.
+ */
+function CardTemplates() {
+  const card = useEditor(currentCard)
+  const templates = useEditor((s) => s.doc?.templates)
+  const users = useEditor((s) =>
+    s.doc && card?.frontTemplateId
+      ? cardsUsingTemplate(Object.values(s.doc.cards), card.frontTemplateId).length
+      : 0,
+  )
+  if (!card || !templates) return null
+  const list = Object.values(templates).sort((a, b) => a.createdAt - b.createdAt)
+  const front = card.frontTemplateId ? templates[card.frontTemplateId] : undefined
+  const pick = (side: 'front' | 'back') => (
+    <div className="flex flex-col gap-1">
+      <Label htmlFor={`card-${side}`}>
+        {side === 'front' ? 'Front template' : 'Back template'}
+      </Label>
+      <NativeSelect
+        id={`card-${side}`}
+        value={(side === 'front' ? card.frontTemplateId : card.backTemplateId) ?? ''}
+        onChange={(e) => e.target.value && pickTemplateForCard(e.target.value)}
+      >
+        {!(side === 'front' ? card.frontTemplateId : card.backTemplateId) && (
+          <option value="">{side === 'front' ? 'Choose a front…' : 'No back'}</option>
+        )}
+        {list
+          .filter((t) => t.side === side)
+          .map((t) => (
+            <option key={t.id} value={t.id}>
+              {t.name}
+            </option>
+          ))}
+      </NativeSelect>
+    </div>
+  )
+  return (
+    <div className="flex flex-col gap-3">
+      {pick('front')}
+      {pick('back')}
+      {front && (
+        <div className="flex items-center justify-between gap-2 rounded-lg border px-3 py-2">
+          <div className="min-w-0 text-sm">
+            <div>
+              {front.size.widthMm} × {front.size.heightMm} mm
+            </div>
+            <div className="text-xs text-muted-foreground">
+              Set by {front.name} · {users} card{users === 1 ? '' : 's'}
+            </div>
+          </div>
+          <Button variant="outline" size="sm" onClick={() => editTemplate(front.id)}>
+            <LayoutTemplate /> Change size
+          </Button>
+        </div>
+      )}
     </div>
   )
 }

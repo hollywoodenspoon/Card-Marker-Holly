@@ -1,4 +1,4 @@
-import { Filter, LayoutTemplate } from '@/ui/icons'
+import { Filter, LayoutTemplate, Lock } from '@/ui/icons'
 import { useState } from 'react'
 import { useEditor } from '@/core/editor/editorStore'
 import { updateElement } from '@/core/editor/elementCommands'
@@ -30,17 +30,21 @@ export function PartSection({ el }: { el: Element }) {
     )
     return (
       <Section title="Template part">
-        <label className="flex items-center justify-between gap-3 text-sm">
-          Show on this card
-          <Switch
-            checked={visible}
-            disabled={el.toggleLocked}
-            onCheckedChange={() => toggleVisibility(el.id)}
-            aria-label="Show on this card"
-          />
-        </label>
-        {el.toggleLocked && (
-          <p className="text-xs text-muted-foreground">This part is always shown.</p>
+        {el.toggleLocked ? (
+          // Not a switch that can't move: say what it is.
+          <p className="flex items-center gap-2 text-sm" data-testid="part-locked">
+            <Lock className="size-4 shrink-0 text-muted-foreground" />
+            Always shown (locked in the template)
+          </p>
+        ) : (
+          <label className="flex items-center justify-between gap-3 text-sm">
+            Show on this card
+            <Switch
+              checked={visible}
+              onCheckedChange={() => toggleVisibility(el.id)}
+              aria-label="Show on this card"
+            />
+          </label>
         )}
         <p className="text-xs text-muted-foreground">
           Position and style come from the template “{template?.name}”.

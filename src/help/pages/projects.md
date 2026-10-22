@@ -39,7 +39,7 @@ A backup file is one file that contains the whole project: cards, templates, ima
 
 To make one:
 
-1. In the editor, open ☰ and choose **Export backup file**. (On the Home screen, use the project's ⋯ → **Export backup file**.)
+1. In the editor, open **Export ▾** in the top bar and choose **Project backup file** (on a phone, ☰ → **Project backup file**). (On the Home screen, use the project's ⋯ → **Export backup file**.)
 2. Keep the file somewhere safe: a USB stick, cloud storage, or email it to yourself.
 
 To bring one back, press **Import** on the Home screen and choose the file.

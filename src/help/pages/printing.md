@@ -4,7 +4,7 @@ Hearthside Cardworks lays your cards out on paper sheets, ready to cut by hand, 
 
 ## Opening the print view
 
-- **Desktop and tablet:** press **Print** in the top bar, or **Print** in the left rail. The settings sit on the left, the sheet preview in the middle.
+- **Desktop and tablet:** press **Print** in the top bar. The settings sit on the left, the sheet preview in the middle.
 - **Phone:** ☰ → **Print / export PDF**. Under the preview, tap **Cards to print** or **Print settings** to open them, then **Export PDF**.
 
 The line under the title sums it up, for example "9 per sheet (portrait) · 18 cards · 2 sheets + backs". Use the arrows under the preview to step through the sheets. On a wide screen the fronts and the backs show side by side; on a phone a **Front** / **Back** switch picks one. Zoom the preview with the − % + buttons, [[Ctrl]] + mouse wheel (⌘ on Mac) or a pinch, and pan with [[Space]] + drag or two fingers. [[Esc]] or the back arrow returns to the editor.

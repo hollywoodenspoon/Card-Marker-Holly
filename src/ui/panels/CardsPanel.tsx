@@ -1,11 +1,14 @@
 import {
+  Check,
   ChevronDown,
   Copy,
+  LayoutTemplate,
   FileSpreadsheet,
   GripVertical,
   Image,
   MoreHorizontal,
   Plus,
+  Save,
   Search,
   Trash2,
 } from '@/ui/icons'
@@ -26,7 +29,11 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@/ui/components/ui/dropdown'
 import { Input } from '@/ui/components/ui/input'
@@ -35,6 +42,9 @@ import { CardThumb as LiveThumb } from '@/ui/canvas/CardThumb'
 import { BulkBar } from './BulkBar'
 import { useUi } from '@/ui/uiStore'
 import { deletedToast } from '@/ui/actions/undoToast'
+import { pickTemplateForCard } from '@/ui/actions/templateUse'
+import { askText } from '@/ui/components/feedback'
+import { saveCurrentCardAsTemplate } from '@/templates/commands'
 
 export function CardsPanel({ onPicked }: { onPicked?: () => void }) {
   const cards = useEditor((s) => s.doc?.cards)
@@ -203,6 +213,7 @@ const CardRow = memo(function CardRow({
   checked?: boolean
 }) {
   const [renaming, setRenaming] = useState(false)
+  const side = useEditor((s) => s.view.side)
   const handle = handleProps?.(index)
   const onPick = () => pickId(card.id)
   return (
@@ -278,6 +289,11 @@ const CardRow = memo(function CardRow({
             <Image /> Export as image…
           </DropdownMenuItem>
           <DropdownMenuSeparator />
+          <ChangeTemplateMenu card={card} />
+          <DropdownMenuItem onSelect={() => void saveAsTemplate(card)}>
+            <Save /> Save {side} as template…
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
           <DropdownMenuItem
             danger
             onSelect={() => {
@@ -292,3 +308,50 @@ const CardRow = memo(function CardRow({
     </div>
   )
 })
+
+/** This card's layout as a new template (the side being shown), named by the user. */
+async function saveAsTemplate(card: Card) {
+  selectCard(card.id)
+  const side = useEditor.getState().view.side
+  const name = await askText({
+    title: `Save this card's ${side} as a template`,
+    label: 'Template name',
+    initial: `${card.name} ${side}`,
+    okLabel: 'Save template',
+  })
+  if (name?.trim()) saveCurrentCardAsTemplate(name.trim())
+}
+
+/** Change template ▸ Front / Back: every template of that side, the current one ticked. */
+function ChangeTemplateMenu({ card }: { card: Card }) {
+  const templates = useEditor((s) => s.doc?.templates)
+  const list = Object.values(templates ?? {}).sort((a, b) => a.createdAt - b.createdAt)
+  const pick = (id: string) => {
+    selectCard(card.id)
+    pickTemplateForCard(id)
+  }
+  return (
+    <DropdownMenuSub>
+      <DropdownMenuSubTrigger>
+        <LayoutTemplate /> Change template
+      </DropdownMenuSubTrigger>
+      <DropdownMenuSubContent>
+        {(['front', 'back'] as const).map((side) => (
+          <div key={side}>
+            <DropdownMenuLabel>{side === 'front' ? 'Front' : 'Back'}</DropdownMenuLabel>
+            {list
+              .filter((t) => t.side === side)
+              .map((t) => {
+                const on = (side === 'front' ? card.frontTemplateId : card.backTemplateId) === t.id
+                return (
+                  <DropdownMenuItem key={t.id} onSelect={() => !on && pick(t.id)}>
+                    <Check className={on ? '' : 'invisible'} /> {t.name}
+                  </DropdownMenuItem>
+                )
+              })}
+          </div>
+        ))}
+      </DropdownMenuSubContent>
+    </DropdownMenuSub>
+  )
+}

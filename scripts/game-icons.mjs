@@ -16,7 +16,6 @@ export const MAP = {
   Highlighter: 'magic-swirl',
   PenTool: 'fountain-pen',
   Sheet: 'stone-tablet',
-  CircleHelp: 'spell-book',
   // Top bar, menus and views
   Menu: 'hamburger-menu',
   Settings2: 'cog',
