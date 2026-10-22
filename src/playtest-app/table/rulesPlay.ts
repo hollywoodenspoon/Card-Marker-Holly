@@ -1,5 +1,5 @@
 import { adjacent } from '@/adventure/board'
-import { revealOptions, type Move } from '@/adventure/engine'
+import { placePool, revealOptions, type Move } from '@/adventure/engine'
 import { other, type AsState } from '@/adventure/state'
 import { parsePieceId } from '@/adventure/table'
 import type { TableAction } from '@/playtest/actions'
@@ -118,7 +118,7 @@ export function hints(s: AsState, picks: number[]): { pieces: Set<string>; slots
     }
   } else if (st.k === 'place') {
     const p = s.players[st.seat]
-    if (p.field.some((f) => !f.card)) for (const c of p[st.from]) pid(st.seat, c)
+    if (p.field.some((f) => !f.card)) for (const c of placePool(s, st.seat)) pid(st.seat, c)
     for (const i of st.placed) pid(st.seat, p.field[i].card)
     p.field.forEach((f, i) => !f.card && slots.add(`${zoneKey('field', st.seat)}:${i}`))
   } else if (st.k === 'choose') {

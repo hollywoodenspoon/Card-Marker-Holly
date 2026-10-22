@@ -51,9 +51,17 @@ export const faceUp = (s: S, seat: Seat) =>
 export const archOnField = (s: S, seat: Seat, word: string, self: string) =>
   faceUp(s, seat).some((x) => x.card !== self && inArchetype(s, x.card, word))
 
-/** "If a [word] card is in your rest zone." */
+/** "If a [word] card is in your rest zone." A locked (face-down) card hides its archetype. */
 export const archInRest = (s: S, seat: Seat, word: string, self: string) =>
-  s.players[seat].rest.some((c) => c !== self && inArchetype(s, c, word))
+  s.players[seat].rest.some((c) => c !== self && !isLocked(s, seat, c) && inArchetype(s, c, word))
+
+/** Is this rest-zone card locked (for that use, or at all)? */
+export const isLocked = (s: S, seat: Seat, card: string, kind?: 'rest' | 'refill') =>
+  (s.players[seat].locked ?? []).some((l) => l.card === card && (!kind || l.kind === kind))
+
+/** Rest-zone cards that may refill the field (not locked by Kobold Trapsetter). */
+export const refillPool = (s: S, seat: Seat) =>
+  s.players[seat].rest.filter((c) => !isLocked(s, seat, c, 'refill'))
 
 export const restCount = (s: S, seat: Seat) => s.players[seat].rest.length
 export const isCenterSlot = (slot: number) => colOf(slot) === 1

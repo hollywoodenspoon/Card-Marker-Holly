@@ -102,3 +102,17 @@ export function engagementTotals(s: AsState, e: Engagement): Totals {
     defense: baseDefense + fs(def),
   }
 }
+
+/**
+ * Final Blow: the bonus of the last Fighting Spirit revealed, if its card has
+ * Final Blow. It's added when the Engagement ends (until then it's pending).
+ */
+export function finalBlow(
+  s: AsState,
+  e: Engagement,
+): { seat: Seat; card: string; n: number } | null {
+  const last = e.last
+  const entry = last && e.fs[last.seat][last.index]
+  const n = entry && rulesOf(s, entry.card)?.finalBlow
+  return last && entry && n ? { seat: last.seat, card: entry.card, n } : null
+}

@@ -653,3 +653,17 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 - **Old replays:** a saved replay that hit the short refill used to end the refill early. Under this ruling, its recorded "done" is no longer legal, so it stops at that point. The saved engine fixtures use cards without abilities and aren't affected.
 - **A game checker** (`src/adventure/check.ts`) replays a game and reports rule problems: illegal moves, lost or doubled cards, a short field at the start of a round, and Fighting Spirit over 3. It runs on 200 First Quest bot games in the tests, which would have caught the short field.
 - **Replay files** (`.hsreplay.json`, kind `hearthside-replay`, version 1) hold a replay's start (every card's values included), its moves and its result, plus the app version and the pack name. Any replay, the replay being watched, and the open game (finished or not) can be saved as one. Import adds it to the open pack's replays. Pictures come from the open pack, and a note says when cards are missing from it.
+
+## The archive sets (Banded Horde, Creeping Dread, Deepdelver, Anti-Incursion)
+
+- **The owner settled each card** (the CSV notes list them). Onslaught cards got new effects. The duplicates of The First Quest got stacked conditions. The "Reveal this card" Support cards, whose only use under the original rules was stalling an action without passing, got real effects.
+- **Final Blow** (Dawnbreaker, Whispering Dread): the last card revealed is known only once both players have passed, so the bonus is checked then. It counts only if the card is still the last one revealed by either player. Revealing after it takes the bonus away. It is shown as pending in the prompt and the reveal's log line. Bots count it only once the opponent has passed.
+- **Unmade Wretch's lock:** the target is turned face down and ability-active (so it's out of the Fate split, with no Inherent bonus and no abilities). It can't be revealed again until Regroup, and its Flip Ability doesn't trigger again. It counts as revealed for adjacency, so the Skirmish still ends. Crimson Duelist is protected, because this is a Field Ability.
+- **Rest Zone Lockouts** (Kobold Grave-Robber: no Rest Ability; Kobold Trapsetter: no refilling the field): the lock ends when the card leaves the rest zone. A locked card still counts for "N+ Rest Zone", but its archetype is hidden, because it's face down. A Trapsetter lock can't leave a gap, because the Support refill rule fills the field.
+- **Sahuagin Reef-Strider:** Defending Side only, and the check is exact: one of the defending player's defending cards is next to the attacked position, in the Center column (for a Center target, that's the other row's Center).
+- **Deepdelver Vanguard (Breakthrough):** "Attacking Side: Non-adjacent cards are counted for attack" as a Battle Ability. The totals recompute at once, and the flag lasts the round.
+
+## Bots-only tournaments
+
+- **"Who plays: Bots only"** in tournament setup hides the person row and fills every seat with bots. All-bot tournaments were already possible by filling with bots alone; this makes it a clear choice.
+- **Play to the end:** in a tournament where every entrant is a bot, one button plays each round in turn (the same worker pool as "Settle bot matches"), saving after every round, until there's a winner. "Stop after this round" halts it between rounds.

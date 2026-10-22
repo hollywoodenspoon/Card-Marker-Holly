@@ -52,6 +52,8 @@ export function toTable(setup: GameSetup, s: AsState): TableState {
   const regroup = regroupHand(s)
   for (const seat of SEATS) {
     const p = s.players[seat]
+    // Locked rest-zone cards (Kobold Grave-Robber, Kobold Trapsetter) lie face down.
+    const restCard = (c: string) => add(seat, c, !(p.locked ?? []).some((l) => l.card === c))
     zones[zoneKey('field', seat)] = {
       slots: p.field.map((f) => (f.card ? [add(seat, f.card, f.faceUp, f.state)] : [])),
     }
@@ -59,12 +61,12 @@ export function toTable(setup: GameSetup, s: AsState): TableState {
       // Regroup: the Support is set aside and the rest zone is held like a hand.
       zones[zoneKey('rest', seat)] = { items: [] }
       zones[zoneKey('support', seat)] = {
-        items: [...p.rest, ...p.spent].map((c) => add(seat, c, true)),
+        items: [...p.rest.map(restCard), ...p.spent.map((c) => add(seat, c, true))],
       }
       for (const c of p.support) add(seat, c, false)
     } else {
       zones[zoneKey('rest', seat)] = {
-        items: [...p.rest, ...p.spent].map((c) => add(seat, c, true)),
+        items: [...p.rest.map(restCard), ...p.spent.map((c) => add(seat, c, true))],
       }
       zones[zoneKey('support', seat)] = { items: p.support.map((c) => add(seat, c, false)) }
     }

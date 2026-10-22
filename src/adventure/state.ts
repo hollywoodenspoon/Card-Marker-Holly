@@ -36,6 +36,12 @@ export interface PlayerState {
   spent: string[]
   /** What abilities set up for this round (cleared each Skirmish). */
   round: RoundFlags
+  /**
+   * Rest-zone cards an opponent turned face down (Kobold Grave-Robber, Kobold
+   * Trapsetter): no Rest Ability, or no refilling the field. A lock ends when
+   * the card leaves the rest zone.
+   */
+  locked?: { card: string; kind: 'rest' | 'refill' }[]
 }
 
 export interface RoundFlags {
@@ -50,6 +56,11 @@ export interface RoundFlags {
    * or only for an archetype's cards (`word`).
    */
   unbound?: { side: 'attack' | 'defense'; word?: string }[]
+  /**
+   * Field cards an opponent's lock (Unmade Wretch) turned face down for the
+   * round: they can't be revealed again until Regroup.
+   */
+  sealed?: string[]
 }
 
 export const newRound = (): RoundFlags => ({ attackUnbound: false, used: [], extra: [] })
@@ -70,6 +81,8 @@ export interface Engagement {
   passed: [boolean, boolean]
   /** Rest-zone coin cards already tried this Engagement (Gambler's Gambit). */
   tried: string[]
+  /** The last Fighting Spirit revealed (Final Blow checks it when the Engagement ends). */
+  last?: { seat: Seat; index: number }
 }
 
 export interface EngagementResult {

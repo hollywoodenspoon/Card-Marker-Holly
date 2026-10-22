@@ -2,10 +2,10 @@ import { current, produce, type Draft } from 'immer'
 import { nextInt, shuffle } from '@/playtest/rng'
 import type { AsCard } from './cards'
 import { ADJACENT_PAIRS, neighbours, SLOTS, slotName } from './board'
-import { coin, log, recordLog, rest } from './effects/helpers'
+import { coin, isLocked, log, recordLog, refillPool, rest } from './effects/helpers'
 import { rulesOf } from './effects/registry'
 import type { Ability, Ctx, Option, PlanIO } from './effects/types'
-import { engagementSides, engagementTotals, fightingSpirit } from './stats'
+import { engagementSides, engagementTotals, fightingSpirit, finalBlow } from './stats'
 import {
   cardName,
   emptySlot,
@@ -121,17 +121,30 @@ export function createGame({
 /** The player who must decide next (null when the game is over). */
 export const actor = (s: AsState): Seat | null => (s.step.k === 'over' ? null : s.step.seat)
 
+/** The cards a player may place now: Support at setup, the unlocked rest zone at Regroup. */
+export function placePool(s: AsState | D, seat: Seat): string[] {
+  const st = s.step
+  if (st.k !== 'place' || st.from === 'support') return s.players[seat].support
+  return refillPool(s, seat)
+}
+
 /** Face-down cards a player may reveal on the opponent's field. */
 export function revealOptions(s: AsState, seat: Seat, count: 1 | 2): number[][] {
-  const field = s.players[other(seat)].field
-  const down = field.flatMap((f, i) => (f.card && !f.faceUp ? [i] : []))
+  const opp = s.players[other(seat)]
+  const field = opp.field
+  // A card an opponent's lock turned face down (Unmade Wretch) can't be revealed
+  // this round, but counts as revealed for "next to a revealed card".
+  const sealed = (i: number) => !!field[i].card && (opp.round.sealed ?? []).includes(field[i].card!)
+  const down = field.flatMap((f, i) => (f.card && !f.faceUp && !sealed(i) ? [i] : []))
   if (count === 2) {
     const pairs = ADJACENT_PAIRS.filter(([a, b]) => down.includes(a) && down.includes(b))
     if (pairs.length) return pairs.map((p) => [...p])
     return down.map((i) => [i])
   }
   // One at a time: next to a card already revealed on that side.
-  const next = down.filter((i) => neighbours(i).some((j) => field[j].card && field[j].faceUp))
+  const next = down.filter((i) =>
+    neighbours(i).some((j) => field[j].card && (field[j].faceUp || sealed(j))),
+  )
   return (next.length ? next : down).map((i) => [i])
 }
 
@@ -196,6 +209,7 @@ export function restFsCards(s: AsState, seat: Seat): string[] {
     const r = rulesOf(s, card)?.restFs
     return (
       r &&
+      !isLocked(s, seat, card, 'rest') &&
       !e.fs[seat].some((x) => x.card === card) &&
       !(r.coin && e.tried.includes(card)) &&
       r.can(s, seat, card)
@@ -209,7 +223,9 @@ export function fsPreview(s: AsState, seat: Seat, card: string, from?: 'rest'): 
   const printed = fightingSpirit(s, seat, card)
   if (from === 'rest') return r?.restFs?.coin ? null : printed + (r?.restFs?.bonus ?? 0)
   if (r?.fsCoin) return null
-  return r?.fs && s.engagement ? r.fs(s, seat, s.engagement, printed, card) : printed
+  const v = r?.fs && s.engagement ? r.fs(s, seat, s.engagement, printed, card) : printed
+  // Final Blow is sure only once the opponent has passed (they can't reveal after it).
+  return v + (r?.finalBlow && s.engagement?.passed[other(seat)] ? r.finalBlow : 0)
 }
 
 /** The ability a response move would use, for its button. */
@@ -320,7 +336,7 @@ export function legalMoves(s: AsState): Move[] {
       return []
     case 'place': {
       const p = s.players[st.seat]
-      const pool = p[st.from]
+      const pool = placePool(s, st.seat)
       const empty = p.field.flatMap((f, i) => (f.card ? [] : [i]))
       const out: Move[] = []
       for (const card of pool) for (const slot of empty) out.push({ t: 'place', card, slot })
@@ -437,14 +453,16 @@ function play(d: D, m: Move) {
     }
     case 'placeRandom': {
       if (st.k !== 'place') return
-      const [pool, seed] = shuffle(p[st.from], d.seed)
+      const avail = placePool(d, seat)
+      const [pool, seed] = shuffle(avail, d.seed)
       d.seed = seed
       p.field.forEach((f, i) => {
         if (f.card || !pool.length) return
         p.field[i] = { card: pool.shift()!, faceUp: false, state: 'ready' }
         st.placed.push(i)
       })
-      p[st.from] = pool
+      // Locked rest-zone cards (Kobold Trapsetter) stay where they are.
+      p[st.from] = [...pool, ...p[st.from].filter((c) => !avail.includes(c))]
       return
     }
     case 'done':
@@ -536,6 +554,7 @@ function play(d: D, m: Move) {
         }
         value = printed + rf.bonus
         e.fs[seat].push({ card: m.card, value, from: 'rest' })
+        e.last = { seat, index: e.fs[seat].length - 1 }
       } else {
         if (r?.fsCoin) {
           const heads = coin(d)
@@ -544,12 +563,13 @@ function play(d: D, m: Move) {
         } else value = r?.fs ? r.fs(d, seat, e, printed, m.card) : printed
         p.support.splice(p.support.indexOf(m.card), 1)
         e.fs[seat].push({ card: m.card, value, from: 'support' })
+        e.last = { seat, index: e.fs[seat].length - 1 }
         p.spent.push(m.card)
       }
       const t = engagementTotals(d, e)
       log(
         d,
-        `${p.name} reveals ${cardName(d, m.card)}${m.from === 'rest' ? ' from the rest zone' : ''} as Fighting Spirit (+${value}). Attack ${t.attack} vs Defense ${t.defense}.`,
+        `${p.name} reveals ${cardName(d, m.card)}${m.from === 'rest' ? ' from the rest zone' : ''} as Fighting Spirit (+${value}${r?.finalBlow ? `, Final Blow +${r.finalBlow} if it stays the last card revealed` : ''}). Attack ${t.attack} vs Defense ${t.defense}.`,
       )
       const battle = r?.battle
       const ctx: Ctx = { owner: seat, card: m.card, mode: 'battle' }
@@ -564,6 +584,9 @@ function play(d: D, m: Move) {
 
 /** Run every step that needs no decision. */
 function advance(d: D) {
+  // A rest-zone lock ends once its card has left the rest zone.
+  for (const p of d.players)
+    if (p.locked?.length) p.locked = p.locked.filter((l) => p.rest.includes(l.card))
   for (let guard = 0; guard < 100; guard++) {
     const st = d.step
     if (st.k === 'respond' && responseMoves(d, st.seat).length === 0) {
@@ -576,7 +599,7 @@ function advance(d: D) {
     } else if (
       st.k === 'place' &&
       st.from === 'rest' &&
-      d.players[st.seat].rest.length === 0 &&
+      refillPool(d, st.seat).length === 0 &&
       d.players[st.seat].support.length > 0 &&
       d.players[st.seat].field.some((f) => !f.card)
     ) {
@@ -591,7 +614,7 @@ function advance(d: D) {
     } else if (
       st.k === 'place' &&
       st.placed.length === 0 &&
-      (d.players[st.seat][st.from].length === 0 || d.players[st.seat].field.every((f) => f.card))
+      (placePool(d, st.seat).length === 0 || d.players[st.seat].field.every((f) => f.card))
     )
       finishPlace(d, st.seat)
     else return
@@ -729,7 +752,13 @@ function nextFsTurn(d: D, acted: Seat) {
   if (!e.passed[next]) d.step = { k: 'fs', seat: next }
   else if (!e.passed[acted]) d.step = { k: 'fs', seat: acted }
   else {
-    const t = engagementTotals(d, e)
+    const t = { ...engagementTotals(d, e) }
+    const fb = finalBlow(d, e)
+    if (fb) {
+      log(d, `Final Blow: ${cardName(d, fb.card)} was the last card revealed (+${fb.n}).`)
+      if (fb.seat === e.attacker) t.attack += fb.n
+      else t.defense += fb.n
+    }
     const scorer =
       t.attack > t.defense ? e.attacker : t.defense > t.attack ? other(e.attacker) : null
     log(
@@ -816,7 +845,11 @@ export function prompt(s: AsState): string {
       const e = s.engagement!
       const t = engagementTotals(s, e)
       const side = e.attacker === st.seat ? 'attacking' : 'defending'
-      return `${who} (${side}): reveal a Support card as Fighting Spirit, or pass. Attack ${t.attack} vs Defense ${t.defense}.`
+      const fb = finalBlow(s, e)
+      const pending = fb
+        ? ` (+${fb.n} ${fb.seat === e.attacker ? 'Attack' : 'Defense'} if ${cardName(s, fb.card)} stays the last card revealed)`
+        : ''
+      return `${who} (${side}): reveal a Support card as Fighting Spirit, or pass. Attack ${t.attack} vs Defense ${t.defense}${pending}.`
     }
   }
 }

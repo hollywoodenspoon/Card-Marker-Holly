@@ -6,6 +6,7 @@ import {
   faceUp,
   log,
   inArchetype,
+  isLocked,
   opponentRestsApply,
   opponentRestsPlan,
   rand,
@@ -607,4 +608,79 @@ export const swapOutAndRest: Ability<number> = {
       rest(d, opp, old)
     }
   },
+}
+
+/**
+ * Field Lockout (Unmade Wretch): an opponent's field card is turned face down
+ * and to the ability-active position for the round. It can't attack, defend or
+ * use abilities, and it can't be revealed again until Regroup.
+ */
+export const sealOpponent: Ability<number> = {
+  name: "Turn an opponent's card face down for the round",
+  plan(io) {
+    const opp = other(io.ctx.owner)
+    const field = io.s.players[opp].field
+    const sealed = io.s.players[opp].round.sealed ?? []
+    return slotFromId(
+      io.pick(
+        io.ctx.owner,
+        "Choose the opponent's card to turn face down for the round.",
+        field
+          .map((_, i) => i)
+          .filter(
+            (i) =>
+              field[i].card &&
+              !sealed.includes(field[i].card!) &&
+              touchable(io.s, io.ctx, opp, i, { target: true }),
+          )
+          .map((i) => slotOption(io.s, opp, i, io.ctx.owner)),
+      ),
+    )
+  },
+  apply(d, ctx, slot) {
+    const p = d.players[other(ctx.owner)]
+    const f = p.field[slot]
+    log(
+      d,
+      `${cardName(d, ctx.card)}: ${p.name}'s ${f.faceUp ? cardName(d, f.card) : 'face-down card'} at ${slotName(slot)} is turned face down: it can't attack, defend or use abilities this round.`,
+    )
+    f.faceUp = false
+    f.state = 'ability'
+    p.round.sealed = [...(p.round.sealed ?? []), f.card!]
+  },
+}
+
+/**
+ * Rest Zone Lockout (Kobold Grave-Robber, Kobold Trapsetter): a card in the
+ * opponent's rest zone is turned face down. It can't be used for a Rest
+ * Ability (`rest`) or to refill the field (`refill`) while it stays there.
+ */
+export function lockRestZone(kind: 'rest' | 'refill'): Ability<string> {
+  const free = (s: AsState, seat: Seat) =>
+    s.players[seat].rest.filter((c) => !isLocked(s, seat, c, kind))
+  return {
+    name:
+      kind === 'rest'
+        ? "Lock a card in the opponent's rest zone (no Rest Ability)"
+        : "Lock a card in the opponent's rest zone (no refilling the field)",
+    can: (s, ctx) => free(s, other(ctx.owner)).length > 0,
+    plan(io) {
+      const opp = other(io.ctx.owner)
+      return cardFromId(
+        io.pick(
+          io.ctx.owner,
+          "Choose a card in the opponent's rest zone to turn face down.",
+          free(io.s, opp).map((c) => cardOption(io.s, c)),
+        ),
+      )
+    },
+    apply(d, ctx, card) {
+      const p = d.players[other(ctx.owner)]
+      p.locked = [...(p.locked ?? []), { card, kind }]
+      log(
+        d,
+        `${cardName(d, ctx.card)}: ${p.name}'s ${cardName(d, card)} is turned face down in the rest zone: ${kind === 'rest' ? "it can't be used for a Rest Ability" : "it can't refill the field"} while it stays there.`,
+      )
+    },
+  }
 }

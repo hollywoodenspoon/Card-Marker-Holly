@@ -1,5 +1,17 @@
-import { ArrowLeft, Copy, Eye, Play, Plus, Trash2, Trophy, Users, Zap } from '@/ui/icons'
-import { useEffect, useMemo, useState } from 'react'
+import {
+  ArrowLeft,
+  Bot,
+  Copy,
+  Eye,
+  Play,
+  Plus,
+  Pause,
+  Trash2,
+  Trophy,
+  Users,
+  Zap,
+} from '@/ui/icons'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { BOT_LEVELS, BOT_NAMES, type BotLevel } from '@/adventure/bot'
 import type { AsCard } from '@/adventure/cards'
 import { checkDeck } from '@/adventure/deck'
@@ -298,6 +310,8 @@ function Setup({
   const [level, setLevel] = useState<BotLevel>('normal')
   const [source, setSource] = useState<DeckSource>('mixed')
   const [busy, setBusy] = useState<string | null>(null)
+  // Bots only: every entrant is a bot, and the whole tournament can play itself.
+  const [botsOnly, setBotsOnly] = useState(false)
 
   const addPerson = () => {
     const d = legalDecks.find((x) => x.id === person.deck)
@@ -500,7 +514,21 @@ function Setup({
             </Button>
           )}
         </div>
-        <div className="flex flex-wrap items-end gap-2">
+        <NativeSelect
+          aria-label="Who plays"
+          className="w-auto"
+          value={botsOnly ? 'bots' : 'mixed'}
+          onChange={(e) => {
+            const only = e.target.value === 'bots'
+            setBotsOnly(only)
+            if (only) setEntrants((x) => x.filter((y) => y.bot))
+          }}
+          data-testid="tournament-who"
+        >
+          <option value="mixed">People and bots</option>
+          <option value="bots">Bots only (the tournament plays itself)</option>
+        </NativeSelect>
+        <div className={cn('flex flex-wrap items-end gap-2', botsOnly && 'hidden')}>
           <Input
             aria-label="Person's name"
             className="w-32"
@@ -654,6 +682,29 @@ function Running({
       setBusy(null)
     }
   }
+  // A tournament of bots only can play itself, round after round.
+  const allBots = t.entrants.every((e) => e.bot)
+  const [auto, setAuto] = useState<string | null>(null)
+  const stop = useRef(false)
+  const playToEnd = async () => {
+    stop.current = false
+    let cur = t
+    try {
+      while (!cur.done && !stop.current) {
+        setAuto(stageTitle(cur, cur.stage, cur.round))
+        setBusy(0)
+        const next = await simulateRound(cur, cards, setBusy)
+        if (next === cur) break
+        cur = next
+        await store({ ...row, t: cur })
+      }
+    } catch (e) {
+      toast(`Couldn't play the tournament: ${e instanceof Error ? e.message : String(e)}`)
+    } finally {
+      setBusy(null)
+      setAuto(null)
+    }
+  }
   const watch = (m: Match, g: GameRecord, n: number) =>
     onWatch(
       {
@@ -744,9 +795,35 @@ function Running({
               {matchLabel(round[0] ?? ({ bestOf: spec.bestOf } as Match))}
             </span>
             <span className="flex-1" />
-            {openBots.length > 0 && (
+            {allBots && auto === null && (
               <Button
                 size="sm"
+                disabled={busy !== null}
+                onClick={() => void playToEnd()}
+                data-testid="tournament-play-all"
+              >
+                <Bot /> Play to the end
+              </Button>
+            )}
+            {auto !== null && (
+              <>
+                <span className="text-xs text-muted-foreground tabular-nums" aria-live="polite">
+                  {auto}: {Math.round((busy ?? 0) * 100)}%
+                </span>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => (stop.current = true)}
+                  data-testid="tournament-stop"
+                >
+                  <Pause /> Stop after this round
+                </Button>
+              </>
+            )}
+            {openBots.length > 0 && auto === null && (
+              <Button
+                size="sm"
+                variant={allBots ? 'secondary' : 'default'}
                 disabled={busy !== null}
                 onClick={() => void simulate()}
                 data-testid="tournament-simulate"
