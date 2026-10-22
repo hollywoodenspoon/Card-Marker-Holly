@@ -4,7 +4,7 @@ Hearthside Cardworks lays your cards out on paper sheets, ready to cut by hand, 
 
 ## Opening the print view
 
-- **Desktop and tablet:** press **Print** in the top bar, or **Print** in the left rail. The settings sit on the left, the sheet preview in the middle.
+- **Desktop and tablet:** press **Print** in the top bar. The settings sit on the left, the sheet preview in the middle.
 - **Phone:** ☰ → **Print / export PDF**. Under the preview, tap **Cards to print** or **Print settings** to open them, then **Export PDF**.
 
 The line under the title sums it up, for example "9 per sheet (portrait) · 18 cards · 2 sheets + backs". Use the arrows under the preview to step through the sheets. On a wide screen the fronts and the backs show side by side; on a phone a **Front** / **Back** switch picks one. Zoom the preview with the − % + buttons, [[Ctrl]] + mouse wheel (⌘ on Mac) or a pinch, and pan with [[Space]] + drag or two fingers. [[Esc]] or the back arrow returns to the editor.
@@ -50,10 +50,12 @@ When the bleed is above 0, **Bleed fill** sets what prints in it:
 
 ## Cut marks and guide lines
 
-**Cut marks** are short black lines in line with every cut, placed around the outside of the grid. They always sit outside the bleed, with a small **Gap from bleed** (default 2 mm), so they never print on a card.
+**Cut marks at the card edge** are short solid lines in line with every cut, placed around the outside of the grid. They always sit outside the bleed, with a small **Gap from bleed** (default 2 mm), so they never print on a card.
+
+**Bleed marks (dotted)** add a second set of marks, made of short dots, in line with the edge of each card's bleed. Use them to trim the sheet down to the bleed first, or to check how much bleed is left after cutting. Solid always means the card edge and dotted always means the bleed edge, so the two can't be mixed up. You can turn on either set or both. With no bleed the two edges are the same, so only the solid marks print.
 
 - **Run marks to paper edge** (on by default) draws them all the way out; your printer simply leaves out the part in its margin. **Room for marks** is the space kept free around the cards for them. Turn it off to get short marks of a set **Mark length**.
-- **Guide lines across the sheet** adds thin lines through every cut line, from margin to margin, crossing the cards. They are handy for a paper trimmer.
+- **Guide lines across the sheet** adds thin lines through every cut line, from margin to margin, crossing the cards. With bleed marks on, dotted guide lines run along every bleed edge too. They are handy for a paper trimmer.
 
 ## Draft prints
 

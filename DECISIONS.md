@@ -685,3 +685,39 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 - **Flags:** only outliers about two standard errors clear of the mean count. Too strong: 2.5 spreads above the mean, or 1.5 above it and picked into 85% or more of builds. Too weak: the same from below, with a 5% pick rate. Power creep: a new card above the core set's 90th percentile, and half a spread above the core card closest to it (same type, nearest stats). Pairs: at least 3 league decks and 30 games, winning 10 points or more above what their values predict.
 - **Suggestions are ranked:** core set first, then what breaks the game once the new sets arrive (power creep, too strong, core-and-new combos, an Optimal deck winning 70% or more), then the rest. For a core-and-new combo, the option is to change the new card.
 - **The rules checker** runs on 1 game in 50. Results keep the last 10 runs per pack (Dexie version 6, `sims`). A `.hssim.json` file (kind `hearthside-sim`, version 1) holds the options, the results and the Markdown report.
+
+## Bleed marks
+
+- **Two kinds of cut marks** (owner's request): solid ones at the card edge (as before, on by default), and dotted ones at the bleed edge (off by default). Each can be on or off. They share the same length, gap and run-to-edge settings, and the same room on the sheet.
+- **Dots** are 0.6 mm long with 0.9 mm between them, drawn as short separate segments. That way they come out the same in the PDF, the preview and the greyscale draft, with no dash support needed in the PDF code.
+- **With no bleed** the bleed edge is the card edge, so only the solid marks print.
+- **Guide lines** get dotted bleed-edge lines too when bleed marks are on.
+
+## UI/UX review: card vs template, rail and Export
+
+- **Tabs only show:** opening the Templates (or Cards) tab no longer switches between Card and Template mode. This replaces "tabs follow mode" in the other direction. What you edit changes only through the Card / Template switch, by clicking a template, or with Edit template. When the mode changes, the tab still follows it, so the Templates tab opens with Template mode.
+- **Save … as template** moved from the Templates tab to each card's ⋯ menu ("Save front as template…" for the side being shown), next to a new **Change template ▸** (Front / Back lists).
+- **Card mode properties** show the card's front and back templates and its size read-only ("Set by Basic front · 3 cards", with **Change size**, which opens the template). The size controls stay in Template mode, where it's clear they change the template.
+- **Locked template parts** read "Always shown (locked in the template)" with a lock, instead of a switch that looks off. Layers shows a lock instead of a dim eye.
+- **The rail holds places only:** Cards, Templates, Decks, Fonts and Keywords (Keywords moved from a dialog into a tab). Then the views (Gallery, Data, Vector), and Help at the bottom with a plain "?" icon.
+- **Outputs live in the top bar:** Print, and **Export ▾**: card images, Tabletop Simulator, the game pack, and the project backup. They left the rail and ☰. ☰ keeps Find and replace, Open Hearthside Table, All projects and Settings.
+
+## UI/UX review: canvas, panels and polish
+
+- **Starter text is selected** when you first edit a card's text field (the card has no value of its own yet), so typing replaces "Card name". In Template mode the default text is the design itself, so editing starts at the end as before.
+- **The text toolbar floats next to the text**: just above it, below it when there's no room, centred on it and kept inside the canvas. The Front / Back switch hides while text is being edited (on desktop and tablet).
+- **Click or tap:** hints say "click" with a mouse and "tap" when a finger is the main pointer (`src/lib/pointer.ts`).
+- **One Choose image** for an empty art box, on the card. The panel offers Replace once there's a picture.
+- **Guides and Snap** are labelled buttons in the view bar on desktop and tablet, lit while on. Phones keep the icons.
+- **Quieter panels:**
+  - The card-mode Layers explanation is a tip with **Got it**, remembered on this device.
+  - Template parts show a small template icon instead of a TEMPLATE tag.
+  - Corner cutter guide and Card numbers fold, closed by default and remembered.
+  - **Edit text** is an outline button: orange stays for the one main action.
+- **Small details:**
+  - The card search has its own row.
+  - Asset names show in full on hover.
+  - The + Card menu reads "New card like the current one" and "New card with the template's defaults".
+  - The Data table's column letters are labelled badges that explain they're the spreadsheet columns.
+- **Kept:** the phone rulers (review item 22). They are 20 px, about 5% of a phone screen, not the 15% first estimated, and hiding them would take away dragging out guides.
+- **Upload in the Assets header** stays an icon with a tooltip. A labelled button squeezed the header on a 260 px pane.

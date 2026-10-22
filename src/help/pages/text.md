@@ -10,8 +10,8 @@ In template mode the text goes on the template, so every card using it gets it. 
 
 ## Editing text
 
-1. Double-click the text on the card (double-tap on touch). You can also select it and press **Edit text** in the properties panel.
-2. Type. [[Enter]] starts a new paragraph.
+1. Double-click the text on the card (double-tap on touch). You can also select it and press **Edit text** in the properties panel. On a new card, the template's starter text (such as "Card name") is selected, so typing replaces it.
+2. Type. The text tools float just above the text (below it when there's no room). [[Enter]] starts a new paragraph.
 3. Press [[Esc]] when you're done.
 
 On a phone the text opens in a panel at the top of the screen with the toolbar above it, and the card below shows the result as you type. Tap **Done** to finish.

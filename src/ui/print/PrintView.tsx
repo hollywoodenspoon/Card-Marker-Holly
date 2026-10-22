@@ -302,7 +302,9 @@ function Previews({
   const gap = 24
   const labelH = 22
   const maxW = (size.w - gap * (count + 1)) / count
-  const w = Math.max(0, Math.floor(Math.min(maxW, (size.h - gap * 2 - labelH) * aspect)))
+  // Room kept free at the bottom for the zoom bar, so it never covers a caption.
+  const bar = 56
+  const w = Math.max(0, Math.floor(Math.min(maxW, (size.h - gap * 2 - labelH - bar) * aspect)))
   // Both sides side by side on wider screens; phones show one at a time.
   const shown = (['front', 'back'] as const).filter((x) => (x === 'front' ? fronts : withBacks))
   const sides = phone && shown.length === 2 ? [side] : shown
@@ -318,7 +320,7 @@ function Previews({
       <div
         className="flex shrink-0 items-center justify-center gap-6"
         style={{
-          transform: `translate(${view.x}px, ${view.y}px) scale(${view.zoom / drawn})`,
+          transform: `translate(${view.x}px, ${view.y - bar / 2}px) scale(${view.zoom / drawn})`,
         }}
         data-testid="print-sheets"
       >

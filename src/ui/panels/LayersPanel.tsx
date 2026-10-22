@@ -1,4 +1,5 @@
 import {
+  LayoutTemplate,
   ChevronRight,
   Eye,
   EyeOff,
@@ -29,6 +30,7 @@ import { toggleEditLock, toggleVisibility, renameElement } from '@/templates/com
 import { isVisibleOnCard } from '@/templates/resolve'
 import { cachedDefaults, describeRule } from '@/templates/rules'
 import { IconButton } from '@/ui/components/ui/button'
+import { Tip } from '@/ui/components/fields'
 import { useReorder } from '@/ui/components/useReorder'
 
 export function LayersPanel({ embedded }: { embedded?: boolean }) {
@@ -56,10 +58,10 @@ export function LayersPanel({ embedded }: { embedded?: boolean }) {
         <Empty />
       )}
       {mode === 'card' && (
-        <p className="px-4 pt-3 text-xs text-muted-foreground">
+        <Tip id="card-layers">
           Drag this card's own layers anywhere, also between template parts. The eye hides a
           template part on this card only; other parts stay where they are.
-        </p>
+        </Tip>
       )}
     </div>
   )
@@ -255,7 +257,10 @@ function LayerRow({
                 </span>
               )}
               {fromTemplate && (
-                <span className="ml-1.5 text-[10px] text-muted-foreground uppercase">template</span>
+                <LayoutTemplate
+                  className="ml-1.5 inline size-3 align-[-1px] text-muted-foreground"
+                  aria-label="From the template"
+                />
               )}
             </span>
           )}
@@ -272,10 +277,10 @@ function LayerRow({
           // A disabled button can't show a tooltip, and touch has none: say it plainly.
           <span
             className="grid size-11 shrink-0 place-items-center text-muted-foreground/50 md:size-8"
-            title="This part is always shown (set in the template)"
+            title="Always shown (locked in the template)"
             aria-label={`${el.name} is always shown`}
           >
-            <Eye className="size-4" />
+            <Lock className="size-3.5" />
           </span>
         )}
         {editable && (

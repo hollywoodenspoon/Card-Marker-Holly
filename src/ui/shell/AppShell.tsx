@@ -6,7 +6,6 @@ import { GamePackDialog } from '@/ui/export/GamePackDialog'
 import { TtsDialog } from '@/ui/export/TtsDialog'
 import { UnitsDialog } from '@/ui/panels/properties/UnitsDialog'
 import { FindReplaceDialog } from '@/ui/find/FindReplaceDialog'
-import { KeywordsDialog } from '@/ui/keywords/KeywordsDialog'
 import { DataView } from '@/ui/data/DataView'
 import { GalleryView } from '@/ui/gallery/GalleryView'
 import { PrintView } from '@/ui/print/PrintView'
@@ -43,7 +42,6 @@ export function AppShell() {
       )}
       {printOpen && <PrintView layout={layout} />}
       <ExportImagesDialog />
-      <KeywordsDialog />
       <FindReplaceDialog />
       <TtsDialog />
       <GamePackDialog />

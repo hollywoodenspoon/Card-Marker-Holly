@@ -45,6 +45,18 @@ export function currentTextContent(id: string): RichText | undefined {
   return el.defaultText
 }
 
+/**
+ * A card text field that still shows the template's starter text (the card has
+ * no value of its own yet). Editing it selects all, so typing replaces it.
+ */
+export function showsStarterText(id: string): boolean {
+  const s = useEditor.getState()
+  const el = findSurfaceElement(s, id)
+  if (el?.type !== 'text' || target(id) !== 'cardField') return false
+  const card = s.doc!.cards[s.view.cardId!]
+  return card.fields[el.fieldName] === undefined
+}
+
 /** Clear a card's value so the template default shows again. */
 export function resetFieldValue(id: string) {
   const s = useEditor.getState()

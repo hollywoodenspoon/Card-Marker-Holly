@@ -1,4 +1,5 @@
 import type Konva from 'konva'
+import { clickWord } from '@/lib/pointer'
 import { Group, Image as KImage, Rect, Text } from 'react-konva'
 import type { ImageFieldElement, ImageValue } from '../../model/types'
 import { framePlacement } from '../imageMath'
@@ -64,7 +65,7 @@ function PlaceholderLabel({ el }: { el: ImageFieldElement }) {
       <Text
         width={el.wMm}
         y={top + big + gap}
-        text="Double-tap to add image"
+        text={`Double-${clickWord()} to add image`}
         align="center"
         fontFamily="Inter"
         fontSize={small}

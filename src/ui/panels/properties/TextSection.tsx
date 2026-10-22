@@ -13,6 +13,7 @@ import {
   Plus,
   Underline,
 } from '@/ui/icons'
+import { clickWord } from '@/lib/pointer'
 import { useMemo } from 'react'
 import { setView, useEditor } from '@/core/editor/editorStore'
 import { updateElement } from '@/core/editor/elementCommands'
@@ -33,7 +34,7 @@ import { Label, NativeSelect } from '@/ui/components/ui/input'
 import { Switch } from '@/ui/components/ui/switch'
 import { ColorField, NumberField, Row, Section } from '@/ui/components/fields'
 import { useFontFamilies } from '@/ui/text/useFontFamilies'
-import { useUi } from '@/ui/uiStore'
+import { openPanel } from '@/ui/actions/openPanel'
 import { askConfirm, askText } from '@/ui/components/feedback'
 
 export function TextSection({ el, editable }: { el: TextElement; editable: boolean }) {
@@ -60,11 +61,15 @@ export function TextSection({ el, editable }: { el: TextElement; editable: boole
   return (
     <>
       <Section title="Text">
-        <Button size="sm" onClick={() => setView({ editingTextId: el.id, selection: [el.id] })}>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => setView({ editingTextId: el.id, selection: [el.id] })}
+        >
           <Pencil /> Edit text
         </Button>
         <p className="text-xs text-muted-foreground">
-          Double-click (or double-tap) the text on the card to edit. Select words to style them
+          Double-{clickWord()} the text on the card to edit. Select words to style them
           individually.
         </p>
         <SymbolHint />
@@ -313,7 +318,7 @@ export function TextSection({ el, editable }: { el: TextElement; editable: boole
             aria-label="Style keywords in this text"
           />
         </label>
-        <Button variant="outline" size="sm" onClick={() => useUi.getState().setKeywordsOpen(true)}>
+        <Button variant="outline" size="sm" onClick={() => openPanel('keywords')}>
           <Highlighter /> Edit keywords…
         </Button>
       </Section>

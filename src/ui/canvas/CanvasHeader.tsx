@@ -10,6 +10,8 @@ import { ModeSwitch } from '@/ui/toolbar/ModeSwitch'
 /** Floating header over the canvas: front/back switch and what is being edited. */
 export function CanvasHeader({ phone }: { phone: boolean }) {
   const mode = useEditor((s) => s.view.mode)
+  // While text is being edited its toolbar floats near the text: keep this out of its way.
+  const editingText = useEditor((s) => !!s.view.editingTextId)
   const side = useEditor((s) => s.view.side)
   const template = useEditor(activeTemplate)
   const card = useEditor(currentCard)
@@ -17,6 +19,7 @@ export function CanvasHeader({ phone }: { phone: boolean }) {
     s.doc && template ? cardsUsingTemplate(Object.values(s.doc.cards), template.id).length : 0,
   )
 
+  if (editingText && !phone) return null
   return (
     <div className="pointer-events-none absolute inset-x-0 top-7 z-10 flex flex-col items-center gap-2 px-3">
       <div className="pointer-events-auto flex items-center gap-2">

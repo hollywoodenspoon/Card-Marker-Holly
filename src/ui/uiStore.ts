@@ -11,7 +11,6 @@ interface UiState {
   setPrintOpen: (o: boolean) => void
   /** Card image export dialog; `cardId` preselects one card. */
   imageExport: { cardId: string | null } | null
-  keywordsOpen: boolean
   findOpen: boolean
   galleryOpen: boolean
   /** Export game pack dialog (for the Playtest app). */
@@ -29,7 +28,6 @@ interface UiState {
   setTtsOpen: (o: boolean) => void
   setGalleryOpen: (o: boolean) => void
   setFindOpen: (o: boolean) => void
-  setKeywordsOpen: (o: boolean) => void
   setImageExport: (v: UiState['imageExport']) => void
   /** Layers section of the right pane expanded (remembered per device). */
   layersOpen: boolean
@@ -71,7 +69,6 @@ export const useUi = create<UiState>((set) => ({
   printOpen: false,
   setPrintOpen: (printOpen) => set({ printOpen }),
   imageExport: null,
-  keywordsOpen: false,
   findOpen: false,
   galleryOpen: false,
   packOpen: false,
@@ -86,7 +83,6 @@ export const useUi = create<UiState>((set) => ({
   setTtsOpen: (ttsOpen) => set({ ttsOpen }),
   setGalleryOpen: (galleryOpen) => set({ galleryOpen }),
   setFindOpen: (findOpen) => set({ findOpen }),
-  setKeywordsOpen: (keywordsOpen) => set({ keywordsOpen }),
   setImageExport: (imageExport) => set({ imageExport }),
   layersOpen: readOpen(LAYERS_KEY),
   assetsOpen: readOpen(ASSETS_KEY),

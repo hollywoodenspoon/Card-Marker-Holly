@@ -4,15 +4,7 @@ import { croppedImageDpi, dpiFromMmPerPx, framePlacement, LOW_DPI } from '@/core
 import type { RenderNode } from '@/core/render/renderTypes'
 import { alignmentTargets } from '../alignmentTest'
 import type { PrintJob } from '../job'
-import {
-  backCells,
-  cutMarks,
-  guideLines,
-  mirrorLine,
-  type Line,
-  type Rect,
-  type Sheet,
-} from '../layout'
+import { backCells, mirrorLine, sheetLines, type Line, type Rect, type Sheet } from '../layout'
 import type { DrawTarget } from './drawTarget'
 import { GreyTarget } from './greyTarget'
 import { JsPdfTarget } from './jsPdfTarget'
@@ -113,14 +105,7 @@ export async function exportCardsPdf(
   // Marks, guides, mirrored cells and bleed bands for each size group.
   const layouts = job.groups.map((g) => {
     const { sheet } = g
-    const marks = settings.cutMarks
-      ? cutMarks(sheet, {
-          lengthMm: settings.markLengthMm,
-          offsetMm: settings.markOffsetMm,
-          toEdge: settings.markToEdge,
-        })
-      : []
-    const guides = settings.guideLines ? guideLines(sheet) : []
+    const { marks, guides } = sheetLines(sheet, settings)
     const mirrored = (lines: Line[]) => lines.map((l) => mirrorLine(l, sheet, settings.flip, off))
     return {
       sheet,

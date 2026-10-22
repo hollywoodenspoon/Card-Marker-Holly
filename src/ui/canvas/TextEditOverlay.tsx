@@ -1,5 +1,5 @@
 import { Check } from '@/ui/icons'
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useLayoutEffect, useRef, useState } from 'react'
 import { setView, useEditor } from '@/core/editor/editorStore'
 import { findSurfaceElement } from '@/core/editor/selectors'
 import type { TextElement } from '@/core/model/types'
@@ -109,9 +109,17 @@ function Overlay({ el, phone }: { el: TextElement; phone: boolean }) {
     <RichTextEditor el={el} onDone={done} contentScale={layout.scale}>
       {(toolbar, content) => (
         <>
-          <div className="absolute top-8 left-1/2 z-20 -translate-x-1/2" onPointerDown={stop}>
+          <FloatingToolbar
+            box={{
+              left: panX + el.xMm * k,
+              top: panY + el.yMm * k,
+              width: el.wMm * k,
+              height: el.hMm * k,
+            }}
+            onPointerDown={stop}
+          >
             {toolbar}
-          </div>
+          </FloatingToolbar>
           <div
             className="absolute z-10 outline-2 outline-accent outline-solid"
             style={{
@@ -131,5 +139,52 @@ function Overlay({ el, phone }: { el: TextElement; phone: boolean }) {
         </>
       )}
     </RichTextEditor>
+  )
+}
+
+/**
+ * The text toolbar, just above the text being edited (below it when there's no
+ * room above), centred on it and kept inside the canvas, so it never covers the text.
+ */
+function FloatingToolbar({
+  box,
+  children,
+  onPointerDown,
+}: {
+  box: { left: number; top: number; width: number; height: number }
+  children: React.ReactNode
+  onPointerDown: (e: React.PointerEvent) => void
+}) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [size, setSize] = useState({ w: 0, h: 0, areaW: 0 })
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const measure = () =>
+      setSize({
+        w: el.offsetWidth,
+        h: el.offsetHeight,
+        areaW: el.parentElement?.clientWidth ?? 0,
+      })
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+  const gap = 8
+  const above = box.top - size.h - gap
+  const top = above >= gap ? above : box.top + box.height + gap
+  const centred = box.left + box.width / 2 - size.w / 2
+  const left = Math.max(gap, Math.min(centred, size.areaW - size.w - gap))
+  return (
+    <div
+      ref={ref}
+      className="absolute z-20"
+      // Hidden until measured, so it doesn't flash in the wrong place.
+      style={{ top, left, visibility: size.w ? 'visible' : 'hidden' }}
+      onPointerDown={onPointerDown}
+    >
+      {children}
+    </div>
   )
 }

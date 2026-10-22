@@ -42,7 +42,7 @@ A small _Make your first card_ checklist on the canvas ticks these steps off as 
 ### Projects and backups
 
 - **Home screen** (☰ → All projects): open, rename, delete projects; **Import** a backup.
-- **Backup file**: ☰ → _Export backup file_ saves the whole project (cards, templates, images, fonts) as one `.cardproject.json`. Import always creates a new project, so nothing is overwritten.
+- **Backup file**: **Export ▾** → _Project backup file_ saves the whole project (cards, templates, images, fonts) as one `.cardproject.json`. Import always creates a new project, so nothing is overwritten.
 - On the **website**, projects live in the browser you made them in. To move work between computers, or into the desktop app, export a backup and import it on the other side.
 
 ### Desktop app (Windows and Linux)
@@ -86,7 +86,7 @@ Android releases are paused: the Release workflow builds no APK. The Android pro
 
 ### Left pane
 
-- The rail on the left (desktop, and the tablet's left drawer) has the panels **Templates, Cards, Decks, Fonts**, then quick buttons: **Print**, **Gallery** (gallery and proofreading), **Playtest** (export a game pack), **Images** (export card images), **Keywords** and **Data** (card data table, CSV export and mail merge). These are also in the ☰ menu.
+- The rail on the left (desktop, and the tablet's left drawer) has the places: **Cards, Templates, Decks, Fonts, Keywords** (opening one never changes what you're editing). Below them come the views **Gallery** (gallery and proofreading), **Data** (card data table, CSV export and mail merge) and **Vector**, with **Help** at the bottom. Outputs are in the top bar: **Print**, and **Export ▾** (card images, Tabletop Simulator, game pack, project backup). On a phone all of these are in ☰.
 - **Assets** sit at the bottom of the left pane. Click the header to fold them away or open them again (remembered on this device). Click an image to put it on the card, or into the selected art box. The header buttons make a folder or upload images. On a phone, Assets is in the bottom bar.
 
 ### Asset folders
@@ -174,7 +174,7 @@ Add → _Icon row_: the same icon repeated N times, centred in its box (horizont
 ### Templates
 
 - **Template / Card** switch (top bar). In **Template** mode you edit the layout every card using it shares; changes show on all those cards straight away.
-- **Templates** tab: new, rename, duplicate, delete, _Save card as template_, **Export file / Import** (carries its images, fonts and styles).
+- **Templates** tab: new, rename, duplicate, delete, **Export file / Import** (carries its images, fonts and styles). A card's ⋯ menu has _Save front (or back) as template…_ and _Change template_.
 - Every text, art box and icon row is a **field**: cards keep their own value under the field name, so switching template keeps matching values.
 - **Per card**: the eye in Layers hides a template part on that card only; other parts stay where they are.
 - **Show only when…**: in template mode, select a part → Template part → _Show only when…_ and pick a field, a condition (is, is not, contains, is filled in, is empty) and a value — e.g. show the gold gem only when Rarity is Rare. Parts with a rule have an “if” badge in Layers; the eye on one card still overrides it. Works well with mail merge.
@@ -186,7 +186,7 @@ The **Front / Back** switch above the canvas. Each card picks a front template a
 
 ### Cards list
 
-**Cards** tab: _+ Card_ (copies the previous card's layout), search, drag to reorder, ⋯ for rename / duplicate / export image / delete.
+**Cards** tab: _+ Card_ (like the current card), search, drag to reorder, ⋯ for rename / duplicate / export image / change template / save as template / delete.
 
 - **Change many cards at once**: press **Select**, tick cards (or _All_), then use the bar at the bottom: change the front or back template, show/hide a template part (eye buttons), set print copies, duplicate or delete. Each change is one undo step. Press **Done** to leave select mode.
 
@@ -202,11 +202,11 @@ The gallery and the print preview use the card editor's controls: hold **Space**
 
 ### Playtest (separate app)
 
-Rail → _Playtest_ (or ☰ → _Playtest (export game pack)…_) exports a **game pack** (`.cmpack`): every card's picture (as printed), its field values by field name (text as text, icon rows as numbers, hidden layers included) and your decks. **Playtest now** (in a browser) opens it straight in **Hearthside Table**, a companion app at `playtest/` on the same site (installable, offline); **Save game pack** gives a file for any device or a friend. There you can **build decks** from the pack's whole card pool (Free Company rules checked: 12 different cards, at most one Ace marked `{ace}`; saved per pack, exportable as `.asdeck.json`), pick a table and a deck per player, and play by hand: drag or tap cards between fields, hands and piles, flip and turn them, place tokens, keep score, coin and dice, _View as_ a player for hot-seat play, undo, and a copyable game log. Games are saved per pack. Built in: an Adventure Scuffle! table and a simple board-game table. For Adventure Scuffle, **Rules on** runs the Mutual Reveal rules (hot-seat with hand-over, or both sides for solo playtesting); all 45 First Quest card abilities are applied, by card code. Play against an **Easy, Normal or Hard bot**, or watch bot against bot. The **Balance lab** builds its own decks, tests every card in the pack, and ranks what to change, with The First Quest as the core set. The rules engine is described in `docs/adventure-rules-engine.md`.
+**Export ▾** → _Game pack for Hearthside Table…_ (on a phone, ☰) exports a **game pack** (`.cmpack`): every card's picture (as printed), its field values by field name (text as text, icon rows as numbers, hidden layers included) and your decks. **Playtest now** (in a browser) opens it straight in **Hearthside Table**, a companion app at `playtest/` on the same site (installable, offline); **Save game pack** gives a file for any device or a friend. There you can **build decks** from the pack's whole card pool (Free Company rules checked: 12 different cards, at most one Ace marked `{ace}`; saved per pack, exportable as `.asdeck.json`), pick a table and a deck per player, and play by hand: drag or tap cards between fields, hands and piles, flip and turn them, place tokens, keep score, coin and dice, _View as_ a player for hot-seat play, undo, and a copyable game log. Games are saved per pack. Built in: an Adventure Scuffle! table and a simple board-game table. For Adventure Scuffle, **Rules on** runs the Mutual Reveal rules (hot-seat with hand-over, or both sides for solo playtesting); all 45 First Quest card abilities are applied, by card code. Play against an **Easy, Normal or Hard bot**, or watch bot against bot. The **Balance lab** builds its own decks, tests every card in the pack, and ranks what to change, with The First Quest as the core set. The rules engine is described in `docs/adventure-rules-engine.md`.
 
 ### Tabletop Simulator
 
-☰ → _Export for Tabletop Simulator…_: pick a deck (or the print list) and download a zip of deck sheets (10 × 7, up to 69 cards each, max 4096 px) plus the back image — or matching back sheets when backs differ — and step-by-step import instructions.
+**Export ▾** → _Tabletop Simulator…_: pick a deck (or the print list) and download a zip of deck sheets (10 × 7, up to 69 cards each, max 4096 px) plus the back image — or matching back sheets when backs differ — and step-by-step import instructions.
 
 ### Find and replace
 
@@ -229,12 +229,12 @@ Rail → **Data** (or ☰ → _Card data_) shows every card as a spreadsheet-sty
 
 ### Printing (PDF)
 
-**Print** (top bar; on phone ☰ → _Print / export PDF_) shows each sheet's fronts and mirrored backs. The rail's **Export** button (below Print) exports card images.
+**Print** (top bar; on phone ☰ → _Print / export PDF_) shows each sheet's fronts and mirrored backs. **Export ▾** → _Card images_ exports card images.
 
 - **Cards to print**: tick boxes, copies (− / +), drag to set the print order; _All_ / _None_.
 - **Sheet**: paper (A4, A3, A5, US Letter, US Legal), orientation (Best fit picks the most cards per sheet), printer margin, bleed, and **gap between cards** (0 = cards touch and share cut lines; a gap lets you cut each card on its own).
 - **Bleed fill**: _Mirror edges_ (default) fills the bleed from each card's own edge, so a slightly off cut never shows white; _Stretch edges_; or _As designed_.
-- **Cutting**: cut marks sit outside the bleed and run to the paper edge (switch off for short marks); optional guide lines across the sheet.
+- **Cutting**: solid cut marks at the card edge and, optionally, dotted bleed marks at the bleed edge; both sit outside the bleed and run to the paper edge (switch off for short marks); optional guide lines across the sheet.
 - **Backs**: _Sheets_ = fronts + backs, fronts only, or backs only. Match the long/short-edge flip to your printer, print the **Alignment test** once, and enter any offset as Back offset X/Y.
 - **Draft (saves ink)**: _Greyscale_ and/or _Leave out art_ for playtest copies.
 - **Export PDF**: exact mm sizes — print at 100% / "actual size".

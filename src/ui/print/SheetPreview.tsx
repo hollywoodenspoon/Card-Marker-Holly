@@ -4,7 +4,7 @@ import { assetResolver } from '@/assets/assetResolver'
 import { CornerGuide } from '@/core/render/Overlays'
 import { StaticNodes } from '@/core/render/StaticCard'
 import { pageSheet, type PrintJob } from '@/print/job'
-import { backCells, cutMarks, guideLines, mirrorLine, type Line as L } from '@/print/layout'
+import { backCells, mirrorLine, sheetLines, type Line as L } from '@/print/layout'
 import { bleedFramePath, type BleedBands } from '@/print/pdf/bleedFill'
 import { useRenderVersion } from '@/ui/canvas/useRenderVersion'
 import { useReadyBands } from './usePreviewBands'
@@ -41,14 +41,7 @@ export function SheetPreview({
   const corner = g?.enabled ? g.radiusMm : 0
 
   const lines = useMemo(() => {
-    const marks = settings.cutMarks
-      ? cutMarks(sheet, {
-          lengthMm: settings.markLengthMm,
-          offsetMm: settings.markOffsetMm,
-          toEdge: settings.markToEdge,
-        })
-      : []
-    const guides = settings.guideLines ? guideLines(sheet) : []
+    const { marks, guides } = sheetLines(sheet, settings)
     if (side === 'front') return { marks, guides }
     const m = (l: L) => mirrorLine(l, sheet, settings.flip, offset)
     return { marks: marks.map(m), guides: guides.map(m) }

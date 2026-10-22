@@ -10,7 +10,7 @@ On the website, projects, pictures and fonts are stored **inside the browser** y
 - If you clear the browser's data for this site (for example "Clear browsing data" with site data or cookies ticked), your projects are deleted with it.
 - A private or incognito window forgets everything when you close it.
 
-To keep your work safe, export a backup file from time to time: ☰ → **Export backup file**. To move work to another browser, another device or the desktop app, export a backup there and **Import** it on the Home screen of the other one. See [Projects, saving and backups](help:projects).
+To keep your work safe, export a backup file from time to time: **Export ▾** → **Project backup file**. To move work to another browser, another device or the desktop app, export a backup there and **Import** it on the Home screen of the other one. See [Projects, saving and backups](help:projects).
 
 > **Tip:** If you'd rather have ordinary files you can see and copy, use the [Desktop app](help:desktop-app). It opens your backup files.
 

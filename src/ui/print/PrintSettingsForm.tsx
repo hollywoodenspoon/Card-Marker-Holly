@@ -52,9 +52,15 @@ export function PrintSettingsForm({ sizes }: { sizes: { w: number; h: number }[]
             onValueChange={(v) => set({ orientation: v as PrintSettings['orientation'] })}
           >
             <TabsList className="w-full">
-              <TabsTrigger value="auto">Best fit</TabsTrigger>
-              <TabsTrigger value="portrait">Portrait · {por}</TabsTrigger>
-              <TabsTrigger value="landscape">Landscape · {lan}</TabsTrigger>
+              <TabsTrigger value="auto" className="px-1 text-xs whitespace-nowrap">
+                Best fit
+              </TabsTrigger>
+              <TabsTrigger value="portrait" className="px-1 text-xs whitespace-nowrap">
+                Portrait · {por}
+              </TabsTrigger>
+              <TabsTrigger value="landscape" className="px-1 text-xs whitespace-nowrap">
+                Landscape · {lan}
+              </TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
@@ -127,15 +133,24 @@ export function PrintSettingsForm({ sizes }: { sizes: { w: number; h: number }[]
         </p>
       </Section>
       <Section title="Cutting">
-        <Toggle label="Cut marks" checked={p.cutMarks} onChange={(v) => set({ cutMarks: v })} />
-        {p.cutMarks && (
+        <Toggle
+          label="Cut marks at the card edge"
+          checked={p.cutMarks}
+          onChange={(v) => set({ cutMarks: v })}
+        />
+        <Toggle
+          label="Bleed marks (dotted)"
+          checked={p.bleedMarks}
+          onChange={(v) => set({ bleedMarks: v })}
+        />
+        {(p.cutMarks || p.bleedMarks) && (
           <Toggle
             label="Run marks to paper edge"
             checked={p.markToEdge}
             onChange={(v) => set({ markToEdge: v })}
           />
         )}
-        {p.cutMarks && (
+        {(p.cutMarks || p.bleedMarks) && (
           <Row>
             <NumberField
               label={p.markToEdge ? 'Room for marks' : 'Mark length'}
@@ -163,11 +178,13 @@ export function PrintSettingsForm({ sizes }: { sizes: { w: number; h: number }[]
           onChange={(v) => set({ guideLines: v })}
         />
         <p className="text-xs text-muted-foreground">
-          Cut marks sit outside the bleed, so they never print on a card.
-          {p.cutMarks && p.markToEdge
+          Marks sit outside the bleed, so they never print on a card. Solid marks show the card edge
+          (where you cut); dotted marks show the bleed edge.
+          {(p.cutMarks || p.bleedMarks) && p.markToEdge
             ? ' They run to the paper edge; your printer leaves out the part in its margin. “Room for marks” is the space kept free around the cards.'
             : ''}{' '}
-          Guide lines run through every cut line.
+          Guide lines run through every cut line (and, dotted, every bleed edge when bleed marks are
+          on).
         </p>
       </Section>
       <Section title="Backs">

@@ -26,6 +26,8 @@ export interface SheetInput {
   marginMm: number
   orientation: PrintOrientation
   cutMarks: boolean
+  /** Dotted marks at the bleed edge as well (they share the cut marks' space). */
+  bleedMarks?: boolean
   markLengthMm: number
   markOffsetMm: number
   /** Space between neighbouring cells, mm (default 0). */
@@ -59,8 +61,9 @@ export interface Sheet {
 const EPS = 1e-6
 
 /** Space reserved outside the grid for cut marks. */
-export const markSpace = (i: Pick<SheetInput, 'cutMarks' | 'markLengthMm' | 'markOffsetMm'>) =>
-  i.cutMarks ? i.markOffsetMm + i.markLengthMm : 0
+export const markSpace = (
+  i: Pick<SheetInput, 'cutMarks' | 'bleedMarks' | 'markLengthMm' | 'markOffsetMm'>,
+) => (i.cutMarks || i.bleedMarks ? i.markOffsetMm + i.markLengthMm : 0)
 
 /** How many cells fit in an area, with `gap` between neighbours. */
 export function fitGrid(availW: number, availH: number, cellW: number, cellH: number, gap = 0) {
@@ -133,19 +136,27 @@ export function computeSheet(input: SheetInput): Sheet {
   }
 }
 
-/** Distinct cut-line coordinates (trim edges) along each axis, sorted. */
-export function trimLines(sheet: Sheet): { xs: number[]; ys: number[] } {
-  const uniq = (vals: number[]) =>
-    vals.sort((a, b) => a - b).filter((v, i, a) => i === 0 || Math.abs(v - a[i - 1]) > EPS)
+/** Which edge a set of marks follows: the card's cut line, or its bleed edge. */
+export type MarkEdge = 'trim' | 'bleed'
+
+const uniqSorted = (vals: number[]) =>
+  vals.sort((a, b) => a - b).filter((v, i, a) => i === 0 || Math.abs(v - a[i - 1]) > EPS)
+
+/** Distinct line coordinates of the cards' trim (or bleed) edges along each axis, sorted. */
+export function edgeLines(sheet: Sheet, edge: MarkEdge = 'trim'): { xs: number[]; ys: number[] } {
+  const r = (c: SheetCell) => (edge === 'trim' ? c.trim : c.cell)
   return {
-    xs: uniq(
-      sheet.cells.filter((c) => c.row === 0).flatMap((c) => [c.trim.x, c.trim.x + c.trim.w]),
+    xs: uniqSorted(
+      sheet.cells.filter((c) => c.row === 0).flatMap((c) => [r(c).x, r(c).x + r(c).w]),
     ),
-    ys: uniq(
-      sheet.cells.filter((c) => c.col === 0).flatMap((c) => [c.trim.y, c.trim.y + c.trim.h]),
+    ys: uniqSorted(
+      sheet.cells.filter((c) => c.col === 0).flatMap((c) => [r(c).y, r(c).y + r(c).h]),
     ),
   }
 }
+
+/** Distinct cut-line coordinates (trim edges) along each axis, sorted. */
+export const trimLines = (sheet: Sheet) => edgeLines(sheet, 'trim')
 
 /**
  * Cut marks: a short tick for every cut line, placed outside the grid on all
@@ -154,10 +165,10 @@ export function trimLines(sheet: Sheet): { xs: number[]; ys: number[] } {
  */
 export function cutMarks(
   sheet: Sheet,
-  opts: { lengthMm: number; offsetMm: number; toEdge?: boolean },
+  opts: { lengthMm: number; offsetMm: number; toEdge?: boolean; edge?: MarkEdge },
 ): Line[] {
   if (!sheet.cells.length) return []
-  const { xs, ys } = trimLines(sheet)
+  const { xs, ys } = edgeLines(sheet, opts.edge)
   const g = sheet.grid
   const o = opts.offsetMm
   const top = g.y
@@ -179,15 +190,69 @@ export function cutMarks(
   return lines
 }
 
-/** Optional full guide lines through every cut line, across the printable area. */
-export function guideLines(sheet: Sheet): Line[] {
+/** Optional full guide lines through every cut line (or bleed edge), across the printable area. */
+export function guideLines(sheet: Sheet, edge: MarkEdge = 'trim'): Line[] {
   if (!sheet.cells.length) return []
-  const { xs, ys } = trimLines(sheet)
+  const { xs, ys } = edgeLines(sheet, edge)
   const m = sheet.marginMm
   return [
     ...xs.map((x) => ({ x1: x, y1: m, x2: x, y2: sheet.pageH - m })),
     ...ys.map((y) => ({ x1: m, y1: y, x2: sheet.pageW - m, y2: y })),
   ]
+}
+
+/** Bleed-edge marks are short dots this long (mm), with this much space between. */
+export const DOT_MM = 0.6
+export const DOT_GAP_MM = 0.9
+
+/** A line as short dots: segments of `dot` mm with `gap` mm between, from its start. */
+export function dotted(lines: Line[], dot = DOT_MM, gap = DOT_GAP_MM): Line[] {
+  const out: Line[] = []
+  for (const l of lines) {
+    const len = Math.hypot(l.x2 - l.x1, l.y2 - l.y1)
+    if (len < EPS) continue
+    const ux = (l.x2 - l.x1) / len
+    const uy = (l.y2 - l.y1) / len
+    for (let a = 0; a < len - EPS; a += dot + gap) {
+      const b = Math.min(len, a + dot)
+      out.push({ x1: l.x1 + ux * a, y1: l.y1 + uy * a, x2: l.x1 + ux * b, y2: l.y1 + uy * b })
+    }
+  }
+  return out
+}
+
+/**
+ * Everything drawn on a sheet besides the cards: guide lines (thin) and cut marks
+ * (thicker). Card-edge marks are solid; bleed-edge marks are dotted, so the two
+ * can't be mixed up when cutting. With no bleed the two edges are the same, so
+ * only the solid marks are drawn.
+ */
+export function sheetLines(
+  sheet: Sheet,
+  o: {
+    cutMarks: boolean
+    bleedMarks: boolean
+    guideLines: boolean
+    markLengthMm: number
+    markOffsetMm: number
+    markToEdge: boolean
+  },
+): { guides: Line[]; marks: Line[] } {
+  const bleed = o.bleedMarks && sheet.cells.some((c) => c.cell.w - c.trim.w > EPS)
+  const mark = (edge: MarkEdge) =>
+    cutMarks(sheet, {
+      lengthMm: o.markLengthMm,
+      offsetMm: o.markOffsetMm,
+      toEdge: o.markToEdge,
+      edge,
+    })
+  return {
+    guides: [
+      ...(o.guideLines ? guideLines(sheet) : []),
+      ...(o.guideLines && bleed ? dotted(guideLines(sheet, 'bleed')) : []),
+    ],
+    marks: [...(o.cutMarks ? mark('trim') : []), ...(bleed ? dotted(mark('bleed')) : [])],
+  }
 }
 
 /** Does the backs sheet mirror horizontally (true) or vertically (false)? */

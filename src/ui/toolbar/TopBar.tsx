@@ -1,5 +1,7 @@
 import {
+  ChevronDown,
   Dices,
+  ImageDown,
   Download,
   Highlighter,
   LayoutGrid,
@@ -40,7 +42,6 @@ import {
 import type { LayoutKind } from '@/ui/shell/useLayout'
 import { exportOpenProject } from '@/ui/actions/projectFileActions'
 import { SettingsMenu } from '@/ui/settings/SettingsMenu'
-import { setEditMode } from '@/ui/panels/editMode'
 import { useUi } from '@/ui/uiStore'
 import { AddMenu } from './AddMenu'
 import { ModeSwitch } from './ModeSwitch'
@@ -70,6 +71,7 @@ export function TopBar({ layout }: { layout: LayoutKind }) {
             <Button size="sm" variant="outline" onClick={() => useUi.getState().setPrintOpen(true)}>
               <Printer /> Print
             </Button>
+            <ExportMenu />
           </div>
         )}
         <div className="flex-1" />
@@ -109,18 +111,9 @@ function AppMenu({ phone }: { phone: boolean }) {
             <DropdownMenuItem onSelect={() => ui().setPrintOpen(true)}>
               <Printer /> Print / export PDF
             </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => ui().setGalleryOpen(true)}>
-              <LayoutGrid /> Gallery and proofreading
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => ui().setPackOpen(true)}>
-              <Swords /> Playtest (export game pack)…
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onSelect={() => {
-                setEditMode('template')
-                ui().setPhoneSheet('templates')
-              }}
-            >
+            <ExportItems />
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onSelect={() => ui().setPhoneSheet('templates')}>
               <LayoutTemplate /> Templates
             </DropdownMenuItem>
             <DropdownMenuItem onSelect={() => ui().setPhoneSheet('decks')}>
@@ -129,28 +122,24 @@ function AppMenu({ phone }: { phone: boolean }) {
             <DropdownMenuItem onSelect={() => ui().setPhoneSheet('fonts')}>
               <Type /> Fonts
             </DropdownMenuItem>
-            <DropdownMenuItem
-              onSelect={() => ui().setImageExport({ cardId: useEditor.getState().view.cardId })}
-            >
-              <Image /> Export card images…
+            <DropdownMenuItem onSelect={() => ui().setPhoneSheet('keywords')}>
+              <Highlighter /> Keywords
             </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => ui().setKeywordsOpen(true)}>
-              <Highlighter /> Keywords…
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => ui().setVectorOpen({ assetId: null })}>
-              <PenTool /> Vector Maker
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onSelect={() => ui().setGalleryOpen(true)}>
+              <LayoutGrid /> Gallery and proofreading
             </DropdownMenuItem>
             <DropdownMenuItem onSelect={() => ui().setDataView('table')}>
               <Sheet /> Card data (table, CSV, mail merge)
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => ui().setVectorOpen({ assetId: null })}>
+              <PenTool /> Vector Maker
             </DropdownMenuItem>
             <DropdownMenuSeparator />
           </>
         )}
         <DropdownMenuItem onSelect={() => ui().setFindOpen(true)}>
           <TextSearch /> Find and replace…
-        </DropdownMenuItem>
-        <DropdownMenuItem onSelect={() => ui().setTtsOpen(true)}>
-          <Dices /> Export for Tabletop Simulator…
         </DropdownMenuItem>
         {!isAndroidApp() && (
           // A new tab on the web; its own window in the desktop app.
@@ -159,9 +148,6 @@ function AppMenu({ phone }: { phone: boolean }) {
           </DropdownMenuItem>
         )}
         <ShowFolderMenuItem />
-        <DropdownMenuItem onSelect={() => void exportOpenProject()}>
-          <Download /> Export backup file
-        </DropdownMenuItem>
         <DropdownMenuItem onSelect={() => void goHome()}>
           <Home /> All projects
         </DropdownMenuItem>
@@ -174,6 +160,45 @@ function AppMenu({ phone }: { phone: boolean }) {
         <div className="px-2 py-1.5 text-xs text-muted-foreground">
           {APP_NAME} {VERSION_LABEL}
         </div>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
+
+/** Everything that saves the project or its cards as files, in one place. */
+function ExportItems() {
+  const ui = useUi.getState
+  return (
+    <>
+      <DropdownMenuItem
+        onSelect={() => ui().setImageExport({ cardId: useEditor.getState().view.cardId })}
+      >
+        <Image /> Card images (PNG, JPG, WebP)…
+      </DropdownMenuItem>
+      <DropdownMenuItem onSelect={() => ui().setTtsOpen(true)}>
+        <Dices /> Tabletop Simulator…
+      </DropdownMenuItem>
+      <DropdownMenuItem onSelect={() => ui().setPackOpen(true)}>
+        <Swords /> Game pack for {PLAYTEST_NAME}…
+      </DropdownMenuItem>
+      <DropdownMenuItem onSelect={() => void exportOpenProject()}>
+        <Download /> Project backup file
+      </DropdownMenuItem>
+    </>
+  )
+}
+
+/** The top bar's Export menu (Print sits next to it). */
+function ExportMenu() {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button size="sm" variant="outline">
+          <ImageDown /> Export <ChevronDown className="opacity-60" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <ExportItems />
       </DropdownMenuContent>
     </DropdownMenu>
   )

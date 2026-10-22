@@ -1,18 +1,5 @@
-import {
-  ChevronDown,
-  CircleHelp,
-  FolderPlus,
-  LayoutGrid,
-  ImageDown,
-  PenTool,
-  Printer,
-  Sheet,
-  Highlighter,
-  Upload,
-  Swords,
-} from '@/ui/icons'
+import { ChevronDown, CircleHelp, FolderPlus, LayoutGrid, PenTool, Sheet, Upload } from '@/ui/icons'
 import { useEditor } from '@/core/editor/editorStore'
-import { setEditMode } from './editMode'
 import { openHelp } from '@/help/openHelp'
 import { cn } from '@/lib/cn'
 import { IconButton } from '@/ui/components/ui/button'
@@ -22,42 +9,13 @@ import { AssetGroups } from './AssetsPanel'
 import { ASSETS_ICON, LEFT_PANELS, type PanelId } from './panelIds'
 import { PanelBody } from './PanelBody'
 
-const ACTIONS = [
-  {
-    label: 'Print',
-    title: 'Print and export PDF',
-    icon: Printer,
-    run: () => useUi.getState().setPrintOpen(true),
-  },
+/** Views that take over the screen. Outputs (print, export) live in the top bar. */
+const VIEWS = [
   {
     label: 'Gallery',
     title: 'Gallery and proofreading',
     icon: LayoutGrid,
     run: () => useUi.getState().setGalleryOpen(true),
-  },
-  {
-    label: 'Playtest',
-    title: 'Export a game pack for the Playtest app',
-    icon: Swords,
-    run: () => useUi.getState().setPackOpen(true),
-  },
-  {
-    label: 'Export',
-    title: 'Export card images',
-    icon: ImageDown,
-    run: () => useUi.getState().setImageExport({ cardId: useEditor.getState().view.cardId }),
-  },
-  {
-    label: 'Keywords',
-    title: 'Keywords',
-    icon: Highlighter,
-    run: () => useUi.getState().setKeywordsOpen(true),
-  },
-  {
-    label: 'Vector',
-    title: 'Vector Maker: draw shapes and icons',
-    icon: PenTool,
-    run: () => useUi.getState().setVectorOpen({ assetId: null }),
   },
   {
     label: 'Data',
@@ -66,10 +24,10 @@ const ACTIONS = [
     run: () => useUi.getState().setDataView('table'),
   },
   {
-    label: 'Help',
-    title: 'Help: how everything works (F1)',
-    icon: CircleHelp,
-    run: () => openHelp(),
+    label: 'Vector',
+    title: 'Vector Maker: draw shapes and icons',
+    icon: PenTool,
+    run: () => useUi.getState().setVectorOpen({ assetId: null }),
   },
 ]
 
@@ -98,12 +56,9 @@ export function LeftPanel({
           <button
             key={p.id}
             type="button"
-            onClick={() => {
-              onTab(p.id)
-              // The Templates and Cards tabs are also the editing mode.
-              if (p.id === 'templates') setEditMode('template')
-              if (p.id === 'cards') setEditMode('card')
-            }}
+            // Picking a tab only shows it: what your edits change is set by the
+            // Card / Template switch (or Edit template), never by browsing.
+            onClick={() => onTab(p.id)}
             aria-pressed={shown === p.id}
             className={cn(
               railButton,
@@ -116,7 +71,7 @@ export function LeftPanel({
           </button>
         ))}
         <div className="my-1 h-px w-10 shrink-0 bg-border" role="separator" />
-        {ACTIONS.map((a) => (
+        {VIEWS.map((a) => (
           <button
             key={a.label}
             type="button"
@@ -128,6 +83,15 @@ export function LeftPanel({
             {a.label}
           </button>
         ))}
+        <button
+          type="button"
+          onClick={() => openHelp()}
+          title="Help: how everything works (F1)"
+          className={cn(railButton, 'mt-auto')}
+        >
+          <CircleHelp className="size-5" />
+          Help
+        </button>
       </nav>
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         <div className="flex min-h-0 flex-1 flex-col">

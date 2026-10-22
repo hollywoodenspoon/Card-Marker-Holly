@@ -280,7 +280,11 @@ function AssetTile({
         )}
       </button>
       <div className="flex items-center gap-1 border-t bg-panel pl-2">
-        <span className={cn('min-w-0 flex-1 truncate', compact ? 'text-[11px]' : 'text-xs')}>
+        <span
+          className={cn('min-w-0 flex-1 truncate', compact ? 'text-[11px]' : 'text-xs')}
+          // The full name, when it's cut short.
+          title={a.name}
+        >
           {a.name}
         </span>
         {!compact && (

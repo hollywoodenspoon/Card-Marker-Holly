@@ -5,11 +5,14 @@ import {
   capacity,
   computeSheet,
   cutMarks,
+  dotted,
+  edgeLines,
   fitGrid,
   guideLines,
   mirrorLine,
   mirrorRect,
   paginate,
+  sheetLines,
   trimLines,
   type Line,
   type Rect,
@@ -281,5 +284,64 @@ describe('gap between cards and paper sizes', () => {
     expect(a3.perSheet).toBeGreaterThan(9)
     const letter = computeSheet({ ...base, card, paper: PAPERS.Letter, markLengthMm: 3.5 })
     expect(Math.min(letter.pageW, letter.pageH)).toBeCloseTo(215.9)
+  })
+})
+
+describe('bleed marks', () => {
+  const s = computeSheet({ ...base, gapMm: 2 })
+  const all = {
+    cutMarks: true,
+    bleedMarks: true,
+    guideLines: false,
+    markLengthMm: 4,
+    markOffsetMm: 2,
+    markToEdge: false,
+  }
+
+  it('follow the bleed edges, which sit one bleed outside the cut lines', () => {
+    const trim = edgeLines(s, 'trim')
+    const bleed = edgeLines(s, 'bleed')
+    expect(bleed.xs).toHaveLength(trim.xs.length)
+    trim.xs.forEach((x, i) => expect(Math.abs(bleed.xs[i] - x)).toBeCloseTo(3))
+    // Every bleed mark is on a bleed line.
+    for (const l of cutMarks(s, { ...mark, edge: 'bleed' }))
+      expect(bleed.xs.includes(l.x1) || bleed.ys.includes(l.y1)).toBe(true)
+  })
+
+  it('are dotted and, like the cut marks, never touch a card or its bleed', () => {
+    const { marks } = sheetLines(s, all)
+    const solid = cutMarks(s, mark)
+    const dots = marks.slice(solid.length)
+    expect(dots.length).toBeGreaterThan(solid.length * 2)
+    for (const d of dots)
+      expect(Math.hypot(d.x2 - d.x1, d.y2 - d.y1)).toBeLessThanOrEqual(0.6 + 1e-9)
+    for (const l of marks) for (const c of s.cells) expect(hits(l, c.cell)).toBe(false)
+  })
+
+  it('can be printed on their own, and are left out with no bleed', () => {
+    const only = sheetLines(s, { ...all, cutMarks: false })
+    expect(only.marks.length).toBeGreaterThan(0)
+    expect(only.marks.every((l) => Math.hypot(l.x2 - l.x1, l.y2 - l.y1) <= 0.6 + 1e-9)).toBe(true)
+    const flush = computeSheet({ ...base, bleedMm: 0 })
+    expect(sheetLines(flush, all).marks).toEqual(cutMarks(flush, mark))
+  })
+
+  it('reserve room on the sheet even without cut marks', () => {
+    const none = computeSheet({ ...base, cutMarks: false })
+    const bleedOnly = computeSheet({ ...base, cutMarks: false, bleedMarks: true })
+    expect(bleedOnly.grid.x).toBeGreaterThan(none.grid.x - 1e-9)
+  })
+
+  it('dot a line from its start', () => {
+    const d = dotted([{ x1: 0, y1: 0, x2: 0, y2: 3 }], 0.6, 0.9)
+    expect(d.map((l) => [l.y1, l.y2])).toEqual([
+      [0, 0.6],
+      [1.5, 2.1],
+    ])
+  })
+
+  it('add dotted guide lines at the bleed edges', () => {
+    const g = sheetLines(s, { ...all, guideLines: true }).guides
+    expect(g.length).toBeGreaterThan(guideLines(s).length)
   })
 })

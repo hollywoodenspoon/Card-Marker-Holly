@@ -1,7 +1,7 @@
 import { EditorContent, useEditor as useTiptap } from '@tiptap/react'
 import { useEffect, useRef } from 'react'
 import type { TextElement } from '@/core/model/types'
-import { currentTextContent, setTextContent } from '@/templates/fieldCommands'
+import { currentTextContent, setTextContent, showsStarterText } from '@/templates/fieldCommands'
 import { editorExtensions } from './extensions'
 import { fromPM, toPM } from './pmConvert'
 import { TextToolbar } from './TextToolbar'
@@ -37,7 +37,8 @@ export function RichTextEditor({
       el.align,
       el.lineHeight,
     ),
-    autofocus: 'end',
+    // Starter text ("Card name") is selected, so typing replaces it.
+    autofocus: showsStarterText(el.id) ? 'all' : 'end',
     immediatelyRender: true,
     editorProps: {
       attributes: { class: 'outline-none', spellcheck: 'false', 'aria-label': `Edit ${el.name}` },
