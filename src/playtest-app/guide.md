@@ -91,11 +91,12 @@ Press **Tournaments…** on the start screen (or the trophy at the top of the ta
   | World Championship | 16      | 2 groups of 8, round robin; top 4 of each to a knockout | Best of 3, final best of 5 |
 
 - **Match length** can be changed for any tournament. In a match of more than one game, rock-paper-scissors (or a coin, if you pick that) decides only game 1. In every later game, the player who went second in the game before starts with the initiative.
-- **Entrants:** add people (a name and a deck) and **Fill with bots**: pick their level, and their decks: the pack's and your saved decks, auto-built Suboptimal or Optimal decks, or a mix.
+- **Entrants:** add people (a name and a deck) and **Fill with bots**: pick their level, and their decks: the pack's and your saved decks, auto-built Suboptimal or Optimal decks, or a mix. **Bots only** leaves people out entirely, so the tournament can play itself.
 - **Playing:**
   - Each round lists its matches. **Play** starts your next game on the table: against a bot, or against another person on the same device with the hand-over screen.
   - When the game ends, **Back to the tournament** records it.
   - **Settle bot matches** plays every bot-against-bot match of the round in the background, which takes seconds.
+  - **Play to the end** (bots-only tournaments) plays every round in turn until there's a winner. **Stop after this round** pauses it, and every game can be watched afterwards.
   - The next round is paired once every match is done.
 - **Watching:** the eye (or **G1**, **G2**… in a longer match) replays any game that was played, with the step-by-step view and the combat stage.
 - **Standings** sort by points (3 for a match win), then opponents' match-win %, game-win % and opponents' game-win %. Groups have a table each, and the knockout shows its bracket.

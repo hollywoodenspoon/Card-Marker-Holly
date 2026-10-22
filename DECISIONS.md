@@ -662,3 +662,8 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 - **Rest Zone Lockouts** (Kobold Grave-Robber: no Rest Ability; Kobold Trapsetter: no refilling the field): the lock ends when the card leaves the rest zone. A locked card still counts for "N+ Rest Zone", but its archetype is hidden, because it's face down. A Trapsetter lock can't leave a gap, because the Support refill rule fills the field.
 - **Sahuagin Reef-Strider:** Defending Side only, and the check is exact: one of the defending player's defending cards is next to the attacked position, in the Center column (for a Center target, that's the other row's Center).
 - **Deepdelver Vanguard (Breakthrough):** "Attacking Side: Non-adjacent cards are counted for attack" as a Battle Ability. The totals recompute at once, and the flag lasts the round.
+
+## Bots-only tournaments
+
+- **"Who plays: Bots only"** in tournament setup hides the person row and fills every seat with bots. All-bot tournaments were already possible by filling with bots alone; this makes it a clear choice.
+- **Play to the end:** in a tournament where every entrant is a bot, one button plays each round in turn (the same worker pool as "Settle bot matches"), saving after every round, until there's a winner. "Stop after this round" halts it between rounds.
