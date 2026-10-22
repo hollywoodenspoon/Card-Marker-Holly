@@ -234,7 +234,7 @@ Rail → **Data** (or ☰ → _Card data_) shows every card as a spreadsheet-sty
 - **Cards to print**: tick boxes, copies (− / +), drag to set the print order; _All_ / _None_.
 - **Sheet**: paper (A4, A3, A5, US Letter, US Legal), orientation (Best fit picks the most cards per sheet), printer margin, bleed, and **gap between cards** (0 = cards touch and share cut lines; a gap lets you cut each card on its own).
 - **Bleed fill**: _Mirror edges_ (default) fills the bleed from each card's own edge, so a slightly off cut never shows white; _Stretch edges_; or _As designed_.
-- **Cutting**: cut marks sit outside the bleed and run to the paper edge (switch off for short marks); optional guide lines across the sheet.
+- **Cutting**: solid cut marks at the card edge and, optionally, dotted bleed marks at the bleed edge; both sit outside the bleed and run to the paper edge (switch off for short marks); optional guide lines across the sheet.
 - **Backs**: _Sheets_ = fronts + backs, fronts only, or backs only. Match the long/short-edge flip to your printer, print the **Alignment test** once, and enter any offset as Back offset X/Y.
 - **Draft (saves ink)**: _Greyscale_ and/or _Leave out art_ for playtest copies.
 - **Export PDF**: exact mm sizes — print at 100% / "actual size".

@@ -685,3 +685,10 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 - **Flags:** only outliers about two standard errors clear of the mean count. Too strong: 2.5 spreads above the mean, or 1.5 above it and picked into 85% or more of builds. Too weak: the same from below, with a 5% pick rate. Power creep: a new card above the core set's 90th percentile, and half a spread above the core card closest to it (same type, nearest stats). Pairs: at least 3 league decks and 30 games, winning 10 points or more above what their values predict.
 - **Suggestions are ranked:** core set first, then what breaks the game once the new sets arrive (power creep, too strong, core-and-new combos, an Optimal deck winning 70% or more), then the rest. For a core-and-new combo, the option is to change the new card.
 - **The rules checker** runs on 1 game in 50. Results keep the last 10 runs per pack (Dexie version 6, `sims`). A `.hssim.json` file (kind `hearthside-sim`, version 1) holds the options, the results and the Markdown report.
+
+## Bleed marks
+
+- **Two kinds of cut marks** (owner's request): solid ones at the card edge (as before, on by default), and dotted ones at the bleed edge (off by default). Each can be on or off. They share the same length, gap and run-to-edge settings, and the same room on the sheet.
+- **Dots** are 0.6 mm long with 0.9 mm between them, drawn as short separate segments. That way they come out the same in the PDF, the preview and the greyscale draft, with no dash support needed in the PDF code.
+- **With no bleed** the bleed edge is the card edge, so only the solid marks print.
+- **Guide lines** get dotted bleed-edge lines too when bleed marks are on.

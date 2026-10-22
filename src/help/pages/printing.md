@@ -50,10 +50,12 @@ When the bleed is above 0, **Bleed fill** sets what prints in it:
 
 ## Cut marks and guide lines
 
-**Cut marks** are short black lines in line with every cut, placed around the outside of the grid. They always sit outside the bleed, with a small **Gap from bleed** (default 2 mm), so they never print on a card.
+**Cut marks at the card edge** are short solid lines in line with every cut, placed around the outside of the grid. They always sit outside the bleed, with a small **Gap from bleed** (default 2 mm), so they never print on a card.
+
+**Bleed marks (dotted)** add a second set of marks, made of short dots, in line with the edge of each card's bleed. Use them to trim the sheet down to the bleed first, or to check how much bleed is left after cutting. Solid always means the card edge and dotted always means the bleed edge, so the two can't be mixed up. You can turn on either set or both. With no bleed the two edges are the same, so only the solid marks print.
 
 - **Run marks to paper edge** (on by default) draws them all the way out; your printer simply leaves out the part in its margin. **Room for marks** is the space kept free around the cards for them. Turn it off to get short marks of a set **Mark length**.
-- **Guide lines across the sheet** adds thin lines through every cut line, from margin to margin, crossing the cards. They are handy for a paper trimmer.
+- **Guide lines across the sheet** adds thin lines through every cut line, from margin to margin, crossing the cards. With bleed marks on, dotted guide lines run along every bleed edge too. They are handy for a paper trimmer.
 
 ## Draft prints
 

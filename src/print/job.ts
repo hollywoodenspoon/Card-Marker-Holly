@@ -107,6 +107,7 @@ export function sheetInput(
     marginMm: settings.marginMm,
     orientation: settings.orientation,
     cutMarks: settings.cutMarks,
+    bleedMarks: settings.bleedMarks,
     markLengthMm: settings.markLengthMm,
     markOffsetMm: settings.markOffsetMm,
     gapMm: settings.gapMm,

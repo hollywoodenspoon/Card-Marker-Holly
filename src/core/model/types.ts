@@ -28,6 +28,8 @@ export interface PrintSettings {
   marginMm: number
   orientation?: PrintOrientation
   cutMarks?: boolean
+  /** Dotted marks at the bleed edge too (cut marks are at the card edge). */
+  bleedMarks?: boolean
   markLengthMm?: number
   /** Run cut marks from the gap out to the paper edge instead of a fixed length. */
   markToEdge?: boolean
