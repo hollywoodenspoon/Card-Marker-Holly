@@ -1,0 +1,41 @@
+Hearthside Cardworks
+Copyright (c) 2026 Hanielle Marie N. Armas. All rights reserved.
+
+This software and everything in this repository, unless marked otherwise
+below, is proprietary and confidential to Hanielle Marie N. Armas ("the
+Owner"). That includes:
+
+  - the source code, its build files and its compiled programs;
+  - the look and design of the apps;
+  - the names "Hearthside Cardworks", "Hearthside Table" and "Hearthside
+    Cardworks Cozy Edition";
+  - the game Adventure Scuffle! and its content: card names, card text,
+    stats, Fate Numbers, rules, rulebooks, set names and card art,
+    wherever they appear (for example in test files, CSV files and notes).
+
+No licence is granted. You may not copy, modify, merge, publish, distribute,
+sublicense, sell, rent or create derivative works from any of it, in whole
+or in part, without the Owner's prior written permission.
+
+Being able to see this repository (for example on GitHub) does not grant any
+of these rights. GitHub's own terms of service allow viewing and forking on
+GitHub; they give no permission to use, copy or share the code elsewhere.
+
+If the Owner provides you with a copy of an app built from this software,
+you may install and use that copy as the Owner allows, under the terms that
+come with it. You may not take it apart, decompile it, remove its
+protections or notices, or share it with others, except where the law
+expressly allows this despite this restriction.
+
+Third-party software, fonts and icons included in the apps keep their own
+licences, which are listed in THIRD_PARTY_NOTICES.txt. Nothing here limits
+the rights those licences give you for those parts.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+OWNER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+For permission, contact the Owner.

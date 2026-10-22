@@ -249,6 +249,10 @@ Rail → **Data** (or ☰ → _Card data_) shows every card as a spreadsheet-sty
 - **Install**: ☰ → _Settings_ → _Install app_ (when the browser offers it). After the first visit it works fully offline, including PDF export.
 - Themes: ☰ → _Settings_ → _Theme…_: Light, Dark, Follow system and 37 colour themes (Hearthside, the default; hearth, job, fun, tabletop, pastel, bold dark and accessible themes). The canvas around the card stays neutral grey in every theme so card colours look true.
 
+## Licence
+
+Proprietary. Copyright © 2026 Hanielle Marie N. Armas, all rights reserved: see [LICENSE](LICENSE). That covers the code, the apps' names and the Adventure Scuffle! game content (cards, rules, art). Third-party parts keep their own licences, listed in `public/THIRD_PARTY_NOTICES.txt`; run `npm run notices` after changing dependencies (a test checks it's up to date).
+
 ## Credits
 
 - Icons: [game-icons.net](https://game-icons.net) by Lorc, Delapouite and contributors, [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) (button icons and the app icons, `scripts/game-icons.mjs`, `assets-src/`), and [Lucide](https://lucide.dev) (ISC) for small utility icons.

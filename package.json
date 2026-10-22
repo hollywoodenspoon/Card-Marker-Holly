@@ -3,7 +3,8 @@
   "private": true,
   "version": "0.1.0-alpha.4",
   "description": "Design cards and print them on A4 sheets. Works offline.",
-  "author": "hollywoodenspoon",
+  "author": "Hanielle Marie N. Armas",
+  "license": "UNLICENSED",
   "main": "dist-electron/main.cjs",
   "type": "module",
   "scripts": {
@@ -21,6 +22,7 @@
     "android:apk": "node scripts/android.mjs apk",
     "help:shots": "node scripts/help-screenshots.mjs",
     "as:sim": "node scripts/as-sim.mjs",
+    "notices": "node scripts/notices.mjs",
     "icons": "node scripts/icons.mjs",
     "icons:gen": "node scripts/game-icons.mjs"
   },
