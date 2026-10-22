@@ -543,3 +543,10 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
   - The engine rules for the changed abilities are in `effects/cards.ts`.
   - The Gambit's Tails is handled in `engine.ts`.
   - The v3 CSV for Hearthside Cardworks is made from the v2 one, changing only these cards.
+
+## Archetype_AS
+
+- **An explicit archetype field:** `Archetype_AS` holds a list separated by commas, semicolons or slashes (for example "Rianz, Hero"). It is read into `AsCard.archetypes`.
+- **Which source decides:** when the list isn't empty, it alone decides a card's archetypes. A card named "Grave …" but tagged "Ghoulish" is not a Grave card. When it is empty, the archetype comes from the name, as before (the word appears anywhere in the name), so older packs play the same.
+- **Where it's used:** every archetype check goes through `inArchetype` in `effects/helpers.ts`. That covers Field, Fallen, Strike, Maneuver, Discount and Return, and the Grave, Ghoulish and Rianz conditions. The deck builder's search matches archetypes too.
+- **The First Quest v3.1 CSV** adds the column: Grave for the six Grave cards, Ghoulish for the four Ghoulish cards, and Rianz for the four Rianz cards, Hero of Rianz included. It plays exactly the same as v3.

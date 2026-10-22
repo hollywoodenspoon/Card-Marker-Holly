@@ -4,18 +4,18 @@ The Mutual Reveal rules as code, in `src/adventure/`. It is plain TypeScript wit
 
 ## Files
 
-| File         | What it holds                                                                            |
-| ------------ | ---------------------------------------------------------------------------------------- |
-| `cards.ts`   | `AsCard`: a card's values read from the pack's `_AS` fields                              |
-| `deck.ts`    | Free Company check: 12 different cards, at most 1 Ace                                    |
-| `board.ts`   | The 2 × 3 field: slot numbers, neighbours, mirrored positions, names                     |
-| `state.ts`   | `AsState`, the whole game as plain data                                                  |
-| `engine.ts`  | `createGame`, `legalMoves`, `apply`, `prompt`                                            |
-| `stats.ts`   | Card values and Engagement totals                                                        |
-| `observe.ts` | `observeAs`: the game as one player may know it                                          |
-| `table.ts`   | `toTable`: draws a game on the Hearthside Table setup                                    |
-| `effects/`   | Card abilities: `types.ts`, `helpers.ts` (keywords), `cards.ts` (by code), `registry.ts` |
-| `fixtures/`  | Test cards (basic and The First Quest), random games, saved scripted games (JSON)        |
+| File         | What it holds                                                                                      |
+| ------------ | -------------------------------------------------------------------------------------------------- |
+| `cards.ts`   | `AsCard`: a card's values read from the pack's `_AS` fields, with `archetypes` from `Archetype_AS` |
+| `deck.ts`    | Free Company check: 12 different cards, at most 1 Ace                                              |
+| `board.ts`   | The 2 × 3 field: slot numbers, neighbours, mirrored positions, names                               |
+| `state.ts`   | `AsState`, the whole game as plain data                                                            |
+| `engine.ts`  | `createGame`, `legalMoves`, `apply`, `prompt`                                                      |
+| `stats.ts`   | Card values and Engagement totals                                                                  |
+| `observe.ts` | `observeAs`: the game as one player may know it                                                    |
+| `table.ts`   | `toTable`: draws a game on the Hearthside Table setup                                              |
+| `effects/`   | Card abilities: `types.ts`, `helpers.ts` (keywords), `cards.ts` (by code), `registry.ts`           |
+| `fixtures/`  | Test cards (basic and The First Quest), random games, saved scripted games (JSON)                  |
 
 ## The field
 
@@ -125,3 +125,5 @@ The card ability tests (`effects/cards.test.ts`) build small boards from `fixtur
 - any game that refused a bot's move or lost a card
 
 `report(result)` turns them into Markdown. `npm run as:sim -- --games 500 --levels normal,hard --pack my.cmpack --out report.md` runs it from the command line.
+
+Archetype checks go through `inArchetype(s, card, word)` (`effects/helpers.ts`). A card's `archetypes` list decides when it isn't empty. Otherwise the word must appear in the card's name.
