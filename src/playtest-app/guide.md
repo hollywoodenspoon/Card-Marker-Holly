@@ -24,6 +24,7 @@ A game pack holds every card's picture, the values of its fields (such as `A_AS`
    - **Rules on: you against the bot**: you play Player 1 and the bot plays Player 2. Pick its level: **Easy**, **Normal** or **Hard** (Hard thinks longer).
    - **Rules on: watch bot against bot**: two bots play each other while you watch.
    - **Rush: many bot games**: bots play a batch of games (you pick how many) as fast as the device allows, with nothing drawn. See Rush below.
+   - **Initiative** (with the rules on): **Rock-paper-scissors**, as the rulebook recommends, or **Random**. With rock-paper-scissors each player picks Rock, Paper or Scissors in the bar (your throw stays hidden until both have thrown; a tie throws again), and the winner chooses **Take the initiative** or **Give it**. Bots always take it.
 3. Pick a **deck** for each player: one you built here (**Your decks**), or one from Hearthside Cardworks (**Decks in the pack**). **All cards** gives a player one of every card. A warning shows when a deck breaks a deck rule, or has a different number of cards than the game uses. With the rules on, both decks must be legal Free Companies.
 4. Press **Start**.
 
@@ -31,7 +32,7 @@ A game pack holds every card's picture, the values of its fields (such as `A_AS`
 
 The bar at the bottom says whose turn it is and what to do. Cards you may use now glow green.
 
-- **Setup and Regroup:** tap a card in your Support (or rest zone), then tap an empty position on your field, or drag it there. **Fill randomly** fills the rest, and **Done** confirms. Until then you can move a card you just placed, or drag it back.
+- **Setup and Regroup:** tap a card in your Support, then tap an empty position on your field, or drag it there. In Regroup, as at a real table, your Support is set aside and your rest zone is laid out in its place as your hand ("Rest zone: Regroup hand"), so you can read every card while you refill the field. Your Support comes back when the Skirmish starts. **Fill randomly** fills the rest, and **Done** confirms. Until then you can move a card you just placed, or drag it back.
 - **Skirmish:** tap 2 adjacent face-down cards on your opponent's field to reveal them (the first one you tap turns amber). After the opening pairs, you reveal 1 card at a time, next to one that is already revealed.
 - **Attack and defense** are worked out by Fate Number when everything is revealed: the lower half attacks, the upper half defends, and the lowest attacker is the Main Attacker (the cube).
 - **Combat:** the player with initiative picks which Engagement goes first. Then each player in turn reveals a Support card as Fighting Spirit, or passes. A pass locks your total for that Engagement. The bar shows the totals. If no defender is on or next to the attacked position, the attacker scores straight away.
@@ -75,6 +76,31 @@ Pick **Rush: many bot games** as the Rules, a deck and a bot level for each side
 
 The Rush screen counts as the games finish: each deck's win rate and wins as first player, the average number of rounds, and the cards each deck used most for Fighting Spirit and abilities. **Stop** ends the batch early. **Copy report** copies it all as text. Every match is listed: **Watch** replays it, and the pin keeps it with your replays. The last 5 batches stay under **Replays**.
 
+## Tournaments
+
+Press **Tournaments…** on the start screen (or the trophy at the top of the table), then **New tournament**.
+
+- **Format:** the official ladder from the game plan, or **Custom…** (round robin, Swiss with a top cut, groups then a knockout, or single elimination, at any size):
+
+  | Format             | Players | How it runs                                             | Match length               |
+  | ------------------ | ------- | ------------------------------------------------------- | -------------------------- |
+  | Locals             | 8       | Round robin                                             | Best of 1                  |
+  | Regionals          | 16      | 3 rounds of Swiss, then a top 4 knockout                | Best of 1                  |
+  | Nationals          | 32      | 5 rounds of Swiss, then a top 8 knockout                | Best of 1                  |
+  | Pro Tour           | 16      | 4 groups of 4, round robin; group winners to a knockout | Best of 3, final best of 5 |
+  | World Championship | 16      | 2 groups of 8, round robin; top 4 of each to a knockout | Best of 3, final best of 5 |
+
+- **Match length** can be changed for any tournament. In a match of more than one game, rock-paper-scissors (or a coin, if you pick that) decides only game 1. In every later game, the player who went second in the game before starts with the initiative.
+- **Entrants:** add people (a name and a deck) and **Fill with bots**: pick their level, and their decks: the pack's and your saved decks, auto-built Suboptimal or Optimal decks, or a mix.
+- **Playing:**
+  - Each round lists its matches. **Play** starts your next game on the table: against a bot, or against another person on the same device with the hand-over screen.
+  - When the game ends, **Back to the tournament** records it.
+  - **Settle bot matches** plays every bot-against-bot match of the round in the background, which takes seconds.
+  - The next round is paired once every match is done.
+- **Watching:** the eye (or **G1**, **G2**… in a longer match) replays any game that was played, with the step-by-step view and the combat stage.
+- **Standings** sort by points (3 for a match win), then opponents' match-win %, game-win % and opponents' game-win %. Groups have a table each, and the knockout shows its bracket.
+- **The end:** the placings and **Copy report**. Tournaments are saved as they go, so **Continue** picks one up after a reload.
+
 ## Replays
 
 Every rules game is kept as a replay when it ends, or when you start a new game after its first round. **Watch replay** on the winner's banner opens it straight away, and the **Replays** button (at the top of the table, or on the start screen) lists them all.
@@ -91,6 +117,13 @@ Press **Build decks…** on the New game screen. The pack's whole card pool is o
 - **Find cards** by name, code or ability text, filter by type or group, and sort by Fate Number, Attack, Defense or Fighting Spirit.
 - **The rules** for Adventure Scuffle are checked as you go: a Free Company is exactly 12 different cards with at most one Ace. Aces are the cards with `{ace}` in their name (`Name_AS`). **Ready to play** shows when the deck is legal; otherwise the problems are listed.
 - **Several decks:** **+** starts a new one, **Start from a pack deck…** copies a deck from Hearthside Cardworks to change, and the **Deck** list switches between them. Rename a deck in **Name**.
+- **Auto-build** makes a new deck from any cards in the pack, at one of three levels:
+  - **Suboptimal:** playable but weak, from the less valued cards.
+  - **Optimal:** the strongest cards, plus archetype synergy (cards that ask for, say, a Grave card count more when the deck has Grave cards).
+  - **Very optimal:** starts from Optimal, then tries card swaps and keeps a swap only if the deck wins more bot games against the pack's decks. This takes a minute or two, and **Stop** keeps the best deck found so far.
+
+  The first time, and after the cards change, the app works out how strong each card is from quick bot games, which takes a few seconds and is then remembered. A short note tells you the deck's strongest cards and any archetype it builds around. In testing on The First Quest, Suboptimal decks won about 35% against the three premade decks, the premades about 50%, and Optimal decks about 70%.
+
 - **Export** saves the deck as a small `.asdeck.json` file, which **Import deck file** reads on another device or into another pack with the same card codes. **Copy list** copies the deck as text.
 
 Decks are saved in this browser as you change them, one set per pack. Cards with missing or odd values (for example two cards with the same Fate Number) are listed above the pool so you can fix them in Hearthside Cardworks.

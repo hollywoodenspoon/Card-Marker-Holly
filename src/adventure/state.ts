@@ -77,8 +77,18 @@ export interface EngagementResult {
   note?: 'no-attacker' | 'no-defenders'
 }
 
+/** A rock-paper-scissors throw. */
+export type Hand = 'rock' | 'paper' | 'scissors'
+export const HANDS: readonly Hand[] = ['rock', 'paper', 'scissors']
+/** What each hand beats. */
+export const BEATS: Record<Hand, Hand> = { rock: 'scissors', paper: 'rock', scissors: 'paper' }
+
 /** Who must decide what, right now. */
 export type Step =
+  /** Rock-paper-scissors for the initiative (Player 1 throws, then Player 2). */
+  | { k: 'rps'; seat: Seat }
+  /** The rock-paper-scissors winner takes or gives the initiative. */
+  | { k: 'initiative'; seat: Seat }
   /** Put cards from Support (setup) or the rest zone (Regroup) on empty positions, face down. */
   | { k: 'place'; seat: Seat; from: 'support' | 'rest'; placed: number[] }
   /** Reveal cards on the opponent's field. */
@@ -142,6 +152,8 @@ export interface AsState {
   seed: number
   winner: { seat: Seat; reason: string } | null
   log: AsLogEntry[]
+  /** Rock-paper-scissors throws so far (only in a game that opens with it). */
+  rps?: [Hand | null, Hand | null]
 }
 
 export const POINTS_TO_WIN = 4

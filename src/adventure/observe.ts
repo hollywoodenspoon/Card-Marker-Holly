@@ -15,5 +15,7 @@ export function observeAs(s: AsState, seat: Seat): AsState {
     opp.support = opp.support.map(() => HIDDEN)
     for (const f of opp.field) if (f.card && !f.faceUp) f.card = HIDDEN
     d.seed = 0
+    // A throw stays hidden until both players have thrown.
+    if (d.rps && d.step.k === 'rps') d.rps[other(seat)] = null
   })
 }

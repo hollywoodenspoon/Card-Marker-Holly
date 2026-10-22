@@ -20,6 +20,13 @@ const PHASE: Record<AsState['phase'], number> = {
 }
 
 /**
+ * Regroup's refill: as at a real table, each player sets their Support aside
+ * and holds the rest zone like a hand while they fill the field from it.
+ */
+export const regroupHand = (s: AsState) =>
+  s.phase === 'regroup' && s.step.k === 'place' && s.step.from === 'rest'
+
+/**
  * Draw a rules game on the Adventure Scuffle table (`adventureScuffle` in
  * playtest/setup.ts), so the table, tracker and card zoom show it unchanged.
  * Fighting Spirit cards show face up on top of the rest zone.
@@ -42,15 +49,25 @@ export function toTable(setup: GameSetup, s: AsState): TableState {
     return id
   }
   let t = 0
+  const regroup = regroupHand(s)
   for (const seat of SEATS) {
     const p = s.players[seat]
     zones[zoneKey('field', seat)] = {
       slots: p.field.map((f) => (f.card ? [add(seat, f.card, f.faceUp, f.state)] : [])),
     }
-    zones[zoneKey('rest', seat)] = {
-      items: [...p.rest, ...p.spent].map((c) => add(seat, c, true)),
+    if (regroup) {
+      // Regroup: the Support is set aside and the rest zone is held like a hand.
+      zones[zoneKey('rest', seat)] = { items: [] }
+      zones[zoneKey('support', seat)] = {
+        items: [...p.rest, ...p.spent].map((c) => add(seat, c, true)),
+      }
+      for (const c of p.support) add(seat, c, false)
+    } else {
+      zones[zoneKey('rest', seat)] = {
+        items: [...p.rest, ...p.spent].map((c) => add(seat, c, true)),
+      }
+      zones[zoneKey('support', seat)] = { items: p.support.map((c) => add(seat, c, false)) }
     }
-    zones[zoneKey('support', seat)] = { items: p.support.map((c) => add(seat, c, false)) }
     const main = p.mainAttacker === null ? null : p.field[p.mainAttacker].card
     const id = `t${++t}`
     tokens[id] = {

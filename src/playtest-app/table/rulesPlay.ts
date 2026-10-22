@@ -42,7 +42,9 @@ export function movesFor(s: AsState, a: TableAction): Move[] | null {
       ]
     return null
   }
-  if (to.zoneId === st.from && at.zone === 'field' && st.placed.includes(at.slot))
+  // In Regroup the rest zone is held in the Support row (see regroupHand).
+  const backTo = to.zoneId === st.from || (st.from === 'rest' && to.zoneId === 'support')
+  if (backTo && at.zone === 'field' && st.placed.includes(at.slot))
     return [{ t: 'unplace', slot: at.slot }]
   return null
 }

@@ -54,9 +54,12 @@ export function Tracker({ phone }: { phone: boolean }) {
               style={{ background: setup.seats[seat]?.color }}
             />
             <span className="font-medium">{p.name}</span>
-            {rules.initiative === seat && (
-              <Flag className="size-4 fill-current text-amber-500" aria-label="Initiative" />
-            )}
+            {/* Not yet known while rock-paper-scissors decides it. */}
+            {rules.initiative === seat &&
+              rules.step.k !== 'rps' &&
+              rules.step.k !== 'initiative' && (
+                <Flag className="size-4 fill-current text-amber-500" aria-label="Initiative" />
+              )}
             <span
               className={cn(
                 'tabular-nums',

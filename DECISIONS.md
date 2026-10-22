@@ -575,3 +575,37 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 - **When it looks:** an open tab or installed app brought back from the background doesn't reload, so the browser never looked for updates. The app now looks when it comes back into view and every 30 minutes (`registration.update()` in `src/ui/pwa/pwa.ts`).
 - **Check for updates** (Home screen and ☰ menu, the Hearthside Table packs screen) asks the site at once. It says when the version is already the latest, or offers the update.
 - **A build stamp** (the commit and date from GitHub Actions, "dev" locally) is shown next to the version, so it's clear which version is running.
+
+## Regroup hand, and rock-paper-scissors for initiative
+
+- **Regroup is shown as at the table:** while players refill the field from the rest zone, each player's Support row shows their rest-zone cards (face up, since the rest zone is public), and the Support is set aside: not drawn, with its count in the rest-zone label. This is drawing only (`regroupHand` in `table.ts`); the rules state is unchanged. A card dragged back onto that row is taken back.
+- **Initiative:**
+  - **The opening:** `NewGame.opening: 'rps'` opens the game with rock-paper-scissors. Player 1 throws, then Player 2, and a throw is hidden from the other player until both have thrown (`observeAs`). A tie throws again. The winner takes or gives the initiative.
+  - **The default:** a coin, as before, so the sim, Rush and the saved test games are unchanged.
+  - **A fixed initiative:** `NewGame.initiative` sets the starting initiative directly. Tournament games after the first use it.
+  - **The app:** the start panel offers rock-paper-scissors (the default) or Random.
+  - **Bots:** every level throws at random and always takes the initiative, because the first player wins slightly more often in the sims.
+
+## Deck auto-builder
+
+- **Card values** come from a league of 60 random legal decks and 1,600 games played by the quick rules-of-thumb bot, about 10× faster than Normal. A logistic fit of "deck A beat deck B" on which cards each deck holds gives each card a value in log-odds of winning, as in the tier lists (`deckgen/values.ts`). Values are cached per pack and per card-data hash, so they're recomputed only when the cards change.
+- **The levels** (`deckgen/build.ts`):
+  - **Suboptimal:** random legal picks from all but the top 30% of cards.
+  - **Optimal:** greedy by value plus an archetype synergy bonus, then swaps while the score improves. A card whose ability names an archetype ("a Grave card") earns half the bonus with one other card of it in the deck, and the full bonus with two. The bonus is half the spread of the card values.
+  - **Very optimal:** Optimal, then up to 16 swaps, each kept only if the deck wins more games against the pack's legal decks and itself. Normal bots play 2 seeds × both seats per opponent, on the same seeds for every deck (`deckgen/climb.ts`).
+- **Checked on The First Quest** (Normal bots, 60 games per deck against the three premades): Suboptimal 33–40%, the premades 47–55%, Optimal 70%.
+
+## Tournaments
+
+- **The formats** come from the owner's game roadmap: Locals, Regionals, Nationals, Pro Tour and World Championship. A custom format can be round robin, Swiss with an optional top cut, groups then a knockout, or single elimination. The match length can be changed for any of them.
+- **The engine** (`src/adventure/tournament/`) is pure and portable, like the rules engine:
+  - **Pairings:** round robin by the circle method. Swiss by record, best first, with backtracking to avoid rematches, and a bye going to the lowest-ranked player who hasn't had one. Groups are filled by snake seeding.
+  - **The knockout** is seeded 1–8, 4–5, 2–7, 3–6. From groups, the seeds go A1 B1 A2 B2 …, so players from one group don't meet in the first round.
+  - **Standings:** match points (3 a win, and a bye counts as a 2–0 win), then opponents' match-win % (at least 33%), game-win %, and opponents' game-win %.
+- **The owner's initiative rule:** game 1 of a match uses the tournament's opening (rock-paper-scissors or a coin). After that the player who went second in the game before starts with the initiative (`NewGame.initiative`). Seat 0 is always the match's first player.
+- **Who plays:**
+  - People play their own matches on the table, against a bot or hot-seat against each other. The game is recorded when it ends.
+  - Bot-against-bot matches are played in a worker pool. A game nobody wins (the move limit) is played again with the next seed.
+  - Every game's seed comes from the tournament seed, the match and the game number, so a result can be reproduced.
+- **Watching:** as with the roadmap's spectating, any played game can be watched afterwards with the replay player and its speed controls. Tournament games are kept in the tournament, not in the Replays list, so a big event doesn't push your own replays out. Your own games are also kept as normal replays.
+- **Saving:** each tournament is saved in the `tournaments` table (Dexie version 5) after every change.

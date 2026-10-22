@@ -44,6 +44,8 @@ Neighbours are orthogonal only. The mirrored position is the same row and the op
 
 | Step                                                      | Who                                                                    | Moves                                                                                                                                |
 | --------------------------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `rps` (only with `opening: 'rps'`)                        | Player 1, then Player 2                                                | `throw {hand}` (rock, paper or scissors). A tie throws again; the other throw is hidden from each player until both have thrown.     |
+| `initiative`                                              | the rock-paper-scissors winner                                         | `initiative {take}`: take the initiative, or give it                                                                                 |
 | `place` (from `support` at setup, from `rest` at Regroup) | the initiative player, then the other                                  | `place {card, slot}`, `unplace {slot}`, `placeRandom`, then `done` once the field is full or the pool is empty                       |
 | `reveal` (count 2, then 1)                                | alternating, the initiative player first                               | `reveal {slots}`, on the opponent's face-down cards. A pair must be adjacent; a single must be next to a revealed card.              |
 | `respond`                                                 | the owner of the revealed cards; `final` goes to the initiative player | `ability {card}` (a Field Ability of a face-up Ready card, or a Support Ability), or `pass`. Skipped when there is nothing but pass. |
@@ -107,6 +109,16 @@ Rest costs (`restCost`) pick Support cards one at a time. Cards already promised
 `fixtures/games/*.json` holds `{format, cards, names, decks, seed, moves, expect: {winner, points, round, log}}`. The cards are `basicCards()` from `fixtures/basic.ts` (no abilities): card `i` has Fate `100 + 20i`. A port should replay every fixture and match the log line for line. `AS_WRITE_FIXTURES=1 npx vitest run src/adventure` writes them again after a deliberate rules change.
 
 The card ability tests (`effects/cards.test.ts`) build small boards from `fixtures/firstQuest.ts`, the 45 cards with ids `tfq01` to `tfq45`. `fixtures/randomGame.ts` plays random legal moves from a seed. A port can use it the same way, to check that games always end and no card is lost.
+
+## Tournaments
+
+`tournament/tournament.ts` holds tournaments as plain data:
+
+- **Starting:** `createTournament(spec, entrants, seed)` sets one up. `PRESETS` holds the official formats.
+- **Playing:** `currentMatches(t)` lists the round's matches. `nextGameStart(t, match)` says how a match's next game starts: the opening in game 1, then `initiative` for the player who went second the game before. `recordGame(t, matchId, game)` adds a result and pairs the next round once a round is complete.
+- **Results:** `standings(t, stage, ids)` and `placings(t)` give the tables and the final order.
+
+`tournament/series.ts` plays a whole bot-against-bot match for the worker.
 
 ## Step by step
 

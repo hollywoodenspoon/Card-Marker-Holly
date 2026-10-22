@@ -22,6 +22,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/ui/components/ui/tabs'
 import { useBackHandler, useEscapeToClose } from '@/ui/components/overlay'
 import { useLayout } from '@/ui/shell/useLayout'
 import { usePack } from '../table/packContext'
+import { AutoBuild } from './AutoBuild'
 import { useDeckCards } from './useDeckCards'
 import { useDecks } from './deckStore'
 
@@ -327,6 +328,21 @@ export function DeckBuilder({ onClose }: { onClose: () => void }) {
             <Plus />
           </IconButton>
         </div>
+        {adventure && (
+          <AutoBuild
+            packId={pack.id}
+            cards={cards}
+            packDecks={pack.info.decks.map((d) =>
+              Object.entries(d.counts)
+                .filter(([id, n]) => n > 0 && byId[id])
+                .map(([id]) => id),
+            )}
+            onBuilt={(name, ids) => {
+              create(name, ids)
+              setTab('deck')
+            }}
+          />
+        )}
         {pack.info.decks.length > 0 && (
           <NativeSelect
             aria-label="Start from a deck in the pack"
