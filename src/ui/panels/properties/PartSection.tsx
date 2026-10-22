@@ -8,7 +8,7 @@ import type { Element, FieldElement, ShowRule } from '@/core/model/types'
 import { editTemplate, renameField, toggleVisibility } from '@/templates/commands'
 import { isField, sharedFieldNames } from '@/templates/fields'
 import { cleanColumn } from '@/templates/mailMerge'
-import { isVisibleOnCard } from '@/templates/resolve'
+import { isVisibleOnCard, lockedVisibility } from '@/templates/resolve'
 import { fieldDefaults, RULE_OPS } from '@/templates/rules'
 import { Button } from '@/ui/components/ui/button'
 import { Input, Label, NativeSelect } from '@/ui/components/ui/input'
@@ -34,7 +34,7 @@ export function PartSection({ el }: { el: Element }) {
           // Not a switch that can't move: say what it is.
           <p className="flex items-center gap-2 text-sm" data-testid="part-locked">
             <Lock className="size-4 shrink-0 text-muted-foreground" />
-            Always shown (locked in the template)
+            {lockedVisibility(el, visible)}
           </p>
         ) : (
           <label className="flex items-center justify-between gap-3 text-sm">

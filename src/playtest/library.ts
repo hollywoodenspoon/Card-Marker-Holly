@@ -210,7 +210,9 @@ export async function saveReplay(
   row: Omit<ReplayRow, 'savedAt' | 'pinned'> & { pinned?: boolean },
   db = playtestDb(),
 ): Promise<ReplayRow> {
-  const full: ReplayRow = { pinned: false, ...row, savedAt: Date.now() }
+  // Saving the same game again keeps its pin.
+  const pinned = row.pinned ?? (await db.replays.get(row.id))?.pinned ?? false
+  const full: ReplayRow = { ...row, pinned, savedAt: Date.now() }
   await db.replays.put(full)
   const extra = (await listReplays(row.packId, db)).filter((r) => !r.pinned).slice(REPLAYS_KEPT)
   if (extra.length) await db.replays.bulkDelete(extra.map((r) => r.id))

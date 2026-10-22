@@ -156,7 +156,7 @@ function FloatingToolbar({
   onPointerDown: (e: React.PointerEvent) => void
 }) {
   const ref = useRef<HTMLDivElement>(null)
-  const [size, setSize] = useState({ w: 0, h: 0, areaW: 0 })
+  const [size, setSize] = useState({ w: 0, h: 0, areaW: 0, areaH: 0 })
   useLayoutEffect(() => {
     const el = ref.current
     if (!el) return
@@ -165,15 +165,20 @@ function FloatingToolbar({
         w: el.offsetWidth,
         h: el.offsetHeight,
         areaW: el.parentElement?.clientWidth ?? 0,
+        areaH: el.parentElement?.clientHeight ?? 0,
       })
     measure()
+    // The canvas too: a resized window or an opened drawer moves the limits.
     const ro = new ResizeObserver(measure)
     ro.observe(el)
+    if (el.parentElement) ro.observe(el.parentElement)
     return () => ro.disconnect()
   }, [])
   const gap = 8
   const above = box.top - size.h - gap
-  const top = above >= gap ? above : box.top + box.height + gap
+  const below = box.top + box.height + gap
+  // Above, else below, else (a tall box, zoomed in) pinned to the top of the canvas.
+  const top = above >= gap ? above : below + size.h <= size.areaH - gap ? below : gap
   const centred = box.left + box.width / 2 - size.w / 2
   const left = Math.max(gap, Math.min(centred, size.areaW - size.w - gap))
   return (

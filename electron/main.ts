@@ -123,7 +123,8 @@ function registerIpc(win: () => BrowserWindow | null) {
       await fs.mkdir(path.dirname(file), { recursive: true })
       if (!opts?.atomic) return fs.writeFile(file, data)
       // Write a temp file, flush it to disk, then swap it in: a crash never leaves half a file.
-      const tmp = `${file}.tmp-${process.pid}`
+      // The name the folder backend looks for when recovering after a crash.
+      const tmp = `${file}.tmp`
       const h = await fs.open(tmp, 'w')
       try {
         await h.writeFile(data)

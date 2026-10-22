@@ -30,6 +30,13 @@ export function isVisibleOnCard(
   return card.overrides[el.id]?.visible ?? base
 }
 
+/** What a part that can't be toggled per card does, in words. */
+export function lockedVisibility(el: Element, visible: boolean): string {
+  if (!el.defaultVisible) return 'Always hidden (locked in the template)'
+  if (el.showIf) return `${visible ? 'Shown' : 'Hidden'} by a rule (locked in the template)`
+  return 'Always shown (locked in the template)'
+}
+
 export function textValueFor(el: Element & { type: 'text' }, card?: Card): TextValue {
   const v = card?.fields[el.fieldName]
   return v?.kind === 'text' ? v : { kind: 'text', text: el.defaultText }

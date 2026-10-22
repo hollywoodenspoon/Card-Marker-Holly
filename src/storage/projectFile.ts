@@ -10,6 +10,7 @@ import type {
   StylePreset,
   Template,
 } from '@/core/model/types'
+import { normalizePrint } from '@/print/settings'
 import { base64ToBlob, blobToBase64 } from './base64'
 
 /** Full project backup: everything needed to restore it in another browser. */
@@ -135,7 +136,8 @@ export function importProject(file: unknown, nameSuffix = ''): ProjectBundle {
     createdAt: now,
     updatedAt: now,
   }
-  const print = project.print
+  // Older or hand-edited files may lack print settings: fill in the defaults.
+  const print = (project.print = normalizePrint(project.print))
   if (print.copies)
     print.copies = Object.fromEntries(
       Object.entries(print.copies).map(([id, n]) => [remap(ids.cards, id), n]),
@@ -162,6 +164,8 @@ export function importProject(file: unknown, nameSuffix = ''): ProjectBundle {
     const copy = structuredClone(t) as Template
     copy.id = ids.templates.get(t.id)!
     copy.projectId = pid
+    // A front's chosen back follows the back's new id.
+    if (copy.backId) copy.backId = ids.templates.get(copy.backId)
     fixElements(copy.elements)
     return copy
   })
