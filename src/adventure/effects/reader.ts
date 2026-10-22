@@ -388,7 +388,7 @@ const PHRASES: Phrase[] = [
 /** Each phrase as a whole clause, with its conditions: "[conditions: ]phrase[.]". */
 const CLAUSES = PHRASES.map((p) => ({
   p,
-  re: new RegExp(`(?<=^|\\. |¦ ?)(?:(?<cond>[^:.¦]+(?:: [^:.¦]+)*): )?${p.body}\\.?`, 'g'),
+  re: new RegExp(`(?<=^|\\. |¦ ?)(?:(?<cond>[^:.¦ ][^:.¦]*(?:: [^:.¦]+)*): )?${p.body}\\.?`, 'g'),
 }))
 
 /** Lower case, symbols as words, one space, curly quotes straight, no ability label. */

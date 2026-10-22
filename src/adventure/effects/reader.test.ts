@@ -102,6 +102,15 @@ describe('the card reader', () => {
       expect(readText(type, text).unread, text).toEqual([])
   })
 
+  it('reads a condition on a clause that follows one read by another phrase', () => {
+    const r = readText(
+      'Support',
+      "Swap a ready card's position with another ready card on your field. If you have 3 or fewer cards in Support: this card does not need to be rested after use.",
+    )
+    expect(r.unread).toEqual([])
+    expect(r.rules?.support?.keep).toBeTypeOf('function')
+  })
+
   it('reads a card with no ability as nothing to do', () => {
     expect(readText('Field', '')).toEqual({ rules: {}, unread: [] })
   })
