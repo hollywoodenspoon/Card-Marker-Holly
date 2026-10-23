@@ -57,7 +57,15 @@ export interface PrintSettings {
   copies?: Record<Id, number>
   /** Custom print order (card ids); null follows the Cards list. */
   order?: Id[] | null
+  /** RGB for home printers, CMYK through a printer profile for print shops. */
+  colorMode?: PrintColorMode
+  /** CMYK profile: the built-in FOGRA39, or the print shop's profile loaded on this device. */
+  cmykProfile?: 'builtin' | 'custom'
+  /** Exact CMYK (percent) for chosen colours, by lower-case "#rrggbb". */
+  cmykSwatches?: Record<string, [number, number, number, number]>
 }
+
+export type PrintColorMode = 'rgb' | 'cmyk'
 
 export interface Project {
   id: Id
