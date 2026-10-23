@@ -11,7 +11,7 @@ import {
   Upload,
 } from '@/ui/icons'
 import { useEffect, useState } from 'react'
-import { APP_NAME, VERSION_LABEL } from '@/app/appInfo'
+import { APP_NAME, APP_VERSION, VERSION_LABEL } from '@/app/appInfo'
 import { openProject } from '@/app/session'
 import { openHelp } from '@/help/openHelp'
 import { UpdateButton } from '@/ui/pwa/UpdateButton'
@@ -100,6 +100,9 @@ export function HomeScreen() {
       <header className="app-topbar flex h-14 shrink-0 items-center gap-2 border-b bg-panel px-3">
         <img src={`${import.meta.env.BASE_URL}icon.svg`} alt="" className="size-7" />
         <span className="text-sm font-semibold">{APP_NAME}</span>
+        <span className="text-xs text-muted-foreground" data-testid="app-version">
+          {APP_VERSION}
+        </span>
         <div className="flex-1" />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

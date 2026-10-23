@@ -1,6 +1,6 @@
 import { CircleHelp, FileUp, Menu, Play, Trash2 } from '@/ui/icons'
 import { useEffect, useRef, useState } from 'react'
-import { PLAYTEST_NAME, VERSION_LABEL } from '@/app/appInfo'
+import { APP_VERSION, PLAYTEST_NAME, VERSION_LABEL } from '@/app/appInfo'
 import { UpdateButton } from '@/ui/pwa/UpdateButton'
 import { cn } from '@/lib/cn'
 import { addPack, playtestDb, type PackRow } from '@/playtest/library'
@@ -82,6 +82,7 @@ export function Library({ onOpen, onHelp }: { onOpen: (id: string) => void; onHe
       <header className="app-topbar flex shrink-0 items-center gap-2 border-b bg-panel px-3 py-2">
         <img src={`${import.meta.env.BASE_URL}playtest/icon.svg`} alt="" className="size-7" />
         <h1 className="text-sm font-semibold">{PLAYTEST_NAME}</h1>
+        <span className="text-xs text-muted-foreground">{APP_VERSION}</span>
         <span className="flex-1" />
         <IconButton label="How to play (F1)" onClick={onHelp}>
           <CircleHelp />

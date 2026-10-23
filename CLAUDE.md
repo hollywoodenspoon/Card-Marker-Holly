@@ -151,6 +151,7 @@ Cards
 
 - Start in plan mode. Present the plan (stack choices, folder layout, data schema) before writing code, and wait for approval.
 - Commit to git after each milestone with a clear message.
+- Every PR bumps the version in `package.json` (keep the alpha label): fixes bump the last number (0.1.1-alpha.1 → 0.1.2-alpha.1), major features bump the middle one (→ 0.2.0-alpha.1). Start the PR title with it, e.g. "v0.1.2-alpha.1: …". See DECISIONS.md.
 - Run the dev server and test the app yourself. For print features, generate a PDF and check sizes and positions.
 - Keep `README.md` short: how to install, run, and build.
 - Do not add features outside this document without asking. Do not add CMYK, accounts, or a backend.
