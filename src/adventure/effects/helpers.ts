@@ -28,10 +28,15 @@ export function withoutLog<T>(fn: () => T): T {
   }
 }
 
-export function log(d: D, text: string, flag?: boolean) {
+export function log(d: D, text: string, flag?: boolean, cards?: string[]) {
   if (quiet) return
   recorder?.(d)
-  d.log.push(flag ? { n: d.log.length + 1, text, flag } : { n: d.log.length + 1, text })
+  d.log.push({
+    n: d.log.length + 1,
+    text,
+    ...(flag ? { flag } : {}),
+    ...(cards?.length ? { cards } : {}),
+  })
 }
 
 /** A random whole number from 0 to n − 1, from the game's seed. */

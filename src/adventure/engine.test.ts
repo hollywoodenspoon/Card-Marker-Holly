@@ -6,7 +6,7 @@ import { actor, apply, createGame, isLegal, legalMoves, type Move } from './engi
 import { basicCards, basicDecks } from './fixtures/basic'
 import { HIDDEN, observeAs } from './observe'
 import { other, type AsState, type Seat } from './state'
-import { engagementSides, engagementTotals } from './stats'
+import { engagementSides, engagementTotals, lockCombat } from './stats'
 
 const newGame = (seed = 7) =>
   createGame({ cards: basicCards(), decks: basicDecks(), names: ['Ann', 'Bo'], seed })
@@ -268,6 +268,8 @@ describe('Combat', () => {
       d.cards.c1 = { ...d.cards.c1, a: 3 }
       d.cards.c2 = { ...d.cards.c2, a: 3 }
       d.cards.c18 = { ...d.cards.c18, d: 6 }
+      // Values lock when combat starts: lock them again with these.
+      d.combat = lockCombat(d)
     })
     s = pass(pass(s))
     expect(s.results[0]).toMatchObject({ attack: 6, defense: 6, scorer: null })

@@ -5,7 +5,7 @@ import { adjacent, ADJACENT_PAIRS, neighbours, SLOTS, slotName } from './board'
 import { coin, isLocked, log, recordLog, refillPool, rest, withoutLog } from './effects/helpers'
 import { rulesOf } from './effects/registry'
 import type { Ability, Ctx, Option, PlanIO } from './effects/types'
-import { engagementSides, engagementTotals, fightingSpirit, finalBlow } from './stats'
+import { engagementSides, engagementTotals, fightingSpirit, finalBlow, lockCombat } from './stats'
 import {
   cardName,
   emptySlot,
@@ -103,6 +103,7 @@ export function createGame({
     skirmish: { reveals: 0, last: null },
     queue: [],
     engagement: null,
+    combat: null,
     results: [],
     pending: null,
     flips: [],
@@ -561,9 +562,10 @@ function play(d: D, m: Move) {
       )
       d.skirmish.reveals++
       d.skirmish.last = seat
-      // Flip Abilities of the revealed cards trigger first, then the response.
+      // Flip Abilities of the revealed cards trigger first, then the response. A card
+      // already turned ability-active while face down (Grave Keeper) doesn't trigger.
       d.flips = slots.flatMap((i) =>
-        field[i].card && rulesOf(d, field[i].card!)?.flip
+        field[i].card && field[i].state !== 'ability' && rulesOf(d, field[i].card!)?.flip
           ? [{ owner: opp, card: field[i].card! }]
           : [],
       )
@@ -763,6 +765,8 @@ function assign(d: D) {
         `${atk.length > 1 ? `, attacking with ${atk.slice(1).join(', ')}` : ''}; defending: ${def.join(', ') || 'none'}.`,
     )
   }
+  // The stacks form now, and every card's values lock for the round.
+  d.combat = lockCombat(d)
   startCombat(d)
 }
 
@@ -879,6 +883,7 @@ function regroup(d: D) {
     })
     p.mainAttacker = null
   }
+  d.combat = null
   log(d, 'Regroup: Fighting Spirit and unused Support rest; active field cards go to Support.')
   d.step = { k: 'place', seat: d.initiative, from: 'rest', placed: [] }
 }

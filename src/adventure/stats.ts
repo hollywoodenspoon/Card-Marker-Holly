@@ -1,7 +1,7 @@
 import { mirrored, neighbours } from './board'
 import { inArchetype } from './effects/helpers'
 import { rulesOf } from './effects/registry'
-import { other, type AsState, type Engagement, type Seat } from './state'
+import { other, type AsState, type CombatLock, type Engagement, type Seat } from './state'
 
 /** A field card's printed values. */
 const printed = (s: AsState, card: string) => ({
@@ -43,9 +43,10 @@ export const defenseUnbound = (s: AsState, seat: Seat) =>
 /**
  * Attack = the Main Attacker plus attacking cards next to it. Defense = the
  * defending cards on or next to the attacked (mirrored) position. Unbound
- * counts every attacker (or defender) instead.
+ * counts every attacker (or defender) instead. Worked out from the field as it
+ * stands: before combat, and to lock the stacks when it starts.
  */
-export function engagementSides(s: AsState, attacker: Seat): EngagementSides | null {
+function liveSides(s: AsState, attacker: Seat): EngagementSides | null {
   const main = s.players[attacker].mainAttacker
   if (main === null) return null
   const def = other(attacker)
@@ -89,11 +90,72 @@ export interface Totals {
   baseDefense: number
 }
 
+/** The stacks fixed when combat started: every card's values and both attacks' stacks. */
+export function lockCombat(s: AsState): CombatLock {
+  const values: CombatLock['values'] = {}
+  for (const seat of [0, 1] as Seat[])
+    s.players[seat].field.forEach((f, i) => {
+      if (f.card) values[f.card] = statsAt(s, seat, i)
+    })
+  const stack = (attacker: Seat) => {
+    const sides = liveSides(s, attacker)
+    if (!sides) return null
+    const own = s.players[attacker].field
+    const theirs = s.players[other(attacker)].field
+    return {
+      origin: sides.main,
+      target: sides.target,
+      attack: sides.attackers.map((i) => own[i].card!),
+      defense: sides.defenders.map((i) => theirs[i].card!),
+    }
+  }
+  return { values, stacks: [stack(0), stack(1)] }
+}
+
+/**
+ * The positions an Engagement counts. In combat these are the stacks formed
+ * when it started (cards a swap moved between stacks included), plus the cards
+ * an Unbound adds, whenever it was turned on. The Main Attacker only fixed
+ * where the attack comes from and what it targets.
+ */
+export function engagementSides(s: AsState, attacker: Seat): EngagementSides | null {
+  if (!s.combat) return liveSides(s, attacker)
+  const lock = s.combat.stacks[attacker]
+  if (!lock) return null
+  const def = other(attacker)
+  const own = s.players[attacker].field
+  const theirs = s.players[def].field
+  const slots = (field: typeof own, cards: string[]) =>
+    cards.map((c) => field.findIndex((f) => f.card === c)).filter((i) => i >= 0)
+  const attackers = new Set(slots(own, lock.attack))
+  const defenders = new Set(slots(theirs, lock.defense))
+  // Unbound counts every attacker (or defender), whenever it was used.
+  const r = s.players[attacker].round
+  const live = liveSides(s, attacker)
+  if (live && (r.attackUnbound || (r.unbound ?? []).some((u) => u.side === 'attack')))
+    for (const i of live.attackers) if (own[i].state === 'attacking') attackers.add(i)
+  const rd = s.players[def].round
+  if (live && (defenseUnbound(s, def) || (rd.unbound ?? []).some((u) => u.side === 'defense')))
+    for (const i of live.defenders) defenders.add(i)
+  return {
+    main: lock.origin,
+    target: lock.target,
+    attackers: [...attackers].sort((a, b) => a - b),
+    defenders: [...defenders].sort((a, b) => a - b),
+  }
+}
+
+/** A card's Attack and Defense in an Engagement: as combat started, when it has started. */
+function valuesAt(s: AsState, seat: Seat, slot: number) {
+  const card = s.players[seat].field[slot]?.card
+  return (card && s.combat?.values[card]) || statsAt(s, seat, slot)
+}
+
 export function engagementTotals(s: AsState, e: Engagement): Totals {
   const sides = engagementSides(s, e.attacker)
   const def = other(e.attacker)
-  const baseAttack = sides?.attackers.reduce((n, i) => n + attackAt(s, e.attacker, i), 0) ?? 0
-  const baseDefense = sides?.defenders.reduce((n, i) => n + defenseAt(s, def, i), 0) ?? 0
+  const baseAttack = sides?.attackers.reduce((n, i) => n + valuesAt(s, e.attacker, i).a, 0) ?? 0
+  const baseDefense = sides?.defenders.reduce((n, i) => n + valuesAt(s, def, i).d, 0) ?? 0
   const fs = (seat: Seat) => e.fs[seat].reduce((n, x) => n + x.value, 0)
   return {
     baseAttack,

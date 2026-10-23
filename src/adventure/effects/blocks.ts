@@ -19,6 +19,7 @@ import {
   touchable,
 } from './helpers'
 import { rulesOf } from './registry'
+import { lockCombat } from '../stats'
 import type { Ability, Ctx, D, PlanIO } from './types'
 
 /**
@@ -304,39 +305,55 @@ export function decoy(readyOnly: boolean): Ability<number> {
 }
 
 /**
- * Swap one of your attackers with one of your defenders: each takes the other's
- * role. The combat rules then count the new sides (and a new Main Attacker).
+ * Swap one of your attackers with one of your defenders: they trade places in
+ * the stacks formed when combat started. The attacker joins the defense of this
+ * Engagement and the defender joins your attack, wherever the cards sit, each
+ * with its values from the start of combat. Where your attack comes from and
+ * what it targets don't change.
  */
-export const switchSides: Ability<{ atk: number; def: number }> = {
-  name: 'Switch an attacker and a defender',
+export const switchSides: Ability<{ atk: string; def: string }> = {
+  name: 'Swap an attacker and a defender',
   plan(io) {
     const own = io.ctx.owner
+    const lock = io.s.combat ?? lockCombat(io.s)
     const field = io.s.players[own].field
-    const with_ = (state: string) =>
-      field
-        .map((_, i) => i)
-        .filter((i) => field[i].card && field[i].state === state)
-        .map((i) => slotOption(io.s, own, i, own))
-    const atk = slotFromId(
-      io.pick(own, 'Choose an attacker to become a defender.', with_('attacking')),
+    const options = (cards: string[]) =>
+      cards.flatMap((c) => {
+        const i = field.findIndex((f) => f.card === c)
+        return i >= 0 ? [slotOption(io.s, own, i, own)] : []
+      })
+    const card = (id: string) => field[slotFromId(id)].card!
+    const atk = card(
+      io.pick(
+        own,
+        'Choose an attacker to become a defender.',
+        options(lock.stacks[own]?.attack ?? []),
+      ),
     )
-    const def = slotFromId(
-      io.pick(own, 'Choose a defender to become an attacker.', with_('defending')),
+    const def = card(
+      io.pick(
+        own,
+        'Choose a defender to become an attacker.',
+        options(lock.stacks[other(own)]?.defense ?? []),
+      ),
     )
     return { atk, def }
   },
   apply(d, ctx, { atk, def }) {
-    const p = d.players[ctx.owner]
-    p.field[atk].state = 'defending'
-    p.field[def].state = 'attacking'
+    const own = ctx.owner
+    d.combat ??= lockCombat(d)
+    const attack = d.combat.stacks[own]
+    const defense = d.combat.stacks[other(own)]
+    if (attack) attack.attack = attack.attack.map((c) => (c === atk ? def : c))
+    if (defense) defense.defense = defense.defense.map((c) => (c === def ? atk : c))
+    for (const f of d.players[own].field) {
+      if (f.card === atk) f.state = 'defending'
+      else if (f.card === def) f.state = 'attacking'
+    }
     log(
       d,
-      `${cardName(d, ctx.card)}: ${cardName(d, p.field[atk].card)} now defends and ${cardName(d, p.field[def].card)} attacks.`,
+      `${cardName(d, ctx.card)}: ${cardName(d, atk)} joins the defense and ${cardName(d, def)} joins the attack.`,
     )
-    if (p.mainAttacker === atk) {
-      p.mainAttacker = def
-      log(d, `${cardName(d, p.field[def].card)} is ${p.name}'s new Main Attacker.`)
-    }
   },
 }
 
@@ -396,7 +413,13 @@ export const seeSupport: Ability<null> = {
   apply(d, ctx) {
     const opp = d.players[other(ctx.owner)]
     const card = opp.support[rand(d, opp.support.length)]
-    log(d, `${cardName(d, ctx.card)}: ${opp.name} reveals ${cardName(d, card)} from their Support.`)
+    // Revealed to both players: the table shows it face up while this line plays.
+    log(
+      d,
+      `${cardName(d, ctx.card)}: ${opp.name} reveals ${cardName(d, card)} from their Support.`,
+      false,
+      [card],
+    )
   },
 }
 

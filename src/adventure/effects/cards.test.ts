@@ -15,7 +15,7 @@ import { ARCHIVE_SETS } from '../fixtures/archiveSets'
 import { FIRST_QUEST, FIRST_QUEST_DECKS, fq } from '../fixtures/firstQuest'
 import type { AsCard } from '../cards'
 import type { AsState, CardState, Seat } from '../state'
-import { engagementSides, engagementTotals, statsAt } from '../stats'
+import { engagementSides, engagementTotals, lockCombat, statsAt } from '../stats'
 import { archInRest, isLocked, restCount } from './helpers'
 import { unreadParts } from './registry'
 
@@ -273,20 +273,25 @@ describe('Battle Abilities (Fighting Spirit at reveal)', () => {
     expect(s.players[1].support).toHaveLength(3)
   })
 
-  it('TFQ-04 Strategic Vanguard: Defending Side: switch an attacker and a defender, maybe the Main Attacker', () => {
-    // Bo attacks; Ann defends and reveals the Vanguard.
+  it('TFQ-04 Strategic Vanguard: Defending Side: an attacker and a defender trade places in the stacks', () => {
+    // Bo attacks Ann's position 2; Ann defends and reveals the Vanguard.
     let s = fsMove(fight(1, 0, [4, 8], []), 4)
     s = pick(s, 'use')
-    s = pick(s, 0) // Ann's Main Attacker (position 0) becomes a defender…
-    s = pick(s, 3) // …and the defender at 3 attacks.
+    // Ann's attack stack is 0 and 1; her defense of position 2 is 5.
+    // The attacker at 0 joins the defense; the defender at 5, the only one, joins the attack.
+    s = pick(s, 0)
     const f = s.players[0].field
     expect(f[0].state).toBe('defending')
-    expect(f[3].state).toBe('attacking')
+    expect(f[5].state).toBe('attacking')
     // No cost: Spatial Witch stays in Support.
     expect(s.players[0].support).toContain(fq(8))
-    expect(s.players[0].mainAttacker).toBe(3)
-    // Ann's attack (not fought yet) now targets the mirror of 3: position 5.
-    expect(engagementSides(s, 0)!.target).toBe(5)
+    // The moved card defends position 2 from position 0, far from it, at its own value.
+    expect(engagementSides(s, 1)!.defenders).toEqual([0])
+    expect(engagementTotals(s, s.engagement!).baseDefense).toBe(statsAt(s, 0, 0).d)
+    // Ann's attack still comes from 0 and hits 2, and now stacks 1 and 5.
+    const atk = engagementSides(s, 0)!
+    expect([atk.main, atk.target, atk.attackers]).toEqual([0, 2, [1, 5]])
+    expect(s.players[0].mainAttacker).toBe(0)
     expect(s.step).toEqual({ k: 'fs', seat: 1 })
   })
 
@@ -517,7 +522,10 @@ describe('Support Abilities', () => {
     let s = use(board({ support: [20] }, { support: [5, 6] }), 20)
     expect(s.players[0].support).toEqual([fq(20)])
     expect(s.log.at(-1)?.text ?? '').not.toBe('')
-    expect(s.log.some((l) => /Rianz Sentinel: Bo reveals/.test(l.text))).toBe(true)
+    const line = s.log.find((l) => /Rianz Sentinel: Bo reveals/.test(l.text))
+    // Revealed to both players: the line carries the card, for the table to show.
+    expect(line?.cards).toHaveLength(1)
+    expect([fq(5), fq(6)]).toContain(line!.cards![0])
     s = produce(s, (d) => void (d.step = { k: 'respond', seat: 0, final: false }))
     expect(canUse(s, 0, 20)).toBe(false)
   })
@@ -951,5 +959,59 @@ describe('the archive sets: Final Blow, locks, Reef-Strider, Breakthrough', () =
     const t = fsMove(s, 2)
     expect(engagementSides(t, 0)!.attackers).toEqual([0, 1, 2])
     expect(engagementTotals(t, t.engagement!).attack).toBe(before + statsAt(t, 0, 2).a + 1)
+  })
+})
+
+describe('combat stacks', () => {
+  // Ann attacks from 0 at Bo's position 2, Bo's Weapon Master (Center: +1 D) defends at 1.
+  const start = () =>
+    produce(
+      combat(
+        {
+          field: [7, 9, 11, 3],
+          states: { 0: 'attacking', 1: 'attacking', 2: 'attacking', 3: 'defending' },
+          main: 0,
+        },
+        {
+          field: [20, 18, 22, 23],
+          states: { 0: 'attacking', 1: 'defending', 2: 'defending', 3: 'attacking' },
+          main: 0,
+        },
+        0,
+      ),
+      (d) => void (d.combat = lockCombat(d)),
+    )
+
+  it('lock every value when combat starts, position bonuses included', () => {
+    const s = start()
+    const before = engagementTotals(s, s.engagement!)
+    expect(engagementSides(s, 0)!.defenders).toEqual([1, 2])
+    // Weapon Master moves to a Flank: it keeps its Center bonus and still defends.
+    const moved = produce(s, (d) => {
+      const f = d.players[1].field
+      ;[f[1], f[5]] = [f[5], f[1]]
+    })
+    expect(engagementSides(moved, 0)!.defenders).toEqual([2, 5])
+    expect(engagementTotals(moved, moved.engagement!)).toEqual(before)
+  })
+
+  it('add the cards an Unbound turned on during combat counts', () => {
+    const s = start()
+    expect(engagementSides(s, 0)!.attackers).toEqual([0, 1])
+    const unbound = produce(s, (d) => void (d.players[0].round.attackUnbound = true))
+    expect(engagementSides(unbound, 0)!.attackers).toEqual([0, 1, 2])
+  })
+})
+
+describe('ability-active face-down cards', () => {
+  it("don't trigger their Flip Ability when revealed (Grave Keeper, Hunter Dragoon)", () => {
+    // Bo's Azure Assassin at 0 was turned ability-active face down; 1 is face up.
+    const s = produce(
+      board({ field: [7, 9] }, { field: [16, 21], down: [0], states: { 0: 'ability' } }),
+      (d) => void (d.step = { k: 'reveal', seat: 0, count: 1 }),
+    )
+    const after = must(s, { t: 'reveal', slots: [0] })
+    expect(after.players[1].field[0]).toMatchObject({ faceUp: true, state: 'ability' })
+    expect(after.log.some((l) => l.text.startsWith('Flip Ability'))).toBe(false)
   })
 })
