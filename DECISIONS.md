@@ -749,3 +749,8 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 - **Exact CMYK colours** are a per-project list (Print → Colour) of hex → ink percentages, applied to every vector use of that colour, limited to the profile's ink limit (its black's total, about 330% for FOGRA39) with a warning. A list in Print was chosen over a CMYK field on every colour picker: colours are hex everywhere in the model, and a print-time mapping needs no model migration.
 - **CMYK preview:** each preview sheet's pixels go through the profile and back (soft proof), painted over the sheet after each redraw. The bar reports the share of coloured pixels that change by ΔE76 ≥ 10 (shown from 0.1%), and **Show where** paints them magenta.
 - **Offline and desktop:** the PWA precaches `.wasm` and `.icc`; the desktop CSP allows `'wasm-unsafe-eval'`. The build warns that the vendored engine's Node-only branch imports `module`; the browser never runs that branch, so the warning is expected.
+
+## Arch package only (v0.3.2-beta)
+
+- **Windows and AppImage builds have stopped** (owner, 2026-10-23). The Release workflow builds just the Arch package: it attaches it to the versioned pre-release (so the app's "Version … is out" notice, which reads the releases feed, keeps working) and updates the pacman repository. The `pacman_only` option is gone, since that is now the only mode.
+- **The Cozy Edition replaces the Windows download.** The `win`, `nsis` and `portable` sections of `electron-builder.yml` stay for it. Already-installed Windows and AppImage apps keep running but get no new versions; their updater code stays, unused by the Arch package.

@@ -28,9 +28,10 @@ publish:
   owner: hollywoodenspoon
   repo: Card-Marker-Holly
 
+# The Arch package is the only Linux build. The win, nsis and portable sections below
+# stay for the Cozy Edition, which replaces the Windows download.
 linux:
   target:
-    - AppImage
     - pacman
   category: Graphics
   icon: public/pwa-512.png

@@ -1,8 +1,8 @@
 # Hearthside Cardworks
 
-Version **0.3.1-beta** (beta). Formerly _Card Maker_; its playtest app is **Hearthside Table**.
+Version **0.3.2-beta** (beta). Formerly _Card Maker_; its playtest app is **Hearthside Table**.
 
-A card editor built with React, TypeScript, Vite and a Konva canvas. It runs as a website (projects stored in the browser), or as a desktop app for Windows and Linux (projects stored as folders of ordinary files). There is no backend, and it works offline.
+A card editor built with React, TypeScript, Vite and a Konva canvas. It runs as a website (projects stored in the browser), or as a desktop app for Arch Linux and CachyOS (projects stored as folders of ordinary files). There is no backend, and it works offline.
 
 ```bash
 npm install            # install dependencies
@@ -14,14 +14,14 @@ npm run lint           # ESLint
 npm run preview        # serve the website build (installable, works offline)
 
 npm run desktop:dev    # desktop app with live reload
-npm run desktop:dist   # desktop packages for this OS in release/ (add e.g. -- --linux AppImage pacman)
+npm run desktop:dist   # desktop packages for this OS in release/ (add e.g. -- --linux pacman)
 npm run android:sync   # build the web app into the Android project (paused; android/, open it in Android Studio)
 npm run android:apk    # build release/Hearthside-Cardworks-<version>.apk (needs the Android SDK and JDK 21)
 ```
 
 **Website:** https://hollywoodenspoon.github.io/Card-Marker-Holly/. Every push to `main` rebuilds it (`.github/workflows/pages.yml`). One-time setup: repo Settings → Pages → Source: **GitHub Actions**.
 
-**Releases:** set the version in `package.json` on `main`, then on GitHub open **Actions → Release → Run workflow**. The tag `v<version>` is created for you. Pushing a matching tag works too. `.github/workflows/release.yml` builds the Windows Setup and portable exe, the AppImage and the Arch package, attaches them to a GitHub Release and updates the pacman repository. Alpha and beta versions are published as pre-releases. Tick **pacman only** to build just the Arch package and update the pacman repository, with no Windows build and no versioned release.
+**Releases:** set the version in `package.json` on `main`, then on GitHub open **Actions → Release → Run workflow**. The tag `v<version>` is created for you. Pushing a matching tag works too. `.github/workflows/release.yml` builds the Arch package, attaches it to a GitHub Release and updates the pacman repository. Alpha and beta versions are published as pre-releases. Windows and AppImage builds have stopped; the Cozy Edition (`docs/cozy-edition.md`) will replace the Windows download.
 
 **Versioning:** alpha versions (`0.1.0-alpha.1` to `0.3.0-alpha.1`), beta from `0.3.0-beta` (fixes `0.3.1-beta`, features `0.4.0-beta`), then `1.0.0` when v1 is done.
 
@@ -45,20 +45,19 @@ A small _Make your first card_ checklist on the canvas ticks these steps off as 
 - **Backup file**: **Export ▾** → _Project backup file_ saves the whole project (cards, templates, images, fonts) as one `.cardproject.json`. Import always creates a new project, so nothing is overwritten.
 - On the **website**, projects live in the browser you made them in. To move work between computers, or into the desktop app, export a backup and import it on the other side.
 
-### Desktop app (Windows and Linux)
+### Desktop app (Arch Linux and CachyOS)
 
-- **Download** it from the repo's _Releases_ page:
-  - **Windows:** `Hearthside-Cardworks-Setup-….exe` installs for you only (no admin rights) and updates itself; `Hearthside-Cardworks-…-portable.exe` is one file with nothing to install. The first time, Windows may say "Windows protected your PC" (the app isn't code-signed): click **More info → Run anyway**.
-  - **Linux:** the `.AppImage`. Make it executable (`chmod +x`, or Properties → Allow executing), then run it.
-  - **Arch / CachyOS:** use the app's pacman repository, so your normal `sudo pacman -Syu` updates it. Add this to the end of `/etc/pacman.conf` once:
+- **Install** it from the app's pacman repository, so your normal `sudo pacman -Syu` updates it. Add this to the end of `/etc/pacman.conf` once:
 
-    ```
-    [cardworks]
-    SigLevel = Optional TrustAll
-    Server = https://github.com/hollywoodenspoon/Card-Marker-Holly/releases/download/pacman-repo
-    ```
+  ```
+  [cardworks]
+  SigLevel = Optional TrustAll
+  Server = https://github.com/hollywoodenspoon/Card-Marker-Holly/releases/download/pacman-repo
+  ```
 
-    then run `sudo pacman -Syu hearthside-cardworks` (it replaces an older `card-maker` package). The packages aren't signed yet, hence `SigLevel = Optional TrustAll` for this repository only. The `.pkg.tar.xz` on each release still works with `sudo pacman -U`.
+  then run `sudo pacman -Syu hearthside-cardworks` (it replaces an older `card-maker` package). The packages aren't signed yet, hence `SigLevel = Optional TrustAll` for this repository only. The `.pkg.tar.xz` on each release still works with `sudo pacman -U`.
+
+- **Windows and AppImage** downloads have stopped. The Cozy Edition will replace the Windows app.
 - **Each project is a folder** of ordinary files, by default in `Documents/Hearthside Cardworks/<project name>/`:
   ```
   project.json      cards, templates, styles, and which pictures and fonts are used
@@ -70,15 +69,13 @@ A small _Make your first card_ checklist on the canvas ticks these steps off as 
 - **Home screen extras:**
   - **Open folder** adds a project folder from anywhere.
   - Each project shows where it lives. ⋯ → **Show in folder** opens it in your file manager.
-  - **Remove…** takes a project off the list. Tick the box to also move its folder to the Trash / Recycle Bin.
+  - **Remove…** takes a project off the list. Tick the box to also move its folder to the Trash.
   - A project whose folder was moved shows _Folder not found_: click it and point to the new place.
 - **New project** shows where its folder will go. **Change…** picks another place for new projects.
 - **Exports** (PDF, images, Tabletop Simulator, CSV, vectors) open a normal **Save as** dialog; the message afterwards has **Show in folder**.
-- **Settings and the Recent list** are kept with the app:
-  - portable exe: in a `Hearthside Cardworks data` folder next to the exe, so nothing goes into AppData
-  - Linux: in `~/.config/card-maker`
+- **Settings and the Recent list** are kept in `~/.config/card-maker`.
 - **Hearthside Table is built in:** ☰ → **Open Hearthside Table**, or **Playtest now** in the game pack export, opens it in its own window. Long bot runs (Rush, tournaments, the Balance lab) keep the computer awake and run at full speed behind other windows.
-- **Updates:** at first start the app asks whether to check for updates. With checks on, it asks GitHub once per start and nothing else; the Setup exe and the AppImage install new versions themselves, the portable exe says when one is out, and the Arch package updates with `sudo pacman -Syu`. With checks off it never goes online. ☰ has **Check for updates** and **Automatic update checks**, and shows the version.
+- **Updates:** at first start the app asks whether to check for updates. With checks on, it asks GitHub once per start and nothing else, and says when a new version is out; `sudo pacman -Syu` installs it. With checks off it never goes online. ☰ has **Check for updates** and **Automatic update checks**, and shows the version.
 
 ### Android app (paused)
 
