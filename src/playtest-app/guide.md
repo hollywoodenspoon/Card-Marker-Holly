@@ -21,9 +21,10 @@ A game pack holds every card's picture, the values of its fields (such as `A_AS`
    - **Free table**: you move every card yourself and nothing is checked.
    - **Rules on: two players, one device**: the app runs the rules and hides each player's cards until the device is handed over.
    - **Rules on: see both sides**: the app runs the rules and you play both players, seeing everything. Good for playtesting alone.
-   - **Rules on: you against the bot**: you play Player 1 and the bot plays Player 2. Pick its level: **Easy**, **Normal** or **Hard** (Hard thinks longer).
+   - **Rules on: you against the bot**: you play Player 1 and the bot plays Player 2. Pick its level: **Easy**, **Normal** or **Hard**. With a Hard bot, **Hard thinks** sets how long it may think per move (0.5, 1, 2 or 4 seconds; 1 by default, remembered).
    - **Rules on: watch bot against bot**: two bots play each other while you watch.
    - **Rush: many bot games**: bots play a batch of games (you pick how many) as fast as the device allows, with nothing drawn. See Rush below.
+   - **Reveal size** (with the rules on): **Classic** (a pair each, then one card at a time), **Pairs throughout**, or **Triples** (each field is revealed as a connected group of 3, then the 3 cards left). Pairs and triples are test rules; a pair or triple that can't be made falls back to a smaller group. Replays keep the rule they were played with.
    - **Initiative** (with the rules on): **Rock-paper-scissors**, as the rulebook recommends, or **Random**. With rock-paper-scissors each player picks Rock, Paper or Scissors in the bar (your throw stays hidden until both have thrown; a tie throws again), and the winner chooses **Take the initiative** or **Give it**. Bots always take it.
 3. Pick a **deck** for each player: one you built here (**Your decks**), or one from Hearthside Cardworks (**Decks in the pack**). **All cards** gives a player one of every card. A warning shows when a deck breaks a deck rule, or has a different number of cards than the game uses. With the rules on, both decks must be legal Free Companies.
 4. Press **Start**.
@@ -62,11 +63,13 @@ Undo works move by move, and the game log names every card that is revealed. A �
 
 The bot only knows what a player at the table would: your Support and face-down cards stay hidden from it. It does know which cards are in your Free Company (as if decklists were shown before the game), not where they are.
 
-- **Easy** plays any legal move.
-- **Normal** places and reveals by rules of thumb, and plays **Skirmish Tricks** and **Combat Tricks**:
+- **Easy** places and reveals by rules of thumb, and plays **Skirmish Tricks** and **Combat Tricks**:
   - It times swaps, Maneuvers and locks for the coming combat. It works out from the Fate Numbers who will attack whom, tries each option against guesses of your hidden cards, and keeps an ability for later unless using it now clearly pays.
   - In Combat, it uses rest-zone Fighting Spirit cards, weighs switching attackers and defenders, and spends Support freely in the round's last Engagement, since unused Support is rested anyway.
-- **Hard** plays the same Tricks. For Fighting Spirit and the First Engagement, it also plays the round out many times against guesses of your hidden cards and keeps the choice that goes best.
+- **Normal** plays the same Tricks. For Fighting Spirit and the First Engagement, it also plays the round out many times against guesses of your hidden cards and keeps the choice that goes best.
+- **Hard** searches every decision (placing, revealing, abilities, choices, Fighting Spirit) with Monte Carlo tree search: it plays many short practice games from the current position against guesses of your hidden cards, for both sides, and picks the move that works out best most often. It thinks for the time set in **Hard thinks**.
+
+Until version 0.2.0, Easy played random moves, and today's Easy and Normal were called Normal and Hard. Saved games and replays keep their stored level, so an old "Normal" game now shows as Easy.
 
 While the bot is thinking, the bar says so. Its moves are shown action by action like yours, at the Action speed. **Pause** stops it, and **Next move** then plays one move at a time. **Undo** against the bot goes back to your own last decision.
 
@@ -108,7 +111,8 @@ Press **Balance lab…** on the start screen (or the flask at the top of the tab
 
 - **Settings:**
   - **Games:** Quick check (2,000), Standard (10,000), Overnight (100,000), or any number.
-  - **Bots:** Quick for big runs, or Normal (about ten times slower, plays better).
+  - **Bots:** Quick for big runs, or Tricks (the table's Easy; about ten times slower, plays better).
+  - **Reveal size:** classic, pairs throughout or triples, as on the table.
   - **Seed:** the same seed and settings give the same run.
   - **Threads:** how many of the computer's threads to use (all but one by default).
   - **Core set:** the code prefixes on the cards (TFQ, PU, CH…), remembered per pack. The core set is tested on its own, then used as the baseline for every other card. The First Quest is ticked by default.
@@ -120,6 +124,7 @@ Press **Balance lab…** on the start screen (or the flask at the top of the tab
   - **Power creep:** a new card above the core set's range, and clearly above the core card it's closest to.
   - A small run gives rough values. Use Standard or Overnight before changing cards.
 - **Stop** ends the run early and reports on what was played. The last 10 runs stay in the lab. **Save results** writes a `.hssim.json` file (send it over for a closer look), and **Copy report** copies the report as text.
+- **Bot ladder:** the switch at the top of the lab changes from **Card balance** to **Bot ladder**. Pick the bots (Quick, Easy, Normal, and Hard with 100, 400 or 1,600 practice games a move), the games per pairing (20, 100 or 400) and the reveal size, then press **Start the ladder**. Every bot plays every other on the pack's decks plus random legal ones, swapping seats. The results show a rating for each bot (Easy at 1000; 100 points is about a 64% win rate), every pairing's win rate, and how long each bot thinks per move. Stop, Save results and Copy report work as for a balance run.
 - In the desktop app, the computer stays awake while a run goes, and the table keeps full speed behind other windows.
 
 ## Replays

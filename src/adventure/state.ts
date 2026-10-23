@@ -110,7 +110,7 @@ export type Step =
   /** Put cards from Support (setup) or the rest zone (Regroup) on empty positions, face down. */
   | { k: 'place'; seat: Seat; from: 'support' | 'rest'; placed: number[] }
   /** Reveal cards on the opponent's field. */
-  | { k: 'reveal'; seat: Seat; count: 1 | 2 }
+  | { k: 'reveal'; seat: Seat; count: RevealCount }
   /** A response opportunity (Field or Support Ability, or pass). */
   | { k: 'respond'; seat: Seat; final: boolean }
   /** The initiative player picks the First Engagement. */
@@ -136,6 +136,22 @@ export interface Pending {
   source: string
   answers: string[]
   after: After
+}
+
+/** How many field cards a Skirmish reveal turns face up. */
+export type RevealCount = 1 | 2 | 3
+
+/**
+ * Reveal size (a rules option under test). classic: an opening pair each, then
+ * one at a time. pairs: pairs throughout. triples: each field in two groups of
+ * 3 (the second is whatever is left).
+ */
+export type RevealRule = 'classic' | 'pairs' | 'triples'
+export const REVEAL_RULES: RevealRule[] = ['classic', 'pairs', 'triples']
+export const REVEAL_LABELS: Record<RevealRule, string> = {
+  classic: 'Classic: a pair, then one at a time',
+  pairs: 'Pairs throughout (test rule)',
+  triples: 'Triples: two groups of 3 (test rule)',
 }
 
 export type Phase = 'setup' | 'skirmish' | 'combat' | 'regroup' | 'over'
@@ -172,6 +188,8 @@ export interface AsState {
   log: AsLogEntry[]
   /** Rock-paper-scissors throws so far (only in a game that opens with it). */
   rps?: [Hand | null, Hand | null]
+  /** The reveal size rule; unset means classic. */
+  reveal?: RevealRule
 }
 
 export const POINTS_TO_WIN = 4

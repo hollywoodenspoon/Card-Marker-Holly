@@ -1,6 +1,6 @@
 import { nextInt } from '@/playtest/rng'
 import { apply, createGame, legalMoves } from '../engine'
-import type { AsState } from '../state'
+import type { AsState, RevealRule } from '../state'
 import { FIRST_QUEST } from './firstQuest'
 
 /** Every card of a player is in exactly one place. */
@@ -10,8 +10,8 @@ function cardsOf(s: AsState, seat: 0 | 1) {
 }
 
 /** Random legal moves from a seed until the game ends. */
-export function randomGame(a: string[], b: string[], seed: number) {
-  let s = createGame({ cards: FIRST_QUEST, decks: [a, b], names: ['A', 'B'], seed })
+export function randomGame(a: string[], b: string[], seed: number, reveal?: RevealRule) {
+  let s = createGame({ cards: FIRST_QUEST, decks: [a, b], names: ['A', 'B'], seed, reveal })
   let r = seed ^ 0x5bd1e995
   let moves = 0
   for (; moves < 3000 && s.step.k !== 'over'; moves++) {

@@ -13,14 +13,15 @@ import {
   type LabResult,
   type LabStage,
 } from '@/adventure/lab/run'
-import { deleteSim, listSims, saveSim, type SimRow } from '@/playtest/library'
+import { deleteSim, listSims, saveSim, type BalanceSimRow, type SimRow } from '@/playtest/library'
 import { randomSeed } from '@/playtest/rng'
 import { cn } from '@/lib/cn'
 import { askConfirm, toast } from '@/ui/components/feedback'
 import { Button, IconButton } from '@/ui/components/ui/button'
 import { Input, Label, NativeSelect } from '@/ui/components/ui/input'
 import { maxThreads } from '../workerPool'
-import { exportSim, labExec, MS_PER_GAME } from './labClient'
+import { LadderResults, LadderSetup } from './Ladder'
+import { exportLadder, exportSim, labExec, MS_PER_GAME } from './labClient'
 
 /**
  * The Balance lab: no decks to pick. It builds its own decks, tests every
@@ -86,6 +87,7 @@ export function BalanceLab({
       found.map(([p]) => p),
     ),
   )
+  const [mode, setMode] = useState<'balance' | 'ladder'>('balance')
   const [saved, setSaved] = useState<SimRow[]>([])
   const [open, setOpen] = useState<SimRow | null>(null)
   const [progress, setProgress] = useState<Record<LabStage, number> | null>(null)
@@ -126,7 +128,7 @@ export function BalanceLab({
         ),
         () => stop.current,
       )
-      const row: SimRow = {
+      const row: BalanceSimRow = {
         id: `sim-${Date.now()}`,
         packId,
         savedAt: Date.now(),
@@ -144,6 +146,38 @@ export function BalanceLab({
 
   const done = progress ? STAGES.reduce((a, s) => a + progress[s], 0) : 0
   const left = done > 0 ? ((tick - startedAt) * (games - done)) / done : estimate
+
+  const seedField = (
+    <div className="flex flex-col gap-1.5">
+      <Label htmlFor="lab-seed">Seed</Label>
+      <div className="flex gap-1">
+        <Input
+          id="lab-seed"
+          type="number"
+          value={seed}
+          onChange={(e) => setSeed(Number(e.target.value) >>> 0)}
+        />
+        <IconButton label="New seed" onClick={() => setSeed(randomSeed())}>
+          <Dices />
+        </IconButton>
+      </div>
+    </div>
+  )
+  const threadsField = (
+    <div className="flex flex-col gap-1.5">
+      <Label htmlFor="lab-threads">Threads (of {maxThreads()})</Label>
+      <Input
+        id="lab-threads"
+        type="number"
+        min={1}
+        max={maxThreads()}
+        value={threads}
+        onChange={(e) =>
+          setThreads(Math.max(1, Math.min(maxThreads(), Math.round(Number(e.target.value) || 1))))
+        }
+      />
+    </div>
+  )
 
   return (
     <div
@@ -195,7 +229,11 @@ export function BalanceLab({
             <Button
               size="sm"
               variant="secondary"
-              onClick={() => exportSim(open.result, open.report)}
+              onClick={() =>
+                open.kind === 'ladder'
+                  ? exportLadder(open.ladder, open.report)
+                  : exportSim(open.result, open.report)
+              }
               data-testid="lab-save"
             >
               <Download /> <span className="hidden sm:inline">Save results</span>
@@ -206,7 +244,11 @@ export function BalanceLab({
       <div className="min-h-0 flex-1 overflow-auto p-3">
         <div className="mx-auto flex max-w-3xl flex-col gap-4">
           {open ? (
-            <Results row={open} cards={cards} />
+            open.kind === 'ladder' ? (
+              <LadderResults row={open} />
+            ) : (
+              <Results row={open} cards={cards} />
+            )
           ) : running ? (
             <section className="flex flex-col gap-3 rounded-xl border bg-panel p-3">
               <p className="text-sm">
@@ -242,122 +284,138 @@ export function BalanceLab({
             </section>
           ) : (
             <>
-              <section className="flex flex-col gap-3 rounded-xl border bg-panel p-3">
-                <p className="text-sm text-muted-foreground">
-                  The lab builds its own decks and tests every card in the pack: random decks that
-                  hold every card equally often, then auto-built Optimal and Suboptimal decks
-                  {plan.premades.length ? ', then the pack’s own decks' : ''}. The core set is
-                  tested alone and as the baseline for every other card.
-                </p>
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="lab-games">Games</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {PRESETS.map((p) => (
-                      <Button
-                        key={p.name}
-                        size="sm"
-                        variant="outline"
-                        active={games === p.games}
-                        onClick={() => setGames(p.games)}
-                      >
-                        {p.name} ({p.games.toLocaleString()})
-                      </Button>
-                    ))}
-                  </div>
-                  <Input
-                    id="lab-games"
-                    type="number"
-                    min={100}
-                    step={100}
-                    value={games}
-                    onChange={(e) =>
-                      setGames(Math.max(100, Math.round(Number(e.target.value) || 0)))
-                    }
-                    data-testid="lab-games"
-                  />
-                </div>
-                <div className="grid gap-3 sm:grid-cols-3">
+              <div className="flex gap-2" role="group" aria-label="Lab mode">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  active={mode === 'balance'}
+                  aria-pressed={mode === 'balance'}
+                  onClick={() => setMode('balance')}
+                  data-testid="lab-mode-balance"
+                >
+                  Card balance
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  active={mode === 'ladder'}
+                  aria-pressed={mode === 'ladder'}
+                  onClick={() => setMode('ladder')}
+                  data-testid="lab-mode-ladder"
+                >
+                  Bot ladder
+                </Button>
+              </div>
+              {mode === 'ladder' && (
+                <LadderSetup
+                  packId={packId}
+                  packName={packName}
+                  cards={cards}
+                  premades={premades}
+                  seed={seed}
+                  threads={threads}
+                  duration={duration}
+                  onDone={setOpen}
+                />
+              )}
+              {mode === 'ladder' && (
+                <section className="grid gap-3 rounded-xl border bg-panel p-3 sm:grid-cols-2">
+                  {seedField}
+                  {threadsField}
+                </section>
+              )}
+              {mode === 'balance' && (
+                <section className="flex flex-col gap-3 rounded-xl border bg-panel p-3">
+                  <p className="text-sm text-muted-foreground">
+                    The lab builds its own decks and tests every card in the pack: random decks that
+                    hold every card equally often, then auto-built Optimal and Suboptimal decks
+                    {plan.premades.length ? ', then the pack’s own decks' : ''}. The core set is
+                    tested alone and as the baseline for every other card.
+                  </p>
                   <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="lab-bot">Bots</Label>
-                    <NativeSelect
-                      id="lab-bot"
-                      value={bot}
-                      onChange={(e) => setBot(e.target.value as LabBot)}
-                    >
-                      <option value="quick">Quick (fast, for big runs)</option>
-                      <option value="normal">Normal (slower, plays better)</option>
-                    </NativeSelect>
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="lab-seed">Seed</Label>
-                    <div className="flex gap-1">
-                      <Input
-                        id="lab-seed"
-                        type="number"
-                        value={seed}
-                        onChange={(e) => setSeed(Number(e.target.value) >>> 0)}
-                      />
-                      <IconButton label="New seed" onClick={() => setSeed(randomSeed())}>
-                        <Dices />
-                      </IconButton>
+                    <Label htmlFor="lab-games">Games</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {PRESETS.map((p) => (
+                        <Button
+                          key={p.name}
+                          size="sm"
+                          variant="outline"
+                          active={games === p.games}
+                          onClick={() => setGames(p.games)}
+                        >
+                          {p.name} ({p.games.toLocaleString()})
+                        </Button>
+                      ))}
                     </div>
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="lab-threads">Threads (of {maxThreads()})</Label>
                     <Input
-                      id="lab-threads"
+                      id="lab-games"
                       type="number"
-                      min={1}
-                      max={maxThreads()}
-                      value={threads}
+                      min={100}
+                      step={100}
+                      value={games}
                       onChange={(e) =>
-                        setThreads(
-                          Math.max(
-                            1,
-                            Math.min(maxThreads(), Math.round(Number(e.target.value) || 1)),
-                          ),
-                        )
+                        setGames(Math.max(100, Math.round(Number(e.target.value) || 0)))
                       }
+                      data-testid="lab-games"
                     />
                   </div>
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <span className="text-sm font-medium">Core set</span>
-                  <div className="flex flex-wrap gap-2" role="group" aria-label="Core set">
-                    {found.map(([p, n]) => (
-                      <Button
-                        key={p}
-                        size="sm"
-                        variant="outline"
-                        active={core.includes(p)}
-                        aria-pressed={core.includes(p)}
-                        onClick={() => {
-                          const next = core.includes(p) ? core.filter((x) => x !== p) : [...core, p]
-                          setCore(next)
-                          saveCore(packId, next)
-                        }}
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    <div className="flex flex-col gap-1.5">
+                      <Label htmlFor="lab-bot">Bots</Label>
+                      <NativeSelect
+                        id="lab-bot"
+                        value={bot}
+                        onChange={(e) => setBot(e.target.value as LabBot)}
                       >
-                        {p} ({n})
-                      </Button>
-                    ))}
+                        <option value="quick">Quick (fast, for big runs)</option>
+                        <option value="normal">
+                          Tricks (slower, plays better; the table&apos;s Easy)
+                        </option>
+                      </NativeSelect>
+                    </div>
+                    {seedField}
+                    {threadsField}
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <span className="text-sm font-medium">Core set</span>
+                    <div className="flex flex-wrap gap-2" role="group" aria-label="Core set">
+                      {found.map(([p, n]) => (
+                        <Button
+                          key={p}
+                          size="sm"
+                          variant="outline"
+                          active={core.includes(p)}
+                          aria-pressed={core.includes(p)}
+                          onClick={() => {
+                            const next = core.includes(p)
+                              ? core.filter((x) => x !== p)
+                              : [...core, p]
+                            setCore(next)
+                            saveCore(packId, next)
+                          }}
+                        >
+                          {p} ({n})
+                        </Button>
+                      ))}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {plan.coreCards.length
+                        ? `${plan.coreCards.length} core cards: balanced first, and the baseline for the rest.`
+                        : 'No core set: every card is weighed against the whole pool.'}
+                    </p>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {plan.coreCards.length
-                      ? `${plan.coreCards.length} core cards: balanced first, and the baseline for the rest.`
-                      : 'No core set: every card is weighed against the whole pool.'}
+                    {STAGES.filter((s) => plan.budget[s] > 0)
+                      .map((s) => `${STAGE_NAMES[s]}: ${plan.budget[s].toLocaleString()}`)
+                      .join(' · ')}
+                    {' · '}about {duration(estimate)} on {threads} thread{threads === 1 ? '' : 's'}{' '}
+                    (a rough guess; it updates once the run starts).
                   </p>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {STAGES.filter((s) => plan.budget[s] > 0)
-                    .map((s) => `${STAGE_NAMES[s]}: ${plan.budget[s].toLocaleString()}`)
-                    .join(' · ')}
-                  {' · '}about {duration(estimate)} on {threads} thread{threads === 1 ? '' : 's'} (a
-                  rough guess; it updates once the run starts).
-                </p>
-                <Button onClick={() => void start()} data-testid="lab-start">
-                  <Play /> Start
-                </Button>
-              </section>
+                  <Button onClick={() => void start()} data-testid="lab-start">
+                    <Play /> Start
+                  </Button>
+                </section>
+              )}
               {saved.length > 0 && (
                 <section className="flex flex-col gap-2">
                   <h3 className="text-sm font-semibold">Earlier runs</h3>
@@ -372,11 +430,14 @@ export function BalanceLab({
                           {new Date(r.savedAt).toLocaleString()}{' '}
                           <span className="text-muted-foreground">
                             ·{' '}
-                            {Object.values(r.result.played)
-                              .reduce((a, b) => a + b, 0)
-                              .toLocaleString()}{' '}
-                            games, {BOTS[r.result.options.bot]}
-                            {r.result.stopped ? ', stopped' : ''}
+                            {r.kind === 'ladder'
+                              ? `bot ladder, ${r.ladder.rows.length} bots`
+                              : `${Object.values(r.result.played)
+                                  .reduce((a, b) => a + b, 0)
+                                  .toLocaleString()} games, ${BOTS[r.result.options.bot]}`}
+                            {(r.kind === 'ladder' ? r.ladder.stopped : r.result.stopped)
+                              ? ', stopped'
+                              : ''}
                           </span>
                         </span>
                         <Button size="sm" variant="secondary" onClick={() => setOpen(r)}>
@@ -417,7 +478,7 @@ const RANKS: Record<Suggestion['rank'], string> = {
   3: 'The rest',
 }
 
-function Results({ row, cards }: { row: SimRow; cards: AsCard[] }) {
+function Results({ row, cards }: { row: BalanceSimRow; cards: AsCard[] }) {
   const r: LabResult = row.result
   const [view, setView] = useState(0)
   const v = r.views[Math.min(view, r.views.length - 1)]

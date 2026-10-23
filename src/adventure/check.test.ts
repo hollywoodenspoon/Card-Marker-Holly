@@ -1,13 +1,17 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { quickMove } from './bot/policies'
+import { quickMove, roll } from './bot/policies'
 import { checkGame } from './check'
 import { randomDeck } from './deckgen/values'
-import { apply, createGame, type Move, type NewGame } from './engine'
+import { apply, createGame, legalMoves, type Move, type NewGame } from './engine'
 import { ARCHIVE_SETS } from './fixtures/archiveSets'
 import { FIRST_QUEST } from './fixtures/firstQuest'
 
-/** A First Quest game between two quick bots, as its start and moves. */
+/**
+ * A First Quest game between two quick bots, as its start and moves. They use
+ * an ability at random half the time, so rare abilities (locks, lockouts) come
+ * up often enough to be checked.
+ */
 function botGame(seed: number, cards = FIRST_QUEST): { game: NewGame; moves: Move[] } {
   const [a, s1] = randomDeck(cards, seed * 2 + 1)
   const [b] = randomDeck(cards, s1)
@@ -16,7 +20,9 @@ function botGame(seed: number, cards = FIRST_QUEST): { game: NewGame; moves: Mov
   const r = { seed: seed ^ 0x9e3779b9 }
   const moves: Move[] = []
   for (let n = 0; n < 4000 && s.step.k !== 'over'; n++) {
-    const m = quickMove(s, r)
+    const abilities = s.step.k === 'respond' ? legalMoves(s).filter((x) => x.t === 'ability') : []
+    const m =
+      abilities.length && roll(r, 2) === 0 ? abilities[roll(r, abilities.length)] : quickMove(s, r)
     const next = apply(s, m)
     if (next === s) break
     moves.push(m)

@@ -1,7 +1,8 @@
 import { actor, apply, legalMoves, type Move } from '../engine'
 import type { AsState, Seat } from '../state'
 import { determinize } from './determinize'
-import { easyMove, quickMove, roll, type Rng } from './policies'
+import { mctsMove } from './mcts'
+import { quickMove, roll, type Rng } from './policies'
 import { trickMove } from './tricks'
 
 export type BotLevel = 'easy' | 'normal' | 'hard'
@@ -9,30 +10,40 @@ export const BOT_LEVELS: BotLevel[] = ['easy', 'normal', 'hard']
 export const BOT_NAMES: Record<BotLevel, string> = { easy: 'Easy', normal: 'Normal', hard: 'Hard' }
 
 export interface BotOptions {
-  /** Hard: playouts per decision (its strength). */
+  /** Normal: playouts per decision (its strength). */
   playouts?: number
+  /** Hard: iterations per decision (a ceiling when `thinkMs` is set). */
+  iterations?: number
+  /** Hard: think for about this many milliseconds (play on the table). */
+  thinkMs?: number
 }
 
-/** Normal: rules of thumb, plus Skirmish and Combat Tricks for abilities and choices. */
-export function normalMove(s: AsState, r: Rng): Move {
+/**
+ * The levels, by what they are (the stored names stay easy, normal and hard):
+ * Easy is "Tricks" (rules of thumb, plus a one-decision look ahead for
+ * abilities and choices), Normal is "Search" (Tricks, plus playouts for
+ * Fighting Spirit and the First Engagement), Hard is MCTS over every decision.
+ * Until v0.2.0 these were Normal, Hard and a random Easy.
+ */
+
+/** Easy ("Tricks"): rules of thumb, plus Skirmish and Combat Tricks for abilities and choices. */
+export function tricksMove(s: AsState, r: Rng): Move {
   const st = s.step
   if (st.k === 'respond' || st.k === 'choose') return trickMove(s, st.seat, r)
   return quickMove(s, r)
 }
 
-const policy = (level: BotLevel) => (level === 'easy' ? easyMove : normalMove)
-
 /**
- * Hard: determinized Monte Carlo. For each candidate move it guesses the
+ * Normal ("Search"): determinized Monte Carlo. For each candidate move it guesses the
  * hidden cards many times, plays the rest of the round with quick play on
  * both sides, and keeps the move whose rounds go best. Abilities and choices
- * go by the Normal bot's Tricks.
+ * go by Easy's Tricks.
  */
-function hardMove(s: AsState, seat: Seat, r: Rng, playouts: number): Move {
+function searchMove(s: AsState, seat: Seat, r: Rng, playouts: number): Move {
   const legal = legalMoves(s).filter((m) => m.t !== 'unplace')
   // Placing and revealing go by the rules of thumb, abilities and choices by the Tricks;
-  // Hard plays out Fighting Spirit and the First Engagement.
-  if (legal.length === 1 || !['fs', 'first'].includes(s.step.k)) return normalMove(s, r)
+  // Search plays out Fighting Spirit and the First Engagement.
+  if (legal.length === 1 || !['fs', 'first'].includes(s.step.k)) return tricksMove(s, r)
   const candidates = legal.length > 8 ? pickSome(legal, 8, r) : legal
   const per = Math.max(2, Math.floor(playouts / candidates.length))
   let best = candidates[0]
@@ -85,6 +96,7 @@ export function botMove(s: AsState, level: BotLevel, seed: number, opts: BotOpti
   const seat = actor(s)
   if (seat === null) throw new Error('The game is over.')
   const r = { seed }
-  if (level === 'hard') return hardMove(s, seat, r, opts.playouts ?? 96)
-  return policy(level)(s, r)
+  if (level === 'hard') return mctsMove(s, seat, r, opts)
+  if (level === 'normal') return searchMove(s, seat, r, opts.playouts ?? 96)
+  return tricksMove(s, r)
 }

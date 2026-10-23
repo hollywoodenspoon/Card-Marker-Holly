@@ -1,7 +1,7 @@
 {
   "name": "card-maker",
   "private": true,
-  "version": "0.1.1-alpha.1",
+  "version": "0.2.0-alpha.1",
   "description": "Design cards and print them on A4 sheets. Works offline.",
   "author": "Hanielle Marie N. Armas",
   "license": "UNLICENSED",

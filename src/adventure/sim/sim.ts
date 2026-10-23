@@ -16,7 +16,7 @@ export interface SimOptions {
   /** The bot level for seat 0 and seat 1 (seats swap every game). */
   levels: [BotLevel, BotLevel]
   seed?: number
-  /** Hard bots: playouts per decision. */
+  /** Normal bots: playouts per decision. */
   playouts?: number
   /** Called after each game (for a progress line). */
   onGame?: (done: number) => void
@@ -199,7 +199,7 @@ export function report(r: SimResult): string {
   const lv = r.options.levels.map((l) => BOT_NAMES[l])
   lines.push('# Adventure Scuffle balance run', '')
   lines.push(
-    `${r.played} games, ${lv[0]} against ${lv[1]} bots${r.options.playouts ? ` (Hard: ${r.options.playouts} playouts)` : ''}, seed ${r.options.seed ?? 1}.`,
+    `${r.played} games, ${lv[0]} against ${lv[1]} bots${r.options.playouts ? ` (Normal: ${r.options.playouts} playouts)` : ''}, seed ${r.options.seed ?? 1}.`,
     '',
     `- Average length: ${(r.rounds / Math.max(1, r.played)).toFixed(1)} rounds, ${Math.round(r.moves / Math.max(1, r.played))} moves.`,
     `- The player with the first initiative won ${pct(r.firstWins, r.played - r.unfinished)} of games.`,

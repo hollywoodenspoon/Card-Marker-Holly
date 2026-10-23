@@ -1,6 +1,7 @@
 import Dexie, { type EntityTable } from 'dexie'
 import type { BotLevel } from '@/adventure/bot'
 import type { Move, NewGame } from '@/adventure/engine'
+import type { LadderResult } from '@/adventure/lab/ladder'
 import type { LabResult } from '@/adventure/lab/run'
 import type { AsState, Seat } from '@/adventure/state'
 import type { Tournament } from '@/adventure/tournament/tournament'
@@ -128,13 +129,23 @@ export interface TournamentRow {
 }
 
 /** A Balance lab run, with its Markdown report. */
-export interface SimRow {
+interface SimBase {
   id: string
   packId: string
   savedAt: number
-  result: LabResult
   report: string
 }
+/** A Balance lab card run (older rows have no `kind`). */
+export interface BalanceSimRow extends SimBase {
+  kind?: 'balance'
+  result: LabResult
+}
+/** A bot ladder run. */
+export interface LadderSimRow extends SimBase {
+  kind: 'ladder'
+  ladder: LadderResult
+}
+export type SimRow = BalanceSimRow | LadderSimRow
 
 /** Balance lab runs kept per pack. */
 export const SIMS_KEPT = 10

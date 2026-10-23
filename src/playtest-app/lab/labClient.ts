@@ -1,3 +1,4 @@
+import type { LadderResult, LadderSlice, LadderSliceResult } from '@/adventure/lab/ladder'
 import type { LabSliceResult } from '@/adventure/lab/play'
 import type { LabExec, LabResult, LabStage } from '@/adventure/lab/run'
 import { downloadBlob } from '@/ui/actions/download'
@@ -45,5 +46,55 @@ export function exportSim(result: LabResult, report: string) {
       { type: 'application/json' },
     ),
     `${name || 'balance'}.hssim.json`,
+  )
+}
+
+const ladderWorker = () =>
+  new Worker(new URL('../../adventure/lab/ladder.worker.ts', import.meta.url), { type: 'module' })
+
+/** Plays the ladder's slices on `threads` workers, reporting games done. */
+export function ladderExec(
+  threads: number,
+  onGames: (games: number) => void,
+  stopped: () => boolean,
+) {
+  return async (slices: LadderSlice[], total: number) => {
+    const size = slices[0]?.games.length ?? 0
+    return runJobs<LadderSliceResult>(
+      ladderWorker,
+      slices,
+      'result',
+      (n) => onGames(Math.min(total, n * size)),
+      stopped,
+      threads,
+    )
+  }
+}
+
+/**
+ * Milliseconds per game on one thread with this bot on both sides (measured
+ * in a container), for the estimate; a pairing costs about the average of its two.
+ */
+export const LADDER_MS: Record<string, number> = {
+  quick: 25,
+  easy: 320,
+  normal: 10000,
+  'hard-100': 5000,
+  'hard-400': 20000,
+  'hard-1600': 80000,
+}
+
+export const LADDER_FILE = 'hearthside-ladder'
+
+/** Save a ladder run as a `.hssim.json` file (kind hearthside-ladder). */
+export function exportLadder(result: LadderResult, report: string) {
+  const day = new Date(result.startedAt).toISOString().slice(0, 10)
+  const name = `${result.packName} bot ladder ${day}`.replace(/[^\w\- ]+/g, '').trim()
+  downloadBlob(
+    new Blob(
+      [JSON.stringify({ format: LADDER_FILE, version: 1, exportedAt: Date.now(), result, report })],
+      { type: 'application/json' },
+    ),
+    `${name || 'bot ladder'}.hssim.json`,
   )
 }

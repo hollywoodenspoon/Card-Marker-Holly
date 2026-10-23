@@ -69,7 +69,7 @@ export function playGauntlet(
   deck: string[],
   gauntlet: string[][],
   seeds: number[],
-  level: BotLevel = 'normal',
+  level: BotLevel = 'easy',
 ): [number, number] {
   let wins = 0
   let games = 0

@@ -1,8 +1,8 @@
 import { current, produce, type Draft } from 'immer'
 import { nextInt, shuffle } from '@/playtest/rng'
 import type { AsCard } from './cards'
-import { ADJACENT_PAIRS, neighbours, SLOTS, slotName } from './board'
-import { coin, isLocked, log, recordLog, refillPool, rest } from './effects/helpers'
+import { adjacent, ADJACENT_PAIRS, neighbours, SLOTS, slotName } from './board'
+import { coin, isLocked, log, recordLog, refillPool, rest, withoutLog } from './effects/helpers'
 import { rulesOf } from './effects/registry'
 import type { Ability, Ctx, Option, PlanIO } from './effects/types'
 import { engagementSides, engagementTotals, fightingSpirit, finalBlow } from './stats'
@@ -19,6 +19,8 @@ import {
   type AsState,
   type Hand,
   type PlayerState,
+  type RevealCount,
+  type RevealRule,
   type Seat,
 } from './state'
 
@@ -60,6 +62,8 @@ export interface NewGame {
   opening?: 'coin' | 'rps'
   /** A fixed starting initiative (a tournament's later games: who went second before). */
   initiative?: Seat
+  /** The reveal size rule (default classic). */
+  reveal?: RevealRule
 }
 
 type D = Draft<AsState>
@@ -73,6 +77,7 @@ export function createGame({
   seed,
   opening,
   initiative: fixed,
+  reveal,
 }: NewGame): AsState {
   const [r, s] = nextInt(seed, 2)
   const initiative = fixed ?? (r as Seat)
@@ -104,6 +109,7 @@ export function createGame({
     seed: s,
     winner: null,
     log: [],
+    ...(reveal && reveal !== 'classic' ? { reveal } : {}),
   }
   return produce(state, (d) => {
     log(d, `New game: ${names[0]} against ${names[1]}.`)
@@ -128,14 +134,34 @@ export function placePool(s: AsState | D, seat: Seat): string[] {
   return refillPool(s, seat)
 }
 
+/** Every group of 3 slots that connect (each touches another of the three). */
+const TRIPLES: number[][] = (() => {
+  const out: number[][] = []
+  for (let a = 0; a < SLOTS; a++)
+    for (let b = a + 1; b < SLOTS; b++)
+      for (let c = b + 1; c < SLOTS; c++) {
+        const g = [a, b, c]
+        const links = [adjacent(a, b), adjacent(a, c), adjacent(b, c)].filter(Boolean).length
+        if (links >= 2) out.push(g)
+      }
+  return out
+})()
+
 /** Face-down cards a player may reveal on the opponent's field. */
-export function revealOptions(s: AsState, seat: Seat, count: 1 | 2): number[][] {
+export function revealOptions(s: AsState, seat: Seat, count: RevealCount): number[][] {
   const opp = s.players[other(seat)]
   const field = opp.field
   // A card an opponent's lock turned face down (Unmade Wretch) can't be revealed
   // this round, but counts as revealed for "next to a revealed card".
   const sealed = (i: number) => !!field[i].card && (opp.round.sealed ?? []).includes(field[i].card!)
   const down = field.flatMap((f, i) => (f.card && !f.faceUp && !sealed(i) ? [i] : []))
+  if (count === 3) {
+    // The last group is whatever is left, touching or not.
+    if (down.length <= 3) return down.length ? [down] : []
+    const groups = TRIPLES.filter((g) => g.every((i) => down.includes(i)))
+    if (groups.length) return groups.map((g) => [...g])
+    count = 2
+  }
   if (count === 2) {
     const pairs = ADJACENT_PAIRS.filter(([a, b]) => down.includes(a) && down.includes(b))
     if (pairs.length) return pairs.map((p) => [...p])
@@ -362,12 +388,13 @@ export function legalMoves(s: AsState): Move[] {
   }
 }
 
-const key = (m: Move) =>
+/** A move as text, for comparing moves (a reveal's slots in any order). */
+export const moveKey = (m: Move) =>
   JSON.stringify(m.t === 'reveal' ? { ...m, slots: [...m.slots].sort((a, b) => a - b) } : m)
 
 export const isLegal = (s: AsState, m: Move) => {
-  const k = key(m)
-  return legalMoves(s).some((l) => key(l) === k)
+  const k = moveKey(m)
+  return legalMoves(s).some((l) => moveKey(l) === k)
 }
 
 /** Play a move for the player to act. An illegal move returns the same state. */
@@ -376,6 +403,39 @@ export function apply(s: AsState, m: Move): AsState {
   return produce(s, (d) => {
     play(d, m)
     advance(d)
+  })
+}
+
+/**
+ * `apply` for bot search: no legality check (the move must come from
+ * `legalMoves`) and no log lines. The same game otherwise, as a test checks.
+ */
+export function applyFast(s: AsState, m: Move): AsState {
+  return withoutLog(() =>
+    produce(s, (d) => {
+      play(d, m)
+      advance(d)
+    }),
+  )
+}
+
+/**
+ * A plain, mutable copy of a game for search playouts. The card list and the
+ * log are shared with the original: they are never written during search.
+ */
+export function searchCopy(s: AsState): AsState {
+  const { cards, log: lines, ...rest } = s
+  return { ...structuredClone(rest), cards, log: lines }
+}
+
+/**
+ * Play a move on a `searchCopy` in place: no checks, no copies, no log lines.
+ * Many times faster than `apply`, for bot playouts only.
+ */
+export function playInPlace(d: AsState, m: Move): void {
+  withoutLog(() => {
+    play(d as D, m)
+    advance(d as D)
   })
 }
 
@@ -648,17 +708,20 @@ function nextReveal(d: D) {
   const init = d.initiative
   const can = (seat: Seat) => revealOptions(d, seat, 1).length > 0
   const { reveals, last } = d.skirmish
-  // Opening reveals: 2 cards each, initiative player first; then 1 at a time, alternating.
+  const rule = d.reveal ?? 'classic'
+  const opening: RevealCount = rule === 'triples' ? 3 : 2
+  const later: RevealCount = rule === 'classic' ? 1 : opening
+  // Opening reveals, initiative player first; then alternating (one at a time in classic).
   if (reveals < 2) {
     const seat = reveals === 0 ? init : other(init)
-    if (can(seat)) return void (d.step = { k: 'reveal', seat, count: 2 })
+    if (can(seat)) return void (d.step = { k: 'reveal', seat, count: opening })
     d.skirmish.reveals++
     d.skirmish.last = seat
     return nextReveal(d)
   }
   const seat = other(last ?? other(init))
-  if (can(seat)) return void (d.step = { k: 'reveal', seat, count: 1 })
-  if (can(other(seat))) return void (d.step = { k: 'reveal', seat: other(seat), count: 1 })
+  if (can(seat)) return void (d.step = { k: 'reveal', seat, count: later })
+  if (can(other(seat))) return void (d.step = { k: 'reveal', seat: other(seat), count: later })
   // Everything is revealed: the initiative player's final response.
   d.step = { k: 'respond', seat: init, final: true }
 }

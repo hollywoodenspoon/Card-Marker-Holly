@@ -1,7 +1,9 @@
 import { nextInt } from '@/playtest/rng'
-import { fsPreview, legalMoves, placePool, type Move } from '../engine'
+import { applyFast, fsPreview, legalMoves, placePool, type Move } from '../engine'
 import { other, type AsState, type Seat } from '../state'
 import { engagementTotals } from '../stats'
+import { determinize } from './determinize'
+import { evaluate } from './evaluate'
 
 /**
  * Quick rules of thumb over the legal moves: Easy, and the fast policy the
@@ -54,7 +56,12 @@ function placeMove(s: AsState, seat: Seat): Move {
 }
 
 /** Rules of thumb for every step (fast: no lookahead). */
-export function quickMove(s: AsState, r: Rng): Move {
+/**
+ * `light`: for search playouts on a plain copy (MCTS). Abilities are used at
+ * random now and then instead of being tried out, which keeps playouts fast
+ * and never runs the copy-making library on that copy.
+ */
+export function quickMove(s: AsState, r: Rng, light = false): Move {
   const st = s.step
   const legal = legalMoves(s)
   if (st.k === 'over') return legal[0]
@@ -70,14 +77,11 @@ export function quickMove(s: AsState, r: Rng): Move {
     case 'reveal':
       return legal[roll(r, legal.length)]
     case 'respond': {
+      if (!light) return respondMove(s, seat, legal, r)
       const abilities = legal.filter((m) => m.t === 'ability')
-      // Abilities that hurt the opponent are always worth it; others now and then.
-      const harsh = abilities.filter((m) =>
-        /opponent|Attack Unbound/i.test(s.cards[(m as { card: string }).card]?.ability ?? ''),
-      )
-      if (harsh.length) return harsh[roll(r, harsh.length)]
-      if (abilities.length && chance(r, 0.3)) return abilities[roll(r, abilities.length)]
-      return { t: 'pass' }
+      return abilities.length && chance(r, LIGHT_USE)
+        ? abilities[roll(r, abilities.length)]
+        : { t: 'pass' }
     }
     case 'choose':
       return chooseMove(s, seat, r)
@@ -86,6 +90,47 @@ export function quickMove(s: AsState, r: Rng): Move {
     case 'fs':
       return fsMove(s, seat, legal)
   }
+}
+
+/** An ability is used only when it gains at least this much over passing. */
+const GAIN = 0.05
+/** How often an ability whose effect the board can't show is used anyway. */
+const UNCLEAR = 0.4
+/** Light playouts: how often an available ability is used. */
+const LIGHT_USE = 0.3
+
+/**
+ * Quick's response: each ability is tried once on one guess of the hidden
+ * cards (choices settled by rule of thumb) and used if the board then looks
+ * better than after passing; one that looks worse is never used, and one that
+ * makes no visible difference (a lock, a rest-zone effect) now and then.
+ * No lookahead past that, so it stays fast.
+ */
+function respondMove(s: AsState, seat: Seat, legal: Move[], r: Rng): Move {
+  const abilities = legal.filter((m) => m.t === 'ability')
+  if (!abilities.length) return { t: 'pass' }
+  const guess = determinize(s, seat, roll(r, 2 ** 31))
+  const after = (m: Move) => {
+    let x = applyFast(guess, m)
+    for (let n = 0; n < 6 && x.step.k === 'choose'; n++)
+      x = applyFast(x, chooseMove(x, x.step.seat, r))
+    return evaluate(x, seat)
+  }
+  const pass = after({ t: 'pass' })
+  let best: Move = { t: 'pass' }
+  let bestGain = GAIN
+  const unclear: Move[] = []
+  for (const m of abilities) {
+    const gain = after(m) - pass
+    if (gain > bestGain) {
+      best = m
+      bestGain = gain
+    } else if (gain > -GAIN) unclear.push(m)
+  }
+  if (best.t !== 'pass') return best
+  // Locks and rest-zone effects don't show on the board yet: use those now and then.
+  if (unclear.length && chance(r, UNCLEAR)) return unclear[roll(r, unclear.length)]
+  return best
 }
 
 export function chooseMove(s: AsState, seat: Seat, r: Rng): Move {
