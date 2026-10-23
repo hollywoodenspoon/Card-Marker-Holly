@@ -39,7 +39,9 @@ const OUT_SHOWN = 0.001
 export function PrintView({ layout }: { layout: LayoutKind }) {
   const setOpen = useUi((s) => s.setPrintOpen)
   useEscapeToClose(() => setOpen(false))
-  useEffect(() => notePrintOpened(), [])
+  useEffect(() => {
+    notePrintOpened()
+  }, [])
   const doc = useEditor((s) => s.doc!)
   const library = useEditor((s) => s.library)
   const job = useMemo(

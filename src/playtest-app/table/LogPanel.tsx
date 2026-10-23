@@ -12,7 +12,11 @@ export function LogPanel() {
   const act = usePlaytest((s) => s.act)
   const [note, setNote] = useState('')
   const end = useRef<HTMLLIElement>(null)
-  useEffect(() => end.current?.scrollIntoView({ block: 'nearest' }), [log.length])
+  // Braces: newer Chromium returns a Promise from scrollIntoView, which React
+  // would take for a cleanup function (and crash on, in production builds).
+  useEffect(() => {
+    end.current?.scrollIntoView({ block: 'nearest' })
+  }, [log.length])
   const copy = async () => {
     const text = [`Playtest: ${setup?.name ?? ''}`, ...log.map((l) => `${l.n}. ${l.text}`)].join(
       '\n',
