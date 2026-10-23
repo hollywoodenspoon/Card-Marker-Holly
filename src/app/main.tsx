@@ -14,6 +14,7 @@ import '@fontsource/alegreya-sc/400-italic.css'
 import '@fontsource/alegreya-sc/700-italic.css'
 import '@/index.css'
 import 'virtual:themes.css'
+import { APP_NAME, APP_VERSION } from '@/app/appInfo'
 import { assetResolver } from '@/assets/assetResolver'
 import { useEditor } from '@/core/editor/editorStore'
 import { desktop } from '@/platform/desktop'
@@ -23,6 +24,7 @@ import { App } from './App'
 import { flushSaves } from './session'
 import { isAndroidApp } from './isAndroidApp'
 
+document.title = `${APP_NAME} ${APP_VERSION}`
 initTheme()
 // Android app: folders and system integration before anything reads storage.
 if (isAndroidApp() || (import.meta.env.DEV && '__fakeAndroidFolders' in window))
