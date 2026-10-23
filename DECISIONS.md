@@ -292,6 +292,7 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
   - Internal ids stay fixed: the app id, the IndexedDB name, the `cardmaker.*` keys and the file formats.
   - Versions follow `0.1.0-alpha.N`, then `-beta.N`, then `1.0.0`.
   - **Every PR bumps the version** (owner's rule, from 0.1.1-alpha.1), keeping the alpha label: a fix PR bumps the last number (0.1.1-alpha.1 → 0.1.2-alpha.1), a major feature PR bumps the middle one and resets the last (0.2.0-alpha.1). The PR title starts with the version, e.g. "v0.1.2-alpha.1: …". The version shows next to the app's name on Home and in Hearthside Table, and in the browser or window title. The Release workflow refuses a tag that doesn't match `package.json`, and marks alpha, beta and rc versions as pre-releases.
+  - **Beta from 0.3.0** (owner's call, with CMYK export): the version became `0.3.0-beta`, without a number after the label, and later PRs keep the beta label the same way: a fix → `0.3.1-beta`, a major feature → `0.4.0-beta`, PR titles like "v0.3.1-beta: …". The Android versionCode reads a bare label as `.1` (so `0.3.0-beta` is 30041), and the desktop updater's semver order puts it after every 0.3.0 alpha.
 - **Android** is next: Capacitor, reusing the storage interface.
 
 ## Android app

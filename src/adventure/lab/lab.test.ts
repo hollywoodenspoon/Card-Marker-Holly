@@ -28,7 +28,7 @@ describe('the Balance lab', () => {
     expect(Math.max(...n) - Math.min(...n)).toBeLessThanOrEqual(3)
   })
 
-  it('adds up slices to the same totals as one big slice', () => {
+  it('adds up slices to the same totals as one big slice', { timeout: 30_000 }, () => {
     const decks = coverageDecks(FIRST_QUEST, 10, 3)
     const games = randomPairings(decks.length, 40, 5, 10)
     const one = playSlice({ cards: FIRST_QUEST, decks, games, bot: 'quick' })

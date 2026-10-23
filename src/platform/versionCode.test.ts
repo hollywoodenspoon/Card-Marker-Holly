@@ -8,6 +8,8 @@ describe('Android versionCode', () => {
   it('maps versions to codes', () => {
     expect(code('0.1.0-alpha.1')).toBe(10001)
     expect(code('0.1.0-beta.2')).toBe(10042)
+    expect(code('0.3.0-beta')).toBe(30041)
+    expect(code('0.3.0-beta')).toBe(code('0.3.0-beta.1'))
     expect(code('0.1.0-rc.1')).toBe(10081)
     expect(code('0.1.0')).toBe(10099)
     expect(code('1.0.0')).toBe(1000099)
@@ -24,6 +26,12 @@ describe('Android versionCode', () => {
       '0.1.1-alpha.1',
       '0.1.1',
       '0.2.0',
+      '0.2.1-alpha.1',
+      '0.3.0-alpha.1',
+      '0.3.0-beta',
+      '0.3.0-beta.2',
+      '0.3.1-beta',
+      '0.4.0-beta',
       '1.0.0-alpha.1',
       '1.0.0',
       '10.99.99',
