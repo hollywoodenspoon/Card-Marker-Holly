@@ -472,7 +472,6 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
   - Won and Lost mean scored, this round only.
   - A swapped-in card keeps the replaced card's face.
   - Howling Barbarian is an extra attacker.
-  - Strategic Vanguard's switched-in card becomes the Main Attacker when the Main Attacker switches.
   - Decoy Ninja's Ready card becomes the Fighting Spirit, at its printed value.
 - **My calls where the text was still open:**
   - **Grave Acolyte's Discount** is checked after the returned card has left. It needs another Grave card still resting, otherwise it could be used in every response for free.
@@ -623,7 +622,7 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
   - The same swap from a Fighting Spirit card: the field card takes its place as the Fighting Spirit (TFQ-05 Decoy Ninja).
   - "Reveal this card": the card stays in Support (TFQ-20 Rianz Sentinel).
   - Being swapped off the field counts as being repositioned (TFQ-22 Ranger of the Tower).
-  - Swapping an attacker and a defender: they change roles, and the combat rules work out the new Main Attacker and the totals (TFQ-04 Strategic Vanguard).
+  - Swapping an attacker and a defender: superseded by the combat stacks (v0.4.0-beta, below).
   - A copied Field Ability is used as the copier's own, with its own costs and choices (TFQ-44 Doppelganger Thief).
 - **The First Quest v3.2** rewords three cards so their text says everything the engine did:
   - TFQ-41 Runaway Familiar adds "This card cannot be rested to pay a cost."
@@ -754,3 +753,24 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 
 - **Windows and AppImage builds have stopped** (owner, 2026-10-23). The Release workflow builds just the Arch package: it attaches it to the versioned pre-release (so the app's "Version … is out" notice, which reads the releases feed, keeps working) and updates the pacman repository. The `pacman_only` option is gone, since that is now the only mode.
 - **The Cozy Edition replaces the Windows download.** The `win`, `nsis` and `portable` sections of `electron-builder.yml` stay for it. Already-installed Windows and AppImage apps keep running but get no new versions; their updater code stays, unused by the Arch package.
+
+## Combat stacks and Hearthside Table readability (v0.4.0-beta)
+
+- **Combat stacks** (owner, 2026-10-23, after a replay where Strategic Vanguard lost a defender and an attacker):
+  - When combat starts, each attack's **attack stack** (the Main Attacker and the active attackers next to it) and the defender's **defense stack** (active defenders on or next to the attacked position) form, and every card's Attack and Defense locks, position bonuses and other Inherent changes included.
+  - **A swap trades places in the stacks** (TFQ-04 Strategic Vanguard: an attacker of yours joins your defense stack in this Engagement, and your defender joins your attack stack), wherever the cards sit on the field.
+  - **The Main Attacker only fixes where the attack comes from and what it targets.** From the start of combat it is an attacker like the others; a swap involving it keeps the origin and the target.
+  - **Modifiers during combat still apply** to locked values (a debuff token, once Fear Descends is read). An Unbound turned on during combat (Deepdelver Vanguard, Necromancer reaching 3+) adds its cards at once.
+  - Before, the engine recounted the field by position at every check, so the moved card was too far from the target to count.
+- **Other rulings the same day:**
+  - A face-down card turned ability-active "without resolving its ability" (Grave Keeper, Hunter Dragoon) doesn't trigger its Flip Ability when it is revealed. Before, it did.
+  - "Your opponent reveals a random card from their Support to you" (Rianz Sentinel, Whispering Bond) reveals it to both players; the table shows it face up in the action box.
+  - Confirmed as built: Crimson Duelist and Ranger of the Tower are protected only once face up; Doppelganger Thief pays its Rest 2 and then the copied ability's cost; with only one Engagement fought, it is the First; a swapped-in card keeps the replaced card's face and state (Azure Assassin's card comes in face up and Ready).
+- **The rulebook** is v2.3 with these passages (marked v2.3).
+- **Hearthside Table, in the spirit of Yu-Gi-Oh! Master Duel** (owner's list):
+  - every visible card shows A, D and FS; field values are the ones that count (locked in combat);
+  - attackers glow red and defenders green through combat, following swaps, and the stacks gather on the field;
+  - a tapped choice card is only marked until **Choose …** confirms it;
+  - the combat stage keeps the viewer's Support in a hand tray (and can still be hidden);
+  - a resting mouse zooms a card (computers only: `(hover: hover) and (pointer: fine)`);
+  - phase and Engagement banners, an activating ability's card zooming up, target lines, +N pops, card flips and slides. All are derived from the frames being played back (`spotlight.ts`), timed by the Action speed, and off in Rush and with reduced motion.
