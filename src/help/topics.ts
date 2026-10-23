@@ -36,9 +36,9 @@ export const HELP_TOPICS: HelpTopic[] = [
   },
   {
     id: 'desktop-app',
-    title: 'Desktop app (Windows and Linux)',
+    title: 'Desktop app (Arch Linux and CachyOS)',
     section: 'Start',
-    keywords: 'install exe appimage cachyos arch pacman folder portable',
+    keywords: 'install linux cachyos arch pacman folder windows cozy',
   },
   {
     id: 'website',

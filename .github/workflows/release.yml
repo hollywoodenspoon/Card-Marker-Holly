@@ -1,5 +1,6 @@
-# Build the desktop apps and publish them as a GitHub Release, tagged
-# v<package.json version>. Start it either way:
+# Build the Arch package, publish it as a GitHub Release tagged v<package.json version>
+# and update the pacman repository. Windows and AppImage builds have stopped; the
+# Cozy Edition will replace the Windows download. Start it either way:
 #   - Actions tab → "Release" → Run workflow (on main); the tag is created for you
 #   - or push a matching tag: git tag v0.1.0-alpha.1 && git push origin v0.1.0-alpha.1
 # Versions with -alpha / -beta / -rc are published as pre-releases.
@@ -11,27 +12,16 @@ on:
   workflow_dispatch:
     inputs:
       publish:
-        description: Publish a GitHub Release (untick to only build the files)
+        description: Publish the release and update the pacman repository (untick to only build the package)
         type: boolean
         default: true
-      pacman_only:
-        description: Only build the Arch package and update the pacman repository (no Windows, no AppImage, no versioned release)
-        type: boolean
-        default: false
 
 permissions:
   contents: write
 
 jobs:
   build:
-    strategy:
-      # One platform failing doesn't cancel the other's build.
-      fail-fast: false
-      # Windows: the targets in electron-builder.yml (Setup and portable). A pacman-only run
-      # builds just the Arch package (tag pushes have no inputs, so they always build everything).
-      matrix:
-        include: ${{ fromJSON(github.event_name == 'workflow_dispatch' && inputs.pacman_only && '[{"os":"ubuntu-latest","args":"--linux pacman"}]' || '[{"os":"ubuntu-latest","args":"--linux AppImage pacman"},{"os":"windows-latest","args":"--win"}]') }}
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -44,30 +34,23 @@ jobs:
         run: |
           v=$(node -p "require('./package.json').version")
           [ "v$v" = "${GITHUB_REF_NAME}" ] || { echo "Tag ${GITHUB_REF_NAME} does not match package.json version $v"; exit 1; }
-      - if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y libarchive-tools
+      - run: sudo apt-get update && sudo apt-get install -y libarchive-tools
       - run: npm ci
       - run: npm test
-      - run: npm run desktop:dist -- ${{ matrix.args }}
+      - run: npm run desktop:dist -- --linux pacman
         env:
           # Only to read the repo's releases while building; nothing is published here.
           GH_TOKEN: ${{ github.token }}
       # The Arch package goes into a pacman repository (see the publish job); check it builds one.
       - name: Check the pacman repository
-        if: runner.os == 'Linux'
         run: |
           mkdir -p pacman-check && cp release/*.pkg.tar.xz pacman-check/
           docker run --rm -v "$PWD/pacman-check:/repo" -w /repo archlinux:latest \
             sh -c 'repo-add cardworks.db.tar.gz *.pkg.tar.xz && pacman -Qip *.pkg.tar.xz | grep -E "^(Name|Provides|Conflicts|Replaces)"'
       - uses: actions/upload-artifact@v4
         with:
-          name: desktop-${{ runner.os }}
-          path: |
-            release/*.AppImage
-            release/*.pkg.tar.xz
-            release/*.exe
-            release/latest*.yml
-            release/*.blockmap
+          name: arch-package
+          path: release/*.pkg.tar.xz
           if-no-files-found: error
 
   publish:
@@ -81,8 +64,9 @@ jobs:
         with:
           path: out
           merge-multiple: true
+      # The versioned release holds just the Arch package: the app's "Version … is out"
+      # notice reads the releases feed.
       - name: Create the release
-        if: ${{ !inputs.pacman_only }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |

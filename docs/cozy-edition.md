@@ -40,6 +40,10 @@ Agreed with the owner (Hanielle Marie N. Armas) on 2026-10-22. Build starts when
 - CMYK PDF export (main app v0.3.0) is part of the print code, so Cozy Edition gets it too (owner's choice, 2026-10-23), with FOGRA39 and its Heidelberg licence text in the notices.
 - The single portable exe stays, accepting a few seconds' slower start (owner confirmed, 2026-10-23).
 
+## Replaces the Windows release
+
+From main app v0.3.2-beta the Release workflow builds only the Arch package: the Windows Setup, the portable exe and the AppImage have stopped (owner, 2026-10-23). The Cozy Edition becomes the Windows download. When it is built it gets its own `windows-latest` job in `.github/workflows/release.yml`, reusing the `win` / `portable` sections kept in `electron-builder.yml` (with its own name, version and artifact name).
+
 ## Unchanged
 
-The main app (web, desktop, pacman) keeps every feature, the credits for Adventure Scuffle! and Village Wizard, and its licence.
+The main app (web and the Arch package) keeps every feature, the credits for Adventure Scuffle! and Village Wizard, and its licence.
