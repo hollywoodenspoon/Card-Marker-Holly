@@ -335,7 +335,8 @@ export function GameView({
       ) : (
         <>
           <Tracker phone={phone} />
-          <div className="flex min-h-0 flex-1">
+          {/* Its own stacking context: the table's overlays stay under the full-screen views. */}
+          <div className="isolate flex min-h-0 flex-1">
             <div className="relative flex min-w-0 flex-1 flex-col">
               <TableCanvas onOpenZone={setZone} onPreview={setPreview} staged={staged} />
               {stage && <CombatStage stage={stage} onPreview={setPreview} />}
@@ -433,7 +434,13 @@ export function GameView({
             </>
           )}
           {phone && (
-            <Sheet open={logOpen} onOpenChange={setLogOpen} side="bottom" title="Game log" tall>
+            <Sheet
+              open={logOpen && !screen}
+              onOpenChange={setLogOpen}
+              side="bottom"
+              title="Game log"
+              tall
+            >
               <LogPanel />
             </Sheet>
           )}
