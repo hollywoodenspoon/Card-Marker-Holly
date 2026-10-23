@@ -77,6 +77,39 @@ describe('rules on the table', () => {
     expect(tapPiece(s, [0], at(0))).toEqual({ kind: 'pick', picks: [] })
   })
 
+  it('reveals a later pair that does not touch, and a triple, by tapping each card', () => {
+    const start = (reveal: 'pairs' | 'triples') =>
+      placed(
+        createGame({
+          cards: basicCards(),
+          decks: basicDecks(),
+          names: ['A', 'B'],
+          seed: 3,
+          reveal,
+        }),
+      )
+    let s = start('pairs')
+    const opp = other(s.initiative)
+    const at = (slot: number) => pieceId(opp, s.players[opp].field[slot].card!)
+    s = apply(apply(s, { t: 'reveal', slots: [0, 1] }), { t: 'reveal', slots: [0, 1] })
+    // 2 and 3 are each next to a revealed card, but not to each other.
+    expect(tapPiece(s, [2], at(3))).toEqual({
+      kind: 'moves',
+      moves: [{ t: 'reveal', slots: [2, 3] }],
+    })
+    // 5 touches nothing revealed yet.
+    expect(tapPiece(s, [2], at(5))).toBeNull()
+    expect(tapPiece(s, [2, 3], at(3))).toEqual({ kind: 'pick', picks: [2] })
+
+    s = start('triples')
+    expect(tapPiece(s, [], at(0))).toEqual({ kind: 'pick', picks: [0] })
+    expect(tapPiece(s, [0], at(1))).toEqual({ kind: 'pick', picks: [0, 1] })
+    expect(tapPiece(s, [0, 1], at(4))).toEqual({
+      kind: 'moves',
+      moves: [{ t: 'reveal', slots: [0, 1, 4] }],
+    })
+  })
+
   it('holds the rest zone in the Support row during Regroup, the Support set aside', () => {
     // A Regroup refill: some field positions empty, cards waiting in the rest zone.
     const s0 = placed(game())

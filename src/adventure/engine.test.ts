@@ -129,16 +129,43 @@ describe('the Skirmish', () => {
       }),
     )
     const init = s.initiative
+    // The opening pair touches.
+    expect(isLegal(s, { t: 'reveal', slots: [0, 2] })).toBe(false)
     s = must(s, { t: 'reveal', slots: [0, 1] })
     s = must(s, { t: 'reveal', slots: [4, 5] })
-    // Any adjacent face-down pair, next to a revealed card or not.
+    // Later pairs: each card next to a revealed one (2, 3, 4), touching each other or not.
     expect(s.step).toEqual({ k: 'reveal', seat: init, count: 2 })
-    expect(isLegal(s, { t: 'reveal', slots: [3, 4] })).toBe(true)
+    expect(legalMoves(s)).toEqual([
+      { t: 'reveal', slots: [2, 3] },
+      { t: 'reveal', slots: [2, 4] },
+      { t: 'reveal', slots: [3, 4] },
+    ])
+    expect(isLegal(s, { t: 'reveal', slots: [4, 5] })).toBe(false)
+    s = must(s, { t: 'reveal', slots: [2, 3] })
     s = revealAll(s)
     expect(s.phase).toBe('combat')
-    // 3 pairs per field, or a single when the pairs chosen leave a card alone.
-    expect(s.skirmish.reveals).toBeGreaterThanOrEqual(6)
-    expect(s.skirmish.reveals).toBeLessThan(10)
+    // 3 pairs per field, never a single.
+    expect(s.skirmish.reveals).toBe(6)
+  })
+
+  it('never reveals a single under the pairs rule while 2 cards are face down', () => {
+    let s = placeInOrder(
+      createGame({
+        cards: basicCards(),
+        decks: basicDecks(),
+        names: ['A', 'B'],
+        seed: 7,
+        reveal: 'pairs',
+      }),
+    )
+    const opp = other(s.initiative)
+    s = must(s, { t: 'reveal', slots: [1, 2] })
+    s = must(s, { t: 'reveal', slots: [0, 1] })
+    // Swaps left 0 and 4 face down on that field, diagonal from each other: one pair.
+    s = produce(s, (d) => {
+      d.players[opp].field.forEach((f, i) => (f.faceUp = i !== 0 && i !== 4))
+    })
+    expect(legalMoves(s)).toEqual([{ t: 'reveal', slots: [0, 4] }])
   })
 
   it('reveals each field in two groups of 3 under the triples rule', () => {

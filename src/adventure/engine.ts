@@ -147,7 +147,18 @@ const TRIPLES: number[][] = (() => {
   return out
 })()
 
-/** Face-down cards a player may reveal on the opponent's field. */
+/** Every way to pick `n` of `list`, in order. */
+function combos(list: number[], n: number): number[][] {
+  if (n === 0) return [[]]
+  return list.flatMap((x, k) => combos(list.slice(k + 1), n - 1).map((rest) => [x, ...rest]))
+}
+
+/**
+ * Face-down cards a player may reveal on the opponent's field. The opening reveal
+ * (each player's first of the round) is a group that touches: 2 adjacent cards,
+ * or 3 connected under triples. After that, each card revealed must be next to a
+ * card already revealed on that field; the cards needn't touch each other.
+ */
 export function revealOptions(s: AsState, seat: Seat, count: RevealCount): number[][] {
   const opp = s.players[other(seat)]
   const field = opp.field
@@ -155,23 +166,25 @@ export function revealOptions(s: AsState, seat: Seat, count: RevealCount): numbe
   // this round, but counts as revealed for "next to a revealed card".
   const sealed = (i: number) => !!field[i].card && (opp.round.sealed ?? []).includes(field[i].card!)
   const down = field.flatMap((f, i) => (f.card && !f.faceUp && !sealed(i) ? [i] : []))
-  if (count === 3) {
-    // The last group is whatever is left, touching or not.
-    if (down.length <= 3) return down.length ? [down] : []
-    const groups = TRIPLES.filter((g) => g.every((i) => down.includes(i)))
-    if (groups.length) return groups.map((g) => [...g])
-    count = 2
-  }
-  if (count === 2) {
+  if (!down.length) return []
+  if (s.skirmish.reveals < 2 && count > 1) {
+    if (count === 3) {
+      if (down.length <= 3) return [down]
+      const groups = TRIPLES.filter((g) => g.every((i) => down.includes(i)))
+      if (groups.length) return groups.map((g) => [...g])
+    }
     const pairs = ADJACENT_PAIRS.filter(([a, b]) => down.includes(a) && down.includes(b))
     if (pairs.length) return pairs.map((p) => [...p])
-    return down.map((i) => [i])
   }
-  // One at a time: next to a card already revealed on that side.
+  const n = Math.min(count, down.length)
   const next = down.filter((i) =>
     neighbours(i).some((j) => field[j].card && (field[j].faceUp || sealed(j))),
   )
-  return (next.length ? next : down).map((i) => [i])
+  // Too few next to a revealed card: all of those, made up with the others.
+  if (next.length >= n) return combos(next, n)
+  if (!next.length) return combos(down, n)
+  const rest = down.filter((i) => !next.includes(i))
+  return combos(rest, n - next.length).map((r) => [...next, ...r].sort((a, b) => a - b))
 }
 
 // ---- Abilities ----
@@ -892,9 +905,12 @@ export function prompt(s: AsState): string {
     case 'reveal': {
       const n = revealOptions(s, st.seat, st.count)[0]?.length ?? 1
       const opp = nameOf(s, other(st.seat))
-      return n === 2
-        ? `${who}: reveal 2 adjacent cards on ${opp}'s field.`
-        : `${who}: reveal a card on ${opp}'s field${s.skirmish.reveals >= 2 ? ', next to a revealed one' : ''}.`
+      const cards = n === 1 ? 'a card' : `${n} cards`
+      if (s.skirmish.reveals < 2)
+        return n === 1
+          ? `${who}: reveal a card on ${opp}'s field.`
+          : `${who}: reveal ${n} ${n === 2 ? 'adjacent' : 'connected'} cards on ${opp}'s field.`
+      return `${who}: reveal ${cards} on ${opp}'s field, each next to a revealed one.`
     }
     case 'respond':
       return st.final
