@@ -68,6 +68,12 @@ export function Tracker({ phone }: { phone: boolean }) {
             >
               Points <span className="font-semibold">{p.points}</span>
             </span>
+            <span
+              className="text-muted-foreground tabular-nums"
+              data-testid={`playtest-hand-${seat}`}
+            >
+              Hand <span className="font-semibold text-foreground">{p.support.length}</span>
+            </span>
           </span>
         ))}
         <span className="text-sm tabular-nums" data-testid="playtest-phase">

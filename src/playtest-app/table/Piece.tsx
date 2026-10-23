@@ -111,29 +111,41 @@ export interface PieceStats {
   dd?: number
 }
 
-/** Attack, Defense and Fighting Spirit chips along a card's bottom edge. */
+/**
+ * Attack, Defense and Fighting Spirit chips where the card prints them: Attack
+ * on the middle of the left edge, Defense on the right, Fighting Spirit on top.
+ */
 export function StatChips({ stats, px }: { stats: PieceStats; px: number }) {
   const size = Math.max(9, Math.min(14, px))
-  const tone = (delta: number | undefined, base: string) =>
+  const chip = (delta: number | undefined, base: string, where: string) =>
     cn(
-      'rounded px-1 font-bold tabular-nums leading-tight text-white shadow',
+      'pointer-events-none absolute rounded px-1 font-bold tabular-nums leading-tight text-white shadow',
       base,
+      where,
       delta && delta > 0 && 'ring-1 ring-white',
       delta && delta < 0 && 'opacity-80 line-through decoration-white/60',
     )
   return (
-    <span
-      className="pointer-events-none absolute inset-x-0 bottom-0.5 flex justify-center gap-0.5"
-      style={{ fontSize: size }}
-      data-testid="piece-stats"
-    >
-      <span className={tone(stats.da, 'bg-red-600/90')} title="Attack">
+    <span className="contents" style={{ fontSize: size }} data-testid="piece-stats">
+      <span
+        className={chip(stats.da, 'bg-red-600/90', 'top-1/2 left-0 -translate-y-1/2')}
+        style={{ fontSize: size }}
+        title="Attack"
+      >
         A{stats.a}
       </span>
-      <span className={tone(stats.dd, 'bg-emerald-600/90')} title="Defense">
+      <span
+        className={chip(stats.dd, 'bg-emerald-600/90', 'top-1/2 right-0 -translate-y-1/2')}
+        style={{ fontSize: size }}
+        title="Defense"
+      >
         D{stats.d}
       </span>
-      <span className={tone(undefined, 'bg-amber-500/90 text-black')} title="Fighting Spirit">
+      <span
+        className={chip(undefined, 'bg-amber-500/90 text-black', 'top-0 left-1/2 -translate-x-1/2')}
+        style={{ fontSize: size }}
+        title="Fighting Spirit"
+      >
         FS{stats.fs}
       </span>
     </span>

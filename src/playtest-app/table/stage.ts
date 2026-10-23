@@ -1,6 +1,7 @@
 import type { AsState, Engagement, Seat } from '@/adventure/state'
 import { other } from '@/adventure/state'
 import { engagementSides, engagementTotals, type Totals } from '@/adventure/stats'
+import { fsPreview, restFsCards } from '@/adventure/engine'
 import { pieceId } from '@/adventure/table'
 
 /**
@@ -29,6 +30,8 @@ export interface StageCard {
   z: number
   /** Fighting Spirit: its value as revealed. */
   value?: number
+  /** Fighting Spirit: used from the rest zone (it stays there). */
+  fromRest?: boolean
 }
 
 export interface StageGroup {
@@ -45,6 +48,20 @@ export interface Stage {
   atk: StageGroup
   def: StageGroup
   totals: Totals
+  /** Rest-zone cards each player could use for Fighting Spirit now, with their value. */
+  rest: [RestOption[], RestOption[]]
+  /** Cards left in each player's Support (their hand). */
+  hand: [number, number]
+  passed: [boolean, boolean]
+  /** Whose Fighting Spirit turn it is (null: neither's). */
+  turn: Seat | null
+}
+
+export interface RestOption {
+  id: string
+  card: string
+  /** null: decided by a coin. */
+  value: number | null
 }
 
 /** The line that ends an Engagement, or the score after it: the stage stays up for these. */
@@ -86,7 +103,21 @@ export function stageLayout(s: AsState, e: Engagement, size: { w: number; h: num
     atk: group(e.attacker, attackers, main !== null, 90, e.fs[e.attacker], w, h),
     def: group(def, defenders, false, -90, e.fs[def], w, h),
     totals: engagementTotals(s, e),
+    rest: [restOptions(s, 0), restOptions(s, 1)],
+    hand: [s.players[0].support.length, s.players[1].support.length],
+    passed: [e.passed[0], e.passed[1]],
+    turn: s.step.k === 'fs' ? s.step.seat : null,
   }
+}
+
+/** A player's rest-zone Fighting Spirit cards usable now (rest zones are public). */
+function restOptions(s: AsState, seat: Seat): RestOption[] {
+  if (!s.engagement || s.engagement.passed[seat]) return []
+  return restFsCards(s, seat).map((card) => ({
+    id: pieceId(seat, card),
+    card,
+    value: fsPreview(s, seat, card, 'rest'),
+  }))
 }
 
 /**
@@ -131,6 +162,7 @@ function group(
       rotation: 0,
       z: 60 + k,
       value: f.value,
+      fromRest: f.from === 'rest',
     })
   })
   const stackBottom = n ? frontTop + w : 0
