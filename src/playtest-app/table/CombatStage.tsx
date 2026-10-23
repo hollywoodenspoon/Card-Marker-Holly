@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { cn } from '@/lib/cn'
 import { seenBy } from '@/playtest/actions'
 import { Button } from '@/ui/components/ui/button'
+import { pieceId } from '@/adventure/table'
 import { PieceFace, TokenShape } from './Piece'
 import { usePack } from './packContext'
 import type { Stage, StageGroup } from './stage'
@@ -26,7 +27,9 @@ export function CombatStage({
 }) {
   const ref = useRef<HTMLDivElement>(null)
   const [box, setBox] = useState({ w: 0, h: 0 })
-  const [hidden, setHidden] = useState(false)
+  const hidden = usePlaytest((s) => s.stageHidden)
+  const setHidden = (f: (h: boolean) => boolean) =>
+    usePlaytest.setState((s) => ({ stageHidden: f(s.stageHidden) }))
   const setup = usePlaytest((s) => s.setup)!
   const state = usePlaytest((s) => s.state)!
   const viewer = usePlaytest((s) => s.viewer)
@@ -52,6 +55,40 @@ export function CombatStage({
   )
   const name = (seat: 0 | 1) => stage.names[seat]
   const color = (seat: number) => setup.seats[seat]?.color ?? '#64748b'
+  // A change to a total pops up next to it as +N (or −N).
+  const [last, setLast] = useState({ attacker, attack: totals.attack, defense: totals.defense })
+  const [pops, setPops] = useState<{ id: number; side: 'atk' | 'def'; n: number }[]>([])
+  if (
+    last.attacker !== attacker ||
+    last.attack !== totals.attack ||
+    last.defense !== totals.defense
+  ) {
+    const same = last.attacker === attacker
+    const add = same
+      ? [
+          { side: 'atk' as const, n: totals.attack - last.attack },
+          { side: 'def' as const, n: totals.defense - last.defense },
+        ].filter((x) => x.n !== 0)
+      : []
+    const base = pops.at(-1)?.id ?? 0
+    setLast({ attacker, attack: totals.attack, defense: totals.defense })
+    setPops(same ? [...pops, ...add.map((x, i) => ({ ...x, id: base + i + 1 }))].slice(-4) : [])
+  }
+  const popsFor = (side: 'atk' | 'def') =>
+    pops
+      .filter((p) => p.side === side)
+      .map((p) => (
+        <span
+          key={p.id}
+          className={cn(
+            'hs-float pointer-events-none absolute -top-5 left-1/2 -translate-x-1/2 text-lg font-black drop-shadow',
+            p.n > 0 ? 'text-amber-300' : 'text-red-400',
+          )}
+          data-testid="stage-pop"
+        >
+          {p.n > 0 ? `+${p.n}` : `−${-p.n}`}
+        </span>
+      ))
   const fsAtk = totals.attack - totals.baseAttack
   const fsDef = totals.defense - totals.baseDefense
   // Player 1 sits at the bottom of the table: on a tall screen, their stack goes below.
@@ -59,7 +96,8 @@ export function CombatStage({
 
   const groupView = (g: StageGroup, label: string, total: number, fs: number) => (
     <div className="flex flex-col items-center gap-1">
-      <div className="flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-0.5 text-xs font-semibold text-white">
+      <div className="relative flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-0.5 text-xs font-semibold text-white">
+        {popsFor(label === 'Attack' ? 'atk' : 'def')}
         <span className="size-2 rounded-full" style={{ background: color(g.seat) }} />
         {name(g.seat)}: {label} <span className="tabular-nums">{total}</span>
         {fs > 0 && <span className="font-normal text-white/75">(+{fs} FS)</span>}
@@ -111,6 +149,7 @@ export function CombatStage({
               onClick={() => seen !== 'back' && onPreview(c.id)}
               aria-label={seen === 'back' ? 'A face-down card' : p.name}
               data-stage={c.kind}
+              data-hover-piece={seen !== 'back' ? c.id : undefined}
             >
               <PieceFace
                 piece={p}
@@ -125,6 +164,57 @@ export function CombatStage({
               )}
             </button>,
           ]
+        })}
+      </div>
+    </div>
+  )
+
+  // Your hand stays in reach while the stage is up, as in a card game app.
+  const rules = usePlaytest((s) => s.rules)
+  const bots = usePlaytest((s) => s.bots)
+  const handSeat: 0 | 1 =
+    viewer === 0 || viewer === 1
+      ? viewer
+      : bots[0] && !bots[1]
+        ? 1
+        : !bots[0] && bots[1]
+          ? 0
+          : rules?.step.k === 'fs'
+            ? rules.step.seat
+            : attacker
+  const hand = (rules?.players[handSeat].support ?? []).map((c) => pieceId(handSeat, c))
+  const handView = hand.length > 0 && (
+    <div
+      className="pointer-events-auto absolute inset-x-0 bottom-1 flex justify-center"
+      data-testid="stage-hand"
+    >
+      <div className="flex max-w-full items-end gap-1 overflow-x-auto rounded-t-lg bg-black/55 px-2 pt-1 pb-1.5">
+        <span className="mr-1 self-center text-[11px] font-semibold text-white/80">
+          {name(handSeat)}'s Support
+        </span>
+        {hand.map((id) => {
+          const p = state.pieces[id]
+          if (!p) return null
+          const f = pack.faces[p.cardId]
+          const seen = seenBy(setup, state, id, viewer)
+          return (
+            <button
+              key={id}
+              type="button"
+              className="h-16 shrink-0 overflow-hidden rounded-md shadow ring-1 ring-white/30 transition-transform hover:-translate-y-1 sm:h-24"
+              style={{ aspectRatio: `${cw} / ${Math.max(size.w, size.h)}` }}
+              onClick={() => seen !== 'back' && onPreview(id)}
+              data-hover-piece={seen !== 'back' ? id : undefined}
+              aria-label={seen === 'back' ? 'A face-down card' : p.name}
+            >
+              <PieceFace
+                piece={p}
+                face={f}
+                seen={seen === 'back' ? 'back' : 'face'}
+                color={color(p.owner)}
+              />
+            </button>
+          )
         })}
       </div>
     </div>
@@ -155,7 +245,7 @@ export function CombatStage({
       {!hidden && box.w > 0 && (
         <div
           className={cn(
-            'absolute inset-0 flex items-center justify-center gap-3 rounded-t-xl pt-12 sm:pt-0 bg-canvas/90 backdrop-blur-sm',
+            'absolute inset-0 flex items-center justify-center gap-3 rounded-t-xl pt-12 pb-20 sm:pt-0 sm:pb-28 bg-canvas/90 backdrop-blur-sm',
             wide ? 'flex-row' : 'flex-col',
           )}
         >
@@ -173,6 +263,7 @@ export function CombatStage({
           <div className="pointer-events-auto">{atkFirst ? d : a}</div>
         </div>
       )}
+      {!hidden && handView}
     </div>
   )
 }

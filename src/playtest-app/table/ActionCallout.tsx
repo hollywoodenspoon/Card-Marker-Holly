@@ -77,6 +77,7 @@ export function ActionCallout({
               className="h-12 shrink-0 overflow-hidden rounded-md ring-1 ring-white/40 sm:h-20"
               style={{ aspectRatio: f ? `${f.w} / ${f.h}` : '63 / 88' }}
               onClick={() => seen !== 'back' && onPreview(id)}
+              data-hover-piece={seen !== 'back' ? id : undefined}
               aria-label={seen === 'back' ? 'A face-down card' : `Show ${p.name}`}
             >
               <PieceFace

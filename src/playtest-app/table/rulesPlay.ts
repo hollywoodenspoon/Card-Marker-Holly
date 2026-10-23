@@ -1,6 +1,6 @@
 import { placePool, revealOptions, type Move } from '@/adventure/engine'
 import { other, type AsState } from '@/adventure/state'
-import { parsePieceId } from '@/adventure/table'
+import { parsePieceId, pieceId } from '@/adventure/table'
 import type { TableAction } from '@/playtest/actions'
 import { parseZoneKey, zoneKey } from '@/playtest/setup'
 
@@ -54,6 +54,8 @@ export type TapResult =
   | { kind: 'moves'; moves: Move[] }
   /** Remember a first pick (a pair reveal needs two). */
   | { kind: 'pick'; picks: number[] }
+  /** Mark a choice's card: it is chosen only once the player confirms. */
+  | { kind: 'choice'; id: string }
   /** Select it to place it with the next tap. */
   | { kind: 'place' }
   | null
@@ -72,11 +74,26 @@ export function optionFor(s: AsState, pieceId: string) {
   )
 }
 
+/** The piece a choice option stands for, if it names a card. */
+export function optionPiece(s: AsState, id: string): string | null {
+  const st = s.step
+  if (st.k !== 'choose') return null
+  const o = st.options.find((x) => x.id === id)
+  if (!o) return null
+  if (o.slot !== undefined && o.seat !== undefined) {
+    const card = s.players[o.seat].field[o.slot]?.card
+    return card ? pieceId(o.seat, card) : null
+  }
+  return o.card ? pieceId(o.seat ?? st.seat, o.card) : null
+}
+
 export function tapPiece(s: AsState, picks: number[], pieceId: string): TapResult {
   const st = s.step
   if (st.k === 'choose') {
+    // A tap only marks the card (and shows it); the rules bar confirms the choice,
+    // so looking at a card never chooses it by accident.
     const o = optionFor(s, pieceId)
-    return o ? { kind: 'moves', moves: [{ t: 'choose', id: o.id }] } : null
+    return o ? { kind: 'choice', id: o.id } : null
   }
   const at = whereIs(s, pieceId)
   if (!at || st.k === 'over') return null

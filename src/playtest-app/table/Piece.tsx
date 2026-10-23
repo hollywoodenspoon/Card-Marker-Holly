@@ -1,5 +1,5 @@
 import { EyeOff } from '@/ui/icons'
-import { memo } from 'react'
+import { memo, useState } from 'react'
 import { cn } from '@/lib/cn'
 import type { Seen } from '@/playtest/actions'
 import type { PieceBox } from '@/playtest/geometry'
@@ -101,6 +101,48 @@ export const TokenShape = memo(function TokenShape({
   )
 })
 
+/** A card's values to show on it, and which ones its abilities changed. */
+export interface PieceStats {
+  a: number
+  d: number
+  fs: number
+  /** Up or down from print (Inherent bonuses, a combat lock). */
+  da?: number
+  dd?: number
+}
+
+/** Attack, Defense and Fighting Spirit chips along a card's bottom edge. */
+export function StatChips({ stats, px }: { stats: PieceStats; px: number }) {
+  const size = Math.max(9, Math.min(14, px))
+  const tone = (delta: number | undefined, base: string) =>
+    cn(
+      'rounded px-1 font-bold tabular-nums leading-tight text-white shadow',
+      base,
+      delta && delta > 0 && 'ring-1 ring-white',
+      delta && delta < 0 && 'opacity-80 line-through decoration-white/60',
+    )
+  return (
+    <span
+      className="pointer-events-none absolute inset-x-0 bottom-0.5 flex justify-center gap-0.5"
+      style={{ fontSize: size }}
+      data-testid="piece-stats"
+    >
+      <span className={tone(stats.da, 'bg-red-600/90')} title="Attack">
+        A{stats.a}
+      </span>
+      <span className={tone(stats.dd, 'bg-emerald-600/90')} title="Defense">
+        D{stats.d}
+      </span>
+      <span className={tone(undefined, 'bg-amber-500/90 text-black')} title="Fighting Spirit">
+        FS{stats.fs}
+      </span>
+    </span>
+  )
+}
+
+/** The lasting glow of a card that attacks or defends this round. */
+const ROLE_RING = { attack: 'ring-4 ring-red-500', defend: 'ring-4 ring-emerald-500' } as const
+
 /** One card on the table. Positions are table mm × `k` (px per mm). */
 export const PieceView = memo(function PieceView({
   box,
@@ -113,7 +155,8 @@ export const PieceView = memo(function PieceView({
   selected,
   picked,
   hint,
-  badge,
+  stats,
+  role,
   tokens,
   tokenDefs,
   tokenColor,
@@ -134,8 +177,10 @@ export const PieceView = memo(function PieceView({
   picked: boolean
   /** The rules let the player to act use it now. */
   hint?: boolean
-  /** A short note on the card, such as its Attack and Defense after abilities. */
-  badge?: string
+  /** Its Attack, Defense and Fighting Spirit, shown on the card. */
+  stats?: PieceStats
+  /** It attacks or defends this round: a lasting red or green glow. */
+  role?: 'attack' | 'defend'
   tokens: TokenInst[]
   tokenDefs: TokenDef[]
   tokenColor: (t: TokenInst) => string
@@ -148,6 +193,8 @@ export const PieceView = memo(function PieceView({
 }) {
   const w = box.w * k
   const h = box.h * k
+  // A card that turns face up while on screen flips over (not every card at load).
+  const [wasBack] = useState(seen === 'back')
   return (
     <div
       data-piece={piece.id}
@@ -158,9 +205,10 @@ export const PieceView = memo(function PieceView({
       data-hint={hint || undefined}
       data-cue={cue}
       className={cn(
-        'absolute touch-none rounded-[5%] shadow-md transition-[transform,box-shadow] duration-150 select-none',
+        'absolute touch-none rounded-[5%] shadow-md transition-[left,top,transform,box-shadow] duration-300 ease-out select-none motion-reduce:transition-none',
         selected && 'ring-4 ring-accent',
         picked && !selected && 'ring-4 ring-amber-400',
+        role && !selected && !picked && ROLE_RING[role],
         hint && !selected && !picked && 'ring-4 ring-emerald-400',
         cue && !selected && cn('ring-4 motion-safe:animate-pulse', CUE_RING[cue]),
         (dragging || dim) && 'opacity-40',
@@ -174,7 +222,14 @@ export const PieceView = memo(function PieceView({
         zIndex: 10 + box.z + (selected ? 100 : 0),
       }}
     >
-      <div className={cn('size-full', seen === 'peek' && secretHere && 'opacity-60')}>
+      <div
+        key={seen === 'back' ? 'back' : 'face'}
+        className={cn(
+          'size-full',
+          seen === 'peek' && secretHere && 'opacity-60',
+          wasBack && seen !== 'back' && 'hs-flip',
+        )}
+      >
         <PieceFace piece={piece} face={face} seen={seen} color={color} />
       </div>
       {seen === 'peek' && (
@@ -185,14 +240,7 @@ export const PieceView = memo(function PieceView({
           <EyeOff className="size-3" />
         </span>
       )}
-      {badge && (
-        <span
-          className="pointer-events-none absolute right-0.5 bottom-0.5 rounded bg-black/75 px-1 text-[10px] font-semibold text-white tabular-nums"
-          data-testid="piece-badge"
-        >
-          {badge}
-        </span>
-      )}
+      {stats && seen !== 'back' && <StatChips stats={stats} px={Math.min(w, h) * 0.13} />}
       {tokens.length > 0 && (
         <span className="pointer-events-none absolute -top-2 -right-2 flex gap-0.5">
           {tokens.map((t) => {

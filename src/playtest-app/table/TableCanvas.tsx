@@ -1,8 +1,8 @@
 import { MoreHorizontal } from '@/ui/icons'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { actor } from '@/adventure/engine'
-import { other } from '@/adventure/state'
-import { statsAt } from '@/adventure/stats'
+import { other, type AsState, type Seat } from '@/adventure/state'
+import { valuesAt } from '@/adventure/stats'
 import { pieceId, regroupHand } from '@/adventure/table'
 import { cn } from '@/lib/cn'
 import { seenBy } from '@/playtest/actions'
@@ -13,7 +13,9 @@ import {
   slotCount,
   slotRect,
   tableLayout,
+  zoneKey,
   type PlacedZone,
+  type TableLayout,
   type TokenDef,
 } from '@/playtest/setup'
 import type { TokenAt, TokenInst } from '@/playtest/state'
@@ -26,9 +28,9 @@ import {
 import { usePanZoom } from '@/ui/components/usePanZoom'
 import { ZoomBar } from '@/ui/components/ZoomBar'
 import { cues, type ArrowEnd } from './cues'
-import { PieceFace, PieceView, TokenShape } from './Piece'
+import { PieceFace, PieceView, TokenShape, type PieceStats } from './Piece'
 import { usePack } from './packContext'
-import { hints as ruleHints } from './rulesPlay'
+import { optionPiece, hints as ruleHints } from './rulesPlay'
 import { shownBefore, shownRules, usePlaytest } from './usePlaytest'
 
 /** Space around the table (mm), so labels above the top zones show. */
@@ -86,23 +88,46 @@ export function TableCanvas({
     () => (shown && before && shown.log.length > before.log.length ? cues(before, shown) : null),
     [shown, before],
   )
+  const choice = usePlaytest((s) => s.choice)
   const pickedIds = useMemo(() => {
     const st = rules?.step
+    // A card tapped for a choice waits, marked, for the confirm button.
+    if (rules && st?.k === 'choose' && choice) {
+      const id = optionPiece(rules, choice)
+      return new Set(id ? [id] : [])
+    }
     if (!rules || st?.k !== 'reveal') return new Set<string>()
     const opp = other(st.seat)
     return new Set(picks.map((i) => pieceId(opp, rules.players[opp].field[i].card ?? '')))
-  }, [rules, picks])
-  // Face-up field cards whose Attack or Defense differs from print, with the values now.
-  const badges = useMemo(() => {
-    const out: Record<string, string> = {}
+  }, [rules, picks, choice])
+  // Every card's Attack, Defense and Fighting Spirit, as they count now (locked in combat).
+  const stats = useMemo(() => {
+    const out: Record<string, PieceStats> = {}
     if (!shown) return out
-    for (const seat of [0, 1] as const)
-      shown.players[seat].field.forEach((f, slot) => {
-        if (!f.card || !f.faceUp) return
-        const v = statsAt(shown, seat, slot)
-        const c = shown.cards[f.card]
-        if (c && (v.a !== c.a || v.d !== c.d)) out[pieceId(seat, f.card)] = `A${v.a} D${v.d}`
+    for (const seat of [0, 1] as const) {
+      const p = shown.players[seat]
+      p.field.forEach((f, slot) => {
+        const c = f.card ? shown.cards[f.card] : null
+        if (!c) return
+        const v = valuesAt(shown, seat, slot)
+        out[pieceId(seat, f.card!)] = { a: v.a, d: v.d, fs: c.fs, da: v.a - c.a, dd: v.d - c.d }
       })
+      for (const card of [...p.support, ...p.rest, ...p.spent]) {
+        const c = shown.cards[card]
+        if (c) out[pieceId(seat, card)] = { a: c.a, d: c.d, fs: c.fs }
+      }
+    }
+    return out
+  }, [shown])
+  // In combat, attackers glow red and defenders green, until Regroup.
+  const roles = useMemo(() => {
+    const out: Record<string, 'attack' | 'defend'> = {}
+    if (!shown?.combat) return out
+    for (const seat of [0, 1] as const)
+      for (const f of shown.players[seat].field) {
+        if (f.card && f.state === 'attacking') out[pieceId(seat, f.card)] = 'attack'
+        if (f.card && f.state === 'defending') out[pieceId(seat, f.card)] = 'defend'
+      }
     return out
   }, [shown])
   const pack = usePack()
@@ -116,10 +141,10 @@ export function TableCanvas({
     },
     [faces, state.pieces, defaultSize],
   )
-  const boxes = useMemo(
-    () => pieceBoxes(setup, layout, state, sizeOf),
-    [setup, layout, state, sizeOf],
-  )
+  const boxes = useMemo(() => {
+    const raw = pieceBoxes(setup, layout, state, sizeOf)
+    return shown?.combat ? stackOnField(raw, shown, layout) : raw
+  }, [setup, layout, state, sizeOf, shown])
   /** Where an arrow end sits, in table mm. */
   const endAt = (e: ArrowEnd): { x: number; y: number } | null => {
     if ('piece' in e) {
@@ -508,7 +533,8 @@ export function TableCanvas({
               selected={selected?.kind === 'piece' && selected.id === b.id}
               picked={state.last.picked === b.id || pickedIds.has(b.id)}
               hint={!!hint?.pieces.has(b.id)}
-              badge={badges[b.id]}
+              stats={rules ? stats[b.id] : undefined}
+              role={roles[b.id]}
               tokens={onPiece[b.id] ?? []}
               tokenDefs={setup.tokens}
               tokenColor={tokenColor}
@@ -643,4 +669,48 @@ function ZoneMenu({
       </DropdownMenuContent>
     </DropdownMenu>
   )
+}
+
+/** How far each card behind the front one sits, as a share of the card's short side. */
+const STACK_STEP = 0.24
+
+/**
+ * In combat each attack's cards gather as stacks on the field: the attack
+ * stack on the position it comes from, the defense stack on the position it
+ * defends, the front card on top and the others stepping up behind it.
+ */
+function stackOnField(boxes: PieceBox[], s: AsState, layout: TableLayout): PieceBox[] {
+  if (!s.combat) return boxes
+  const at = new Map<string, { cx: number; cy: number; z: number }>()
+  const slotCentre = (seat: Seat, slot: number) => {
+    const pz = layout.zones.find((z) => z.key === zoneKey('field', seat))
+    if (!pz) return null
+    const r = slotRect(pz.zone, slot, pz.turned)
+    return { x: pz.x + r.x + r.w / 2, y: pz.y + r.y + r.h / 2 }
+  }
+  const gather = (seat: Seat, slot: number, cards: string[]) => {
+    const field = s.players[seat].field
+    const here = field[slot]?.card
+    const order = here && cards.includes(here) ? [here, ...cards.filter((c) => c !== here)] : cards
+    const c = slotCentre(seat, slot)
+    if (!c || order.length < 2) return
+    // Seat 0 sits at the top of the table: its stacks step down, towards the middle.
+    const dir = seat === 0 ? 1 : -1
+    order.forEach((card, k) => {
+      const b = boxes.find((x) => x.id === pieceId(seat, card))
+      if (!b) return
+      const step = Math.min(b.w, b.h) * STACK_STEP * k
+      at.set(b.id, { cx: c.x + step * 0.4, cy: c.y + dir * -step, z: 40 - k })
+    })
+  }
+  for (const attacker of [0, 1] as Seat[]) {
+    const lock = s.combat.stacks[attacker]
+    if (!lock) continue
+    gather(attacker, lock.origin, lock.attack)
+    gather(other(attacker), lock.target, lock.defense)
+  }
+  return boxes.map((b) => {
+    const p = at.get(b.id)
+    return p ? { ...b, cx: p.cx, cy: p.cy, z: b.z + p.z } : b
+  })
 }

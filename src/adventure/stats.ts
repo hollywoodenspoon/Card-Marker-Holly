@@ -146,7 +146,7 @@ export function engagementSides(s: AsState, attacker: Seat): EngagementSides | n
 }
 
 /** A card's Attack and Defense in an Engagement: as combat started, when it has started. */
-function valuesAt(s: AsState, seat: Seat, slot: number) {
+export function valuesAt(s: AsState, seat: Seat, slot: number) {
   const card = s.players[seat].field[slot]?.card
   return (card && s.combat?.values[card]) || statsAt(s, seat, slot)
 }
