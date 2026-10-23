@@ -57,6 +57,23 @@ When the bleed is above 0, **Bleed fill** sets what prints in it:
 - **Run marks to paper edge** (on by default) draws them all the way out; your printer simply leaves out the part in its margin. **Room for marks** is the space kept free around the cards for them. Turn it off to get short marks of a set **Mark length**.
 - **Guide lines across the sheet** adds thin lines through every cut line, from margin to margin, crossing the cards. With bleed marks on, dotted guide lines run along every bleed edge too. They are handy for a paper trimmer.
 
+## Colour: RGB or CMYK
+
+**Colour** chooses how the PDF describes colours:
+
+- **RGB · home printer** (the default). Home and office printers expect RGB and convert it themselves.
+- **CMYK · print shop**, for a print shop that asks for CMYK. Every colour, picture and SVG is converted to the four printing inks (cyan, magenta, yellow and black) with a **printer profile**, and the profile goes into the PDF so the shop knows what the numbers mean.
+
+**Printer profile:** the built-in one is **FOGRA39 (ISO Coated v2, ECI)**, the standard for coated paper that most print shops outside the US accept. If the shop sends you its own profile (an .icc file), press **Load ICC profile…** and choose it. It stays on this device; on another device the PDF falls back to FOGRA39 until you load it there too.
+
+**The preview shows how the colours will print.** Screens can show brighter colours than ink on paper, so very bright blues, greens, purples and oranges come out duller. When a sheet has such colours, the bar above it says so; **Show where** paints them magenta in the preview. Change those colours if the difference matters, or accept it: it is how the cards will look.
+
+**Black:** large black areas (both sides at least 10 mm) print as rich black, 60/40/40/100, which looks deeper. Black text, thin lines and the cut marks print in black ink only (0/0/0/100), so they stay sharp even if the inks shift slightly.
+
+**Exact CMYK colours:** for a brand colour or one the shop matched for you, pick the colour, press **Add** and type its inks in percent, for example 0/40/100/0 (cyan/magenta/yellow/black). Wherever that colour appears, it prints with exactly those inks. Values over the profile's ink limit are reduced, and a message says so.
+
+Pictures are converted pixel by pixel. SVGs stay vector, except SVGs with gradients, embedded photos, masks or filters, which print as sharp 600 DPI CMYK images (a message says so). Very large photos are scaled down to 600 DPI at their printed size, which keeps the file small without any visible difference. The [alignment test](help:double-sided) page stays RGB: it is for your own printer.
+
 ## Draft prints
 
 **Draft (saves ink)** is for playtest copies:
@@ -68,7 +85,7 @@ When the bleed is above 0, **Bleed fill** sets what prints in it:
 
 Press **Export PDF**. The file holds fronts sheet 1, backs sheet 1, fronts sheet 2, and so on, so a double-sided print pairs up by itself. **Sheets** under **Backs** can switch to fronts only or backs only; see [Double-sided printing](help:double-sided).
 
-The PDF is RGB, and every page is exactly the paper size in millimetres. Print it at 100% ([Checking the print](help:checking-print#print-at-100-percent)).
+The PDF is RGB or CMYK ([Colour](help:printing#colour-rgb-or-cmyk)), and every page is exactly the paper size in millimetres. Print it at 100% ([Checking the print](help:checking-print#print-at-100-percent)).
 
 ### Fonts and pictures in the PDF
 

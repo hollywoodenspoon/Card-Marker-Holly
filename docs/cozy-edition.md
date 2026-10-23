@@ -35,6 +35,11 @@ Agreed with the owner (Hanielle Marie N. Armas) on 2026-10-22. Build starts when
 - None of this makes extraction impossible; it makes it hard. The portable exe unpacks itself to %TEMP% each run.
 - Without a code-signing certificate, SmartScreen warns about an unknown publisher.
 
+## Since the plan
+
+- CMYK PDF export (main app v0.3.0) is part of the print code, so Cozy Edition gets it too (owner's choice, 2026-10-23), with FOGRA39 and its Heidelberg licence text in the notices.
+- The single portable exe stays, accepting a few seconds' slower start (owner confirmed, 2026-10-23).
+
 ## Unchanged
 
 The main app (web, desktop, pacman) keeps every feature, the credits for Adventure Scuffle! and Village Wizard, and its licence.

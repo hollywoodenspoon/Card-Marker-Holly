@@ -1,6 +1,6 @@
 # Hearthside Cardworks
 
-Version **0.2.1-alpha.1** (early alpha). Formerly _Card Maker_; its playtest app is **Hearthside Table**.
+Version **0.3.0-alpha.1** (early alpha). Formerly _Card Maker_; its playtest app is **Hearthside Table**.
 
 A card editor built with React, TypeScript, Vite and a Konva canvas. It runs as a website (projects stored in the browser), or as a desktop app for Windows and Linux (projects stored as folders of ordinary files). There is no backend, and it works offline.
 
@@ -236,6 +236,7 @@ Rail → **Data** (or ☰ → _Card data_) shows every card as a spreadsheet-sty
 - **Bleed fill**: _Mirror edges_ (default) fills the bleed from each card's own edge, so a slightly off cut never shows white; _Stretch edges_; or _As designed_.
 - **Cutting**: solid cut marks at the card edge and, optionally, dotted bleed marks at the bleed edge; both sit outside the bleed and run to the paper edge (switch off for short marks); optional guide lines across the sheet.
 - **Backs**: _Sheets_ = fronts + backs, fronts only, or backs only. Match the long/short-edge flip to your printer, print the **Alignment test** once, and enter any offset as Back offset X/Y.
+- **Colour**: _RGB_ (home printers, default) or _CMYK_ for print shops: converted with a printer profile (FOGRA39 built in, or **Load ICC profile…** for the shop's own), embedded in the PDF. The preview then shows how the colours will print and flags ones that come out duller (**Show where**). Big black areas print rich black, text 100% K; **Exact CMYK colours** fix chosen colours to given inks.
 - **Draft (saves ink)**: _Greyscale_ and/or _Leave out art_ for playtest copies.
 - **Export PDF**: exact mm sizes — print at 100% / "actual size".
 
