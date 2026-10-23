@@ -684,6 +684,7 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 - **Picked rate:** 40 Optimal decks, each built from a random two-thirds of the pool with noise of half the values' spread. A card's rate is its picks out of the builds it could have joined.
 - **Flags:** only outliers about two standard errors clear of the mean count. Too strong: 2.5 spreads above the mean, or 1.5 above it and picked into 85% or more of builds. Too weak: the same from below, with a 5% pick rate. Power creep: a new card above the core set's 90th percentile, and half a spread above the core card closest to it (same type, nearest stats). Pairs: at least 3 league decks and 30 games, winning 10 points or more above what their values predict.
 - **Suggestions are ranked:** core set first, then what breaks the game once the new sets arrive (power creep, too strong, core-and-new combos, an Optimal deck winning 70% or more), then the rest. For a core-and-new combo, the option is to change the new card.
+- **Ability uses** count a Field or Support Ability used, a Flip or Battle Ability, Final Blow, a Rest card's reveal from the rest zone, a coin card's coin, and a Battle card's Fighting Spirit bonus when its condition held. An Inherent's always-on text isn't counted.
 - **The rules checker** runs on 1 game in 50. Results keep the last 10 runs per pack (Dexie version 6, `sims`). A `.hssim.json` file (kind `hearthside-sim`, version 1) holds the options, the results and the Markdown report.
 
 ## Bleed marks
