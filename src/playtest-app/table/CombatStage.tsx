@@ -279,6 +279,39 @@ export function CombatStage({
     </div>
   )
 
+  // The card a player is about to reveal as Fighting Spirit lifts into view (face
+  // down if you may not see it), before it lands on the stage.
+  const intent = usePlaytest((s) => (s.playback && s.playback.i < 0 ? s.playback.intent : null))
+  const intentView = intent && intent.pieces.length > 0 && (
+    <div
+      className="hs-pop pointer-events-none absolute top-14 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 rounded-xl bg-black/70 px-3 py-2 shadow-xl ring-2 ring-yellow-300 sm:top-4"
+      data-testid="stage-intent"
+    >
+      {intent.pieces.slice(0, 3).map((id) => {
+        const p = state.pieces[id]
+        if (!p) return null
+        const seen = seenBy(setup, state, id, viewer)
+        return (
+          <div
+            key={id}
+            className="h-16 -translate-y-1 overflow-hidden rounded-md shadow-[0_0_18px_rgba(250,204,21,0.9)] ring-2 ring-yellow-300 sm:h-24"
+            style={{ aspectRatio: `${cw} / ${Math.max(size.w, size.h)}` }}
+          >
+            <PieceFace
+              piece={p}
+              face={pack.faces[p.cardId]}
+              seen={seen === 'back' ? 'back' : 'face'}
+              color={color(p.owner)}
+            />
+          </div>
+        )
+      })}
+      <span className="text-sm font-semibold text-yellow-200">
+        {name(intent.seat)} {intent.what}
+      </span>
+    </div>
+  )
+
   const a = groupView(atk, 'Attack', totals.attack, fsAtk)
   const d = groupView(def, 'Defense', totals.defense, fsDef)
   return (
@@ -323,6 +356,7 @@ export function CombatStage({
         </div>
       )}
       {!hidden && handView}
+      {!hidden && intentView}
     </div>
   )
 }

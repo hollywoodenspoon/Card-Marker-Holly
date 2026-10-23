@@ -104,7 +104,7 @@ export function Tracker({ phone }: { phone: boolean }) {
                   {bots[seat] ? ' · thinking…' : ''}
                 </span>
               ) : (
-                recentActions(rules, seat as 0 | 1, 1)[0]
+                !rules.engagement?.passed[seat] && recentActions(rules, seat as 0 | 1, 1)[0]
               )}
             </span>
           </span>

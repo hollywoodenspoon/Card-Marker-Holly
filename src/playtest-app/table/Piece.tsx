@@ -176,6 +176,7 @@ export const PieceView = memo(function PieceView({
   dragging,
   cue,
   dim,
+  lifted,
 }: {
   box: PieceBox
   k: number
@@ -202,6 +203,8 @@ export const PieceView = memo(function PieceView({
   cue?: CueKind
   /** It's drawn on the combat stage: faint here. */
   dim?: boolean
+  /** A player is picking it right now: it lifts and glows gold. */
+  lifted?: boolean
 }) {
   const w = box.w * k
   const h = box.h * k
@@ -220,7 +223,8 @@ export const PieceView = memo(function PieceView({
         'absolute touch-none rounded-[5%] shadow-md transition-[left,top,transform,box-shadow] duration-300 ease-out select-none motion-reduce:transition-none',
         selected && 'ring-4 ring-accent',
         picked && !selected && 'ring-4 ring-amber-400',
-        role && !selected && !picked && ROLE_RING[role],
+        role && !selected && !picked && !lifted && ROLE_RING[role],
+        lifted && 'shadow-[0_0_24px_rgba(250,204,21,0.9)] ring-4 ring-yellow-300',
         hint && !selected && !picked && 'ring-4 ring-emerald-400',
         cue && !selected && cn('ring-4 motion-safe:animate-pulse', CUE_RING[cue]),
         (dragging || dim) && 'opacity-40',
@@ -230,8 +234,8 @@ export const PieceView = memo(function PieceView({
         top: (box.cy - box.h / 2) * k,
         width: w,
         height: h,
-        transform: `rotate(${box.rotation}deg)`,
-        zIndex: 10 + box.z + (selected ? 100 : 0),
+        transform: `${lifted ? 'translateY(-10px) scale(1.1) ' : ''}rotate(${box.rotation}deg)`,
+        zIndex: 10 + box.z + (selected ? 100 : 0) + (lifted ? 200 : 0),
       }}
     >
       <div

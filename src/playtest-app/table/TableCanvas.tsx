@@ -130,6 +130,9 @@ export function TableCanvas({
       }
     return out
   }, [shown])
+  // Someone is about to move: the cards they pick lift, with a pointer on them.
+  const intent = usePlaytest((s) => (s.playback && s.playback.i < 0 ? s.playback.intent : null))
+  const lifted = useMemo(() => new Set(intent?.pieces ?? []), [intent])
   // The acting player's half of the table glows in their colour.
   const turnSeat = shown ? actor(shown) : null
   const pack = usePack()
@@ -569,9 +572,63 @@ export function TableCanvas({
               dragging={drag?.kind === 'piece' && drag.id === b.id}
               cue={cue?.glow[b.id]}
               dim={staged?.has(b.id)}
+              lifted={lifted.has(b.id)}
             />
           )
         })}
+        {intent &&
+          (() => {
+            const first = boxes.find((b) => intent.pieces.includes(b.id))
+            const slotBox = (() => {
+              if (!intent.slot) return null
+              const pzn = layout.zones.find((z) => z.key === zoneKey('field', intent.slot!.seat))
+              if (!pzn) return null
+              const r = slotRect(pzn.zone, intent.slot.slot, pzn.turned)
+              return { x: pzn.x + r.x, y: pzn.y + r.y, w: r.w, h: r.h }
+            })()
+            const at = slotBox && { x: slotBox.x + slotBox.w / 2, y: slotBox.y + slotBox.h / 2 }
+            const p = first ? { x: first.cx, y: first.cy + first.h / 2 } : at
+            if (!p) return null
+            return (
+              <>
+                {slotBox && (
+                  <div
+                    className="pointer-events-none absolute z-[290] rounded-lg border-4 border-dashed border-yellow-300 motion-safe:animate-pulse"
+                    style={{
+                      left: slotBox.x * k,
+                      top: slotBox.y * k,
+                      width: slotBox.w * k,
+                      height: slotBox.h * k,
+                    }}
+                  />
+                )}
+                <div
+                  className="hs-pop pointer-events-none absolute z-[310] flex items-start gap-1"
+                  style={{ left: p.x * k - 6, top: p.y * k - 10 }}
+                  data-testid="intent-pointer"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="size-8 drop-shadow-[0_2px_3px_black] motion-safe:animate-bounce"
+                  >
+                    <path
+                      d="M9 11V4.5a1.5 1.5 0 0 1 3 0V10l.01-1.5a1.5 1.5 0 0 1 3 0V11a1.5 1.5 0 0 1 3 0v4.5c0 3.6-2.9 6.5-6.5 6.5h-.6a6.5 6.5 0 0 1-5.2-2.6L3.1 16a1.6 1.6 0 0 1 2.4-2.1L9 16.5"
+                      fill="#fde047"
+                      stroke="#111"
+                      strokeWidth="1.4"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  <span
+                    className="mt-6 rounded-md px-2 py-0.5 text-xs font-semibold whitespace-nowrap text-black shadow-lg"
+                    style={{ background: '#fde047' }}
+                  >
+                    {shown?.players[intent.seat].name} {intent.what}
+                  </span>
+                </div>
+              </>
+            )
+          })()}
         {cue && cue.arrows.length > 0 && (
           <svg
             className="pointer-events-none absolute inset-0 z-[300] overflow-visible"
