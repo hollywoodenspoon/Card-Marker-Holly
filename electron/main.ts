@@ -200,7 +200,8 @@ const isOwnUrl = (u: string) =>
 
 const CSP = [
   "default-src 'self'",
-  "script-src 'self'",
+  // WebAssembly: the colour engine for CMYK print export.
+  "script-src 'self' 'wasm-unsafe-eval'",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",
   "font-src 'self' data: blob:",

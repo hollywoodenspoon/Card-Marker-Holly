@@ -7,11 +7,14 @@ import {
   FileDown,
   ListChecks,
   Loader2,
+  Palette,
   Settings2,
 } from '@/ui/icons'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { HelpButton } from '@/help/HelpButton'
 import { useEditor } from '@/core/editor/editorStore'
+import type { Cmyk } from '@/print/color/cmyk'
+import type { ColorEngine } from '@/print/color/engine'
 import { buildPrintJob, pageSheet, type PrintJob } from '@/print/job'
 import { paperOf } from '@/print/paper'
 import { cn } from '@/lib/cn'
@@ -26,7 +29,11 @@ import { usePanZoom } from '@/ui/components/usePanZoom'
 import { ZoomBar } from '@/ui/components/ZoomBar'
 import { SheetPreview } from './SheetPreview'
 import { usePreviewBands } from './usePreviewBands'
+import { useActiveProfile } from './cmykProfile'
 import { notePrintOpened } from '@/ui/onboarding/firstRun'
+
+/** Share of a sheet's colours that must print noticeably duller before the preview says so. */
+const OUT_SHOWN = 0.001
 
 /** Full-screen print view: sheet settings, preview of fronts and mirrored backs, PDF export. */
 export function PrintView({ layout }: { layout: LayoutKind }) {
@@ -60,13 +67,29 @@ export function PrintView({ layout }: { layout: LayoutKind }) {
   const nothing = !fronts && !withBacks
   const tooBig = job.groups.filter((g) => !g.sheet.perSheet)
   const fileKind = fronts && withBacks ? 'cards' : fronts ? 'fronts' : 'backs'
+  const cmyk = job.settings.colorMode === 'cmyk'
+  const active = useActiveProfile(job.settings)
+  // The CMYK preview's share of colours that will print noticeably duller, per side.
+  const [outShare, setOutShare] = useState<Record<string, number>>({})
+  const [markOut, setMarkOut] = useState(false)
+  const out = Math.max(0, ...Object.values(outShare))
+  const profileWaiting = cmyk && !active.profile && !active.error
 
   const exportCards = async () => {
     setError(null)
     setBusy('Preparing…')
     try {
       const { exportCardsPdf } = await import('@/print/pdf/exportPdf')
-      const r = await exportCardsPdf(job, (d, t) => setBusy(`Page ${d} of ${t}…`))
+      const swatches = Object.fromEntries(
+        Object.entries(job.settings.cmykSwatches).map(([hex, c]) => [
+          hex,
+          c.map((v) => v / 100) as Cmyk,
+        ]),
+      )
+      const r = await exportCardsPdf(job, (d, t) => setBusy(`Page ${d} of ${t}…`), {
+        profile: active.profile ?? undefined,
+        swatches,
+      })
       setWarnings(r.warnings)
       downloadBlob(r.blob, `${safeFileName(doc.project.name)} - ${fileKind}.pdf`)
     } catch (e) {
@@ -120,7 +143,11 @@ export function PrintView({ layout }: { layout: LayoutKind }) {
           </Button>
         )}
         {!phone && (
-          <Button size="sm" onClick={exportCards} disabled={!!busy || !pageCount || nothing}>
+          <Button
+            size="sm"
+            onClick={exportCards}
+            disabled={!!busy || !pageCount || nothing || profileWaiting}
+          >
             {busy ? <Loader2 className="animate-spin" /> : <FileDown />} {busy ?? 'Export PDF'}
           </Button>
         )}
@@ -134,6 +161,37 @@ export function PrintView({ layout }: { layout: LayoutKind }) {
           </aside>
         )}
         <main className="flex min-h-0 min-w-0 flex-1 flex-col bg-canvas">
+          {cmyk && (
+            <div
+              className="mx-3 mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border bg-panel p-3 text-sm"
+              role="status"
+              data-testid="print-cmyk-status"
+            >
+              <Palette className="size-4 shrink-0" />
+              <span className="min-w-0 flex-1">
+                {active.error
+                  ? `The printer profile could not be loaded: ${active.error}`
+                  : active.profile
+                    ? `CMYK preview · ${active.profile.name}`
+                    : 'Loading the printer profile…'}
+                {active.missingCustom && ' (no print shop profile on this device, so FOGRA39)'}
+                {active.profile && (
+                  <span className="block text-xs text-muted-foreground">
+                    {out < OUT_SHOWN
+                      ? 'The colours on this sheet print close to how they look on screen.'
+                      : out < 0.01
+                        ? 'A few colours on this sheet (under 1%) will print noticeably duller than on screen.'
+                        : `About ${Math.round(out * 100)}% of the colours on this sheet will print noticeably duller than on screen.`}
+                  </span>
+                )}
+              </span>
+              {active.profile && out >= OUT_SHOWN && (
+                <Button size="sm" variant="outline" onClick={() => setMarkOut(!markOut)}>
+                  {markOut ? 'Hide' : 'Show where'}
+                </Button>
+              )}
+            </div>
+          )}
           {(error || warnings.length > 0 || tooBig.length > 0 || nothing) && (
             <div
               className="m-3 flex flex-col gap-1 rounded-lg border bg-panel p-3 text-sm"
@@ -154,7 +212,18 @@ export function PrintView({ layout }: { layout: LayoutKind }) {
               ))}
             </div>
           )}
-          <Previews job={job} sheet={current} side={side} phone={phone} withBacks={withBacks} />
+          <Previews
+            job={job}
+            sheet={current}
+            side={side}
+            phone={phone}
+            withBacks={withBacks}
+            proof={active.profile?.engine ?? null}
+            markOut={markOut}
+            onOutOfRange={(s, share) =>
+              setOutShare((o) => (o[s] === share ? o : { ...o, [s]: share }))
+            }
+          />
           <div className="flex shrink-0 items-center justify-center gap-2 p-2">
             <IconButton
               label="Previous sheet"
@@ -235,7 +304,7 @@ export function PrintView({ layout }: { layout: LayoutKind }) {
               <Button
                 className="flex-[2]"
                 onClick={exportCards}
-                disabled={!!busy || !pageCount || nothing}
+                disabled={!!busy || !pageCount || nothing || profileWaiting}
               >
                 {busy ? <Loader2 className="animate-spin" /> : <FileDown />} {busy ?? 'Export PDF'}
               </Button>
@@ -254,12 +323,18 @@ function Previews({
   side,
   phone,
   withBacks,
+  proof,
+  markOut,
+  onOutOfRange,
 }: {
   job: PrintJob
   sheet: number
   side: 'front' | 'back'
   phone: boolean
   withBacks: boolean
+  proof: ColorEngine | null
+  markOut: boolean
+  onOutOfRange: (side: 'front' | 'back', share: number) => void
 }) {
   const group = job.groups[job.pageGroup[sheet]]
   const bands = usePreviewBands(job, group?.card)
@@ -338,10 +413,14 @@ function Previews({
                   side={s}
                   widthPx={shownW}
                   bands={bands}
+                  proof={proof}
+                  markOut={markOut}
+                  onOutOfRange={(share) => onOutOfRange(s, share)}
                 />
               </div>
               <figcaption className="text-xs text-white/90">
                 {s === 'front' ? 'Fronts' : `Backs (mirrored, ${job.settings.flip}-edge flip)`}
+                {proof && ' · CMYK preview'}
                 {job.groups.length > 1 && group && ` · ${group.card.w} × ${group.card.h} mm`}
               </figcaption>
             </figure>
