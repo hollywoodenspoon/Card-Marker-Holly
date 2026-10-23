@@ -13,5 +13,8 @@
 *.woff binary
 *.woff2 binary
 *.jar binary
+*.icc binary
+*.icm binary
+*.wasm binary
 *.xlsx binary
 *.bat text eol=crlf
