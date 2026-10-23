@@ -29,6 +29,8 @@ import {
 import { presets } from '@/playtest/setup'
 import { ActionBar } from './ActionBar'
 import { ActionCallout } from './ActionCallout'
+import { HoverZoom } from './HoverZoom'
+import { Spotlight } from './Spotlight'
 import { CardPreview } from './CardPreview'
 import { CombatStage } from './CombatStage'
 import { stagedIds, useStage } from './useStage'
@@ -95,7 +97,8 @@ export function GameView({
   const driver = useBotDriver()
   useFrameTimer()
   const stage = useStage()
-  const staged = useMemo(() => stagedIds(stage), [stage])
+  const stageHidden = usePlaytest((s) => s.stageHidden)
+  const staged = useMemo(() => (stageHidden ? undefined : stagedIds(stage)), [stage, stageHidden])
   const [preview, setPreview] = useState<string | null>(null)
   const playing = !!setup && !!state && ownPack
   const [zone, setZone] = useState<string | null>(null)
@@ -340,6 +343,8 @@ export function GameView({
             <div className="relative flex min-w-0 flex-1 flex-col">
               <TableCanvas onOpenZone={setZone} onPreview={setPreview} staged={staged} />
               {stage && <CombatStage stage={stage} onPreview={setPreview} />}
+              <HoverZoom />
+              <Spotlight />
               <ActionCallout
                 onPreview={setPreview}
                 onLog={phone ? () => setLogOpen(true) : undefined}

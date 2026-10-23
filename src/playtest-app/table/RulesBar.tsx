@@ -48,6 +48,7 @@ export function RulesBar({
   const state = usePlaytest((s) => s.state)!
   const rules = usePlaytest((s) => s.rules)!
   const picks = usePlaytest((s) => s.picks)
+  const choice = usePlaytest((s) => s.choice)
   const selected = usePlaytest((s) => s.selected)
   const viewer = usePlaytest((s) => s.viewer)
   const play = usePlaytest((s) => s.play)
@@ -151,19 +152,34 @@ export function RulesBar({
       : ''
     // Only the chooser sees the choices (they may name hidden cards).
     const mine = viewer === null || viewer === st.seat
-    buttons = mine
-      ? st.options.map((o) => (
-          <Button
-            key={o.id}
-            size="sm"
-            variant={o.id === 'decline' ? 'ghost' : 'secondary'}
-            onClick={() => play({ t: 'choose', id: o.id })}
-            data-testid="rules-choice"
-          >
-            {o.label}
-          </Button>
-        ))
-      : null
+    const marked = mine ? st.options.find((o) => o.id === choice) : undefined
+    if (marked) hint = 'Check the card, then confirm.'
+    buttons = marked ? (
+      <>
+        <Button
+          size="sm"
+          onClick={() => play({ t: 'choose', id: marked.id })}
+          data-testid="rules-confirm"
+        >
+          Choose {marked.label}
+        </Button>
+        <Button size="sm" variant="ghost" onClick={() => usePlaytest.setState({ choice: null })}>
+          Cancel
+        </Button>
+      </>
+    ) : mine ? (
+      st.options.map((o) => (
+        <Button
+          key={o.id}
+          size="sm"
+          variant={o.id === 'decline' ? 'ghost' : 'secondary'}
+          onClick={() => play({ t: 'choose', id: o.id })}
+          data-testid="rules-choice"
+        >
+          {o.label}
+        </Button>
+      ))
+    ) : null
   } else if (st.k === 'first') {
     buttons = legalMoves(rules).map((m) =>
       m.t === 'first' ? (

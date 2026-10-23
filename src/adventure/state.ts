@@ -161,6 +161,8 @@ export interface AsLogEntry {
   text: string
   /** Something the rules don't settle, worth a look (e.g. a player without an attacker). */
   flag?: boolean
+  /** Cards this line reveals to both players (shown face up while it plays). */
+  cards?: string[]
 }
 
 export interface AsState {
@@ -190,6 +192,31 @@ export interface AsState {
   rps?: [Hand | null, Hand | null]
   /** The reveal size rule; unset means classic. */
   reveal?: RevealRule
+  /** Fixed when combat starts: who stacks in each attack, and every card's values. */
+  combat?: CombatLock | null
+}
+
+/** One player's attack: where it comes from and goes, and the two stacks. */
+export interface CombatStack {
+  /** The Main Attacker's position when combat started: where the attack comes from. */
+  origin: number
+  /** The attacked position on the defender's field. */
+  target: number
+  /** The attacker's cards that stack together (card ids). */
+  attack: string[]
+  /** The defender's cards that stack to defend the target. */
+  defense: string[]
+}
+
+/**
+ * Combat as it stood when it started: each card's Attack and Defense (position
+ * bonuses included) and both attacks' stacks, by attacking seat. A swap between
+ * an attack stack and a defense stack moves cards between stacks, and each keeps
+ * these values.
+ */
+export interface CombatLock {
+  values: Record<string, { a: number; d: number }>
+  stacks: [CombatStack | null, CombatStack | null]
 }
 
 export const POINTS_TO_WIN = 4

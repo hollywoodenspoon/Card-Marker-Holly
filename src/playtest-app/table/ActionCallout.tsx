@@ -1,5 +1,7 @@
 import { FastForward } from '@/ui/icons'
 import { useMemo } from 'react'
+import { SEATS } from '@/adventure/state'
+import { pieceId } from '@/adventure/table'
 import { seenBy } from '@/playtest/actions'
 import { Button } from '@/ui/components/ui/button'
 import { cardsInLine, cues } from './cues'
@@ -34,10 +36,22 @@ export function ActionCallout({
   const faces = useFaces()
   const line = shown?.log.at(-1)
   const fresh = !!before && !!shown && shown.log.length > before.log.length
+  // Cards the line reveals to both players (a Support card shown by Rianz Sentinel).
+  const open = useMemo(
+    () =>
+      (fresh && shown && line?.cards ? line.cards : []).flatMap((card) => {
+        const seat = SEATS.find((x) => shown!.players[x].support.includes(card))
+        return seat === undefined ? [] : [pieceId(seat, card)]
+      }),
+    [shown, line, fresh],
+  )
   const ids = useMemo(() => {
     if (!shown || !line || !fresh) return []
-    return cardsInLine(shown, line.text, before ? cues(before, shown).glow : {})
-  }, [shown, line, fresh, before])
+    const named = cardsInLine(shown, line.text, before ? cues(before, shown).glow : {})
+    // A revealed card's twin in the other deck isn't the one shown.
+    const twins = new Set(open.map((id) => pieceId(id.startsWith('s0-') ? 1 : 0, id.slice(3))))
+    return [...new Set([...named.filter((id) => !twins.has(id)), ...open])]
+  }, [shown, line, fresh, before, open])
   if (!setup || !state || !line || !(playback || replay || rush)) return null
   if (!fresh && !rush) return null
   const count = playback ? `${playback.i + 1} of ${playback.frames.length}` : null
@@ -55,7 +69,7 @@ export function ActionCallout({
           const p = state.pieces[id]
           if (!p) return null
           const f = faces[p.cardId]
-          const seen = seenBy(setup, state, id, viewer)
+          const seen = open.includes(id) ? 'face' : seenBy(setup, state, id, viewer)
           return (
             <button
               key={id}
@@ -63,6 +77,7 @@ export function ActionCallout({
               className="h-12 shrink-0 overflow-hidden rounded-md ring-1 ring-white/40 sm:h-20"
               style={{ aspectRatio: f ? `${f.w} / ${f.h}` : '63 / 88' }}
               onClick={() => seen !== 'back' && onPreview(id)}
+              data-hover-piece={seen !== 'back' ? id : undefined}
               aria-label={seen === 'back' ? 'A face-down card' : `Show ${p.name}`}
             >
               <PieceFace

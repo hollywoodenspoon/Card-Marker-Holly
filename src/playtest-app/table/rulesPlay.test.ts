@@ -6,7 +6,7 @@ import { other, type AsState } from '@/adventure/state'
 import { pieceId, toTable } from '@/adventure/table'
 import { observe } from '@/playtest/actions'
 import { adventureScuffle, zoneKey } from '@/playtest/setup'
-import { hints, movesFor, tapPiece } from './rulesPlay'
+import { hints, movesFor, optionPiece, tapPiece } from './rulesPlay'
 
 const setup = adventureScuffle({ w: 63, h: 88 })
 const game = () =>
@@ -108,6 +108,22 @@ describe('rules on the table', () => {
       kind: 'moves',
       moves: [{ t: 'reveal', slots: [0, 1, 4] }],
     })
+  })
+
+  it('marks a tapped choice card instead of choosing it, so looking never chooses', () => {
+    const s0 = placed(game())
+    const card = s0.players[1].field[0].card!
+    const s = produce(s0, (d) => {
+      d.step = {
+        k: 'choose',
+        seat: 0,
+        prompt: 'Choose a card.',
+        options: [{ id: 'slot:1:0', label: 'A card', seat: 1, slot: 0 }],
+      }
+    })
+    expect(tapPiece(s, [], pieceId(1, card))).toEqual({ kind: 'choice', id: 'slot:1:0' })
+    expect(optionPiece(s, 'slot:1:0')).toBe(pieceId(1, card))
+    expect(tapPiece(s, [], pieceId(0, s.players[0].field[0].card!))).toBeNull()
   })
 
   it('holds the rest zone in the Support row during Regroup, the Support set aside', () => {

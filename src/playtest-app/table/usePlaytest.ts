@@ -90,6 +90,7 @@ const NO_RULES = {
   rulesPast: [],
   rulesFuture: [],
   picks: [],
+  choice: null,
   bots: NO_BOTS,
   botPaused: false,
   playback: null,
@@ -129,6 +130,10 @@ interface PlaytestStore {
   rulesFuture: AsState[]
   /** Positions picked for a pair reveal so far. */
   picks: number[]
+  /** The choice option a tapped card stands for, waiting to be confirmed. */
+  choice: string | null
+  /** The combat stage is tucked away, showing the table under it. */
+  stageHidden: boolean
   /** Seats the bot plays, and how fast it moves. */
   bots: Bots
   speed: Speed
@@ -212,7 +217,9 @@ export const usePlaytest = create<PlaytestStore>((set, get) => ({
   rulesPast: [],
   rulesFuture: [],
   picks: [],
+  choice: null,
   bots: NO_BOTS,
+  stageHidden: false,
   speed: savedSpeed(),
   thinkMs: savedThink(),
   botPaused: false,
@@ -246,6 +253,7 @@ export const usePlaytest = create<PlaytestStore>((set, get) => ({
       rulesPast: [],
       rulesFuture: [],
       picks: [],
+      choice: null,
       bots,
       botPaused: false,
       playback: null,
@@ -270,6 +278,7 @@ export const usePlaytest = create<PlaytestStore>((set, get) => ({
             rulesPast: rules.past,
             rulesFuture: [],
             picks: [],
+            choice: null,
             viewer: rules.viewer,
             bots: rules.bots ?? NO_BOTS,
             botPaused: false,
@@ -305,6 +314,7 @@ export const usePlaytest = create<PlaytestStore>((set, get) => ({
       moves: game ? [...get().moves, played] : [],
       movesFuture: [],
       picks: [],
+      choice: null,
       selected: null,
       placing: false,
     })
@@ -370,6 +380,7 @@ export const usePlaytest = create<PlaytestStore>((set, get) => ({
       bots: NO_BOTS,
       viewer: null,
       picks: [],
+      choice: null,
       selected: null,
       placing: false,
     })
@@ -394,7 +405,7 @@ export const usePlaytest = create<PlaytestStore>((set, get) => ({
   leaveReplay: () => {
     const { replay } = get()
     if (!replay) return
-    set({ ...replay.stash, replay: null, playback: null, picks: [], selected: null })
+    set({ ...replay.stash, replay: null, playback: null, picks: [], choice: null, selected: null })
   },
   tapRules: (pieceId) => {
     const { rules, picks, play, select, bots, playback, replay } = get()
@@ -408,6 +419,8 @@ export const usePlaytest = create<PlaytestStore>((set, get) => ({
     if (!r) return false
     if (r.kind === 'moves') play(r.moves)
     else if (r.kind === 'pick') set({ picks: r.picks, selected: null })
+    else if (r.kind === 'choice')
+      set({ choice: get().choice === r.id ? null : r.id, selected: null })
     else select({ kind: 'piece', id: pieceId }, true)
     return true
   },
@@ -449,6 +462,7 @@ export const usePlaytest = create<PlaytestStore>((set, get) => ({
         movesFuture: [...moves.slice(Math.max(0, moves.length - n)), ...movesFuture],
         playback: null,
         picks: [],
+        choice: null,
         placing: false,
         botPaused: againstBot ? false : get().botPaused,
       })
@@ -477,6 +491,7 @@ export const usePlaytest = create<PlaytestStore>((set, get) => ({
         movesFuture: movesFuture.slice(1),
         playback: null,
         picks: [],
+        choice: null,
         placing: false,
       })
     }
