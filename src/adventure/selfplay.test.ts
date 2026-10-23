@@ -24,4 +24,18 @@ describe('First Quest self-play', () => {
           n++
         }
   }, 60_000)
+
+  it('finishes games under every reveal size, every field card revealed each round', () => {
+    for (const rule of ['pairs', 'triples'] as const)
+      for (let n = 0; n < 40; n++) {
+        const { s } = randomGame(
+          decks[n % decks.length],
+          decks[(n + 1) % decks.length],
+          n * 13 + 5,
+          rule,
+        )
+        expect(s.step.k, `${rule} game ${n}`).toBe('over')
+        expect(s.reveal).toBe(rule)
+      }
+  }, 60_000)
 })

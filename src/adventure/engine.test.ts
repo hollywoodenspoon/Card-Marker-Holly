@@ -118,6 +118,53 @@ describe('the Skirmish', () => {
     expect(s.skirmish.reveals).toBe(10)
   })
 
+  it('reveals in pairs throughout under the pairs rule', () => {
+    let s = placeInOrder(
+      createGame({
+        cards: basicCards(),
+        decks: basicDecks(),
+        names: ['A', 'B'],
+        seed: 7,
+        reveal: 'pairs',
+      }),
+    )
+    const init = s.initiative
+    s = must(s, { t: 'reveal', slots: [0, 1] })
+    s = must(s, { t: 'reveal', slots: [4, 5] })
+    // Any adjacent face-down pair, next to a revealed card or not.
+    expect(s.step).toEqual({ k: 'reveal', seat: init, count: 2 })
+    expect(isLegal(s, { t: 'reveal', slots: [3, 4] })).toBe(true)
+    s = revealAll(s)
+    expect(s.phase).toBe('combat')
+    // 3 pairs per field, or a single when the pairs chosen leave a card alone.
+    expect(s.skirmish.reveals).toBeGreaterThanOrEqual(6)
+    expect(s.skirmish.reveals).toBeLessThan(10)
+  })
+
+  it('reveals each field in two groups of 3 under the triples rule', () => {
+    let s = placeInOrder(
+      createGame({
+        cards: basicCards(),
+        decks: basicDecks(),
+        names: ['A', 'B'],
+        seed: 7,
+        reveal: 'triples',
+      }),
+    )
+    const init = s.initiative
+    expect(s.step).toEqual({ k: 'reveal', seat: init, count: 3 })
+    // 3 connected cards: a row, or an L.
+    expect(isLegal(s, { t: 'reveal', slots: [0, 1, 2] })).toBe(true)
+    expect(isLegal(s, { t: 'reveal', slots: [0, 2, 4] })).toBe(false)
+    // An L leaves 2, 3 and 5 on that side, which don't all touch: they are still one group.
+    s = must(s, { t: 'reveal', slots: [0, 1, 4] })
+    s = must(s, { t: 'reveal', slots: [3, 4, 5] })
+    expect(legalMoves(s)).toEqual([{ t: 'reveal', slots: [2, 3, 5] }])
+    s = revealAll(s)
+    expect(s.players.every((p) => p.field.every((f) => f.faceUp))).toBe(true)
+    expect(s.skirmish.reveals).toBe(4)
+  })
+
   it('ranks Ready cards by Fate Number: the lower half attacks, the lowest is the Main Attacker', () => {
     const s = revealAll(placeInOrder(newGame()))
     for (const seat of [0, 1] as Seat[]) {

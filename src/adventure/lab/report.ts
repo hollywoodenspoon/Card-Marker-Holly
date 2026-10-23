@@ -6,7 +6,8 @@ import { STAGE_NAMES, type LabResult, type LabStage } from './run'
 
 const pct = (w: number, n: number) => (n ? `${Math.round((100 * w) / n)}%` : '–')
 const num = (x: number) => (x >= 0 ? `+${x.toFixed(2)}` : x.toFixed(2))
-export const BOTS = { quick: 'Quick', normal: 'Normal' } as const
+/** The lab's bots by what they are ('normal' is the Tricks bot, the table's Easy since v0.2.0). */
+export const BOTS = { quick: 'Quick', normal: 'Tricks' } as const
 /** Fewer games than this: the values are rough. */
 export const SMALL_RUN = 5000
 

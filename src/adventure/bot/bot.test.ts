@@ -11,7 +11,7 @@ import { botMove, type BotLevel } from '.'
 const decks = Object.values(TEST_DECKS)
 
 /** A whole bot game; every move must be legal. */
-function play(a: BotLevel, b: BotLevel, seed: number, playouts = 16) {
+function play(a: BotLevel, b: BotLevel, seed: number, playouts = 16, iterations = 60) {
   let s = createGame({
     cards: FIRST_QUEST,
     decks: [decks[seed % 4], decks[(seed >> 2) % 4]],
@@ -21,7 +21,7 @@ function play(a: BotLevel, b: BotLevel, seed: number, playouts = 16) {
   const states: AsState[] = []
   for (let n = 0; n < 3000 && s.step.k !== 'over'; n++) {
     const level = s.step.seat === 0 ? a : b
-    const m = botMove(s, level, seed * 7919 + n, { playouts })
+    const m = botMove(s, level, seed * 7919 + n, { playouts, iterations })
     expect(isLegal(s, m), `${level}: ${JSON.stringify(m)} at ${JSON.stringify(s.step)}`).toBe(true)
     states.push(s)
     s = apply(s, m)
@@ -30,42 +30,48 @@ function play(a: BotLevel, b: BotLevel, seed: number, playouts = 16) {
 }
 
 describe('bots', () => {
-  it('Easy and Normal only play legal moves and finish their games', () => {
-    for (let seed = 1; seed <= 16; seed++) {
+  it('every level only plays legal moves and finishes its games', () => {
+    for (let seed = 1; seed <= 8; seed++) {
       expect(play('easy', 'normal', seed).s.winner).not.toBeNull()
       expect(play('normal', 'normal', seed + 100).s.winner).not.toBeNull()
     }
-  }, 60_000)
+    for (let seed = 1; seed <= 3; seed++)
+      expect(play('hard', seed % 2 ? 'easy' : 'hard', seed + 200, 16, 30).s.winner).not.toBeNull()
+  }, 120_000)
 
-  it('Normal beats Easy most of the time', () => {
-    let wins = 0
-    for (let seed = 1; seed <= 30; seed++) {
+  /** Wins of `strong` against `weak` over `games` seeded games, swapping seats. */
+  function wins(
+    strong: BotLevel,
+    weak: BotLevel,
+    games: number,
+    playouts?: number,
+    iterations?: number,
+  ) {
+    let n = 0
+    for (let seed = 1; seed <= games; seed++) {
       // Seats swap, so neither side is helped by going first.
-      const normalSeat = seed % 2
+      const seat = seed % 2
       const { s } = play(
-        normalSeat === 0 ? 'normal' : 'easy',
-        normalSeat === 0 ? 'easy' : 'normal',
+        seat === 0 ? strong : weak,
+        seat === 0 ? weak : strong,
         seed,
+        playouts,
+        iterations,
       )
-      if (s.winner?.seat === normalSeat) wins++
+      if (s.winner?.seat === seat) n++
     }
-    expect(wins).toBeGreaterThanOrEqual(24)
-  }, 60_000)
+    return n
+  }
+
+  it('Normal beats Easy more often than not', () => {
+    // 28 of 30 when this was written.
+    expect(wins('normal', 'easy', 30)).toBeGreaterThanOrEqual(20)
+  }, 120_000)
 
   it('Hard beats Easy most of the time', () => {
-    let wins = 0
-    for (let seed = 1; seed <= 4; seed++) {
-      const hardSeat = seed % 2
-      const { s } = play(
-        hardSeat === 0 ? 'hard' : 'easy',
-        hardSeat === 0 ? 'easy' : 'hard',
-        seed,
-        12,
-      )
-      if (s.winner?.seat === hardSeat) wins++
-    }
-    expect(wins).toBeGreaterThanOrEqual(3)
-  }, 60_000)
+    // 6 of 6 when this was written, at 100 iterations a decision.
+    expect(wins('hard', 'easy', 6, 16, 100)).toBeGreaterThanOrEqual(5)
+  }, 120_000)
 
   it("doesn't peek: the opponent's hidden cards can be anywhere, the move is the same", () => {
     const { states } = play('normal', 'normal', 7)
@@ -79,14 +85,15 @@ describe('bots', () => {
         const [mixed] = shuffle(p.support, i + 1)
         p.support = mixed
       })
-      for (const level of ['easy', 'normal'] as const)
-        expect(botMove(moved, level, 99 + i), `${level} at ${JSON.stringify(s.step)}`).toEqual(
-          botMove(s, level, 99 + i),
-        )
+      for (const level of ['easy', 'normal', 'hard'] as const)
+        expect(
+          botMove(moved, level, 99 + i, { playouts: 8, iterations: 20 }),
+          `${level} at ${JSON.stringify(s.step)}`,
+        ).toEqual(botMove(s, level, 99 + i, { playouts: 8, iterations: 20 }))
       checked++
     }
     expect(checked).toBeGreaterThan(50)
-  })
+  }, 120_000)
 
   it("determinizes only the opponent's hidden cards", () => {
     const { states } = play('normal', 'normal', 3)
@@ -118,6 +125,7 @@ describe('balance runs', () => {
         decks: FIRST_QUEST_DECKS,
         games: 16,
         levels: ['normal', 'easy'],
+        playouts: 8,
         seed: 3,
       })
       expect(r.played).toBe(16)

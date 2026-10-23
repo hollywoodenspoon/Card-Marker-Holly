@@ -82,7 +82,8 @@ export function playSlice({ cards, decks, games, bot }: LabSlice): LabSliceResul
     let first = s.initiative
     let problem: string | null = null
     for (let n = 0; n < MAX_MOVES && s.step.k !== 'over'; n++) {
-      const m = bot === 'quick' ? quickMove(s, r) : botMove(s, 'normal', g.seed + n * 31)
+      // 'normal' is the lab's name for the Tricks bot (the table's Easy since v0.2.0).
+      const m = bot === 'quick' ? quickMove(s, r) : botMove(s, 'easy', g.seed + n * 31)
       const next = apply(s, m)
       if (next === s) {
         problem = `a bot's move was refused: ${JSON.stringify(m)}`
