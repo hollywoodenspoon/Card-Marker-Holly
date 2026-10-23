@@ -111,29 +111,41 @@ export interface PieceStats {
   dd?: number
 }
 
-/** Attack, Defense and Fighting Spirit chips along a card's bottom edge. */
+/**
+ * Attack, Defense and Fighting Spirit chips where the card prints them: Attack
+ * on the middle of the left edge, Defense on the right, Fighting Spirit on top.
+ */
 export function StatChips({ stats, px }: { stats: PieceStats; px: number }) {
   const size = Math.max(9, Math.min(14, px))
-  const tone = (delta: number | undefined, base: string) =>
+  const chip = (delta: number | undefined, base: string, where: string) =>
     cn(
-      'rounded px-1 font-bold tabular-nums leading-tight text-white shadow',
+      'pointer-events-none absolute rounded px-1 font-bold tabular-nums leading-tight text-white shadow',
       base,
+      where,
       delta && delta > 0 && 'ring-1 ring-white',
       delta && delta < 0 && 'opacity-80 line-through decoration-white/60',
     )
   return (
-    <span
-      className="pointer-events-none absolute inset-x-0 bottom-0.5 flex justify-center gap-0.5"
-      style={{ fontSize: size }}
-      data-testid="piece-stats"
-    >
-      <span className={tone(stats.da, 'bg-red-600/90')} title="Attack">
+    <span className="contents" style={{ fontSize: size }} data-testid="piece-stats">
+      <span
+        className={chip(stats.da, 'bg-red-600/90', 'top-1/2 left-0 -translate-y-1/2')}
+        style={{ fontSize: size }}
+        title="Attack"
+      >
         A{stats.a}
       </span>
-      <span className={tone(stats.dd, 'bg-emerald-600/90')} title="Defense">
+      <span
+        className={chip(stats.dd, 'bg-emerald-600/90', 'top-1/2 right-0 -translate-y-1/2')}
+        style={{ fontSize: size }}
+        title="Defense"
+      >
         D{stats.d}
       </span>
-      <span className={tone(undefined, 'bg-amber-500/90 text-black')} title="Fighting Spirit">
+      <span
+        className={chip(undefined, 'bg-amber-500/90 text-black', 'top-0 left-1/2 -translate-x-1/2')}
+        style={{ fontSize: size }}
+        title="Fighting Spirit"
+      >
         FS{stats.fs}
       </span>
     </span>
@@ -164,6 +176,7 @@ export const PieceView = memo(function PieceView({
   dragging,
   cue,
   dim,
+  lifted,
 }: {
   box: PieceBox
   k: number
@@ -190,6 +203,8 @@ export const PieceView = memo(function PieceView({
   cue?: CueKind
   /** It's drawn on the combat stage: faint here. */
   dim?: boolean
+  /** A player is picking it right now: it lifts and glows gold. */
+  lifted?: boolean
 }) {
   const w = box.w * k
   const h = box.h * k
@@ -208,7 +223,8 @@ export const PieceView = memo(function PieceView({
         'absolute touch-none rounded-[5%] shadow-md transition-[left,top,transform,box-shadow] duration-300 ease-out select-none motion-reduce:transition-none',
         selected && 'ring-4 ring-accent',
         picked && !selected && 'ring-4 ring-amber-400',
-        role && !selected && !picked && ROLE_RING[role],
+        role && !selected && !picked && !lifted && ROLE_RING[role],
+        lifted && 'shadow-[0_0_24px_rgba(250,204,21,0.9)] ring-4 ring-yellow-300',
         hint && !selected && !picked && 'ring-4 ring-emerald-400',
         cue && !selected && cn('ring-4 motion-safe:animate-pulse', CUE_RING[cue]),
         (dragging || dim) && 'opacity-40',
@@ -218,8 +234,8 @@ export const PieceView = memo(function PieceView({
         top: (box.cy - box.h / 2) * k,
         width: w,
         height: h,
-        transform: `rotate(${box.rotation}deg)`,
-        zIndex: 10 + box.z + (selected ? 100 : 0),
+        transform: `${lifted ? 'translateY(-10px) scale(1.1) ' : ''}rotate(${box.rotation}deg)`,
+        zIndex: 10 + box.z + (selected ? 100 : 0) + (lifted ? 200 : 0),
       }}
     >
       <div

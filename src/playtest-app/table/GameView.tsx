@@ -29,6 +29,8 @@ import {
 import { presets } from '@/playtest/setup'
 import { ActionBar } from './ActionBar'
 import { ActionCallout } from './ActionCallout'
+import { ActionFeed } from './ActionFeed'
+import { Flights } from './Flights'
 import { HoverZoom } from './HoverZoom'
 import { Spotlight } from './Spotlight'
 import { CardPreview } from './CardPreview'
@@ -343,6 +345,8 @@ export function GameView({
             <div className="relative flex min-w-0 flex-1 flex-col">
               <TableCanvas onOpenZone={setZone} onPreview={setPreview} staged={staged} />
               {stage && <CombatStage stage={stage} onPreview={setPreview} />}
+              <ActionFeed />
+              <Flights />
               <HoverZoom />
               <Spotlight />
               <ActionCallout

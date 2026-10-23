@@ -774,3 +774,12 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
   - the combat stage keeps the viewer's Support in a hand tray (and can still be hidden);
   - a resting mouse zooms a card (computers only: `(hover: hover) and (pointer: fine)`);
   - phase and Engagement banners, an activating ability's card zooming up, target lines, +N pops, card flips and slides. All are derived from the frames being played back (`spotlight.ts`), timed by the Action speed, and off in Rush and with reduced motion.
+
+## Hearthside Table: seeing every action (v0.5.0-beta)
+
+- **Rest-zone Fighting Spirit** is reusable once per Engagement, as built (owner confirmed, 2026-10-23, after a replay where Ghoulish Assassin was used in both Engagements). The stage now lists each side's usable rest-zone cards, and tags one used from the rest zone.
+- **Stat chips** sit where the card prints the values: Attack on the left edge, Defense on the right, Fighting Spirit on top.
+- **Row zones** (the Support row) lay cards side by side in one or two lines, none overlapping; only when even two lines would shrink cards below 45% do they overlap as before.
+- **What each player is doing:** the acting player's chip and half of the table light up, each chip shows hand size, last action and Passed, the table has a recent-actions column per player, and a "Your turn" banner plays against a bot (`activity.ts`).
+- **The selection beat:** before a move by anyone but the viewer, its cards lift and glow gold with a pointer and a line saying what is picked (`intent.ts`, shown at playback index −1). It plays for every player in "Everyone sees all", and never in Rush. A Fighting Spirit card then flies from the hand onto the stage (`Flights.tsx`).
+- **Version 0.5.0-beta** rather than 0.4.1: the owner's list grew into new features, so the middle number goes up.

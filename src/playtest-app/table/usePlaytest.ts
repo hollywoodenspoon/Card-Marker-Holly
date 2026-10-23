@@ -7,6 +7,7 @@ import { applyAction, type TableAction } from '@/playtest/actions'
 import { randomSeed } from '@/playtest/rng'
 import type { GameSetup } from '@/playtest/setup'
 import { createTable, type DeckCards, type TableState } from '@/playtest/state'
+import { intentOf, type Intent } from './intent'
 import { movesFor, tapPiece } from './rulesPlay'
 
 const HISTORY = 500
@@ -47,7 +48,10 @@ function savedSpeed(): Speed {
 export interface Playback {
   from: AsState
   frames: AsState[]
+  /** −1 while the intent beat shows, before the first frame. */
   i: number
+  /** What the player is about to do, shown first when someone else plays. */
+  intent?: Intent | null
 }
 
 /**
@@ -305,12 +309,18 @@ export const usePlaytest = create<PlaytestStore>((set, get) => ({
     }
     if (next === rules) return
     const show = speed !== 'rush' && frames.length > 0
+    // Someone else's move: a beat first that shows the cards they pick.
+    const who = actor(rules)
+    const intent =
+      show && who !== null && get().viewer !== who && played.length
+        ? intentOf(rules, played[0])
+        : null
     set({
       rules: next,
-      state: toTable(setup, show ? frames[0] : next),
+      state: toTable(setup, intent ? rules : show ? frames[0] : next),
       rulesPast: [...rulesPast, rules].slice(-HISTORY),
       rulesFuture: [],
-      playback: show ? { from: rules, frames, i: 0 } : null,
+      playback: show ? { from: rules, frames, i: intent ? -1 : 0, intent } : null,
       moves: game ? [...get().moves, played] : [],
       movesFuture: [],
       picks: [],
@@ -544,11 +554,12 @@ export const usePlaytest = create<PlaytestStore>((set, get) => ({
 
 /** The rules state on screen: the playback's current action, or the game itself. */
 export const shownRules = (s: PlaytestStore): AsState | null =>
-  s.playback ? s.playback.frames[s.playback.i] : s.rules
+  s.playback ? (s.playback.i < 0 ? s.playback.from : s.playback.frames[s.playback.i]) : s.rules
 
 /** The moment before the one on screen, while actions are being shown (for the cues). */
 export const shownBefore = (s: PlaytestStore): AsState | null => {
-  if (s.playback) return s.playback.i > 0 ? s.playback.frames[s.playback.i - 1] : s.playback.from
+  if (s.playback)
+    return s.playback.i > 0 ? s.playback.frames[s.playback.i - 1] : s.playback.from
   if (s.replay) return s.replay.i > 0 ? s.replay.frames[s.replay.i - 1] : null
   return null
 }

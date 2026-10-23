@@ -25,9 +25,12 @@ export function Spotlight() {
   const shown = usePlaytest(shownRules)
   const before = usePlaytest(shownBefore)
   const pack = usePack()
+  const bots = usePlaytest((s) => s.bots)
+  // Against a bot: the person's seat, for a "Your turn" banner.
+  const human = bots[0] && !bots[1] ? 1 : !bots[0] && bots[1] ? 0 : undefined
   const spot = useMemo(
-    () => (playing && shown && before ? spotlight(before, shown) : null),
-    [playing, shown, before],
+    () => (playing && shown && before ? spotlight(before, shown, human) : null),
+    [playing, shown, before, human],
   )
   // While a card is marked for a choice: a line from the ability's card to it.
   const live = useMemo<TargetLine | null>(() => {

@@ -1,6 +1,6 @@
 # Hearthside Cardworks
 
-Version **0.4.0-beta** (beta). Formerly _Card Maker_; its playtest app is **Hearthside Table**.
+Version **0.5.0-beta** (beta). Formerly _Card Maker_; its playtest app is **Hearthside Table**.
 
 A card editor built with React, TypeScript, Vite and a Konva canvas. It runs as a website (projects stored in the browser), or as a desktop app for Arch Linux and CachyOS (projects stored as folders of ordinary files). There is no backend, and it works offline.
 

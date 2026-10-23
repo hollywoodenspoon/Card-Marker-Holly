@@ -94,14 +94,68 @@ export function CombatStage({
   // Player 1 sits at the bottom of the table: on a tall screen, their stack goes below.
   const atkFirst = wide || attacker === 1
 
+  const restStrip = (seat: 0 | 1) =>
+    stage.rest[seat].length > 0 && (
+      <div
+        className="flex items-center gap-1 rounded-md bg-amber-500/25 px-1.5 py-1 ring-1 ring-amber-400/70"
+        data-testid="stage-rest"
+        title="Rest-zone cards this player can still use for Fighting Spirit in this Engagement"
+      >
+        <span className="text-[10px] leading-tight font-semibold text-amber-100">
+          Rest zone
+          <br />
+          ready
+        </span>
+        {stage.rest[seat].map((r) => {
+          const p = state.pieces[r.id]
+          if (!p) return null
+          const f = pack.faces[p.cardId]
+          return (
+            <button
+              key={r.id}
+              type="button"
+              className="relative h-10 shrink-0 overflow-hidden rounded ring-1 ring-amber-300 sm:h-14"
+              style={{ aspectRatio: `${cw} / ${Math.max(size.w, size.h)}` }}
+              onClick={() => onPreview(r.id)}
+              data-hover-piece={r.id}
+              aria-label={`${p.name} in the rest zone, +${r.value ?? '?'}`}
+            >
+              <PieceFace piece={p} face={f} seen="face" color={color(p.owner)} />
+              <span className="absolute inset-x-0 bottom-0 bg-amber-500 text-center text-[10px] font-bold text-black">
+                {r.value === null ? 'coin' : `+${r.value}`}
+              </span>
+            </button>
+          )
+        })}
+      </div>
+    )
   const groupView = (g: StageGroup, label: string, total: number, fs: number) => (
     <div className="flex flex-col items-center gap-1">
-      <div className="relative flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-0.5 text-xs font-semibold text-white">
+      <div
+        className={cn(
+          'relative flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-0.5 text-xs font-semibold text-white',
+          stage.turn === g.seat && 'ring-2 ring-amber-300',
+        )}
+      >
         {popsFor(label === 'Attack' ? 'atk' : 'def')}
+        {stage.turn === g.seat && (
+          <span className="text-amber-300 motion-safe:animate-pulse" aria-label="Their turn">
+            ▶
+          </span>
+        )}
         <span className="size-2 rounded-full" style={{ background: color(g.seat) }} />
         {name(g.seat)}: {label} <span className="tabular-nums">{total}</span>
         {fs > 0 && <span className="font-normal text-white/75">(+{fs} FS)</span>}
+        <span className="font-normal text-white/75" data-testid="stage-hand-count">
+          · Hand {stage.hand[g.seat]}
+        </span>
+        {stage.passed[g.seat] && (
+          <span className="rounded bg-white/85 px-1 text-[10px] font-bold text-black uppercase">
+            Passed
+          </span>
+        )}
       </div>
+      {restStrip(g.seat)}
       <div className="relative" style={{ width: g.w * k, height: Math.max(g.h, 1) * k }}>
         {g.cards.length === 0 && (
           <span className="absolute inset-0 grid place-items-center text-xs text-white/80">
@@ -162,6 +216,11 @@ export function CombatStage({
                   +{c.value}
                 </span>
               )}
+              {c.fromRest && (
+                <span className="absolute -top-2 left-1 rounded-full bg-slate-800 px-1.5 text-[10px] font-semibold text-amber-200 shadow ring-1 ring-amber-300">
+                  from rest zone
+                </span>
+              )}
             </button>,
           ]
         })}
@@ -220,6 +279,39 @@ export function CombatStage({
     </div>
   )
 
+  // The card a player is about to reveal as Fighting Spirit lifts into view (face
+  // down if you may not see it), before it lands on the stage.
+  const intent = usePlaytest((s) => (s.playback && s.playback.i < 0 ? s.playback.intent : null))
+  const intentView = intent && intent.pieces.length > 0 && (
+    <div
+      className="hs-pop pointer-events-none absolute top-14 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 rounded-xl bg-black/70 px-3 py-2 shadow-xl ring-2 ring-yellow-300 sm:top-4"
+      data-testid="stage-intent"
+    >
+      {intent.pieces.slice(0, 3).map((id) => {
+        const p = state.pieces[id]
+        if (!p) return null
+        const seen = seenBy(setup, state, id, viewer)
+        return (
+          <div
+            key={id}
+            className="h-16 -translate-y-1 overflow-hidden rounded-md shadow-[0_0_18px_rgba(250,204,21,0.9)] ring-2 ring-yellow-300 sm:h-24"
+            style={{ aspectRatio: `${cw} / ${Math.max(size.w, size.h)}` }}
+          >
+            <PieceFace
+              piece={p}
+              face={pack.faces[p.cardId]}
+              seen={seen === 'back' ? 'back' : 'face'}
+              color={color(p.owner)}
+            />
+          </div>
+        )
+      })}
+      <span className="text-sm font-semibold text-yellow-200">
+        {name(intent.seat)} {intent.what}
+      </span>
+    </div>
+  )
+
   const a = groupView(atk, 'Attack', totals.attack, fsAtk)
   const d = groupView(def, 'Defense', totals.defense, fsDef)
   return (
@@ -264,6 +356,7 @@ export function CombatStage({
         </div>
       )}
       {!hidden && handView}
+      {!hidden && intentView}
     </div>
   )
 }

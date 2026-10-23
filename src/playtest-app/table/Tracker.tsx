@@ -13,6 +13,8 @@ import { cn } from '@/lib/cn'
 import { zoneKey, type GameSetup } from '@/playtest/setup'
 import type { TableState } from '@/playtest/state'
 import { Button, IconButton } from '@/ui/components/ui/button'
+import { actor } from '@/adventure/engine'
+import { recentActions, stepVerb } from './activity'
 import { TokenShape } from './Piece'
 import { shownRules, usePlaytest } from './usePlaytest'
 
@@ -31,6 +33,8 @@ export function Tracker({ phone }: { phone: boolean }) {
   const act = usePlaytest((s) => s.act)
   // With the rules on, the rules keep score; the tracker only shows it.
   const rules = usePlaytest(shownRules)
+  const bots = usePlaytest((s) => s.bots)
+  const who = rules ? actor(rules) : null
   if (rules)
     return (
       <div
@@ -43,11 +47,18 @@ export function Tracker({ phone }: { phone: boolean }) {
         {rules.players.map((p, seat) => (
           <span
             key={seat}
-            className="flex items-center gap-1.5 rounded-lg border px-2 py-1 text-sm"
-            style={{
-              borderColor: `color-mix(in oklab, ${setup.seats[seat]?.color} 60%, transparent)`,
-            }}
+            className={cn(
+              'flex items-center gap-1.5 rounded-lg border px-2 py-1 text-sm transition-shadow',
+              who === seat && 'shadow-[0_0_0_2px_var(--seat),0_0_14px_var(--seat)]',
+            )}
+            style={
+              {
+                borderColor: `color-mix(in oklab, ${setup.seats[seat]?.color} 60%, transparent)`,
+                '--seat': setup.seats[seat]?.color,
+              } as React.CSSProperties
+            }
             data-testid={`playtest-seat-${seat}`}
+            data-acting={who === seat || undefined}
           >
             <span
               className="size-2.5 rounded-full"
@@ -67,6 +78,34 @@ export function Tracker({ phone }: { phone: boolean }) {
               )}
             >
               Points <span className="font-semibold">{p.points}</span>
+            </span>
+            <span
+              className="text-muted-foreground tabular-nums"
+              data-testid={`playtest-hand-${seat}`}
+            >
+              Hand <span className="font-semibold text-foreground">{p.support.length}</span>
+            </span>
+            {rules.engagement?.passed[seat] && (
+              <span className="rounded bg-muted px-1 text-[11px] font-semibold uppercase">
+                Passed
+              </span>
+            )}
+            <span
+              className="max-w-[16rem] truncate text-xs text-muted-foreground"
+              data-testid={`playtest-doing-${seat}`}
+            >
+              {who === seat ? (
+                <span className="font-semibold text-foreground">
+                  <span
+                    className="mr-1 inline-block size-1.5 rounded-full bg-current align-middle motion-safe:animate-pulse"
+                    aria-hidden
+                  />
+                  {stepVerb(rules)}
+                  {bots[seat] ? ' · thinking…' : ''}
+                </span>
+              ) : (
+                !rules.engagement?.passed[seat] && recentActions(rules, seat as 0 | 1, 1)[0]
+              )}
             </span>
           </span>
         ))}

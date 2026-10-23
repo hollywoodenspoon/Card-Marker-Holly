@@ -1,3 +1,4 @@
+import { actor } from '@/adventure/engine'
 import { SEATS, type AsState, type Seat } from '@/adventure/state'
 import { pieceId } from '@/adventure/table'
 
@@ -63,7 +64,11 @@ const ABILITY: { re: RegExp; how: string; owner?: 'line' }[] = [
   { re: /^.+? reveals (.+?) from their Support: /, how: 'Support Ability', owner: 'line' },
 ]
 
-export function spotlight(prev: AsState, next: AsState): Spot {
+/**
+ * `human`: the one seat a person plays against a bot, for a "Your turn"
+ * banner when the turn comes back to them.
+ */
+export function spotlight(prev: AsState, next: AsState, human?: Seat): Spot {
   const spot: Spot = { banner: null, activation: null, target: null }
   if (next.log.length <= prev.log.length) return spot
   const line = next.log.at(-1)!.text
@@ -76,6 +81,14 @@ export function spotlight(prev: AsState, next: AsState): Spot {
       text: PHASE[next.phase] ?? '',
       sub: next.phase === 'skirmish' ? `Round ${next.round}` : undefined,
     }
+  if (
+    !spot.banner &&
+    human !== undefined &&
+    actor(next) === human &&
+    actor(prev) !== human &&
+    next.step.k !== 'over'
+  )
+    spot.banner = { kind: 'phase', text: 'Your turn' }
   const engagement = /^(First|Second|Next) Engagement: /.exec(line)
   if (engagement) spot.banner = { kind: 'phase', text: `${engagement[1]} Engagement` }
 
