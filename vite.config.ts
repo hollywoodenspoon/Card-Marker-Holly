@@ -73,8 +73,9 @@ export default defineConfig({
       },
       workbox: {
         // Everything the app needs offline, including the on-demand text editor
-        // and PDF export chunks, the bundled fonts used for PDF outlines and the Help pictures.
-        globPatterns: ['**/*.{js,css,html,svg,png,webp,woff2,woff}'],
+        // and PDF export chunks, the bundled fonts used for PDF outlines, the Help pictures,
+        // and the CMYK colour engine with its printer profile.
+        globPatterns: ['**/*.{js,css,html,svg,png,webp,woff2,woff,wasm,icc}'],
         maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
         navigateFallback: 'index.html',
         // The Playtest app (playtest/) is precached too, but opens its own page.

@@ -5,9 +5,13 @@ import type { RenderNode } from '@/core/render/renderTypes'
 import { alignmentTargets } from '../alignmentTest'
 import type { PrintJob } from '../job'
 import { backCells, mirrorLine, sheetLines, type Line, type Rect, type Sheet } from '../layout'
+import { hexToRgb, type Cmyk } from '../color/cmyk'
+import { builtinProfile, type LoadedProfile } from '../color/profiles'
+import { addOutputIntent } from './cmykPdf'
+import { CmykTarget } from './cmykTarget'
 import type { DrawTarget } from './drawTarget'
 import { GreyTarget } from './greyTarget'
-import { JsPdfTarget } from './jsPdfTarget'
+import { JsPdfTarget, type SvgColors } from './jsPdfTarget'
 import { bleedBands, drawBand } from './bleedFill'
 import { renderCard } from './renderCard'
 import { createPrintResources } from './resources'
@@ -23,8 +27,35 @@ const MARK_WIDTH_MM = 0.2
 const BLEED_DPI = 300
 const GUIDE_WIDTH_MM = 0.1
 
+/** svg2pdf sets RGB colours (0–255, or a hex string); with `colors` they become CMYK. */
+function cmykColors(doc: jsPDF, colors: SvgColors) {
+  const names = ['setFillColor', 'setDrawColor', 'setTextColor'] as const
+  const saved = names.map((n) => doc[n])
+  for (const [i, n] of names.entries()) {
+    const orig = saved[i] as (...a: unknown[]) => jsPDF
+    ;(doc as unknown as Record<string, unknown>)[n] = (...a: unknown[]) => {
+      const rgb =
+        a.length === 3 && a.every((v) => typeof v === 'number')
+          ? (a as [number, number, number])
+          : a.length === 1 && typeof a[0] === 'string' && a[0].startsWith('#')
+            ? hexToRgb(a[0])
+            : null
+      return rgb ? orig.call(doc, ...colors(...rgb)) : orig.apply(doc, a)
+    }
+  }
+  return () => names.forEach((n, i) => ((doc as unknown as Record<string, unknown>)[n] = saved[i]))
+}
+
 /** svg2pdf needs the SVG in the document to resolve styles. */
-async function drawSvg(svg: string, doc: jsPDF, x: number, y: number, w: number, h: number) {
+async function drawSvg(
+  svg: string,
+  doc: jsPDF,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  colors?: SvgColors,
+) {
   const host = document.createElement('div')
   host.style.cssText = 'position:fixed;left:-10000px;top:0;width:0;height:0;overflow:hidden'
   host.innerHTML = svg
@@ -36,10 +67,12 @@ async function drawSvg(svg: string, doc: jsPDF, x: number, y: number, w: number,
     // would leave it and pop a graphics state it never pushed; keep that a no-op.
     const compat = doc.compatAPI
     doc.compatAPI = (() => doc) as typeof doc.compatAPI
+    const plain = colors ? cmykColors(doc, colors) : null
     try {
       await svg2pdf(el, doc, { x, y, width: w, height: h })
     } finally {
       doc.compatAPI = compat
+      plain?.()
     }
   } finally {
     host.remove()
@@ -77,13 +110,22 @@ function leaves(nodes: RenderNode[], out: RenderNode[] = []) {
   return out
 }
 
+export interface CmykExport {
+  /** The printer profile; the built-in FOGRA39 when left out. */
+  profile?: LoadedProfile
+  /** Exact CMYK for chosen colours, by "#rrggbb" (0–1 per ink). */
+  swatches?: Record<string, Cmyk>
+}
+
 /**
- * Fronts and mirrored backs as an RGB PDF: front sheet 1, back sheet 1,
- * front sheet 2, … Pages are exactly the paper size in mm.
+ * Fronts and mirrored backs as a PDF: front sheet 1, back sheet 1, front
+ * sheet 2, … Pages are exactly the paper size in mm. RGB, or CMYK through a
+ * printer profile when the print settings ask for it.
  */
 export async function exportCardsPdf(
   job: PrintJob,
   onProgress?: (done: number, total: number) => void,
+  cmyk: CmykExport = {},
 ): Promise<ExportResult> {
   const { settings } = job
   const warnings = new Set<string>()
@@ -100,7 +142,17 @@ export async function exportCardsPdf(
     ),
   )
   const pdf = new JsPdfTarget(doc, drawSvg)
-  const target: DrawTarget = settings.draftGrey ? new GreyTarget(pdf) : pdf
+  let target: DrawTarget = pdf
+  if (settings.colorMode === 'cmyk') {
+    const profile = cmyk.profile ?? (await builtinProfile())
+    target = new CmykTarget(pdf, {
+      engine: profile.engine,
+      swatches: cmyk.swatches,
+      warn: (m) => warnings.add(m),
+    })
+    addOutputIntent(doc, profile.engine.profile, profile.condition, profile.name)
+  }
+  if (settings.draftGrey) target = new GreyTarget(target)
   const off = { x: settings.backOffsetXMm, y: settings.backOffsetYMm }
   // Marks, guides, mirrored cells and bleed bands for each size group.
   const layouts = job.groups.map((g) => {

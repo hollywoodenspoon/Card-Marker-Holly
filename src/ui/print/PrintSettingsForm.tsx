@@ -9,6 +9,7 @@ import { Label, NativeSelect } from '@/ui/components/ui/input'
 import { Switch } from '@/ui/components/ui/switch'
 import { Tabs, TabsList, TabsTrigger } from '@/ui/components/ui/tabs'
 import { NumberField, Row, Section } from '@/ui/components/fields'
+import { ColorSettings } from './ColorSettings'
 
 const set = (patch: Partial<PrintSettings>, key?: string) =>
   setPrintSettings(patch, key && 'print:' + key)
@@ -120,6 +121,7 @@ export function PrintSettingsForm({ sizes }: { sizes: { w: number; h: number }[]
           </div>
         )}
       </Section>
+      <ColorSettings p={p} />
       <Section title="Draft (saves ink)">
         <Toggle label="Greyscale" checked={p.draftGrey} onChange={(v) => set({ draftGrey: v })} />
         <Toggle

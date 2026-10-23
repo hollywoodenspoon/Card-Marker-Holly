@@ -24,6 +24,9 @@ export const DEFAULT_PRINT: FullPrintSettings = {
   deckId: null,
   copies: {},
   order: null,
+  colorMode: 'rgb',
+  cmykProfile: 'builtin',
+  cmykSwatches: {},
 }
 
 /** Fill in defaults for settings saved by older versions. */

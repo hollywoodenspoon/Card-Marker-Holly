@@ -1,6 +1,6 @@
 # Card Maker
 
-A clean, modern card editor that runs in the browser on PC and phone. It stores cards, images, and fonts locally, supports reusable templates with fields, and exports print-ready A4 sheets with bleed and cut guides as RGB PDF.
+A clean, modern card editor that runs in the browser on PC and phone. It stores cards, images, and fonts locally, supports reusable templates with fields, and exports print-ready A4 sheets with bleed and cut guides as RGB or CMYK PDF.
 
 The owner designs cards for an original 1v1 card game and cuts printed sheets by hand. Optimize for: fast design workflow, reusable layouts, and accurate print output.
 
@@ -8,7 +8,7 @@ The owner designs cards for an original 1v1 card game and cuts printed sheets by
 
 - Web app first. No backend. Everything runs and is stored in the browser.
 - All geometry is stored in **millimetres**. Convert to pixels only at render time.
-- **RGB PDF export only.** Do not add CMYK conversion. Keep the export module separate so CMYK could be added later.
+- **RGB or CMYK PDF export.** RGB for home printers; CMYK through an ICC printer profile (FOGRA39 built in, or the print shop's own) for print shops. No other colour modes. Keep the export module separate from the editor core.
 - **A4 only** for printing (210 x 297 mm). Keep paper size as a setting in code so other sizes can be added later.
 - Responsive from day one: desktop, tablet, and phone. Do not leave mobile for the end.
 - Dark, light, and system themes from day one.
@@ -46,12 +46,12 @@ src/
 
 ## Card sizes (presets, all editable)
 
-| Preset | Size (mm) | Notes |
-|---|---|---|
-| ID card | 86 x 54 | **Default / main format** |
-| Poker | 63.5 x 88.9 | 2.5 x 3.5 in standard poker size |
-| Trading card | 63 x 88 | Common rounded TCG size |
-| Custom | any | User-entered width and height |
+| Preset       | Size (mm)   | Notes                            |
+| ------------ | ----------- | -------------------------------- |
+| ID card      | 86 x 54     | **Default / main format**        |
+| Poker        | 63.5 x 88.9 | 2.5 x 3.5 in standard poker size |
+| Trading card | 63 x 88     | Common rounded TCG size          |
+| Custom       | any         | User-entered width and height    |
 
 Orientation can be portrait or landscape. Bleed is set per project, adjustable from 0 mm, default 3 mm.
 
@@ -85,6 +85,7 @@ All units in mm. Everything is stored in IndexedDB.
 ## Editor features
 
 Canvas
+
 - Canvas shown in mm with rulers, zoom, pan, and a toggleable overlay for bleed and safe area.
 - Snapping to card edges, guides, and other elements. Alignment helpers.
 - Undo and redo for everything.
@@ -92,6 +93,7 @@ Canvas
 - The canvas background stays neutral in both themes so card colors always look true.
 
 Images (Canva-style)
+
 - Upload by drag and drop, file picker, or paste.
 - Move, resize with corner handles (aspect ratio locked by default, modifier key for free resize), rotate with a handle or by typing an angle.
 - Flip horizontal and vertical, crop, opacity, layer order, lock, replace image while keeping position and size.
@@ -100,12 +102,14 @@ Images (Canva-style)
 - Print-quality warning: if an image would print below ~300 DPI at its placed size, show a warning on the element.
 
 Text
+
 - Rich text editor with per-character styling: font, size, color, bold, italic, underline, alignment, line height, letter spacing.
 - Custom fonts from uploads.
 - **Auto-shrink**: text fields shrink to fit their box, with a minimum size.
 - **Inline symbols**: typing `{name}` (e.g. `{fire}`) in a text field inserts an icon from the project's assets. Symbols are assets tagged with a name.
 
 Cards
+
 - Duplicate card, and quick "use previous card's layout".
 - Cards list with thumbnails, search, reorder.
 
@@ -117,7 +121,7 @@ Cards
 - **Cut marks sit outside the bleed area** (small gap from the bleed edge) so they never print on the card. Option for full guide lines across the sheet as well. The user cuts by hand, so the marks and lines must be clear and accurate.
 - Print preview shows the fronts sheet and the matching backs sheet.
 - **Backs sheet is mirrored** so each back lines up behind its front when printed double-sided. Provide a setting for flip on the long edge or the short edge, and a one-page alignment test sheet.
-- Export to RGB PDF. Output must be exact mm sizes (check at 100% scale). Fonts embedded or converted so the PDF looks identical to the preview.
+- Export to RGB or CMYK PDF. Output must be exact mm sizes (check at 100% scale). Fonts embedded or converted so the PDF looks identical to the preview.
 - Write unit tests for the sheet layout math (grid fit, mirrored back positions, mark positions).
 
 ## UI and UX
@@ -134,6 +138,7 @@ Cards
 ## Build order
 
 ### Shot 1: usable core
+
 1. Project setup, responsive shell (desktop, tablet, phone), themes
 2. Data model and storage with autosave
 3. Canvas in mm with the card size presets, snapping, undo/redo, layers
@@ -142,7 +147,8 @@ Cards
 6. Card fronts and backs
 
 ### Shot 2: print and polish
-7. A4 print sheet: adjustable bleed, cut marks, guide lines, mirrored backs, alignment test, RGB PDF export
+
+7. A4 print sheet: adjustable bleed, cut marks, guide lines, mirrored backs, alignment test, RGB PDF export (CMYK added in v0.3.0)
 8. Inline symbols and style presets
 9. Phone layout pass, touch behavior, PWA
 10. Template and project export and import (file backup)
@@ -151,10 +157,10 @@ Cards
 
 - Start in plan mode. Present the plan (stack choices, folder layout, data schema) before writing code, and wait for approval.
 - Commit to git after each milestone with a clear message.
-- Every PR bumps the version in `package.json` (keep the alpha label): fixes bump the last number (0.1.1-alpha.1 → 0.1.2-alpha.1), major features bump the middle one (→ 0.2.0-alpha.1). Start the PR title with it, e.g. "v0.1.2-alpha.1: …". See DECISIONS.md.
+- Every PR bumps the version in `package.json` (keep the beta label, since 0.3.0-beta): fixes bump the last number (0.3.0-beta → 0.3.1-beta), major features bump the middle one (→ 0.4.0-beta). Start the PR title with it, e.g. "v0.3.1-beta: …". See DECISIONS.md.
 - Run the dev server and test the app yourself. For print features, generate a PDF and check sizes and positions.
 - Keep `README.md` short: how to install, run, and build.
-- Do not add features outside this document without asking. Do not add CMYK, accounts, or a backend.
+- Do not add features outside this document without asking. Do not add accounts or a backend.
 - If a requirement is ambiguous, pick the simplest option that matches this document and note the assumption in a `DECISIONS.md` file.
 - Fix type errors and lint warnings as you go. Do not leave failing tests.
 

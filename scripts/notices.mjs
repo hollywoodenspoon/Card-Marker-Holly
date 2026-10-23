@@ -71,6 +71,16 @@ export function notices() {
     '',
     'The desktop app is built on Electron and Chromium; their licences ship next to',
     'the program as LICENSE.electron.txt and LICENSES.chromium.html.',
+    '',
+    rule,
+    // Vendored files (not npm packages), used for CMYK print export.
+    readFileSync(path.join(root, 'src/print/color/vendor/LICENSE.txt'), 'utf8').trim(),
+    '',
+    rule,
+    readFileSync(
+      path.join(root, 'src/print/color/profiles/LICENSE-ISOcoated_v2_eci.txt'),
+      'utf8',
+    ).trim(),
   ]
   for (const p of shipped())
     parts.push('', rule, `${p.name} ${p.version} (${p.license})`, ...(p.text ? ['', p.text] : []))

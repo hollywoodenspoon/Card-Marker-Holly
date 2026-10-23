@@ -1,6 +1,6 @@
 # Hearthside Cardworks
 
-Version **0.2.1-alpha.1** (early alpha). Formerly _Card Maker_; its playtest app is **Hearthside Table**.
+Version **0.3.0-beta** (beta). Formerly _Card Maker_; its playtest app is **Hearthside Table**.
 
 A card editor built with React, TypeScript, Vite and a Konva canvas. It runs as a website (projects stored in the browser), or as a desktop app for Windows and Linux (projects stored as folders of ordinary files). There is no backend, and it works offline.
 
@@ -23,7 +23,7 @@ npm run android:apk    # build release/Hearthside-Cardworks-<version>.apk (needs
 
 **Releases:** set the version in `package.json` on `main`, then on GitHub open **Actions → Release → Run workflow**. The tag `v<version>` is created for you. Pushing a matching tag works too. `.github/workflows/release.yml` builds the Windows Setup and portable exe, the AppImage and the Arch package, attaches them to a GitHub Release and updates the pacman repository. Alpha and beta versions are published as pre-releases. Tick **pacman only** to build just the Arch package and update the pacman repository, with no Windows build and no versioned release.
 
-**Versioning:** `0.1.0-alpha.N` while in early alpha, then `-beta.N`, then `1.0.0` when v1 is done.
+**Versioning:** alpha versions (`0.1.0-alpha.1` to `0.3.0-alpha.1`), beta from `0.3.0-beta` (fixes `0.3.1-beta`, features `0.4.0-beta`), then `1.0.0` when v1 is done.
 
 **Help:** the full user guide is inside the app: ☰ → **Settings** → **Help**, the **Help** button on the left rail, or **F1**. Its pages are Markdown files in `src/help/pages/` (one per topic in `src/help/topics.ts`); `npm run help:shots` retakes the screenshots in `public/help/` from a demo project.
 
@@ -236,6 +236,7 @@ Rail → **Data** (or ☰ → _Card data_) shows every card as a spreadsheet-sty
 - **Bleed fill**: _Mirror edges_ (default) fills the bleed from each card's own edge, so a slightly off cut never shows white; _Stretch edges_; or _As designed_.
 - **Cutting**: solid cut marks at the card edge and, optionally, dotted bleed marks at the bleed edge; both sit outside the bleed and run to the paper edge (switch off for short marks); optional guide lines across the sheet.
 - **Backs**: _Sheets_ = fronts + backs, fronts only, or backs only. Match the long/short-edge flip to your printer, print the **Alignment test** once, and enter any offset as Back offset X/Y.
+- **Colour**: _RGB_ (home printers, default) or _CMYK_ for print shops: converted with a printer profile (FOGRA39 built in, or **Load ICC profile…** for the shop's own), embedded in the PDF. The preview then shows how the colours will print and flags ones that come out duller (**Show where**). Big black areas print rich black, text 100% K; **Exact CMYK colours** fix chosen colours to given inks.
 - **Draft (saves ink)**: _Greyscale_ and/or _Leave out art_ for playtest copies.
 - **Export PDF**: exact mm sizes — print at 100% / "actual size".
 
