@@ -130,6 +130,8 @@ export function TableCanvas({
       }
     return out
   }, [shown])
+  // The acting player's half of the table glows in their colour.
+  const turnSeat = shown ? actor(shown) : null
   const pack = usePack()
   const faces = pack.faces
   const defaultSize = pack.info.cardSize
@@ -190,6 +192,16 @@ export function TableCanvas({
     ro.observe(el)
     return () => ro.disconnect()
   }, [])
+  const turnBox = useMemo(() => {
+    if (turnSeat === null) return null
+    const mine = layout.zones.filter((z) => parseZoneKey(z.key).seat === turnSeat)
+    if (!mine.length) return null
+    const x = Math.min(...mine.map((z) => z.x))
+    const y = Math.min(...mine.map((z) => z.y - LABEL))
+    const r = Math.max(...mine.map((z) => z.x + z.w))
+    const b = Math.max(...mine.map((z) => z.y + z.h))
+    return { seat: turnSeat, x, y, w: r - x, h: b - y }
+  }, [layout, turnSeat])
   const fitK = size.w
     ? Math.min(size.w / (layout.w + MARGIN * 2), size.h / (layout.h + MARGIN * 2))
     : 1
@@ -517,6 +529,21 @@ export function TableCanvas({
             </div>
           )
         })}
+        {turnBox && (
+          <div
+            className="pointer-events-none absolute rounded-2xl transition-all duration-300"
+            style={{
+              left: turnBox.x * k - 6,
+              top: turnBox.y * k - 6,
+              width: turnBox.w * k + 12,
+              height: turnBox.h * k + 12,
+              boxShadow: `0 0 0 3px ${seatColor(turnBox.seat)}, 0 0 28px ${seatColor(turnBox.seat)}`,
+              zIndex: 5,
+            }}
+            data-testid="turn-glow"
+            aria-hidden
+          />
+        )}
         {boxes.map((b) => {
           const piece = state.pieces[b.id]
           const z = setup.zones.find((x) => x.id === parseZoneKey(b.zone).zoneId)
@@ -694,7 +721,7 @@ function stackOnField(boxes: PieceBox[], s: AsState, layout: TableLayout): Piece
     const order = here && cards.includes(here) ? [here, ...cards.filter((c) => c !== here)] : cards
     const c = slotCentre(seat, slot)
     if (!c || order.length < 2) return
-    // Seat 0 sits at the top of the table: its stacks step down, towards the middle.
+    // Seat 1 sits at the top of the table: its stacks step down, towards the middle.
     const dir = seat === 0 ? 1 : -1
     order.forEach((card, k) => {
       const b = boxes.find((x) => x.id === pieceId(seat, card))

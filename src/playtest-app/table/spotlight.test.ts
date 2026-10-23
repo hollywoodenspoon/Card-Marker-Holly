@@ -60,4 +60,13 @@ describe('spotlight', () => {
       to: pieceId(1, target),
     })
   })
+
+  it("says when it's the person's turn again, against a bot", () => {
+    const s = produce(game(), (d) => {
+      d.step = { k: 'fs', seat: 1 }
+    })
+    const back = after(s, 'Player passes.', (d) => void (d.step = { k: 'fs', seat: 0 }))
+    expect(spotlight(s, back, 0).banner?.text).toBe('Your turn')
+    expect(spotlight(s, back).banner).toBeNull()
+  })
 })
