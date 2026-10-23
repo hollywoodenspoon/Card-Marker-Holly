@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { checkDeck } from '../deck'
+import { rulesOf } from '../effects/registry'
 import { ARCHIVE_SETS } from '../fixtures/archiveSets'
 import { FIRST_QUEST, FIRST_QUEST_DECKS } from '../fixtures/firstQuest'
 import { tiers } from './analyze'
@@ -38,6 +39,35 @@ describe('the Balance lab', () => {
     expect(one.checked).toBe(4)
     expect(one.problems).toEqual([])
   })
+
+  it(
+    'counts Battle bonuses, Rest reveals and Final Blow as ability uses',
+    { timeout: 30_000 },
+    () => {
+      const pool = [...FIRST_QUEST, ...ARCHIVE_SETS]
+      const decks = coverageDecks(pool, 40, 11)
+      const r = playSlice({
+        cards: pool,
+        decks,
+        games: randomPairings(40, 150, 9, 0),
+        bot: 'quick',
+      })
+      const used = (pick: (id: string) => boolean) => {
+        const ids = pool.map((c) => c.id).filter(pick)
+        return [ids.length, ids.filter((id) => (r.uses[id]?.[1] ?? 0) > 0).length]
+      }
+      const rules = (id: string) => rulesOf({ cards: byId }, id)
+      for (const [all, seen] of [
+        used((id) => !!(rules(id)?.fs || rules(id)?.fsCoin)),
+        used((id) => !!rules(id)?.restFs),
+        used((id) => !!rules(id)?.finalBlow),
+      ]) {
+        expect(all).toBeGreaterThan(0)
+        // Most come up in 150 games; before, none of them were ever counted.
+        expect(seen).toBeGreaterThan(all / 2)
+      }
+    },
+  )
 
   it('tiers cards by rank', () => {
     const v = Object.fromEntries(Array.from({ length: 10 }, (_, i) => [`c${i}`, i]))

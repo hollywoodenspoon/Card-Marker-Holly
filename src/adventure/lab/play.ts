@@ -2,13 +2,29 @@ import { botMove } from '../bot'
 import { quickMove } from '../bot/policies'
 import type { AsCard } from '../cards'
 import { checkGame } from '../check'
+import { rulesOf } from '../effects/registry'
 import { apply, createGame, type Move, type NewGame } from '../engine'
-import type { Seat } from '../state'
+import type { AsState, Seat } from '../state'
+import { fightingSpirit } from '../stats'
 
 /**
  * The Balance lab's games: a slice of a stage, played in a worker. Each game
  * comes back as one small record; card uses are added up over the slice.
  */
+
+/**
+ * Does this Fighting Spirit reveal use the card's ability? A Rest card's
+ * reveal is its ability; a coin card's coin is; a Battle bonus counts when
+ * its condition holds. (Final Blow is counted from the log.)
+ */
+function fsUsesAbility(s: AsState, m: Move & { t: 'fs' }): boolean {
+  if (m.from === 'rest') return true
+  const r = rulesOf(s, m.card)
+  if (r?.fsCoin) return true
+  if (!r?.fs || !s.engagement || s.step.k !== 'fs') return false
+  const printed = fightingSpirit(s, s.step.seat, m.card)
+  return r.fs(s, s.step.seat, s.engagement, printed, m.card) > printed
+}
 
 /** Quick: the rules-of-thumb bot (about ten times faster). Normal: the table's Normal bot. */
 export type LabBot = 'quick' | 'normal'
@@ -72,16 +88,21 @@ export function playSlice({ cards, decks, games, bot }: LabSlice): LabSliceResul
         problem = `a bot's move was refused: ${JSON.stringify(m)}`
         break
       }
-      if (m.t === 'fs') count(m.card, 0)
+      if (m.t === 'fs') {
+        count(m.card, 0)
+        if (fsUsesAbility(s, m)) count(m.card, 1)
+      }
       if (m.t === 'ability') count(m.card, 1)
       if (g.check) moves.push(m)
       s = next
       if (s.round === 1 && s.step.k !== 'rps' && s.step.k !== 'initiative') first = s.initiative
     }
-    // Flip and Battle Abilities happen by themselves: count them from the log.
+    // Flip and Battle Abilities and Final Blow happen by themselves: count them from the log.
     for (const l of s.log) {
-      const name = /^(?:Flip|Battle) Ability: (.+?): /.exec(l.text)?.[1]
-      const id = name && byName.get(name)
+      const name = /^(?:(?:Flip|Battle) Ability: (.+?): |Final Blow: (.+?) was the last)/.exec(
+        l.text,
+      )
+      const id = name && byName.get(name[1] ?? name[2])
       if (id) count(id, 1)
     }
     const where = `seed ${g.seed}, decks ${g.a} and ${g.b}`
