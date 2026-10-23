@@ -15,7 +15,21 @@ export function recordLog(r: ((d: D) => void) | null) {
   recorder = r
 }
 
+let quiet = false
+
+/** Run `fn` without writing log lines (search playouts: nothing reads them, and the log is the costliest part of a copy). */
+export function withoutLog<T>(fn: () => T): T {
+  const was = quiet
+  quiet = true
+  try {
+    return fn()
+  } finally {
+    quiet = was
+  }
+}
+
 export function log(d: D, text: string, flag?: boolean) {
+  if (quiet) return
   recorder?.(d)
   d.log.push(flag ? { n: d.log.length + 1, text, flag } : { n: d.log.length + 1, text })
 }

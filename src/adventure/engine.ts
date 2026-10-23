@@ -2,7 +2,7 @@ import { current, produce, type Draft } from 'immer'
 import { nextInt, shuffle } from '@/playtest/rng'
 import type { AsCard } from './cards'
 import { ADJACENT_PAIRS, neighbours, SLOTS, slotName } from './board'
-import { coin, isLocked, log, recordLog, refillPool, rest } from './effects/helpers'
+import { coin, isLocked, log, recordLog, refillPool, rest, withoutLog } from './effects/helpers'
 import { rulesOf } from './effects/registry'
 import type { Ability, Ctx, Option, PlanIO } from './effects/types'
 import { engagementSides, engagementTotals, fightingSpirit, finalBlow } from './stats'
@@ -377,6 +377,19 @@ export function apply(s: AsState, m: Move): AsState {
     play(d, m)
     advance(d)
   })
+}
+
+/**
+ * `apply` for bot search: no legality check (the move must come from
+ * `legalMoves`) and no log lines. The same game otherwise, as a test checks.
+ */
+export function applyFast(s: AsState, m: Move): AsState {
+  return withoutLog(() =>
+    produce(s, (d) => {
+      play(d, m)
+      advance(d)
+    }),
+  )
 }
 
 /**
