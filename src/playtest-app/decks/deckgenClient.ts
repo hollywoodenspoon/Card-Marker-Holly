@@ -71,7 +71,7 @@ export async function veryOptimalDeck(
   seed: number,
   onProgress?: (part: number) => void,
   stopped?: () => boolean,
-  { steps = 16, seeds = 2, level = 'normal' as BotLevel } = {},
+  { steps = 16, seeds = 2, level = 'easy' as BotLevel } = {},
 ): Promise<string[]> {
   const start = buildDeck(cards, values, 'optimal', seed).cards
   const field = [...gauntlet, start]

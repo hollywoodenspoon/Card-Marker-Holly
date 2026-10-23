@@ -18,6 +18,18 @@ export type Speed = 'slow' | 'normal' | 'fast' | 'rush'
 export const SPEED_MS: Record<Speed, number> = { slow: 1800, normal: 1000, fast: 350, rush: 0 }
 const NO_BOTS: Bots = [null, null]
 const SPEED_KEY = 'hearthside-table-speed'
+const THINK_KEY = 'hearthside-table-hard-think'
+/** How long the Hard bot may think per move on the table (ms). */
+export const THINK_TIMES = [500, 1000, 2000, 4000] as const
+
+function savedThink(): number {
+  try {
+    const v = Number(localStorage.getItem(THINK_KEY))
+    return (THINK_TIMES as readonly number[]).includes(v) ? v : 1000
+  } catch {
+    return 1000
+  }
+}
 
 function savedSpeed(): Speed {
   try {
@@ -120,6 +132,8 @@ interface PlaytestStore {
   /** Seats the bot plays, and how fast it moves. */
   bots: Bots
   speed: Speed
+  /** The Hard bot's thinking time per move (ms). */
+  thinkMs: number
   botPaused: boolean
   /** The move being shown action by action (null: nothing to show). */
   playback: Playback | null
@@ -156,6 +170,7 @@ interface PlaytestStore {
     },
   ) => void
   setSpeed: (s: Speed) => void
+  setThinkMs: (ms: number) => void
   /** Show the next action of the playback (or end it). */
   nextFrame: () => void
   /** Jump to the end of the playback. */
@@ -199,6 +214,7 @@ export const usePlaytest = create<PlaytestStore>((set, get) => ({
   picks: [],
   bots: NO_BOTS,
   speed: savedSpeed(),
+  thinkMs: savedThink(),
   botPaused: false,
   playback: null,
   replay: null,
@@ -499,6 +515,14 @@ export const usePlaytest = create<PlaytestStore>((set, get) => ({
     }
     if (speed === 'rush') get().skip()
     set({ speed })
+  },
+  setThinkMs: (thinkMs) => {
+    try {
+      localStorage.setItem(THINK_KEY, String(thinkMs))
+    } catch {
+      // Not saved (private mode): the choice still holds for this visit.
+    }
+    set({ thinkMs })
   },
   setBotPaused: (botPaused) => set({ botPaused }),
 }))

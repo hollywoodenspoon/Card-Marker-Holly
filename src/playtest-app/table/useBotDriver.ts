@@ -17,6 +17,7 @@ export function useBotDriver() {
   const bots = usePlaytest((s) => s.bots)
   const paused = usePlaytest((s) => s.botPaused)
   const speed = usePlaytest((s) => s.speed)
+  const thinkMs = usePlaytest((s) => s.thinkMs)
   const showing = usePlaytest((s) => !!s.playback || !!s.replay)
   const [stepTick, setStepTick] = useState(0)
   const seat = rules ? actor(rules) : null
@@ -26,7 +27,10 @@ export function useBotDriver() {
     if (!rules || !level || showing || (paused && stepTick === 0)) return
     let live = true
     const started = Date.now()
-    askBot(rules, level, (rules.seed ^ (rules.log.length * 2654435761)) >>> 0)
+    // The seat is in the seed: rock-paper-scissors throws are hidden, so both
+    // seats throw at the same log length, and the same seed gave the same throw.
+    const seed = (rules.seed ^ (rules.log.length * 2654435761) ^ (seat! * 0x85ebca6b)) >>> 0
+    askBot(rules, level, seed, thinkMs)
       .then((move) => {
         const wait = Math.max(0, BOT_DELAY[speed] - (Date.now() - started))
         setTimeout(() => {
@@ -44,7 +48,7 @@ export function useBotDriver() {
       live = false
     }
     // A step request is consumed by the move it plays.
-  }, [rules, level, paused, speed, stepTick, showing])
+  }, [rules, seat, level, paused, speed, stepTick, showing, thinkMs])
 
   return { botToAct: !!level, step: () => setStepTick((t) => t + 1) }
 }

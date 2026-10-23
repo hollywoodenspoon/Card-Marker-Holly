@@ -578,7 +578,7 @@ function Setup({
           >
             {BOT_LEVELS.map((l) => (
               <option key={l} value={l}>
-                {BOT_NAMES[l]} bots{l === 'hard' ? ' (slow)' : ''}
+                {BOT_NAMES[l]} bots{l === 'easy' ? '' : ' (slow)'}
               </option>
             ))}
           </NativeSelect>

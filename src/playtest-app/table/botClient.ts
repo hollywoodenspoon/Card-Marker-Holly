@@ -23,10 +23,15 @@ function getWorker() {
 }
 
 /** Ask the bot (in a worker) for its move. */
-export function askBot(state: AsState, level: BotLevel, seed: number): Promise<Move> {
+export function askBot(
+  state: AsState,
+  level: BotLevel,
+  seed: number,
+  thinkMs?: number,
+): Promise<Move> {
   const id = ++seq
   return new Promise((resolve, reject) => {
     waiting.set(id, { resolve, reject })
-    getWorker().postMessage({ id, state, level, seed })
+    getWorker().postMessage({ id, state, level, seed, thinkMs })
   })
 }

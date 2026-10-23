@@ -140,14 +140,23 @@ The card ability tests (`effects/cards.test.ts`) build small boards from `fixtur
 
 ## Bots and balance runs
 
-`bot/index.ts`: `botMove(state, level, seed, {playouts})` returns a move for the player to act, given as `'easy'`, `'normal'` or `'hard'`.
+`bot/index.ts`: `botMove(state, level, seed, {playouts, iterations, thinkMs})` returns a move for the player to act, given as `'easy'`, `'normal'` or `'hard'`.
 
-- Easy and Normal (`bot/policies.ts`) are rules of thumb.
-- Hard is determinized Monte Carlo:
+- Easy ("Tricks", `tricksMove`): rules of thumb for placing and revealing (`bot/policies.ts`), and Skirmish and Combat Tricks (`bot/tricks.ts`) for abilities and choices, scored by `bot/evaluate.ts`.
+- Normal ("Search", `searchMove`): Tricks, plus determinized Monte Carlo for Fighting Spirit and the First Engagement:
   - `bot/determinize.ts` shuffles the opponent's hidden cards and reseeds coins.
-  - Each candidate is played to the end of the round with Normal on both sides.
+  - Each candidate is played to the end of the round with quick play on both sides (`playouts`, 96 by default).
   - The candidate with the best average score wins.
+- Hard (`bot/mcts.ts`, `mctsMove`): single-observer Information Set MCTS over every decision but rock-paper-scissors.
+  - Each iteration determinizes, walks one shared tree for both seats (children keyed by `moveKey`, UCB1 with availability counts, progressive widening of 2 + √visits children), then plays a light quick playout of up to 24 moves or to the round's end.
+  - The end is scored as 1 or 0 for a finished game, otherwise the sigmoid of `evaluate`. The most-visited root move is played.
+  - The budget is `iterations` (400 by default; bot-only runs, tests and the ladder, so results repeat) or `thinkMs` (the table, with a ceiling of 50,000 iterations).
+- Search speed: `applyFast` (no legality check, no log lines) and, faster still, `searchCopy` plus `playInPlace` (a plain mutable copy played in place; about ten times `apply`'s speed). Never call `produce` on a search copy; `quickMove(s, r, true)` (light mode) is the playout policy that avoids it.
 - A port only needs `legalMoves`, `apply` and the seeded RNG to reproduce them.
+
+`lab/ladder.ts`: the bot ladder. `runLadder(input, options, exec, stopped)` plays a round robin of entrants (`LADDER_ENTRANTS`) on the pack's legal premades plus 6 random decks, seats swapped, in slices of 4 games (`ladder.worker.ts`). `fitRatings` is a Bradley–Terry fit (minorization–maximization) reported as Elo, Easy at 1000. `ladderReport` gives Markdown.
+
+`NewGame.reveal` (`'classic'`, `'pairs'` or `'triples'`; classic when left out) sets the reveal group size, stored in the state as `reveal`. `revealOptions(s, seat, count)` gives adjacent pairs, connected triples on the 2×3 grid, or all that's left when 3 or fewer face-down cards remain, falling back to smaller groups when a group can't be made.
 
 `sim/sim.ts`: `simulate({cards, decks, games, levels, seed})` plays bot games and counts:
 

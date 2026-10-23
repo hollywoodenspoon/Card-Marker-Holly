@@ -2,6 +2,7 @@ import { Film, FlaskConical, Layers, Play, Trophy, TriangleAlert, Zap } from '@/
 import { useEffect, useMemo, useState } from 'react'
 import { BOT_LEVELS, BOT_NAMES, type BotLevel } from '@/adventure/bot'
 import { checkDeck } from '@/adventure/deck'
+import { REVEAL_LABELS, REVEAL_RULES, type RevealRule } from '@/adventure/state'
 import { listDecks, type DeckRow } from '@/playtest/library'
 import { randomSeed } from '@/playtest/rng'
 import { presets, validateSetup, type GameSetup } from '@/playtest/setup'
@@ -11,7 +12,7 @@ import { Input, Label, NativeSelect } from '@/ui/components/ui/input'
 import { useDeckCards } from '../decks/useDeckCards'
 import { usePack } from './packContext'
 import type { RushRun } from './rushTally'
-import { usePlaytest, type Bots } from './usePlaytest'
+import { THINK_TIMES, usePlaytest, type Bots } from './usePlaytest'
 
 const ALL = '__all'
 const SAVED = 'saved:'
@@ -27,6 +28,7 @@ function remembered(): {
   mode?: Mode
   levels?: BotLevel[]
   opening?: 'rps' | 'coin'
+  reveal?: RevealRule
 } {
   try {
     return JSON.parse(localStorage.getItem(KEY) ?? '{}')
@@ -40,6 +42,7 @@ function remember(v: {
   mode: Mode
   levels: BotLevel[]
   opening: 'rps' | 'coin'
+  reveal: RevealRule
 }) {
   try {
     localStorage.setItem(KEY, JSON.stringify(v))
@@ -134,6 +137,8 @@ export function StartPanel({
   const [mode, setMode] = useState<Mode>(last.mode ?? 'free')
   const [levels, setLevels] = useState<BotLevel[]>(last.levels ?? ['normal', 'normal'])
   const [opening, setOpening] = useState<'rps' | 'coin'>(last.opening ?? 'rps')
+  const [reveal, setReveal] = useState<RevealRule>(last.reveal ?? 'classic')
+  const thinkMs = usePlaytest((s) => s.thinkMs)
   // Against the bot you are Player 1; the bot plays Player 2.
   const botSeats = mode === 'bot' ? [1] : mode === 'botbot' || mode === 'rush' ? [0, 1] : []
   const [games, setGames] = useState(50)
@@ -148,7 +153,7 @@ export function StartPanel({
 
   const start = () => {
     const picks = setup.seats.map((_, i) => chosen[i])
-    remember({ setupId: setup.id, decks: chosen, mode, levels, opening })
+    remember({ setupId: setup.id, decks: chosen, mode, levels, opening, reveal })
     const pt = usePlaytest.getState()
     if (ruled && mode === 'rush') {
       const deckName = (i: number) =>
@@ -179,6 +184,7 @@ export function StartPanel({
           ) as [string, string],
           seed: randomSeed(),
           opening,
+          reveal,
         },
         { hotseat: mode === 'hotseat', bots },
       )
@@ -261,12 +267,54 @@ export function StartPanel({
                   {BOT_LEVELS.map((l) => (
                     <option key={l} value={l}>
                       {BOT_NAMES[l]}
-                      {l === 'hard' ? ' (thinks longer)' : ''}
+                      {l === 'normal'
+                        ? ' (thinks longer)'
+                        : l === 'hard' && mode !== 'rush'
+                          ? ` (thinks up to ${thinkMs / 1000} s a move)`
+                          : ''}
                     </option>
                   ))}
                 </NativeSelect>
               </div>
             ))}
+          </div>
+        )}
+        {ruled && mode !== 'rush' && botSeats.some((i) => levels[i] === 'hard') && (
+          <div className="flex items-center gap-2">
+            <Label htmlFor="pt-think" className="w-28 shrink-0">
+              Hard thinks
+            </Label>
+            <NativeSelect
+              id="pt-think"
+              value={thinkMs}
+              onChange={(e) => usePlaytest.getState().setThinkMs(Number(e.target.value))}
+              data-testid="playtest-think"
+            >
+              {THINK_TIMES.map((ms) => (
+                <option key={ms} value={ms}>
+                  Up to {ms / 1000} s a move{ms === 1000 ? ' (default)' : ''}
+                </option>
+              ))}
+            </NativeSelect>
+          </div>
+        )}
+        {ruled && mode !== 'rush' && (
+          <div className="flex items-center gap-2">
+            <Label htmlFor="pt-reveal" className="w-28 shrink-0">
+              Reveal size
+            </Label>
+            <NativeSelect
+              id="pt-reveal"
+              value={reveal}
+              onChange={(e) => setReveal(e.target.value as RevealRule)}
+              data-testid="playtest-reveal"
+            >
+              {REVEAL_RULES.map((r) => (
+                <option key={r} value={r}>
+                  {REVEAL_LABELS[r]}
+                </option>
+              ))}
+            </NativeSelect>
           </div>
         )}
         {ruled && mode !== 'rush' && (
