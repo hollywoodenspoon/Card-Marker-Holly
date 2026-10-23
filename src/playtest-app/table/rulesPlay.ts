@@ -1,4 +1,3 @@
-import { adjacent } from '@/adventure/board'
 import { placePool, revealOptions, type Move } from '@/adventure/engine'
 import { other, type AsState } from '@/adventure/state'
 import { parsePieceId } from '@/adventure/table'
@@ -85,16 +84,15 @@ export function tapPiece(s: AsState, picks: number[], pieceId: string): TapResul
     if (at.zone !== 'field' || at.seat !== other(st.seat)) return null
     const opts = revealOptions(s, st.seat, st.count)
     if (!opts.some((o) => o.includes(at.slot))) return null
-    if (opts[0].length === 1) return { kind: 'moves', moves: [{ t: 'reveal', slots: [at.slot] }] }
-    if (picks.includes(at.slot)) return { kind: 'pick', picks: [] }
-    const first = picks[0]
-    if (
-      first !== undefined &&
-      adjacent(first, at.slot) &&
-      opts.some((o) => o.includes(first) && o.includes(at.slot))
-    )
-      return { kind: 'moves', moves: [{ t: 'reveal', slots: [first, at.slot] }] }
-    return { kind: 'pick', picks: [at.slot] }
+    const n = opts[0].length
+    if (n === 1) return { kind: 'moves', moves: [{ t: 'reveal', slots: [at.slot] }] }
+    if (picks.includes(at.slot)) return { kind: 'pick', picks: picks.filter((p) => p !== at.slot) }
+    // Add to the picks while some option still holds them all; else start again here.
+    const next = [...picks, at.slot]
+    const chosen = opts.some((o) => next.every((i) => o.includes(i))) ? next : [at.slot]
+    if (chosen.length === n)
+      return { kind: 'moves', moves: [{ t: 'reveal', slots: [...chosen].sort((a, b) => a - b) }] }
+    return { kind: 'pick', picks: chosen }
   }
   if (st.k === 'place' && at.seat === st.seat) {
     if (at.zone === st.from || (at.zone === 'field' && st.placed.includes(at.slot)))
@@ -113,7 +111,7 @@ export function hints(s: AsState, picks: number[]): { pieces: Set<string>; slots
     const opp = other(st.seat)
     const field = s.players[opp].field
     for (const o of revealOptions(s, st.seat, st.count)) {
-      if (picks.length && o.length === 2 && !o.includes(picks[0])) continue
+      if (picks.length && !picks.every((p) => o.includes(p))) continue
       for (const i of o) if (!picks.includes(i)) pid(opp, field[i].card)
     }
   } else if (st.k === 'place') {
