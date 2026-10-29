@@ -793,3 +793,12 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 - **Own data folder** (`cardworks-cozy`): the Cozy Edition never shares projects or settings with an installed main app on the same machine.
 - **EULA is a draft.** A short end-user licence ships in About and as `LICENSE.txt`; **the owner reviews the wording before the exe is released.**
 - **Release:** a `windows-latest` job builds the exe (bytecode must be made on Windows) and attaches it to the versioned release beside the Arch package.
+
+## Hearthside Engine — scaffold (v0.7.0-beta)
+
+- **A game-maker is being built as a third app in this repo** (owner, 2026-10-29): a tile-and-block RPG editor (working title **Hearthside Engine**), React + **Three.js**, in the browser and as an Electron window. Foundation chosen as Web/TS over Godot/Rust specifically for **real integration with Cardworks** and the owner's existing skills; matches the RPG Paper Maker reference. Linux first, low-end target, itch→Steam. See `docs/engine.md` and the approved plan.
+- **Look:** textured blocks on an integer cell grid (FF Tactics style), not true voxel; tile-anchored. Rendered with one `InstancedMesh` per block type so draw calls stay flat on weak hardware; on-demand rendering so an idle editor uses no GPU.
+- **Reuse, not fork:** the engine imports Cardworks' component kit, 37-theme system, `History` undo/redo and layout via `@/…`; only the Konva card renderer is replaced (by `src/engine/scene/`). ~60–70% of the editor plumbing was reusable.
+- **Integration is loose:** the engine will consume cards through the existing `.cmpack` export — **no changes to the shipping card app**. The `MapDoc` reserves an `entities[]` layer now so card-backed objects (data + art) and a later card-battle module fit without a model change. First milestone is editor-first and carries **no** card data yet.
+- **Own version** `ENGINE_VERSION = 0.1.0-alpha.1`, separate from `package.json`. The engine is **excluded from the Cozy Edition** (card-editor-only), like the playtest app.
+- **First PR (scaffold + viewport):** the engine app renders a textured-block demo map with an orbit/pan/zoom camera and hover picking, reusing the Cardworks chrome; verified in the browser and headless WebGL with no network calls. Editing tools, persistence and card integration follow in later PRs.

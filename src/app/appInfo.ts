@@ -10,6 +10,10 @@ export const APP_NAME = __COZY__ ? 'Hearthside Cardworks Cozy Edition' : 'Hearth
 export const IS_COZY: boolean = __COZY__
 /** The companion app that plays game packs (also a working title; see playtest/index.html and its manifest). */
 export const PLAYTEST_NAME = __COZY__ ? '' : 'Hearthside Table'
+/** The game-maker app (working title; see engine/index.html and docs/engine.md). Not in the Cozy Edition. */
+export const ENGINE_NAME = __COZY__ ? '' : 'Hearthside Engine'
+/** The engine's own version, separate from the card app's package.json version. */
+export const ENGINE_VERSION = '0.1.0-alpha.1'
 export const APP_VERSION: string = __APP_VERSION__
 export const APP_BUILD: string = __APP_BUILD__
 /** The version as shown to people: "0.4.0 (abc1234 · 2026-10-22)". */

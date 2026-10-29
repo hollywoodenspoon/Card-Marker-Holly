@@ -27,14 +27,14 @@ const themes = (): Plugin => ({
   },
 })
 
-/** The Playtest page keeps only its own manifest (the PWA plugin adds Hearthside Cardworks' to every page). */
-const playtestManifest = (): Plugin => ({
-  name: 'playtest-manifest',
+/** The Playtest and Engine pages keep only their own manifest (the PWA plugin adds Hearthside Cardworks' to every page). */
+const ownManifest = (): Plugin => ({
+  name: 'own-manifest',
   enforce: 'post',
   transformIndexHtml: {
     order: 'post',
     handler: (html, ctx) =>
-      ctx.path.includes('/playtest/')
+      ctx.path.includes('/playtest/') || ctx.path.includes('/engine/')
         ? html.replace(/<link rel="manifest" href="[^"]*\/manifest\.webmanifest">/, '')
         : html,
   },
@@ -86,11 +86,11 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,svg,png,webp,woff2,woff,wasm,icc}'],
         maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
         navigateFallback: 'index.html',
-        // The Playtest app (playtest/) is precached too, but opens its own page.
-        navigateFallbackDenylist: [/\/playtest\//],
+        // The Playtest and Engine apps are precached too, but open their own pages.
+        navigateFallbackDenylist: [/\/playtest\//, /\/engine\//],
       },
     }),
-    playtestManifest(),
+    ownManifest(),
   ],
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
@@ -99,12 +99,16 @@ export default defineConfig({
     // The editor shell (React, Konva, Radix, Dexie) is ~300 kB gzipped; the text editor is split out.
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
-      // Two apps from one build: Hearthside Cardworks, and the Playtest app at playtest/.
+      // Apps from one build: Hearthside Cardworks, the Playtest app, and the Engine.
+      // The extra apps are left out of the card-editor-only Cozy Edition.
       input: {
         main: fileURLToPath(new URL('./index.html', import.meta.url)),
         ...(cozy
           ? {}
-          : { playtest: fileURLToPath(new URL('./playtest/index.html', import.meta.url)) }),
+          : {
+              playtest: fileURLToPath(new URL('./playtest/index.html', import.meta.url)),
+              engine: fileURLToPath(new URL('./engine/index.html', import.meta.url)),
+            }),
       },
     },
   },
