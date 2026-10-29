@@ -32,9 +32,12 @@ export function cozyStubs(): Plugin {
     configResolved(c) {
       outDir = path.resolve(c.root, c.build.outDir)
     },
-    // public/playtest/ (the table's icons and manifest) is copied in by Vite; take it out again.
+    // public/playtest/ and public/engine/ (the other apps' icons and manifests) are copied in
+    // by Vite; take them out again — the Cozy Edition ships only the card editor.
     closeBundle() {
-      if (isCozy()) rmSync(path.join(outDir, 'playtest'), { recursive: true, force: true })
+      if (!isCozy()) return
+      for (const dir of ['playtest', 'engine'])
+        rmSync(path.join(outDir, dir), { recursive: true, force: true })
     },
     resolveId(id) {
       if (!isCozy()) return undefined

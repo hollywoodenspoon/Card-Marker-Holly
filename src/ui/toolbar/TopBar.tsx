@@ -1,4 +1,5 @@
 import {
+  Box,
   ChevronDown,
   Dices,
   ImageDown,
@@ -23,8 +24,9 @@ import {
   Swords,
   RefreshCw,
 } from '@/ui/icons'
-import { APP_NAME, PLAYTEST_NAME, VERSION_LABEL } from '@/app/appInfo'
+import { APP_NAME, ENGINE_NAME, PLAYTEST_NAME, VERSION_LABEL } from '@/app/appInfo'
 import { isAndroidApp } from '@/app/isAndroidApp'
+import { engineUrl } from '@/ui/export/engineUrl'
 import { playtestUrl } from '@/ui/export/playtestUrl'
 import { goHome } from '@/app/session'
 import { openHelp } from '@/help/openHelp'
@@ -147,6 +149,11 @@ function AppMenu({ phone }: { phone: boolean }) {
           // A new tab on the web; its own window in the desktop app.
           <DropdownMenuItem onSelect={() => window.open(playtestUrl(), '_blank')}>
             <Swords /> Open {PLAYTEST_NAME}
+          </DropdownMenuItem>
+        )}
+        {!__COZY__ && !isAndroidApp() && (
+          <DropdownMenuItem onSelect={() => window.open(engineUrl(), '_blank')}>
+            <Box /> Open {ENGINE_NAME}
           </DropdownMenuItem>
         )}
         <ShowFolderMenuItem />

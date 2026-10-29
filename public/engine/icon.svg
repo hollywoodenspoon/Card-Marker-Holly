@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <title>Hearthside Engine</title>
+  <!-- Placeholder app icon (an isometric block). Replace with your own 512x512 and run: npm run icons -->
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#232a3e"/>
+      <stop offset="1" stop-color="#10131b"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="96" fill="url(#sky)"/>
+  <g transform="translate(256 272)">
+    <path d="M0 -120 L128 -48 L0 24 L-128 -48 Z" fill="#8ab4ff"/>
+    <path d="M0 24 L128 -48 L128 72 L0 144 Z" fill="#4f7bd6"/>
+    <path d="M0 24 L-128 -48 L-128 72 L0 144 Z" fill="#355399"/>
+  </g>
+</svg>

@@ -1,7 +1,7 @@
 {
   "name": "card-maker",
   "private": true,
-  "version": "0.6.0-beta",
+  "version": "0.7.0-beta",
   "description": "Design cards and print them on A4 sheets. Works offline.",
   "author": "Hanielle Marie N. Armas",
   "license": "UNLICENSED",
@@ -64,6 +64,7 @@
     "read-excel-file": "^9.3.10",
     "svg2pdf.js": "^2.8.1",
     "tailwind-merge": "^3.7.0",
+    "three": "0.171.0",
     "zustand": "^5.0.15"
   },
   "devDependencies": {
@@ -75,6 +76,7 @@
     "@types/papaparse": "^5.5.2",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "@types/three": "0.171.0",
     "@vitejs/plugin-react": "^6.1.2",
     "bytenode": "1.5.7",
     "electron": "44.5.1",

@@ -793,3 +793,29 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 - **Own data folder** (`cardworks-cozy`): the Cozy Edition never shares projects or settings with an installed main app on the same machine.
 - **EULA is a draft.** A short end-user licence ships in About and as `LICENSE.txt`; **the owner reviews the wording before the exe is released.**
 - **Release:** a `windows-latest` job builds the exe (bytecode must be made on Windows) and attaches it to the versioned release beside the Arch package.
+
+## Hearthside Engine — scaffold (v0.7.0-beta)
+
+- **A game-maker is being built as a third app in this repo** (owner, 2026-10-29): a tile-and-block RPG editor (working title **Hearthside Engine**), React + **Three.js**, in the browser and as an Electron window. Foundation chosen as Web/TS over Godot/Rust specifically for **real integration with Cardworks** and the owner's existing skills; matches the RPG Paper Maker reference. Linux first, low-end target, itch→Steam. See `docs/engine.md` and the approved plan.
+- **Look:** textured blocks on an integer cell grid (FF Tactics style), not true voxel; tile-anchored. Rendered with one `InstancedMesh` per block type so draw calls stay flat on weak hardware; on-demand rendering so an idle editor uses no GPU.
+- **Reuse, not fork:** the engine imports Cardworks' component kit, 37-theme system, `History` undo/redo and layout via `@/…`; only the Konva card renderer is replaced (by `src/engine/scene/`). ~60–70% of the editor plumbing was reusable.
+- **Integration is loose:** the engine will consume cards through the existing `.cmpack` export — **no changes to the shipping card app**. The `MapDoc` reserves an `entities[]` layer now so card-backed objects (data + art) and a later card-battle module fit without a model change. First milestone is editor-first and carries **no** card data yet.
+- **Own version** `ENGINE_VERSION = 0.1.0-alpha.1`, separate from `package.json`. The engine is **excluded from the Cozy Edition** (card-editor-only), like the playtest app.
+- **First PR (scaffold + viewport):** the engine app renders a textured-block demo map with an orbit/pan/zoom camera and hover picking, reusing the Cardworks chrome; verified in the browser and headless WebGL with no network calls. Editing tools, persistence and card integration follow in later PRs.
+
+## Hearthside Engine — editing tools (stacked on v0.7.0-beta)
+
+- **Tools:** Select / Terrain / Paint / Tile. Left-click performs the active tool; the camera orbits on right-drag and pans on middle-drag (so left is always free to build). Terrain raises/lowers columns (Alt lowers), Paint repaints a block's type, Tile places a block against the hovered face or on the ground (Alt removes). A drag is one undo step (coalesced); a per-stroke signature stops repeats (one raise per column, one block per cell).
+- **Picking** falls back to the y=0 ground plane when no block is under the cursor, so you can build on empty ground. A gold highlight previews where an edit lands; a cyan highlight marks the inspected cell.
+- **Selection + properties:** the Select tool inspects a block (cell + type) with a Delete button; Delete/Backspace also removes it.
+- **Shortcuts** follow the card editor's harness (ignore typing/dialogs): 1–4 pick tools, Ctrl/Cmd+Z / +Shift+Z / +Y undo-redo, Delete removes the selection.
+- **Launcher:** an "Open Hearthside Engine" item in the card app's ☰ menu (a new tab on the web, its own window in the desktop app), guarded like the Hearthside Table link (not in Cozy or Android).
+- Engine version `0.2.0-alpha.1`; this stacks onto the same `0.7.0-beta` PR as the scaffold.
+
+## Hearthside Engine — persistence (stacked on v0.7.0-beta)
+
+- **Maps save to the engine's own IndexedDB** (`hearthside-engine`, never the card app's `card-maker` DB). A map is one JSON row (`MapDoc` + `updatedAt`); blobs come later with real tile assets, so the schema is just `maps` + `settings`.
+- **Autosave** mirrors the card editor's debounce-and-flush shape (src/storage/autosave.ts) but for a single `MapDoc`: ~600ms after the last change, with a "Saved / Saving… / Not saved" badge in the top bar (the engine's own `useEngineSaveStatus`). It also records the last-open map and reopens it on launch (seeding the demo on a first run).
+- **File menu + Maps dialog:** New map, Open map… (a list with inline rename, duplicate, delete), and `.hsmap` import/export. `.hsmap` is a versioned single-file format (`hearthside-map` v1), validated on read and given a fresh id on import so it never clobbers an existing map (mirrors src/storage/projectFile.ts, minus blobs).
+- All map mutations stay inside `mapActions.ts` so the store, the DB and the last-open setting move together.
+- Engine version `0.3.0-alpha.1`. A desktop folder format (via the Electron bridge) is deferred to a later slice; the browser DB covers both web and the current desktop window.
