@@ -3,10 +3,11 @@
  * the database, and the "last open" setting in step, so the UI just calls one
  * function. Opening a map replaces the editor's map (which clears undo history).
  */
-import { importMapFile } from '../io/mapFile'
+import { parseMapFile, restoreAssets } from '../io/mapFile'
 import { newMapDoc } from '../model/map'
 import { useEngine } from '../store/engineStore'
 import { startEngineAutosave } from './autosave'
+import { assets } from './assets'
 import { maps } from './maps'
 
 async function open(id: string) {
@@ -46,7 +47,8 @@ export async function renameMap(id: string, name: string) {
 }
 
 export async function importMapFromText(text: string) {
-  const map = importMapFile(text)
+  const { map, assets: images } = parseMapFile(text)
+  await restoreAssets(images, assets)
   await maps.save(map)
   await open(map.id)
 }

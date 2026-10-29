@@ -5,6 +5,7 @@
 import { newId } from '@/core/model/ids'
 import { type EngineDB, db as defaultDb } from './db'
 import type { MapDoc } from '../model/map'
+import { migrateMap } from '../model/migrate'
 
 /** A row for the maps list (no block data). */
 export interface MapSummary {
@@ -24,11 +25,12 @@ export class MapStore {
     return rows.map((r) => ({ id: r.id, name: r.name, updatedAt: r.updatedAt }))
   }
 
+  /** A stored map, upgraded to the current format (maps from older builds included). */
   async load(id: string): Promise<MapDoc | undefined> {
     const row = await this.db.maps.get(id)
     if (!row) return undefined
     const { updatedAt: _u, ...map } = row
-    return map
+    return migrateMap(map)
   }
 
   /** Write a map (insert or replace), stamping updatedAt. */

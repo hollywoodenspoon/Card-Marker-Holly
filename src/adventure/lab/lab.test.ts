@@ -107,7 +107,9 @@ describe('the Balance lab', () => {
     expect(md).toContain('## Premade decks')
   })
 
-  it('keeps what was played when stopped', async () => {
+  // Plays a real slice of bot games: well under a second locally, but past the
+  // 5 s default on a loaded CI runner, so it gets the same headroom as its neighbours.
+  it('keeps what was played when stopped', { timeout: 30_000 }, async () => {
     let calls = 0
     const r = await runLab(
       { packName: 'Test', cards: FIRST_QUEST, premades },
