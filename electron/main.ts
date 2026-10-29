@@ -28,10 +28,11 @@ import { routeOpen } from './windows'
  */
 
 // Fixed folder names, so renaming the app never loses settings.
-const DATA_ID = 'card-maker'
+// The Cozy Edition keeps its own, so it never shares data with the main app.
+const DATA_ID = __COZY__ ? 'cardworks-cozy' : 'card-maker'
 // The portable exe's data folder: the old name is kept when it is already there.
 const portableData = (dir: string) =>
-  existsSync(path.join(dir, 'Card Maker data'))
+  !__COZY__ && existsSync(path.join(dir, 'Card Maker data'))
     ? path.join(dir, 'Card Maker data')
     : path.join(dir, `${APP_NAME} data`)
 
@@ -279,6 +280,7 @@ const webPreferences = () => ({
   sandbox: true,
   nodeIntegration: false,
   spellcheck: true,
+  devTools: !__COZY__,
 })
 
 /** Links and keys every window shares: web links open in the browser, the table in its window. */
@@ -288,7 +290,7 @@ function guard(win: BrowserWindow) {
   void win.webContents.setVisualZoomLevelLimits(1, 1)
   win.webContents.on('before-input-event', (e, input) => {
     const mod = input.control || input.meta
-    if (input.type !== 'keyDown') return
+    if (input.type !== 'keyDown' || __COZY__) return
     if (input.key === 'F12' || (mod && input.shift && input.key.toLowerCase() === 'i')) {
       win.webContents.toggleDevTools()
       e.preventDefault()
@@ -296,7 +298,7 @@ function guard(win: BrowserWindow) {
   })
   win.webContents.setWindowOpenHandler(({ url }) => {
     const route = routeOpen(url, ownOrigins())
-    if (route === 'table') openTable(url)
+    if (route === 'table' && !__COZY__) openTable(url)
     else if (route === 'external') void shell.openExternal(url)
     return { action: 'deny' }
   })

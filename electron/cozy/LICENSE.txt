@@ -1,0 +1,34 @@
+Hearthside Cardworks Cozy Edition
+Copyright (c) 2026 Hanielle Marie N. Armas. All rights reserved.
+
+END-USER LICENCE (DRAFT)
+
+This is a licence to use the program, not a sale of it. By running it, you
+agree to these terms.
+
+1. What you may do. Install and use the program on computers you own or
+   control, for your own personal or commercial card projects. You may keep
+   backup copies of the program file for yourself.
+
+2. What you may not do. Copy the program for others, share it, sell it, rent
+   it or lend it; change, decompile, disassemble or reverse engineer it, or try
+   to get at its source code, except where the law allows this despite these
+   terms; remove or change its copyright notices; or use it to build a
+   competing product.
+
+3. Your work is yours. The cards, templates, images, fonts and files you make
+   or add belong to you. The program claims no rights in them.
+
+4. No warranty. The program is provided "as is", without any warranty. Keep
+   backups of your projects.
+
+5. Limit of liability. As far as the law allows, the owner is not liable for
+   any loss or damage from using the program, including lost data or lost
+   profit.
+
+6. Ending. This licence ends if you break these terms. Then you must stop
+   using the program and delete your copies.
+
+7. Other parts. The icons, fonts, colour profile and open-source libraries in
+   the program keep their own licences, listed in THIRD_PARTY_NOTICES.txt.
+   Nothing in these terms limits your rights under those licences.

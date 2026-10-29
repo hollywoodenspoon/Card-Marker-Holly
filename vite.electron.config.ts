@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { builtinModules } from 'node:module'
 import { defineConfig } from 'vite'
+import { COZY_VERSION, cozyStubs, isCozy } from './scripts/cozyStubs'
 
 const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8')) as {
   version: string
@@ -13,7 +14,12 @@ const build = process.env.GITHUB_SHA
 
 /** Builds the desktop app's main process and preload script (electron/) into dist-electron/. */
 export default defineConfig({
-  define: { __APP_VERSION__: JSON.stringify(pkg.version), __APP_BUILD__: JSON.stringify(build) },
+  define: {
+    __APP_VERSION__: JSON.stringify(isCozy() ? COZY_VERSION : pkg.version),
+    __APP_BUILD__: JSON.stringify(build),
+    __COZY__: JSON.stringify(isCozy()),
+  },
+  plugins: [cozyStubs()],
   publicDir: false,
   // Bundle electron-updater and its helpers in, so the app ships without node_modules.
   ssr: { noExternal: true },

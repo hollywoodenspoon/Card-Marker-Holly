@@ -1,0 +1,44 @@
+# Hearthside Cardworks Cozy Edition: `node scripts/cozy.mjs dist` (or the Release workflow).
+# Windows only, one portable exe. Its own appId and name, so it never mixes with the main app.
+appId: com.hearthside.cardworks.cozy
+productName: Hearthside Cardworks Cozy Edition
+copyright: Copyright © 2026 Hanielle Marie N. Armas. All rights reserved.
+extraMetadata:
+  name: hearthside-cardworks-cozy
+  version: 0.1.0-beta.1
+  description: Design cards and print them on A4 sheets.
+
+directories:
+  output: release-cozy
+
+files:
+  - dist/**/*
+  - dist-electron/**/*
+  - package.json
+  - '!node_modules/**/*'
+  - '!**/*.map'
+asar: true
+extraResources:
+  - from: electron/cozy/LICENSE.txt
+    to: LICENSE.txt
+  - from: public/THIRD_PARTY_NOTICES.txt
+    to: THIRD_PARTY_NOTICES.txt
+publish: null
+
+# Locked down: no running as plain Node, no NODE_OPTIONS or --inspect, and only the
+# signed-off app.asar loads.
+electronFuses:
+  runAsNode: false
+  enableCookieEncryption: true
+  enableNodeOptionsEnvironmentVariable: false
+  enableNodeCliInspectArguments: false
+  enableEmbeddedAsarIntegrityValidation: true
+  onlyLoadAppFromAsar: true
+
+win:
+  target:
+    - portable
+  icon: public/pwa-512.png
+
+portable:
+  artifactName: Hearthside-Cardworks-Cozy-Edition-${version}.${ext}
