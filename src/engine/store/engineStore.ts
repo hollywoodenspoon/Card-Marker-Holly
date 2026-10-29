@@ -34,6 +34,8 @@ export interface EngineState {
   setTool: (tool: Tool) => void
   setBrush: (brush: string) => void
   setSelection: (selection: Cell | null) => void
+  /** Rename the open map (metadata, not an undo step). */
+  setName: (name: string) => void
   undo: () => void
   redo: () => void
 }
@@ -48,6 +50,7 @@ export const useEngine = create<EngineState>((set, get) => ({
   setTool: (tool) => set({ tool, selection: tool === 'select' ? get().selection : null }),
   setBrush: (brush) => set({ brush }),
   setSelection: (selection) => set({ selection }),
+  setName: (name) => set({ map: { ...get().map, name } }),
   commit: (recipe, coalesceKey) => {
     const before = get().map
     const next = produce(before, recipe)

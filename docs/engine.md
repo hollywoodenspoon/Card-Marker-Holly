@@ -56,8 +56,10 @@ renderer is **not** reused — it's replaced by `scene/`.
 2. **Editing tools** (done): Select / Terrain / Paint / Tile modes (left-click acts, right-drag
    orbits), a block palette, a selection inspector, drag-strokes as single undo steps, keyboard
    shortcuts (1–4, Ctrl+Z/Y, Delete), and an "Open Hearthside Engine" launcher in the card app.
-3. **Persistence:** `MapDoc` save/load (own Dexie DB `hearthside-engine` + a folder
-   format), autosave, map file import/export.
+3. **Persistence** (done): maps save to the engine's own IndexedDB (`hearthside-engine`),
+   autosave with a "Saved" indicator, a File menu + Maps dialog (new / open / rename /
+   duplicate / delete), reopen the last map on launch, and `.hsmap` file import/export.
+   (A desktop folder format alongside the DB comes with the Electron bridge work later.)
 4. _(later)_ **Cardworks integration:** import a `.cmpack`, place card-backed entities
    (data + art); room kept for a card-battle module.
 5. _(later)_ play mode, tile-anchored movement, RTwP/CRPG systems, the Cause-and-Effect

@@ -811,3 +811,11 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 - **Shortcuts** follow the card editor's harness (ignore typing/dialogs): 1–4 pick tools, Ctrl/Cmd+Z / +Shift+Z / +Y undo-redo, Delete removes the selection.
 - **Launcher:** an "Open Hearthside Engine" item in the card app's ☰ menu (a new tab on the web, its own window in the desktop app), guarded like the Hearthside Table link (not in Cozy or Android).
 - Engine version `0.2.0-alpha.1`; this stacks onto the same `0.7.0-beta` PR as the scaffold.
+
+## Hearthside Engine — persistence (stacked on v0.7.0-beta)
+
+- **Maps save to the engine's own IndexedDB** (`hearthside-engine`, never the card app's `card-maker` DB). A map is one JSON row (`MapDoc` + `updatedAt`); blobs come later with real tile assets, so the schema is just `maps` + `settings`.
+- **Autosave** mirrors the card editor's debounce-and-flush shape (src/storage/autosave.ts) but for a single `MapDoc`: ~600ms after the last change, with a "Saved / Saving… / Not saved" badge in the top bar (the engine's own `useEngineSaveStatus`). It also records the last-open map and reopens it on launch (seeding the demo on a first run).
+- **File menu + Maps dialog:** New map, Open map… (a list with inline rename, duplicate, delete), and `.hsmap` import/export. `.hsmap` is a versioned single-file format (`hearthside-map` v1), validated on read and given a fresh id on import so it never clobbers an existing map (mirrors src/storage/projectFile.ts, minus blobs).
+- All map mutations stay inside `mapActions.ts` so the store, the DB and the last-open setting move together.
+- Engine version `0.3.0-alpha.1`. A desktop folder format (via the Electron bridge) is deferred to a later slice; the browser DB covers both web and the current desktop window.
