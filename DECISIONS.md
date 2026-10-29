@@ -820,7 +820,7 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 - All map mutations stay inside `mapActions.ts` so the store, the DB and the last-open setting move together.
 - Engine version `0.3.0-alpha.1`. A desktop folder format (via the Electron bridge) is deferred to a later slice; the browser DB covers both web and the current desktop window.
 
-## Hearthside Engine — tile columns, tilesets, viewports (stacked on v0.7.0-beta)
+## Hearthside Engine — tile columns, tilesets, viewports (v0.8.0-beta)
 
 Owner feedback after trying the editor (2026-10-29), checked against the engine decisions doc. Engine `0.4.0-alpha.1`.
 
