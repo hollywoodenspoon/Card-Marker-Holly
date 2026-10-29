@@ -819,3 +819,18 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 - **File menu + Maps dialog:** New map, Open map… (a list with inline rename, duplicate, delete), and `.hsmap` import/export. `.hsmap` is a versioned single-file format (`hearthside-map` v1), validated on read and given a fresh id on import so it never clobbers an existing map (mirrors src/storage/projectFile.ts, minus blobs).
 - All map mutations stay inside `mapActions.ts` so the store, the DB and the last-open setting move together.
 - Engine version `0.3.0-alpha.1`. A desktop folder format (via the Electron bridge) is deferred to a later slice; the browser DB covers both web and the current desktop window.
+
+## Hearthside Engine — tile columns, tilesets, viewports (stacked on v0.7.0-beta)
+
+Owner feedback after trying the editor (2026-10-29), checked against the engine decisions doc. Engine `0.4.0-alpha.1`.
+
+- **The map is tile columns, plus overhangs** (owner's choice): each grid cell is one tile with a height in half steps, a slope or ramp, a kind (ground, water, blocked) and a terrain type, as the engine plan and the rules grid want; detached blocks cover bridges and arches (the rules ignore them for now). The first builds' loose-block maps (v1) are migrated on load and on import.
+- **Faces come from tilesets, in all three ways** (owner): terrain types carry top / side / side-below / bottom tiles; any single face can be painted with any tile; sides can be drawn or generated from the top tile's edge as a draft. Tilesets are PNG grids at **16 px by default, 32 or 48 per tileset** (owner); a built-in 16 px set is drawn by code so new maps need no files. Images live in the engine DB's new `assets` table, and `.hsmap` v2 embeds them.
+- **Hover outlines one face** (owner), not the whole block: a top, or one band of a wall.
+- **Rendering:** each 16×16 chunk builds one mesh of visible faces only, per texture; edits rebuild only the chunks they touch. A filled 64×64 map is 25 draw calls / ~12,500 faces; a 5×5 raise rebuilds in ~22 ms (doc target: under 50 ms).
+- **Modes follow the engine plan:** Terrain (T), Paint (P), Tile (E, inspect), with Objects (O) and Play (Space) shown as coming soon. Tools on the left, the selection's properties on the right (Canva-style).
+- **Viewports like 3ds Max** (owner): one pane by default, a quad split (Top / Front / Right / Perspective), maximise by double-clicking a header, a view cube per pane, an ortho toggle per pane, and **FOV** per pane (slider, number field, −/+, `[` / `]`), keeping the framing. A **Game camera** view turns in 90° steps and tilts; its FOV, turn and tilt are saved in the map. All 3D panes share one WebGL context.
+- **The Game camera turns with `,` / `.`**, not Q/E as first planned: `E` is Tile mode in the engine plan.
+- **2D:** the same map from above (owner: "separate 2D maps too", those come next as their own slice). It edits with the same tools and is the fallback without WebGL.
+- **Performance meter:** the editor draws only on change, so it shows redraws per second (0 when idle) and the last frame's time, not a frame-rate ceiling; measured here in software WebGL, so real GPUs will do better.
+- The flaky Balance-lab test ("keeps what was played when stopped") gets a 30 s timeout like its neighbours (owner: ship it with the next big PR).

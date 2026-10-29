@@ -1,20 +1,33 @@
 /**
- * The hover highlight: a thin wireframe box drawn around the cell under the
- * cursor. It proves picking works in PR1 and is what the editing tools (PR2)
- * will anchor to.
+ * Face highlights: a square outline around exactly one face (a top, or one
+ * band of a side wall), lifted a hair off the surface so it never flickers.
+ * Gold follows the cursor; cyan marks the inspected tile.
  */
-import { BoxGeometry, EdgesGeometry, LineBasicMaterial, LineSegments } from 'three'
-import type { Cell } from '../model/map'
+import { BufferAttribute, BufferGeometry, LineBasicMaterial, LineLoop } from 'three'
 
-export function makeHighlight(color = 0xffd36b): LineSegments {
-  const edges = new EdgesGeometry(new BoxGeometry(1.02, 1.02, 1.02))
-  const material = new LineBasicMaterial({ color, depthTest: false })
-  const lines = new LineSegments(edges, material)
-  lines.renderOrder = 999
-  return lines
+type V3 = [number, number, number]
+
+export function makeFaceOutline(color = 0xffd36b): LineLoop {
+  const g = new BufferGeometry()
+  g.setAttribute('position', new BufferAttribute(new Float32Array(12), 3))
+  const line = new LineLoop(
+    g,
+    new LineBasicMaterial({ color, depthTest: false, transparent: true }),
+  )
+  line.renderOrder = 999
+  line.frustumCulled = false
+  line.visible = false
+  return line
 }
 
-/** Centre the highlight on a cell (cells fill the unit cube at their origin). */
-export function moveHighlight(lines: LineSegments, c: Cell) {
-  lines.position.set(c.x + 0.5, c.y + 0.5, c.z + 0.5)
+/** Put the outline on a face's four corners, nudged along its normal. */
+export function setFaceOutline(line: LineLoop, corners: [V3, V3, V3, V3], normal: V3) {
+  const pos = line.geometry.getAttribute('position') as BufferAttribute
+  const lift = 0.012
+  corners.forEach((c, i) =>
+    pos.setXYZ(i, c[0] + normal[0] * lift, c[1] + normal[1] * lift, c[2] + normal[2] * lift),
+  )
+  pos.needsUpdate = true
+  line.geometry.computeBoundingSphere()
+  line.visible = true
 }

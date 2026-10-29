@@ -6,6 +6,7 @@ import {
   Download,
   FilePlus2,
   FolderOpen,
+  Gauge,
   Loader2,
   Menu,
   Redo2,
@@ -23,24 +24,32 @@ import {
 import { ThemeMenuItems } from '@/ui/theme/ThemeMenu'
 import { cn } from '@/lib/cn'
 import { ENGINE_NAME, ENGINE_VERSION } from '@/app/appInfo'
-import { blockCount } from './model/map'
+import { tileCountOf } from './model/map'
 import { downloadMapFile } from './io/mapFile'
+import { assets } from './storage/assets'
 import { importMapFromText, initEngineMaps, newMap } from './storage/mapActions'
 import { useEngineSaveStatus } from './storage/saveStatus'
 import { useEngine } from './store/engineStore'
 import { useEngineShortcuts } from './useEngineShortcuts'
 import { MapsDialog } from './panels/MapsDialog'
+import { ModeBar } from './panels/ModeBar'
+import { PropertiesPanel } from './panels/PropertiesPanel'
 import { ToolPanel } from './panels/ToolPanel'
-import { Viewport } from './scene/Viewport'
+import { ViewportLayout } from './scene/ViewportLayout'
+import { useView } from './store/viewStore'
 
-/** The engine's desktop shell: a top bar (file, undo, save) over the viewport with its tool panel. */
+/**
+ * The engine's shell: a top bar (file, undo, save), then tools on the left, the
+ * mode bar over the viewports in the middle, and the selection's properties on
+ * the right (Canva-style). Side panels fold away on narrow screens.
+ */
 export function EngineShell() {
   useEngineShortcuts()
   const [mapsOpen, setMapsOpen] = useState(false)
   const fileInput = useRef<HTMLInputElement>(null)
   const canUndo = useEngine((s) => s.canUndo)
   const canRedo = useEngine((s) => s.canRedo)
-  const count = useEngine((s) => blockCount(s.map))
+  const count = useEngine((s) => tileCountOf(s.map))
   const mapName = useEngine((s) => s.map.name)
 
   // Open last session's map (or seed the demo) and start autosaving.
@@ -82,6 +91,10 @@ export function EngineShell() {
             </IconButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            <DropdownMenuItem onSelect={() => useView.getState().togglePerf()}>
+              <Gauge /> Performance meter
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
             <ThemeMenuItems />
             <DropdownMenuSeparator />
             <div className="px-2 py-1.5 text-xs text-muted-foreground">
@@ -92,13 +105,21 @@ export function EngineShell() {
       </header>
 
       <div className="flex min-h-0 flex-1">
-        <ToolPanel />
-        <main className="relative min-h-0 flex-1">
-          <Viewport />
-          <div className="pointer-events-none absolute bottom-3 left-3 rounded-md bg-panel/80 px-3 py-1.5 text-xs text-muted-foreground backdrop-blur">
-            {count} blocks
+        <div className="hidden md:flex">
+          <ToolPanel />
+        </div>
+        <main className="relative flex min-h-0 min-w-0 flex-1 flex-col">
+          <ModeBar />
+          <div className="relative min-h-0 flex-1">
+            <ViewportLayout />
+            <div className="pointer-events-none absolute bottom-3 left-3 rounded-md bg-panel/80 px-3 py-1.5 text-xs text-muted-foreground backdrop-blur">
+              {count} tiles
+            </div>
           </div>
         </main>
+        <div className="hidden lg:flex">
+          <PropertiesPanel />
+        </div>
       </div>
 
       <MapsDialog open={mapsOpen} onClose={() => setMapsOpen(false)} />
@@ -135,7 +156,7 @@ function FileMenu({ onMaps, onImport }: { onMaps: () => void; onImport: () => vo
         <DropdownMenuItem onSelect={onImport}>
           <Upload /> Import map file…
         </DropdownMenuItem>
-        <DropdownMenuItem onSelect={() => downloadMapFile(useEngine.getState().map)}>
+        <DropdownMenuItem onSelect={() => void downloadMapFile(useEngine.getState().map, assets)}>
           <Download /> Export map file
         </DropdownMenuItem>
       </DropdownMenuContent>
