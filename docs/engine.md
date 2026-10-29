@@ -51,9 +51,11 @@ renderer is **not** reused — it's replaced by `scene/`.
 
 ## Roadmap
 
-1. **Scaffold + viewport** (this PR): the app renders a textured-block demo map with a
+1. **Scaffold + viewport** (done): the app renders a textured-block demo map with a
    working camera and picking, reusing the Cardworks chrome.
-2. **Editing tools:** Terrain / Paint / Tile modes, a palette panel, selection, undo/redo.
+2. **Editing tools** (done): Select / Terrain / Paint / Tile modes (left-click acts, right-drag
+   orbits), a block palette, a selection inspector, drag-strokes as single undo steps, keyboard
+   shortcuts (1–4, Ctrl+Z/Y, Delete), and an "Open Hearthside Engine" launcher in the card app.
 3. **Persistence:** `MapDoc` save/load (own Dexie DB `hearthside-engine` + a folder
    format), autosave, map file import/export.
 4. _(later)_ **Cardworks integration:** import a `.cmpack`, place card-backed entities

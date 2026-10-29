@@ -10,15 +10,20 @@ import {
   DirectionalLight,
   GridHelper,
   HemisphereLight,
+  MOUSE,
   type Object3D,
   PerspectiveCamera,
+  Plane,
   Raycaster,
   Scene,
   Vector2,
+  Vector3,
   WebGLRenderer,
 } from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import { type Cell, inBounds } from '../model/map'
 import { useEngine } from '../store/engineStore'
+import { applyTool, type Pick } from '../tools/apply'
 import { buildBlocks, type BuiltBlocks } from './blocks'
 import { makeHighlight, moveHighlight } from './highlight'
 
@@ -56,6 +61,8 @@ export function Viewport() {
     controls.dampingFactor = 0.12
     controls.maxPolarAngle = Math.PI * 0.49 // never drop below the ground plane
     controls.target.set(8, 1, 8)
+    // Left mouse is the active tool; orbit on right-drag, pan on middle-drag.
+    controls.mouseButtons = { LEFT: null, MIDDLE: MOUSE.PAN, RIGHT: MOUSE.ROTATE }
 
     // Soft sky/ground fill plus one key light gives blocks their FF-Tactics shading.
     scene.add(new HemisphereLight(0xffffff, 0x404050, 1.1))
@@ -69,9 +76,13 @@ export function Viewport() {
     grid.position.set(32, 0, 32)
     scene.add(grid)
 
-    const highlight = makeHighlight()
+    // Gold highlight follows the cursor; cyan marks the inspected (selected) cell.
+    const highlight = makeHighlight(0xffd36b)
     highlight.visible = false
     scene.add(highlight)
+    const selectHL = makeHighlight(0x5fd0ff)
+    selectHL.visible = false
+    scene.add(selectHL)
 
     let built: BuiltBlocks | null = null
     const rebuild = (map = useEngine.getState().map) => {
@@ -102,30 +113,74 @@ export function Viewport() {
     const ro = new ResizeObserver(resize)
     ro.observe(host)
 
-    // Hover highlight: raycast the cursor against the blocks.
+    // Picking: the block under the cursor and/or the ground cell under it.
     const raycaster = new Raycaster()
     const ndc = new Vector2()
-    const onMove = (e: PointerEvent) => {
+    const groundPlane = new Plane(new Vector3(0, 1, 0), 0)
+    const groundPoint = new Vector3()
+    const pickAt = (e: PointerEvent): Pick => {
       const rect = renderer.domElement.getBoundingClientRect()
       ndc.set(
         ((e.clientX - rect.left) / rect.width) * 2 - 1,
         -((e.clientY - rect.top) / rect.height) * 2 + 1,
       )
       raycaster.setFromCamera(ndc, camera)
-      const hit = built?.pick(raycaster)
-      if (hit) {
-        moveHighlight(highlight, hit.cell)
+      const block = built?.pick(raycaster)
+      let ground: Cell | undefined
+      if (raycaster.ray.intersectPlane(groundPlane, groundPoint)) {
+        const g = { x: Math.floor(groundPoint.x), y: 0, z: Math.floor(groundPoint.z) }
+        if (inBounds(useEngine.getState().map, g)) ground = g
+      }
+      return { block: block ?? undefined, ground }
+    }
+
+    // The cell the gold highlight should sit on for the current tool (where an
+    // edit would land), so building reads true before you click.
+    const previewCell = (pick: Pick): Cell | undefined => {
+      const tool = useEngine.getState().tool
+      if (tool === 'tile' && pick.block)
+        return {
+          x: pick.block.cell.x + pick.block.normal.x,
+          y: pick.block.cell.y + pick.block.normal.y,
+          z: pick.block.cell.z + pick.block.normal.z,
+        }
+      return pick.block?.cell ?? pick.ground
+    }
+
+    let drag: { sig: string; stroke: string } | null = null
+    const onMove = (e: PointerEvent) => {
+      const pick = pickAt(e)
+      const cell = previewCell(pick)
+      if (cell) {
+        moveHighlight(highlight, cell)
         highlight.visible = true
       } else {
         highlight.visible = false
       }
+      if (drag) drag.sig = applyTool(pick, e.altKey, drag.stroke, drag.sig)
       invalidate()
+    }
+    const onDown = (e: PointerEvent) => {
+      if (e.button !== 0) return // left is the tool; right/middle drive the camera
+      renderer.domElement.setPointerCapture(e.pointerId)
+      const stroke = `stroke-${Date.now()}`
+      drag = { sig: '', stroke }
+      drag.sig = applyTool(pickAt(e), e.altKey, stroke, '')
+      invalidate()
+    }
+    const onUp = (e: PointerEvent) => {
+      if (!drag) return
+      drag = null
+      useEngine.getState().endStroke()
+      renderer.domElement.releasePointerCapture?.(e.pointerId)
     }
     const onLeave = () => {
       highlight.visible = false
       invalidate()
     }
     renderer.domElement.addEventListener('pointermove', onMove)
+    renderer.domElement.addEventListener('pointerdown', onDown)
+    renderer.domElement.addEventListener('pointerup', onUp)
     renderer.domElement.addEventListener('pointerleave', onLeave)
 
     // Keep the backdrop in step with theme changes.
@@ -138,8 +193,18 @@ export function Viewport() {
       attributeFilter: ['class', 'data-theme'],
     })
 
+    const showSelection = (cell: Cell | null) => {
+      if (cell) {
+        moveHighlight(selectHL, cell)
+        selectHL.visible = true
+      } else {
+        selectHL.visible = false
+      }
+      invalidate()
+    }
     const unsub = useEngine.subscribe((s, prev) => {
       if (s.map !== prev.map) rebuild(s.map)
+      if (s.selection !== prev.selection) showSelection(s.selection)
     })
 
     rebuild()
@@ -163,6 +228,8 @@ export function Viewport() {
       themeObserver.disconnect()
       controls.removeEventListener('change', invalidate)
       renderer.domElement.removeEventListener('pointermove', onMove)
+      renderer.domElement.removeEventListener('pointerdown', onDown)
+      renderer.domElement.removeEventListener('pointerup', onUp)
       renderer.domElement.removeEventListener('pointerleave', onLeave)
       controls.dispose()
       built?.dispose()

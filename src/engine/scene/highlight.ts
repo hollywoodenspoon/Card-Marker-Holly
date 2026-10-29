@@ -6,9 +6,9 @@
 import { BoxGeometry, EdgesGeometry, LineBasicMaterial, LineSegments } from 'three'
 import type { Cell } from '../model/map'
 
-export function makeHighlight(): LineSegments {
+export function makeHighlight(color = 0xffd36b): LineSegments {
   const edges = new EdgesGeometry(new BoxGeometry(1.02, 1.02, 1.02))
-  const material = new LineBasicMaterial({ color: 0xffd36b, depthTest: false })
+  const material = new LineBasicMaterial({ color, depthTest: false })
   const lines = new LineSegments(edges, material)
   lines.renderOrder = 999
   return lines

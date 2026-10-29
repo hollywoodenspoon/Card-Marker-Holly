@@ -802,3 +802,12 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 - **Integration is loose:** the engine will consume cards through the existing `.cmpack` export — **no changes to the shipping card app**. The `MapDoc` reserves an `entities[]` layer now so card-backed objects (data + art) and a later card-battle module fit without a model change. First milestone is editor-first and carries **no** card data yet.
 - **Own version** `ENGINE_VERSION = 0.1.0-alpha.1`, separate from `package.json`. The engine is **excluded from the Cozy Edition** (card-editor-only), like the playtest app.
 - **First PR (scaffold + viewport):** the engine app renders a textured-block demo map with an orbit/pan/zoom camera and hover picking, reusing the Cardworks chrome; verified in the browser and headless WebGL with no network calls. Editing tools, persistence and card integration follow in later PRs.
+
+## Hearthside Engine — editing tools (stacked on v0.7.0-beta)
+
+- **Tools:** Select / Terrain / Paint / Tile. Left-click performs the active tool; the camera orbits on right-drag and pans on middle-drag (so left is always free to build). Terrain raises/lowers columns (Alt lowers), Paint repaints a block's type, Tile places a block against the hovered face or on the ground (Alt removes). A drag is one undo step (coalesced); a per-stroke signature stops repeats (one raise per column, one block per cell).
+- **Picking** falls back to the y=0 ground plane when no block is under the cursor, so you can build on empty ground. A gold highlight previews where an edit lands; a cyan highlight marks the inspected cell.
+- **Selection + properties:** the Select tool inspects a block (cell + type) with a Delete button; Delete/Backspace also removes it.
+- **Shortcuts** follow the card editor's harness (ignore typing/dialogs): 1–4 pick tools, Ctrl/Cmd+Z / +Shift+Z / +Y undo-redo, Delete removes the selection.
+- **Launcher:** an "Open Hearthside Engine" item in the card app's ☰ menu (a new tab on the web, its own window in the desktop app), guarded like the Hearthside Table link (not in Cozy or Android).
+- Engine version `0.2.0-alpha.1`; this stacks onto the same `0.7.0-beta` PR as the scaffold.

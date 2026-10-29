@@ -10,6 +10,8 @@ import { ThemeMenuItems } from '@/ui/theme/ThemeMenu'
 import { ENGINE_NAME, ENGINE_VERSION } from '@/app/appInfo'
 import { blockCount } from './model/map'
 import { useEngine } from './store/engineStore'
+import { useEngineShortcuts } from './useEngineShortcuts'
+import { ToolPanel } from './panels/ToolPanel'
 import { Viewport } from './scene/Viewport'
 
 /**
@@ -18,6 +20,7 @@ import { Viewport } from './scene/Viewport'
  * (components, theming) sits around a working Three.js view.
  */
 export function EngineShell() {
+  useEngineShortcuts()
   const canUndo = useEngine((s) => s.canUndo)
   const canRedo = useEngine((s) => s.canRedo)
   const count = useEngine((s) => blockCount(s.map))
@@ -53,13 +56,15 @@ export function EngineShell() {
         </DropdownMenu>
       </header>
 
-      <main className="relative min-h-0 flex-1">
-        <Viewport />
-        <div className="pointer-events-none absolute bottom-3 left-3 rounded-md bg-panel/80 px-3 py-2 text-xs text-muted-foreground backdrop-blur">
-          <div className="font-medium text-foreground">{count} blocks</div>
-          <div>Drag to orbit · right-drag to pan · scroll to zoom</div>
-        </div>
-      </main>
+      <div className="flex min-h-0 flex-1">
+        <ToolPanel />
+        <main className="relative min-h-0 flex-1">
+          <Viewport />
+          <div className="pointer-events-none absolute bottom-3 left-3 rounded-md bg-panel/80 px-3 py-1.5 text-xs text-muted-foreground backdrop-blur">
+            {count} blocks
+          </div>
+        </main>
+      </div>
     </div>
   )
 }
