@@ -21,7 +21,7 @@ npm run android:apk    # build release/Hearthside-Cardworks-<version>.apk (needs
 
 **Website:** https://hollywoodenspoon.github.io/Card-Marker-Holly/. Every push to `main` rebuilds it (`.github/workflows/pages.yml`). One-time setup: repo Settings → Pages → Source: **GitHub Actions**.
 
-**Releases:** set the version in `package.json` on `main`, then on GitHub open **Actions → Release → Run workflow**. The tag `v<version>` is created for you. Pushing a matching tag works too. `.github/workflows/release.yml` builds the Arch package, attaches it to a GitHub Release and updates the pacman repository. Alpha and beta versions are published as pre-releases. Windows and AppImage builds have stopped; the Cozy Edition (`docs/cozy-edition.md`) will replace the Windows download.
+**Releases:** set the version in `package.json` on `main`, then on GitHub open **Actions → Release → Run workflow**. The tag `v<version>` is created for you. Pushing a matching tag works too. `.github/workflows/release.yml` builds the Arch package, attaches it to a GitHub Release and updates the pacman repository. Alpha and beta versions are published as pre-releases. Windows and AppImage builds have stopped. The Cozy Edition (`docs/cozy-edition.md`) is built only when its box is ticked on a manual run.
 
 **Versioning:** alpha versions (`0.1.0-alpha.1` to `0.3.0-alpha.1`), beta from `0.3.0-beta` (fixes `0.3.1-beta`, features `0.4.0-beta`), then `1.0.0` when v1 is done.
 

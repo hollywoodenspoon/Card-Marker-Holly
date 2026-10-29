@@ -834,3 +834,8 @@ Owner feedback after trying the editor (2026-10-29), checked against the engine 
 - **2D:** the same map from above (owner: "separate 2D maps too", those come next as their own slice). It edits with the same tools and is the fallback without WebGL.
 - **Performance meter:** the editor draws only on change, so it shows redraws per second (0 when idle) and the last frame's time, not a frame-rate ceiling; measured here in software WebGL, so real GPUs will do better.
 - The flaky Balance-lab test ("keeps what was played when stopped") gets a 30 s timeout like its neighbours (owner: ship it with the next big PR).
+
+## Cozy builds only on request; one app for everything (2026-10-29)
+
+- **No Cozy releases unless the owner asks** (owner). The Release workflow's `cozy` job runs only when **Build the Cozy Edition** is ticked on a manual run; tag pushes and plain runs publish the Arch package alone. The Cozy Edition ships the basic Cardworks card editor only, never the whole suite.
+- **Engine plan rewritten** ("Hearthside Engine: the plan", owner review): a general engine with Cardworks at its core. Cards serve as play cards, equipment, skills, chance and game data. Cardworks, the Engine and Hearthside Table merge into one app with Cards, Engine and Play workspaces (the new phase 1). The Engine opens live on the open Cardworks project or on a loaded `.cmpack`.

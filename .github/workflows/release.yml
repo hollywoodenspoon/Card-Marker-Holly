@@ -15,6 +15,10 @@ on:
         description: Publish the release and update the pacman repository (untick to only build the package)
         type: boolean
         default: true
+      cozy:
+        description: Build the Cozy Edition (Windows exe, attached to the release; only when the owner asks)
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -56,6 +60,8 @@ jobs:
   cozy:
     # Hearthside Cardworks Cozy Edition: the Windows portable exe. bytenode's bytecode
     # must be made on Windows, so this job can't run on the Linux builder above.
+    # Built only when "cozy" is ticked on a manual run; tag pushes never build it.
+    if: inputs.cozy
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -73,8 +79,11 @@ jobs:
 
   publish:
     needs: [build, cozy]
-    # Releases come from tags or from main only.
-    if: startsWith(github.ref, 'refs/tags/') || (inputs.publish && github.ref == 'refs/heads/main')
+    # Releases come from tags or from main only. A skipped cozy job doesn't block it.
+    if: >-
+      !cancelled() && needs.build.result == 'success' &&
+      (needs.cozy.result == 'success' || needs.cozy.result == 'skipped') &&
+      (startsWith(github.ref, 'refs/tags/') || (inputs.publish && github.ref == 'refs/heads/main'))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -83,7 +92,7 @@ jobs:
           path: out
           merge-multiple: true
       # The versioned release holds the Arch package (the app's "Version … is out" notice
-      # reads the releases feed) and the Cozy Edition Windows exe.
+      # reads the releases feed) and, when it was asked for, the Cozy Edition Windows exe.
       - name: Create the release
         env:
           GH_TOKEN: ${{ github.token }}
