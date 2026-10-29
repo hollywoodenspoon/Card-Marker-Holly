@@ -47,3 +47,17 @@ From main app v0.3.2-beta the Release workflow builds only the Arch package: the
 ## Unchanged
 
 The main app (web and the Arch package) keeps every feature, the credits for Adventure Scuffle! and Village Wizard, and its licence.
+
+## As built (v0.6.0-beta)
+
+One codebase, a build-time edition flag: `VITE_EDITION=cozy` (the page) and `EDITION=cozy` (electron/) set the `__COZY__` define. A Vite plugin (`scripts/cozyStubs.ts`) swaps the left-out modules for tiny stand-ins at resolve time, so the Vector Maker, the game pack dialog, Hearthside Table and the updater are absent from the Cozy bundle, not just hidden. The `{!__COZY__ && …}` branches in the UI are dropped as dead code.
+
+- **Names and version:** `src/app/appInfo.ts` reads `__COZY__`; `APP_VERSION` is `0.1.0-beta.1` (its own, from `COZY_VERSION` in `scripts/cozyStubs.ts`), separate from `package.json`.
+- **Left out:** the Vector Maker (rail, Assets buttons, the lazy view), the playtest link and game pack, and the updater. `src/app/main.tsx` skips the Android setup. The Android browser regex and library URLs that survive in third-party code are hidden by the obfuscator.
+- **Help:** `src/help/topics.ts` filters the Vector Maker section, the playtest page and the website page under `__COZY__`, and gives `desktop-app` the Windows title; `src/help/cozy/*.md` replace a dozen pages (own About with the draft EULA, a Windows-only "The Windows app", no website/updater/table/vector mentions).
+- **Electron:** `electron/main.ts` turns off DevTools (`devTools: false`, no F12 handler), never opens the table window, and keeps its data in a `cardworks-cozy` / "Hearthside Cardworks Cozy Edition data" folder so it never mixes with the main app.
+- **Protection:** `scripts/cozy.mjs` obfuscates the page and preload (javascript-obfuscator 5.9.0, string array + base64, no control-flow flattening so the editor stays fast), compiles the main process to V8 bytecode (bytenode 1.5.7), and drops source maps. `electron-builder.cozy.yml` sets the fuses (asar integrity on, load only from asar, RunAsNode / NODE_OPTIONS / inspect off) and builds a Windows portable exe only, with its own appId and `Hearthside-Cardworks-Cozy-Edition-0.1.0-beta.1.exe` artifact name.
+- **String check:** `scripts/cozyCheck.mjs` fails the build if "Adventure", "Scuffle", "Card Maker", "github", "pacman", "Android", "Linux" or "Hearthside Table" appear in the shipped files (the licence texts are exempt). It runs over `dist` + `dist-electron` and again over the packaged `app.asar`.
+- **Release:** a `cozy` job on `windows-latest` in `.github/workflows/release.yml` runs `npm run cozy:dist` (bytecode must be made on the OS that runs it) and uploads the exe, which the publish job attaches to the versioned release next to the Arch package.
+- **Draft EULA:** shown in About and shipped as `LICENSE.txt` (`electron/cozy/LICENSE.txt`). **The owner reviews the licence text before the build ships.**
+- **Tests:** `src/cozy/edition.test.ts` (the flag and the stub map), `scripts/cozyCheck.test.ts` (the banned-word rules), and the Help tests run clean under `VITE_EDITION=cozy`.

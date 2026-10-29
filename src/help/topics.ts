@@ -9,7 +9,7 @@ export interface HelpTopic {
   keywords?: string
 }
 
-export const HELP_SECTIONS = [
+const ALL_SECTIONS = [
   'Start',
   'Editor',
   'Content',
@@ -34,18 +34,29 @@ export const HELP_TOPICS: HelpTopic[] = [
     section: 'Start',
     keywords: 'home import export backup autosave saved',
   },
-  {
-    id: 'desktop-app',
-    title: 'Desktop app (Arch Linux and CachyOS)',
-    section: 'Start',
-    keywords: 'install linux cachyos arch pacman folder windows cozy',
-  },
-  {
-    id: 'website',
-    title: 'Website and offline use',
-    section: 'Start',
-    keywords: 'browser install pwa offline storage',
-  },
+  ...(__COZY__
+    ? [
+        {
+          id: 'desktop-app',
+          title: 'The Windows app',
+          section: 'Start',
+          keywords: 'install windows exe portable folder',
+        },
+      ]
+    : [
+        {
+          id: 'desktop-app',
+          title: 'Desktop app (Arch Linux and CachyOS)',
+          section: 'Start',
+          keywords: 'install linux cachyos arch pacman folder windows cozy',
+        },
+        {
+          id: 'website',
+          title: 'Website and offline use',
+          section: 'Start',
+          keywords: 'browser install pwa offline storage',
+        },
+      ]),
   // Editor
   {
     id: 'workspace',
@@ -155,36 +166,40 @@ export const HELP_TOPICS: HelpTopic[] = [
     keywords: 'csv xlsx excel import rows cards',
   },
   // Vector Maker
-  {
-    id: 'vector-basics',
-    title: 'Drawing shapes',
-    section: 'Vector Maker',
-    keywords: 'vector shapes layers svg artboard',
-  },
-  {
-    id: 'vector-pen',
-    title: 'The pen tool',
-    section: 'Vector Maker',
-    keywords: 'pen bezier anchor handle illustrator path',
-  },
-  {
-    id: 'vector-combine',
-    title: 'Combining shapes',
-    section: 'Vector Maker',
-    keywords: 'pathfinder union subtract intersect boolean',
-  },
-  {
-    id: 'vector-trace',
-    title: 'Tracing an image',
-    section: 'Vector Maker',
-    keywords: 'trace raster to vector colours',
-  },
-  {
-    id: 'vector-save',
-    title: 'Saving drawings',
-    section: 'Vector Maker',
-    keywords: 'svg png jpeg pdf export assets draft',
-  },
+  ...(__COZY__
+    ? []
+    : [
+        {
+          id: 'vector-basics',
+          title: 'Drawing shapes',
+          section: 'Vector Maker',
+          keywords: 'vector shapes layers svg artboard',
+        },
+        {
+          id: 'vector-pen',
+          title: 'The pen tool',
+          section: 'Vector Maker',
+          keywords: 'pen bezier anchor handle illustrator path',
+        },
+        {
+          id: 'vector-combine',
+          title: 'Combining shapes',
+          section: 'Vector Maker',
+          keywords: 'pathfinder union subtract intersect boolean',
+        },
+        {
+          id: 'vector-trace',
+          title: 'Tracing an image',
+          section: 'Vector Maker',
+          keywords: 'trace raster to vector colours',
+        },
+        {
+          id: 'vector-save',
+          title: 'Saving drawings',
+          section: 'Vector Maker',
+          keywords: 'svg png jpeg pdf export assets draft',
+        },
+      ]),
   // Output
   {
     id: 'printing',
@@ -222,12 +237,16 @@ export const HELP_TOPICS: HelpTopic[] = [
     section: 'Output',
     keywords: 'overview proofread spelling review',
   },
-  {
-    id: 'playtest',
-    title: 'Playtesting your game',
-    section: 'Output',
-    keywords: 'playtest play test game pack cmpack table board tokens score fields',
-  },
+  ...(__COZY__
+    ? []
+    : [
+        {
+          id: 'playtest',
+          title: 'Playtesting your game',
+          section: 'Output',
+          keywords: 'playtest play test game pack cmpack table board tokens score fields',
+        },
+      ]),
   // Reference
   {
     id: 'shortcuts',
@@ -266,6 +285,11 @@ export const HELP_TOPICS: HelpTopic[] = [
     keywords: 'version licence license icons game-icons lucide fonts credits name',
   },
 ]
+
+/** Cozy Edition has no Vector Maker section. */
+export const HELP_SECTIONS = __COZY__
+  ? ALL_SECTIONS.filter((s) => s !== 'Vector Maker')
+  : [...ALL_SECTIONS]
 
 /** Pictures the pages may show (public/help/<id>.webp, made by scripts/help-screenshots.mjs). */
 export const HELP_SHOTS = [

@@ -117,7 +117,7 @@ export function MergeForm({ onClose }: { onClose: () => void }) {
       if (!s.length || !s.some((x) => x.table.length)) throw new Error('No rows found.')
       setSheets(s)
       setSheetIndex(0)
-      // A header like "Name" or "Name_AS" names the cards, unless a column is already set.
+      // A header like "Name" or "card_name" names the cards, unless a column is already set.
       const named = nameColumnFromHeaders(s.find((x) => x.table.length)?.table[0] ?? [])
       if (named) setSettings((cur) => (cur.nameColumn ? cur : { ...cur, nameColumn: named }))
     } catch (e) {

@@ -5,6 +5,7 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import type { Plugin } from 'vite'
 import { themesCss } from './scripts/themesCss.ts'
+import { COZY_VERSION, cozyStubs, isCozy } from './scripts/cozyStubs.ts'
 import { defineConfig } from 'vitest/config'
 
 const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8')) as {
@@ -13,6 +14,8 @@ const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 
 // The desktop (Electron) and Android (Capacitor) apps serve the same build from
 // their own files and need no service worker.
 const nativeApp = ['desktop', 'android'].includes(process.env.VITE_TARGET ?? '')
+// Cozy Edition: the Windows-only edition without the Vector Maker, Hearthside Table and updates.
+const cozy = isCozy()
 
 /** `import 'virtual:themes.css'`: the colour themes, generated from src/ui/theme/themes.json. */
 const themes = (): Plugin => ({
@@ -43,15 +46,20 @@ const build = process.env.GITHUB_SHA
   : 'dev'
 
 export default defineConfig({
-  define: { __APP_VERSION__: JSON.stringify(pkg.version), __APP_BUILD__: JSON.stringify(build) },
+  define: {
+    __APP_VERSION__: JSON.stringify(cozy ? COZY_VERSION : pkg.version),
+    __APP_BUILD__: JSON.stringify(build),
+    __COZY__: JSON.stringify(cozy),
+  },
   // GitHub Pages serves the app under /<repo>/; local dev and preview stay at /.
   base: process.env.BASE_PATH ?? '/',
   plugins: [
+    cozyStubs(),
     react(),
     tailwindcss(),
     themes(),
     VitePWA({
-      disable: nativeApp,
+      disable: nativeApp || cozy,
       // A new version is offered ("Update"), never applied under a game in progress.
       registerType: 'prompt',
       includeAssets: ['icon.svg', 'apple-touch-icon.png'],
@@ -94,7 +102,9 @@ export default defineConfig({
       // Two apps from one build: Hearthside Cardworks, and the Playtest app at playtest/.
       input: {
         main: fileURLToPath(new URL('./index.html', import.meta.url)),
-        playtest: fileURLToPath(new URL('./playtest/index.html', import.meta.url)),
+        ...(cozy
+          ? {}
+          : { playtest: fileURLToPath(new URL('./playtest/index.html', import.meta.url)) }),
       },
     },
   },

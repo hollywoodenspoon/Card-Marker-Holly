@@ -783,3 +783,13 @@ Where CLAUDE.md left room, the simplest option that fits it was picked. Each cho
 - **What each player is doing:** the acting player's chip and half of the table light up, each chip shows hand size, last action and Passed, the table has a recent-actions column per player, and a "Your turn" banner plays against a bot (`activity.ts`).
 - **The selection beat:** before a move by anyone but the viewer, its cards lift and glow gold with a pointer and a line saying what is picked (`intent.ts`, shown at playback index −1). It plays for every player in "Everyone sees all", and never in Rush. A Fighting Spirit card then flies from the hand onto the stage (`Flights.tsx`).
 - **Version 0.5.0-beta** rather than 0.4.1: the owner's list grew into new features, so the middle number goes up.
+
+## Cozy Edition build (v0.6.0-beta)
+
+- **Hearthside Cardworks Cozy Edition** is built (owner's plan, `docs/cozy-edition.md`): a Windows-only, offline, single portable exe that replaces the Windows download, version `0.1.0-beta.1` of its own. The main app goes to **0.6.0-beta** (a feature) and is unchanged — every edition difference is behind the build-time `__COZY__` flag.
+- **One codebase, build-time switch** (not a fork): `VITE_EDITION=cozy` / `EDITION=cozy`. A `resolveId` Vite plugin swaps the left-out modules for stand-ins, so the Vector Maker, Hearthside Table, the game pack and the updater are absent from the bundle, not hidden. Chosen over a separate repo so the two editions never drift.
+- **Left out, confirmed nothing else** (owner, build day): the Vector Maker, Hearthside Table + game pack + all of Adventure Scuffle!, and the update checker. CMYK, Tabletop Simulator export, decks, mail merge and everything else stay.
+- **Protection** (as the plan): javascript-obfuscator on the page and preload, bytenode V8 bytecode for the main process, Electron fuses (asar integrity, load-only-from-asar, RunAsNode/NODE_OPTIONS/inspect off), no DevTools/F12. A string check (`scripts/cozyCheck.mjs`) fails the build on the other products' or platforms' names, over both the loose build and the packaged asar.
+- **Own data folder** (`cardworks-cozy`): the Cozy Edition never shares projects or settings with an installed main app on the same machine.
+- **EULA is a draft.** A short end-user licence ships in About and as `LICENSE.txt`; **the owner reviews the wording before the exe is released.**
+- **Release:** a `windows-latest` job builds the exe (bytecode must be made on Windows) and attaches it to the versioned release beside the Arch package.

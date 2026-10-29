@@ -27,7 +27,7 @@ import { isAndroidApp } from './isAndroidApp'
 document.title = `${APP_NAME} ${APP_VERSION}`
 initTheme()
 // Android app: folders and system integration before anything reads storage.
-if (isAndroidApp() || (import.meta.env.DEV && '__fakeAndroidFolders' in window))
+if (!__COZY__ && (isAndroidApp() || (import.meta.env.DEV && '__fakeAndroidFolders' in window)))
   (await import('./androidSetup')).setupAndroid()
 initPwa()
 // Desktop app: finish writing the project folder before the window closes.

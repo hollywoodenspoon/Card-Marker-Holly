@@ -5,9 +5,11 @@
  * Stored data uses fixed internal ids (IndexedDB "card-maker", "cardmaker.*"
  * keys, the "card-maker-folder" format), so a rename never loses anything.
  */
-export const APP_NAME = 'Hearthside Cardworks'
+export const APP_NAME = __COZY__ ? 'Hearthside Cardworks Cozy Edition' : 'Hearthside Cardworks'
+/** Cozy Edition: the Windows-only edition (see docs/cozy-edition.md). */
+export const IS_COZY: boolean = __COZY__
 /** The companion app that plays game packs (also a working title; see playtest/index.html and its manifest). */
-export const PLAYTEST_NAME = 'Hearthside Table'
+export const PLAYTEST_NAME = __COZY__ ? '' : 'Hearthside Table'
 export const APP_VERSION: string = __APP_VERSION__
 export const APP_BUILD: string = __APP_BUILD__
 /** The version as shown to people: "0.4.0 (abc1234 · 2026-10-22)". */

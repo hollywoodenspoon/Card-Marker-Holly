@@ -269,7 +269,7 @@ export function lettersFromHeaders(headerRow: string[], fieldNames: string[]) {
 
 /**
  * The column that names the cards, from a header row: "Name", "Card name",
- * "Title", or a field-style name such as "Name_AS" or "card_name".
+ * "Title", or a field-style name such as "card_name" or "Title_1".
  */
 export function nameColumnFromHeaders(headerRow: string[]): string | undefined {
   const norm = (s: string) => s.trim().toLowerCase()

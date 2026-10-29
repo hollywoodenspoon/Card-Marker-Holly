@@ -23,12 +23,16 @@ const VIEWS = [
     icon: Sheet,
     run: () => useUi.getState().setDataView('table'),
   },
-  {
-    label: 'Vector',
-    title: 'Vector Maker: draw shapes and icons',
-    icon: PenTool,
-    run: () => useUi.getState().setVectorOpen({ assetId: null }),
-  },
+  ...(__COZY__
+    ? []
+    : [
+        {
+          label: 'Vector',
+          title: 'Vector Maker: draw shapes and icons',
+          icon: PenTool,
+          run: () => useUi.getState().setVectorOpen({ assetId: null }),
+        },
+      ]),
 ]
 
 const railButton =
@@ -134,13 +138,15 @@ function AssetsDock() {
             )}
           />
         </button>
-        <IconButton
-          label="New vector"
-          size="icon-sm"
-          onClick={() => useUi.getState().setVectorOpen({ assetId: null })}
-        >
-          <PenTool />
-        </IconButton>
+        {!__COZY__ && (
+          <IconButton
+            label="New vector"
+            size="icon-sm"
+            onClick={() => useUi.getState().setVectorOpen({ assetId: null })}
+          >
+            <PenTool />
+          </IconButton>
+        )}
         <IconButton label="New folder" size="icon-sm" onClick={newAssetFolder}>
           <FolderPlus />
         </IconButton>

@@ -132,16 +132,18 @@ function AppMenu({ phone }: { phone: boolean }) {
             <DropdownMenuItem onSelect={() => ui().setDataView('table')}>
               <Sheet /> Card data (table, CSV, mail merge)
             </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => ui().setVectorOpen({ assetId: null })}>
-              <PenTool /> Vector Maker
-            </DropdownMenuItem>
+            {!__COZY__ && (
+              <DropdownMenuItem onSelect={() => ui().setVectorOpen({ assetId: null })}>
+                <PenTool /> Vector Maker
+              </DropdownMenuItem>
+            )}
             <DropdownMenuSeparator />
           </>
         )}
         <DropdownMenuItem onSelect={() => ui().setFindOpen(true)}>
           <TextSearch /> Find and replace…
         </DropdownMenuItem>
-        {!isAndroidApp() && (
+        {!__COZY__ && !isAndroidApp() && (
           // A new tab on the web; its own window in the desktop app.
           <DropdownMenuItem onSelect={() => window.open(playtestUrl(), '_blank')}>
             <Swords /> Open {PLAYTEST_NAME}
@@ -153,10 +155,14 @@ function AppMenu({ phone }: { phone: boolean }) {
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <SettingsMenu onHelp={() => openHelp()} onUnits={() => ui().setUnitsOpen(true)} />
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onSelect={() => void checkNow()}>
-          <RefreshCw /> Check for updates
-        </DropdownMenuItem>
+        {!__COZY__ && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onSelect={() => void checkNow()}>
+              <RefreshCw /> Check for updates
+            </DropdownMenuItem>
+          </>
+        )}
         <div className="px-2 py-1.5 text-xs text-muted-foreground">
           {APP_NAME} {VERSION_LABEL}
         </div>
@@ -178,9 +184,11 @@ function ExportItems() {
       <DropdownMenuItem onSelect={() => ui().setTtsOpen(true)}>
         <Dices /> Tabletop Simulator…
       </DropdownMenuItem>
-      <DropdownMenuItem onSelect={() => ui().setPackOpen(true)}>
-        <Swords /> Game pack for {PLAYTEST_NAME}…
-      </DropdownMenuItem>
+      {!__COZY__ && (
+        <DropdownMenuItem onSelect={() => ui().setPackOpen(true)}>
+          <Swords /> Game pack for {PLAYTEST_NAME}…
+        </DropdownMenuItem>
+      )}
       <DropdownMenuItem onSelect={() => void exportOpenProject()}>
         <Download /> Project backup file
       </DropdownMenuItem>

@@ -50,13 +50,15 @@ export function AssetsPanel({ onPicked }: { onPicked?: () => void }) {
           <Button variant="outline" className="flex-1" onClick={() => uploadImages()}>
             <Upload /> Upload images
           </Button>
-          <IconButton
-            label="New vector"
-            variant="outline"
-            onClick={() => useUi.getState().setVectorOpen({ assetId: null })}
-          >
-            <PenTool />
-          </IconButton>
+          {!__COZY__ && (
+            <IconButton
+              label="New vector"
+              variant="outline"
+              onClick={() => useUi.getState().setVectorOpen({ assetId: null })}
+            >
+              <PenTool />
+            </IconButton>
+          )}
           <IconButton label="New folder" variant="outline" onClick={newAssetFolder}>
             <FolderPlus />
           </IconButton>
@@ -337,7 +339,7 @@ function AssetTile({
             <DropdownMenuItem onSelect={onMove}>
               <FolderInput /> Move to folder…
             </DropdownMenuItem>
-            {(a.isVector || a.vectorDoc) && (
+            {!__COZY__ && (a.isVector || a.vectorDoc) && (
               <DropdownMenuItem onSelect={() => useUi.getState().setVectorOpen({ assetId: a.id })}>
                 <PenTool /> Edit in Vector Maker
               </DropdownMenuItem>

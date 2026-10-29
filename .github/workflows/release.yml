@@ -53,8 +53,26 @@ jobs:
           path: release/*.pkg.tar.xz
           if-no-files-found: error
 
+  cozy:
+    # Hearthside Cardworks Cozy Edition: the Windows portable exe. bytenode's bytecode
+    # must be made on Windows, so this job can't run on the Linux builder above.
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run cozy:dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cozy-windows
+          path: release-cozy/*.exe
+          if-no-files-found: error
+
   publish:
-    needs: [build]
+    needs: [build, cozy]
     # Releases come from tags or from main only.
     if: startsWith(github.ref, 'refs/tags/') || (inputs.publish && github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
@@ -64,8 +82,8 @@ jobs:
         with:
           path: out
           merge-multiple: true
-      # The versioned release holds just the Arch package: the app's "Version … is out"
-      # notice reads the releases feed.
+      # The versioned release holds the Arch package (the app's "Version … is out" notice
+      # reads the releases feed) and the Cozy Edition Windows exe.
       - name: Create the release
         env:
           GH_TOKEN: ${{ github.token }}

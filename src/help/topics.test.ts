@@ -48,7 +48,9 @@ describe('Help pages', () => {
       ? readdirSync('public/help').map((f) => f.replace(/\.webp$/, ''))
       : []
     for (const f of files) expect(HELP_SHOTS as readonly string[], `stray file ${f}`).toContain(f)
-    for (const s of HELP_SHOTS) expect(used, `screenshot ${s} is never shown`).toContain(s)
+    // Cozy Edition leaves out some pages, so their screenshots go unused there.
+    if (!__COZY__)
+      for (const s of HELP_SHOTS) expect(used, `screenshot ${s} is never shown`).toContain(s)
   })
 
   it('the shortcuts page mentions the editor shortcuts that exist', () => {
