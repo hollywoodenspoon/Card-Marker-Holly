@@ -22,7 +22,7 @@ export function ScenesPanel() {
   }
   return (
     <div className="flex flex-col gap-3 p-3">
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         <Button size="sm" variant="outline" onClick={() => void addScene('picture')}>
           <Plus /> Picture scene
         </Button>
@@ -54,15 +54,14 @@ export function ScenesPanel() {
                 )}
                 <span className="truncate">{s.name}</span>
                 {start === s.id && (
-                  <span
-                    className="ml-auto flex shrink-0 items-center gap-1 text-xs text-accent"
-                    title="The game starts here"
-                  >
-                    <Flag className="size-3.5" /> Start
-                  </span>
+                  <Flag
+                    className="ml-auto size-3.5 shrink-0 text-accent"
+                    aria-label="The game starts here"
+                  />
                 )}
               </button>
               <IconButton
+                size="icon-sm"
                 label={`Rename ${s.name}`}
                 onClick={async () => {
                   const name = await askText({ title: 'Rename scene', initial: s.name })
@@ -76,12 +75,13 @@ export function ScenesPanel() {
                 <Pencil />
               </IconButton>
               <IconButton
+                size="icon-sm"
                 label={`Play from ${s.name}`}
                 onClick={() => startRuntime(useGame.getState().game, s.id)}
               >
                 <Play />
               </IconButton>
-              <IconButton label={`Delete ${s.name}`} onClick={() => void remove(s.id, s.name)}>
+              <IconButton size="icon-sm" label={`Delete ${s.name}`} onClick={() => void remove(s.id, s.name)}>
                 <Trash2 />
               </IconButton>
             </li>

@@ -854,3 +854,16 @@ Owner feedback after trying the editor (2026-10-29), checked against the engine 
 - **View modes** (owner): Cards and Assets have large list, small list, grid and details. Sorting a details column changes the view, never the card order. Drag-to-reorder works in the list modes only (it is a vertical list gesture); grid and details reorder through the list modes.
 - **Gallery and Proofread shelved** (owner): their entry points and help page are gone; `GalleryView.tsx` and `proofread.ts` stay in the repo, unused.
 - **Cozy** stays the card editor only: the switch and both lazy workspaces compile out, the old pages and the redirect script are left out, and "Hearthside Engine" joins the Cozy string check.
+
+## Games, Play and scenes (PR 1 of 3, v0.8.2-beta)
+
+- **A general engine, Cardworks at its core** (owner). Everything the card game needs is built as general engine tools; only the deck builder and the card table's rules are Adventure Scuffle!'s, in its module.
+- **Games:** a game has card sources (live Cardworks projects and `.cmpack` packs, all equal), decks, zones, variables, scenes, events and recipes. Assumption: picture scenes are stored inside the game document, not in a separate scenes table (simpler, one autosave); map scenes point at the existing maps table.
+- **Decks** (owner: "just Decks"): any list of cards with counts. Source decks are read-only and can be copied. Game decks are edited with − / + or built at three levels, in the editor or with the "Build a deck" effect while playing. Assumption: Play's saved decks for a pack are copied into the game that uses it, the first time it opens.
+- **Play is the engine's way to play** (owner). Play opens a game's merged cards and decks, keyed by the game's id, so a future game needs one module, not two.
+- **Click areas** (owner): any shape, drawn here (rectangle, ellipse, polygon) or with the Vector Maker's pen and combine tools; invisible to the player except for the glow (edges or fill; on hover, press or both; colour, strength, softness). Assumption: on touch screens the glow shows while pressed. Drawing is kept inside the picture.
+- **Cause and Effect is core** (owner): many effects per cause; if/otherwise, choice and random branches, nested; pieces registered by modules; recipes.
+  - Assumption: steps move with up/down buttons rather than drag.
+  - Unknown pieces are skipped, so a game made with a module still opens without it.
+- **Playing:** "Play from this scene" skips the "When the game starts" steps (they may jump elsewhere). Variables and shown/hidden things live in memory until saves arrive (PR 2). Assumption: a map scene shows a note while playing, since walking around maps comes later.
+- **Start a card game** hands over to Play's table with the two decks; Back returns to the running game, and an optional flag is set when the player (seat 1) wins. With cards that aren't Adventure Scuffle!'s it opens a free table.

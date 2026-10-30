@@ -158,22 +158,28 @@ function startGameAutosave(delay = 600) {
  * function. Call once when the Engine mounts.
  */
 export async function initEngine(): Promise<() => void> {
-  const game = await games.ensureGame()
-  if (!game.scenes.length) {
-    // A first run: a demo map scene, so there's something to look at.
-    const demo = useEngine.getState().map
-    await maps.save(demo)
-    game.scenes.push(mapScene(demo.id, demo.name))
-    game.startScene = game.scenes[0].id
-    await games.save(game)
-  }
-  await openGameDoc(game)
+  await openGameDoc(await (firstGame ??= firstOpenGame()))
   const stopMaps = startEngineAutosave()
   const stopGame = startGameAutosave()
   return () => {
     stopMaps()
     stopGame()
   }
+}
+
+let firstGame: Promise<GameDoc> | null = null
+
+/** Last session's game; on a first run, one with the demo map, so there's something to look at. */
+async function firstOpenGame(): Promise<GameDoc> {
+  const game = await games.ensureGame()
+  if (!game.scenes.length) {
+    const demo = useEngine.getState().map
+    await maps.save(demo)
+    game.scenes.push(mapScene(demo.id, demo.name))
+    game.startScene = game.scenes[0].id
+    await games.save(game)
+  }
+  return game
 }
 
 // ---------- game files ----------

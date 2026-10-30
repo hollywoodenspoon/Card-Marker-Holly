@@ -80,11 +80,19 @@ export class GameStore {
     else await this.db.settings.delete(LAST_OPEN)
   }
 
+  private ensuring: Promise<GameDoc> | null = null
+
   /**
    * The game to open: the last one, else any, else a new "My game" holding every map
-   * stored so far (each a map scene; their card choices become its sources).
+   * stored so far (each a map scene; their card choices become its sources). Asked
+   * twice at once, it still makes only one.
    */
-  async ensureGame(): Promise<GameDoc> {
+  ensureGame(): Promise<GameDoc> {
+    this.ensuring ??= this.findOrMakeGame().finally(() => (this.ensuring = null))
+    return this.ensuring
+  }
+
+  private async findOrMakeGame(): Promise<GameDoc> {
     const last = await this.getLastOpen()
     const open = (last && (await this.load(last))) || (await this.firstGame())
     if (open) return open

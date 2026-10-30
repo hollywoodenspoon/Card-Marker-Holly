@@ -64,7 +64,9 @@ export function PictureEditor({ scene }: { scene: PictureScene }) {
     const m = el?.getScreenCTM()
     if (!el || !m) return { x: 0, y: 0 }
     const p = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse())
-    return { x: Math.round(p.x), y: Math.round(p.y) }
+    // Kept on the picture: nothing is drawn or dragged off its edges.
+    const clamp = (v: number, max: number) => Math.round(Math.max(0, Math.min(max, v)))
+    return { x: clamp(p.x, scene.width), y: clamp(p.y, scene.height) }
   }
 
   const edit = (recipe: (s: PictureScene) => void, key?: string) =>
