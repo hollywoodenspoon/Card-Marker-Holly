@@ -1,41 +1,12 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef } from 'react'
 import { ImagePlus } from '@/ui/icons'
 import { Button } from '@/ui/components/ui/button'
 import { Dialog, DialogContent } from '@/ui/components/ui/dialog'
 import { cn } from '@/lib/cn'
 import { useGameCards } from '../cards/gameCards'
 import type { ImageRef } from '../model/game'
-import { assets } from '../storage/assets'
-import type { AssetRow } from '../storage/db'
-import { useGame } from '../store/gameStore'
-import { imagesChanged, useImageUrl, useImageVersion } from './images'
-
-/** The open game's own pictures (refreshed when one is added or removed). */
-export function useGameImages(): AssetRow[] {
-  const gameId = useGame((s) => s.game.id)
-  const v = useImageVersion((s) => s.v)
-  const [rows, setRows] = useState<AssetRow[]>([])
-  useEffect(() => {
-    let live = true
-    void assets.listGame(gameId).then((r) => live && setRows(r))
-    return () => {
-      live = false
-    }
-  }, [gameId, v])
-  return rows
-}
-
-/** Add picture files to the open game. Returns the new ids. */
-export async function uploadImages(files: FileList | File[], folder?: string) {
-  const gameId = useGame.getState().game.id
-  const ids: string[] = []
-  for (const f of Array.from(files)) {
-    if (!f.type.startsWith('image/')) continue
-    ids.push(await assets.putImage(f, f.name.replace(/\.[^.]+$/, ''), gameId, folder))
-  }
-  imagesChanged()
-  return ids
-}
+import { uploadImages, useGameImages } from './gameImages'
+import { useImageUrl } from './images'
 
 export function Thumb({ image, className }: { image: ImageRef; className?: string }) {
   const url = useImageUrl(image)

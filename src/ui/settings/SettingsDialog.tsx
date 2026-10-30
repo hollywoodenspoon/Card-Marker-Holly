@@ -1,4 +1,3 @@
-import { create } from 'zustand'
 import { APP_NAME, VERSION_LABEL } from '@/app/appInfo'
 import { Button } from '@/ui/components/ui/button'
 import { Dialog, DialogContent } from '@/ui/components/ui/dialog'
@@ -9,11 +8,7 @@ import { openThemePicker, THEMES, useThemeSetting } from '@/ui/theme/theme'
 import { setUiScale, UI_SCALES, useUiScale } from '@/ui/theme/uiScale'
 import { cn } from '@/lib/cn'
 
-type Section = 'appearance' | 'fonts' | 'about'
-
-export const useSettingsDialog = create<{ open: Section | null }>(() => ({ open: null }))
-export const openSettings = (section: Section = 'appearance') =>
-  useSettingsDialog.setState({ open: section })
+import { useSettingsDialog, type SettingsSection } from './settingsDialogStore'
 
 const BASIC_LABELS: Record<string, string> = {
   light: 'Light',
@@ -35,7 +30,7 @@ export function SettingsDialog() {
       <DialogContent title="Settings" className="max-w-xl">
         <Tabs
           value={open ?? 'appearance'}
-          onValueChange={(v) => useSettingsDialog.setState({ open: v as Section })}
+          onValueChange={(v) => useSettingsDialog.setState({ open: v as SettingsSection })}
           className="flex flex-col gap-4"
         >
           <TabsList className="w-full">

@@ -5,8 +5,6 @@ import { Input, Label, NativeSelect } from '@/ui/components/ui/input'
 import { Slider } from '@/ui/components/ui/slider'
 import { ColorField, NumberField, Row, Section } from '@/ui/components/fields'
 import { openShapeEditor } from '@/vector/shapeRequest'
-import { allItems, newDoc, newLayer, newPath, type VectorDoc } from '@/vector/model'
-import type { SubPath } from '@/vector/geometry'
 import { useGameCards } from '../cards/gameCards'
 import { EventsEditor } from '../events/EventsEditor'
 import type { GameEvent } from '../model/events'
@@ -14,6 +12,7 @@ import type { ClickArea, Glow, PictureScene, SceneObject } from '../model/game'
 import { useGame } from '../store/gameStore'
 import { assets } from '../storage/assets'
 import { ImagePicker, Thumb } from './ImagePicker'
+import { areaDoc, areaPaths } from './areaShape'
 import { imageUrl } from './images'
 
 type EditScene = (recipe: (s: PictureScene) => void, key?: string) => void
@@ -160,31 +159,6 @@ function naturalSize(url: string) {
     img.onerror = () => resolve(null)
     img.src = url
   })
-}
-
-/** Area paths as a Vector Maker drawing, and back. */
-export function areaDoc(scene: Pick<PictureScene, 'width' | 'height'>, paths: SubPath[]) {
-  const doc = newDoc(scene.width, scene.height)
-  doc.layers = [newLayer('Click area')]
-  if (paths.length)
-    doc.layers[0].items.push(
-      newPath('Area', structuredClone(paths), {
-        fill: '#ffd27a',
-        stroke: '#1f1f24',
-        strokeWidth: 2,
-        opacity: 0.5,
-        lineJoin: 'round',
-        lineCap: 'round',
-      }),
-    )
-  return doc
-}
-
-export function areaPaths(doc: VectorDoc): SubPath[] {
-  return allItems(doc)
-    .filter(({ layer, item }) => layer.visible && !item.hidden)
-    .flatMap(({ item }) => item.subpaths)
-    .filter((sp) => sp.anchors.length >= 2)
 }
 
 function AreaProps({

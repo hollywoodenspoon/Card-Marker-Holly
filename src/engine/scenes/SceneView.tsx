@@ -2,6 +2,7 @@ import { useState, type ReactNode } from 'react'
 import { pathData } from '@/vector/geometry'
 import { useGameCards } from '../cards/gameCards'
 import type { ClickArea, Glow, PictureScene, SceneObject } from '../model/game'
+import { glowOn } from './glow'
 import { useImageUrl } from './images'
 
 /** The light around a click area, drawn under the pointer or while pressed. */
@@ -40,14 +41,6 @@ export function AreaGlow({
       />
     </g>
   )
-}
-
-/** Whether an area's glow shows, from its setting and what the pointer is doing. */
-export function glowOn(g: Glow, hovered: boolean, pressed: boolean, touch: boolean) {
-  if (g.what === 'none') return false
-  // Touch screens have no hover: the glow shows while pressed instead.
-  if (touch) return pressed
-  return (g.when !== 'click' && hovered) || (g.when !== 'hover' && pressed)
 }
 
 function ObjectPicture({ obj }: { obj: SceneObject }) {

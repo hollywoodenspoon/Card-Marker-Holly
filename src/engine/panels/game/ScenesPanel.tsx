@@ -81,7 +81,11 @@ export function ScenesPanel() {
               >
                 <Play />
               </IconButton>
-              <IconButton size="icon-sm" label={`Delete ${s.name}`} onClick={() => void remove(s.id, s.name)}>
+              <IconButton
+                size="icon-sm"
+                label={`Delete ${s.name}`}
+                onClick={() => void remove(s.id, s.name)}
+              >
                 <Trash2 />
               </IconButton>
             </li>

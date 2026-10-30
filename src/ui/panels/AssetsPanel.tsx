@@ -38,7 +38,8 @@ import {
 import { Input } from '@/ui/components/ui/input'
 import { askText } from '@/ui/components/feedback'
 import { useUi } from '@/ui/uiStore'
-import { useViewMode, ViewModeToggle } from '@/ui/components/ViewModeToggle'
+import { useViewMode } from '@/ui/components/useViewMode'
+import { ViewModeToggle } from '@/ui/components/ViewModeToggle'
 import { nextSort, sortRows, type SortState } from '@/ui/components/viewMode'
 
 const NO_FOLDERS: string[] = []

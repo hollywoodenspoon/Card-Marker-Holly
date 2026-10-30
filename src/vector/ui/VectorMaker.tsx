@@ -77,6 +77,14 @@ async function openFor(assetId: string | null) {
  * areas): it opens the given drawing over a reference picture, and Done hands it
  * back (no asset, no draft).
  */
+/** Shape editing: hand the drawing back to whoever asked for it, and close. */
+function finishShape() {
+  const r = useShapeRequest.getState().req
+  r?.onDone(useVector.getState().doc)
+  useVector.setState({ reference: null })
+  closeShapeEditor()
+}
+
 export default function VectorMaker({ shape = false }: { shape?: boolean }) {
   const shapeReq = useShapeRequest((s) => s.req)
   const req = useUi((s) => s.vectorOpen)
@@ -150,13 +158,6 @@ export default function VectorMaker({ shape = false }: { shape?: boolean }) {
   // Android Back: finish the path being drawn first, then leave.
   useBackHandler(() => (useVector.getState().penPathId ? sendEscape() : close()))
 
-  // Shape editing: hand the drawing back to whoever asked for it.
-  function finishShape() {
-    const r = useShapeRequest.getState().req
-    r?.onDone(useVector.getState().doc)
-    close()
-  }
-
   const openSvg = async () => {
     const [f] = await pickFiles('.svg,image/svg+xml', false)
     if (!f) return
@@ -180,7 +181,8 @@ export default function VectorMaker({ shape = false }: { shape?: boolean }) {
       if (mod && k === 'z' && !e.shiftKey) return run(vundo)
       if ((mod && k === 'z' && e.shiftKey) || (mod && k === 'y')) return run(vredo)
       if (mod && k === 'd') return run(duplicateSelection)
-      if (mod && k === 's') return run(() => (shape ? finishShape() : setSaving(true)))
+      if (mod && k === 's')
+        return run(() => (useShapeRequest.getState().req ? finishShape() : setSaving(true)))
       if (mod && (k === '=' || k === '+'))
         return run(() => zoomTo(useVector.getState().view.zoom * 1.25))
       if (mod && k === '-') return run(() => zoomTo(useVector.getState().view.zoom / 1.25))

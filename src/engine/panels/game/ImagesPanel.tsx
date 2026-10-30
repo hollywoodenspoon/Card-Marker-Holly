@@ -5,7 +5,8 @@ import { askConfirm } from '@/ui/components/feedback'
 import { Folder, ImagePlus, Trash2 } from '@/ui/icons'
 import { useGameCards } from '../../cards/gameCards'
 import { assets } from '../../storage/assets'
-import { Thumb, uploadImages, useGameImages } from '../../scenes/ImagePicker'
+import { Thumb } from '../../scenes/ImagePicker'
+import { uploadImages, useGameImages } from '../../scenes/gameImages'
 import { imagesChanged } from '../../scenes/images'
 
 /** The game's own pictures (upload, rename, folders) and the card projects' pictures. */

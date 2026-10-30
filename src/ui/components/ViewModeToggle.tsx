@@ -1,7 +1,6 @@
-import { useState } from 'react'
 import { cn } from '@/lib/cn'
 import { Grid2x2, List, Rows3, Table2 } from '@/ui/icons'
-import { loadViewMode, saveViewMode, type ViewMode } from './viewMode'
+import type { ViewMode } from './viewMode'
 
 const MODES: { id: ViewMode; label: string; icon: typeof List }[] = [
   { id: 'large', label: 'Large list', icon: Rows3 },
@@ -9,18 +8,6 @@ const MODES: { id: ViewMode; label: string; icon: typeof List }[] = [
   { id: 'grid', label: 'Grid', icon: Grid2x2 },
   { id: 'details', label: 'Details', icon: Table2 },
 ]
-
-/** A panel's view mode, remembered on this device. */
-export function useViewMode(panel: string, fallback: ViewMode): [ViewMode, (m: ViewMode) => void] {
-  const [mode, setMode] = useState(() => loadViewMode(panel, fallback))
-  return [
-    mode,
-    (m) => {
-      setMode(m)
-      saveViewMode(panel, m)
-    },
-  ]
-}
 
 /** Large list · small list · grid · details, as a row of small buttons. */
 export function ViewModeToggle({
