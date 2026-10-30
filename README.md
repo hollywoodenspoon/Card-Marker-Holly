@@ -1,12 +1,12 @@
 # Hearthside Cardworks
 
-Version **0.5.0-beta** (beta). Formerly _Card Maker_; its playtest app is **Hearthside Table**.
+Version **0.8.1-beta** (beta). Formerly _Card Maker_. One app with three workspaces: **Cards** (the card editor), **Engine** (the game-maker) and **Play** (Hearthside Table).
 
 A card editor built with React, TypeScript, Vite and a Konva canvas. It runs as a website (projects stored in the browser), or as a desktop app for Arch Linux and CachyOS (projects stored as folders of ordinary files). There is no backend, and it works offline.
 
 ```bash
 npm install            # install dependencies
-npm run dev            # website dev server at http://localhost:5173 (Playtest app: /playtest/)
+npm run dev            # website dev server at http://localhost:5173 (#/cards, #/engine, #/play)
 npm run as:sim         # Adventure Scuffle balance run: bot games and a Markdown report (options are listed at the top of scripts/as-sim.mjs)
 npm run build          # type-check and build the website to dist/
 npm test               # unit tests (Vitest)
@@ -74,7 +74,7 @@ A small _Make your first card_ checklist on the canvas ticks these steps off as 
 - **New project** shows where its folder will go. **Change…** picks another place for new projects.
 - **Exports** (PDF, images, Tabletop Simulator, CSV, vectors) open a normal **Save as** dialog; the message afterwards has **Show in folder**.
 - **Settings and the Recent list** are kept in `~/.config/card-maker`.
-- **Hearthside Table is built in:** ☰ → **Open Hearthside Table**, or **Playtest now** in the game pack export, opens it in its own window. Long bot runs (Rush, tournaments, the Balance lab) keep the computer awake and run at full speed behind other windows.
+- **One window for everything:** the Cards · Engine · Play switch at the left of the top bar, and **Playtest now** in the game pack export, change workspace in the same window. Long bot runs (Rush, tournaments, the Balance lab) keep the computer awake and run at full speed behind other windows.
 - **Updates:** at first start the app asks whether to check for updates. With checks on, it asks GitHub once per start and nothing else, and says when a new version is out; `sudo pacman -Syu` installs it. With checks off it never goes online. ☰ has **Check for updates** and **Automatic update checks**, and shows the version.
 
 ### Android app (paused)
@@ -83,7 +83,7 @@ Android releases are paused: the Release workflow builds no APK. The Android pro
 
 ### Left pane
 
-- The rail on the left (desktop, and the tablet's left drawer) has the places: **Cards, Templates, Decks, Fonts, Keywords** (opening one never changes what you're editing). Below them come the views **Gallery** (gallery and proofreading), **Data** (card data table, CSV export and mail merge) and **Vector**, with **Help** at the bottom. Outputs are in the top bar: **Print**, and **Export ▾** (card images, Tabletop Simulator, game pack, project backup). On a phone all of these are in ☰.
+- The rail on the left (desktop, and the tablet's left drawer) has the places: **Cards, Templates, Decks, Keywords** (opening one never changes what you're editing). Below them come the views **Data** (card data table, CSV export and mail merge) and **Vector**, with **Help** at the bottom. Fonts are in ☰ → Settings. Cards and Assets have large list, small list, grid and details views, and the side panels resize from their inner edge. Outputs are in the top bar: **Print**, and **Export ▾** (card images, Tabletop Simulator, game pack, project backup). On a phone all of these are in ☰.
 - **Assets** sit at the bottom of the left pane. Click the header to fold them away or open them again (remembered on this device). Click an image to put it on the card, or into the selected art box. The header buttons make a folder or upload images. On a phone, Assets is in the bottom bar.
 
 ### Asset folders
@@ -137,7 +137,7 @@ Rail → **Vector**, ☰ → _Vector Maker_, or the pen button in the Assets hea
 - **Snapping** to card edges, guides and other parts (magnet button). Drag from a ruler to make a **guide**; drag it back to remove it.
 - **Layers** (right pane, or the Layers tab on phone): drag to reorder, eye to show/hide, lock, double-click to rename (or edit the name at the top of the right pane, which also works on touch).
 - **Deleting** acts straight away and shows a message with **Undo** (cards, decks, layers). Fonts ask first, as they can't be undone.
-- **Esc** closes Print, Gallery and Card data. The card editor's keys (Delete, arrows…) only act on the card when no other view or dialog is open.
+- **Esc** closes Print and Card data. The card editor's keys (Delete, arrows…) only act on the card when no other view or dialog is open.
 - **Shortcuts**: Ctrl/⌘ Z undo, Ctrl/⌘ Shift Z or Y redo, Ctrl/⌘ D duplicate, Delete, arrows nudge (Shift = 5 mm), Ctrl/⌘ G group, Ctrl/⌘ Shift G ungroup, Ctrl/⌘ 0 fit, Ctrl/⌘ H find and replace.
 
 ### Adding things
@@ -191,15 +191,13 @@ The **Front / Back** switch above the canvas. Each card picks a front template a
 
 **Decks** tab (on phone: ☰ → _Decks_): _New deck_, then − / + per card for how many of each it holds (e.g. two starter decks). ⋯ renames, duplicates or deletes a deck. **Print deck** prints exactly those counts (Print view → _Print_ picks the print list or a deck).
 
-### Gallery and proofreading
+### Print preview controls
 
-The gallery and the print preview use the card editor's controls: hold **Space** or the **middle mouse button** and drag to pan, **Ctrl/⌘ + wheel** (or pinch) to zoom, Ctrl/⌘ 0 to fit, plus the − % + buttons bottom right. In the gallery, zooming makes the cards bigger.
+The print preview uses the card editor's controls: hold **Space** or the **middle mouse button** and drag to pan, **Ctrl/⌘ + wheel** (or pinch) to zoom, Ctrl/⌘ 0 to fit, plus the − % + buttons bottom right. (The Gallery and Proofread views are shelved for now; their code stays.)
 
-☰ → _Gallery and proofreading_: every card in a big grid (fronts, backs or both, with a size slider, search and a deck filter); click a card to open it. The **Proofread** tab lists each card's text with the browser's spell check; plain text can be fixed right there (formatted text is edited on the card).
+### Play (Hearthside Table)
 
-### Playtest (separate app)
-
-**Export ▾** → _Game pack for Hearthside Table…_ (on a phone, ☰) exports a **game pack** (`.cmpack`): every card's picture (as printed), its field values by field name (text as text, icon rows as numbers, hidden layers included) and your decks. **Playtest now** (in a browser) opens it straight in **Hearthside Table**, a companion app at `playtest/` on the same site (installable, offline); **Save game pack** gives a file for any device or a friend. There you can **build decks** from the pack's whole card pool (Free Company rules checked: 12 different cards, at most one Ace marked `{ace}`; saved per pack, exportable as `.asdeck.json`), pick a table and a deck per player, and play by hand: drag or tap cards between fields, hands and piles, flip and turn them, place tokens, keep score, coin and dice, _View as_ a player for hot-seat play, undo, and a copyable game log. Games are saved per pack. Built in: an Adventure Scuffle! table and a simple board-game table. For Adventure Scuffle, **Rules on** runs the Mutual Reveal rules (hot-seat with hand-over, or both sides for solo playtesting); all 45 First Quest card abilities are applied, by card code. Play against an **Easy, Normal or Hard bot**, or watch bot against bot. The **Balance lab** builds its own decks, tests every card in the pack, and ranks what to change, with The First Quest as the core set. The rules engine is described in `docs/adventure-rules-engine.md`.
+**Export ▾** → _Game pack for Hearthside Table…_ (on a phone, ☰) exports a **game pack** (`.cmpack`): every card's picture (as printed), its field values by field name (text as text, icon rows as numbers, hidden layers included) and your decks. **Playtest now** opens it straight in the **Play** workspace (Hearthside Table; the old `playtest/` address redirects there); **Save game pack** gives a file for any device or a friend. There you can **build decks** from the pack's whole card pool (Free Company rules checked: 12 different cards, at most one Ace marked `{ace}`; saved per pack, exportable as `.asdeck.json`), pick a table and a deck per player, and play by hand: drag or tap cards between fields, hands and piles, flip and turn them, place tokens, keep score, coin and dice, _View as_ a player for hot-seat play, undo, and a copyable game log. Games are saved per pack. Built in: an Adventure Scuffle! table and a simple board-game table. For Adventure Scuffle, **Rules on** runs the Mutual Reveal rules (hot-seat with hand-over, or both sides for solo playtesting); all 45 First Quest card abilities are applied, by card code. Play against an **Easy, Normal or Hard bot**, or watch bot against bot. The **Balance lab** builds its own decks, tests every card in the pack, and ranks what to change, with The First Quest as the core set. The rules engine is described in `docs/adventure-rules-engine.md`.
 
 ### Tabletop Simulator
 
