@@ -59,6 +59,7 @@ import { useBotDriver, useFrameTimer } from './useBotDriver'
 import { usePlaytest } from './usePlaytest'
 import { ZoneSheet } from './ZoneSheet'
 import { WorkspaceSwitch } from '@/ui/shell/WorkspaceSwitch'
+import { ResizablePanel } from '@/ui/components/ResizablePanel'
 
 const isTyping = (t: EventTarget | null) => {
   const el = t as HTMLElement | null
@@ -428,12 +429,18 @@ export function GameView({
               )}
             </div>
             {logOpen && !phone && (
-              <aside
-                className="flex w-72 shrink-0 flex-col border-l bg-panel"
-                aria-label="Game log"
+              <ResizablePanel
+                id="play-log"
+                side="right"
+                initial={288}
+                min={220}
+                max={560}
+                label="game log"
+                ariaLabel="Game log"
+                className="flex flex-col border-l bg-panel"
               >
                 <LogPanel />
-              </aside>
+              </ResizablePanel>
             )}
           </div>
           {replay ? (

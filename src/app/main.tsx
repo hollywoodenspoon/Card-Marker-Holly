@@ -20,12 +20,14 @@ import { useEditor } from '@/core/editor/editorStore'
 import { desktop } from '@/platform/desktop'
 import { initPwa } from '@/ui/pwa/pwa'
 import { initTheme } from '@/ui/theme/theme'
+import { initUiScale } from '@/ui/theme/uiScale'
 import { App } from './App'
 import { flushSaves } from './session'
 import { isAndroidApp } from './isAndroidApp'
 
 document.title = `${APP_NAME} ${APP_VERSION}`
 initTheme()
+initUiScale()
 // Android app: folders and system integration before anything reads storage.
 if (!__COZY__ && (isAndroidApp() || (import.meta.env.DEV && '__fakeAndroidFolders' in window)))
   (await import('./androidSetup')).setupAndroid()

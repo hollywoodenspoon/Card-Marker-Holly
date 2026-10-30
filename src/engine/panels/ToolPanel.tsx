@@ -32,7 +32,7 @@ export function ToolPanel() {
   const mode = useEngine((s) => s.mode)
   return (
     <aside
-      className="flex w-64 shrink-0 flex-col gap-4 overflow-y-auto border-r bg-panel p-3"
+      className="flex h-full w-full flex-col gap-4 overflow-y-auto p-3"
       aria-label="Tools"
     >
       {mode === 'terrain' && <TerrainOptions />}

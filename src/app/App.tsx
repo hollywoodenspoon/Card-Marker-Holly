@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, useState, type ReactNode } from 'react'
 import { HelpHost } from '@/help/HelpHost'
 import { FeedbackHost } from '@/ui/components/FeedbackHost'
 import { PwaToast } from '@/ui/pwa/PwaToast'
+import { SettingsDialog } from '@/ui/settings/SettingsDialog'
 import { ThemePicker } from '@/ui/theme/ThemeMenu'
 import { useUi } from '@/ui/uiStore'
 import { APP_NAME, APP_VERSION } from './appInfo'
@@ -55,6 +56,7 @@ export function App() {
       <HelpHost />
       <FeedbackHost />
       <ThemePicker />
+      <SettingsDialog />
     </>
   )
 }

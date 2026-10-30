@@ -31,6 +31,7 @@ import { importMapFromText, initEngineMaps, newMap } from './storage/mapActions'
 import { useEngineSaveStatus } from './storage/saveStatus'
 import { useEngine } from './store/engineStore'
 import { useEngineShortcuts } from './useEngineShortcuts'
+import { ResizablePanel } from '@/ui/components/ResizablePanel'
 import { CardSourceMenu } from './panels/CardSourceMenu'
 import { MapsDialog } from './panels/MapsDialog'
 import { ModeBar } from './panels/ModeBar'
@@ -110,9 +111,18 @@ export function EngineShell() {
       </header>
 
       <div className="flex min-h-0 flex-1">
-        <div className="hidden md:flex">
+        <ResizablePanel
+          id="engine-tools"
+          side="left"
+          as="div"
+          initial={256}
+          min={220}
+          max={520}
+          label="tools"
+          className="hidden border-r bg-panel md:block"
+        >
           <ToolPanel />
-        </div>
+        </ResizablePanel>
         <main className="relative flex min-h-0 min-w-0 flex-1 flex-col">
           <ModeBar />
           <div className="relative min-h-0 flex-1">
@@ -122,9 +132,18 @@ export function EngineShell() {
             </div>
           </div>
         </main>
-        <div className="hidden lg:flex">
+        <ResizablePanel
+          id="engine-properties"
+          side="right"
+          as="div"
+          initial={256}
+          min={220}
+          max={520}
+          label="properties"
+          className="hidden border-l bg-panel lg:block"
+        >
           <PropertiesPanel />
-        </div>
+        </ResizablePanel>
       </div>
 
       <MapsDialog open={mapsOpen} onClose={() => setMapsOpen(false)} />

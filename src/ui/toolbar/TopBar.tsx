@@ -7,7 +7,6 @@ import {
   LayoutGrid,
   LayoutTemplate,
   Library,
-  Type,
   TextSearch,
   FolderOpen,
   Home,
@@ -118,9 +117,6 @@ function AppMenu({ phone }: { phone: boolean }) {
             </DropdownMenuItem>
             <DropdownMenuItem onSelect={() => ui().setPhoneSheet('decks')}>
               <Library /> Decks
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => ui().setPhoneSheet('fonts')}>
-              <Type /> Fonts
             </DropdownMenuItem>
             <DropdownMenuItem onSelect={() => ui().setPhoneSheet('keywords')}>
               <Highlighter /> Keywords

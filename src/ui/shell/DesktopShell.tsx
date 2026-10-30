@@ -1,3 +1,4 @@
+import { ResizablePanel } from '@/ui/components/ResizablePanel'
 import { LeftPanel } from '@/ui/panels/LeftPanel'
 import { RightPane } from '@/ui/panels/RightPane'
 import { TopBar } from '@/ui/toolbar/TopBar'
@@ -10,15 +11,31 @@ export function DesktopShell() {
     <div className="h-app flex flex-col">
       <TopBar layout="desktop" />
       <div className="flex min-h-0 flex-1">
-        <aside className="flex w-[340px] shrink-0 border-r bg-panel">
-          <LeftPanel tab={leftTab} onTab={setLeftTab} className="flex-1" />
-        </aside>
+        <ResizablePanel
+          id="cards-left"
+          side="left"
+          initial={340}
+          min={280}
+          max={720}
+          label="left"
+          className="flex border-r bg-panel"
+        >
+          <LeftPanel tab={leftTab} onTab={setLeftTab} className="min-w-0 flex-1" />
+        </ResizablePanel>
         <main className="flex min-w-0 flex-1 flex-col">
           <CanvasArea layout="desktop" />
         </main>
-        <aside className="w-[300px] shrink-0 border-l bg-panel">
+        <ResizablePanel
+          id="cards-right"
+          side="right"
+          initial={300}
+          min={260}
+          max={560}
+          label="properties"
+          className="border-l bg-panel"
+        >
           <RightPane />
-        </aside>
+        </ResizablePanel>
       </div>
     </div>
   )
