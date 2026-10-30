@@ -9,7 +9,7 @@ A theme sets the colours of the app around your cards. It never changes the card
 
 ![The theme picker](theme-picker.webp)
 
-The theme is remembered on this device. Hearthside Table, the playtest app, uses the same theme.
+The theme is remembered on this device. Every workspace (Cards, Engine and Play) uses the same theme.
 
 ## The themes
 

@@ -45,7 +45,7 @@ You can do the same with a real sheet of cards: hold it to the light and check t
 After **Export PDF**, the print view may list warnings:
 
 - **A picture prints at about N DPI**: it will look blurry. Use a bigger picture, or make it smaller on the card. Around 300 DPI or more is best.
-- **A font has no file**: that text prints as a 600 dpi picture instead of sharp letter shapes. Upload the font in the Fonts tab to fix it.
+- **A font has no file**: that text prints as a 600 dpi picture instead of sharp letter shapes. Upload the font in Settings → Fonts to fix it.
 
 ## See also
 

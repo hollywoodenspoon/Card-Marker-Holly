@@ -38,6 +38,8 @@ import {
 import { Input } from '@/ui/components/ui/input'
 import { askText } from '@/ui/components/feedback'
 import { useUi } from '@/ui/uiStore'
+import { useViewMode, ViewModeToggle } from '@/ui/components/ViewModeToggle'
+import { nextSort, sortRows, type SortState } from '@/ui/components/viewMode'
 
 const NO_FOLDERS: string[] = []
 
@@ -103,33 +105,45 @@ export function AssetGroups({ onPicked, compact }: { onPicked?: () => void; comp
   const doc = deleting ? useEditor.getState().doc : null
   const inUse = deleting && doc ? usedAssetIds(doc).has(deleting.id) : false
   const drag = useAssetDrag()
+  const [mode, setMode] = useViewMode('assets', 'grid')
 
   const pick = (a: Asset) => {
     if (drag.consumeClick()) return
     placeAsset(a)
     onPicked?.()
   }
-  const grid = (g: AssetGroup) => (
-    <ul
-      className={cn(
-        'grid auto-rows-min gap-2',
-        compact ? 'grid-cols-3' : 'grid-cols-3 sm:grid-cols-4 lg:grid-cols-2',
-      )}
-    >
-      {g.assets.map((a) => (
-        <AssetTile
-          key={a.id}
-          asset={a}
-          compact={compact}
-          dragging={drag.state?.id === a.id}
-          onPick={() => pick(a)}
-          onPointerDown={(e) => drag.start(e, a)}
-          onMove={() => setMoving(a)}
-          onDelete={() => setDeleting(a)}
-        />
-      ))}
-    </ul>
-  )
+  const tileProps = (a: Asset) => ({
+    asset: a,
+    compact,
+    dragging: drag.state?.id === a.id,
+    onPick: () => pick(a),
+    onPointerDown: (e: React.PointerEvent) => drag.start(e, a),
+    onMove: () => setMoving(a),
+    onDelete: () => setDeleting(a),
+  })
+  const grid = (g: AssetGroup) =>
+    mode === 'details' ? (
+      <AssetTable assets={g.assets} tileProps={tileProps} />
+    ) : mode === 'grid' ? (
+      <ul
+        className={cn(
+          'grid auto-rows-min gap-2',
+          compact
+            ? 'grid-cols-[repeat(auto-fill,minmax(4.5rem,1fr))]'
+            : 'grid-cols-3 sm:grid-cols-4 lg:grid-cols-2',
+        )}
+      >
+        {g.assets.map((a) => (
+          <AssetTile key={a.id} {...tileProps(a)} />
+        ))}
+      </ul>
+    ) : (
+      <ul className={mode === 'small' ? 'space-y-0.5' : 'space-y-1'}>
+        {g.assets.map((a) => (
+          <AssetRow key={a.id} {...tileProps(a)} small={mode === 'small'} />
+        ))}
+      </ul>
+    )
 
   const empty = Object.keys(assets).length === 0 && folders.length === 0
   return (
@@ -137,6 +151,11 @@ export function AssetGroups({ onPicked, compact }: { onPicked?: () => void; comp
       className={cn('min-h-0 flex-1 overflow-auto px-3 pb-3', compact && 'px-2 pb-2')}
       data-testid="asset-groups"
     >
+      {!empty && (
+        <div className="flex justify-end pb-1.5">
+          <ViewModeToggle value={mode} onChange={setMode} />
+        </div>
+      )}
       {empty ? (
         <p className="px-2 py-4 text-center text-sm text-muted-foreground">
           No images yet. Upload, or drop or paste images onto the canvas.
@@ -245,15 +264,7 @@ function AssetTile({
   onPointerDown,
   onMove,
   onDelete,
-}: {
-  asset: Asset
-  compact?: boolean
-  dragging: boolean
-  onPick: () => void
-  onPointerDown: (e: React.PointerEvent) => void
-  onMove: () => void
-  onDelete: () => void
-}) {
+}: TileProps) {
   return (
     <li
       className={cn(
@@ -294,64 +305,227 @@ function AssetTile({
             {a.isVector ? 'SVG' : `${a.widthPx}×${a.heightPx}`}
           </span>
         )}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <IconButton label={`Options for ${a.name}`} size="icon-sm">
-              <MoreHorizontal />
-            </IconButton>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem
-              onSelect={async () => {
-                const name = await askText({
-                  title: 'Rename image',
-                  label: 'Name',
-                  initial: a.name,
-                  okLabel: 'Rename',
-                })
-                if (name) updateLibrary((l) => void (l.assets[a.id].name = name))
-              }}
-            >
-              <Pencil /> Rename
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onSelect={async () => {
-                const v = await askText({
-                  title: 'Symbol name',
-                  description:
-                    'Type {name} in any text to show this image there, like an icon. Leave it empty to stop using it as a symbol.',
-                  label: 'Name (letters, numbers, - and _)',
-                  initial: a.tags[0] ?? a.name.toLowerCase().replace(/[^a-z0-9_-]+/g, ''),
-                  okLabel: 'Save',
-                  allowEmpty: true,
-                })
-                if (v === null) return
-                const tag = v
-                  .trim()
-                  .toLowerCase()
-                  .replace(/[{}\s]+/g, '')
-                  .replace(/[^a-z0-9_-]/g, '')
-                updateLibrary((l) => void (l.assets[a.id].tags = tag ? [tag] : []))
-              }}
-            >
-              <Braces /> Symbol name…
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={onMove}>
-              <FolderInput /> Move to folder…
-            </DropdownMenuItem>
-            {!__COZY__ && (a.isVector || a.vectorDoc) && (
-              <DropdownMenuItem onSelect={() => useUi.getState().setVectorOpen({ assetId: a.id })}>
-                <PenTool /> Edit in Vector Maker
-              </DropdownMenuItem>
-            )}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem danger onSelect={onDelete}>
-              <Trash2 /> Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <AssetMenu asset={a} onMove={onMove} onDelete={onDelete} />
       </div>
     </li>
+  )
+}
+
+type TileProps = {
+  asset: Asset
+  compact?: boolean
+  dragging: boolean
+  onPick: () => void
+  onPointerDown: (e: React.PointerEvent) => void
+  onMove: () => void
+  onDelete: () => void
+}
+
+/** Large and small list: a preview, the name and (large) the picture's size. */
+function AssetRow({
+  asset: a,
+  small,
+  dragging,
+  onPick,
+  onPointerDown,
+  onMove,
+  onDelete,
+}: TileProps & { small: boolean }) {
+  return (
+    <li
+      className={cn(
+        'flex items-center gap-1 rounded-lg pr-0.5 hover:bg-muted',
+        dragging && 'opacity-50',
+      )}
+      data-testid="asset-row"
+    >
+      <button
+        type="button"
+        onClick={onPick}
+        onPointerDown={onPointerDown}
+        title={`Place ${a.name}`}
+        className={cn(
+          'flex min-w-0 flex-1 touch-manipulation items-center gap-2 px-1 text-left',
+          small ? 'min-h-8 pointer-coarse:min-h-11' : 'min-h-12',
+        )}
+      >
+        <img
+          src={assetResolver.getUrl(a.id)}
+          alt=""
+          className={cn(
+            'shrink-0 rounded border bg-muted object-contain',
+            small ? 'size-6' : 'size-10 p-0.5',
+          )}
+          draggable={false}
+        />
+        <span className="min-w-0 flex-1">
+          <span className={cn('block truncate', small ? 'text-xs' : 'text-sm')}>{a.name}</span>
+          {!small && (
+            <span className="block truncate text-[11px] text-muted-foreground">
+              {a.isVector ? 'SVG' : `${a.widthPx}×${a.heightPx}`}
+              {a.tags[0] && ` · {${a.tags[0]}}`}
+            </span>
+          )}
+        </span>
+      </button>
+      <AssetMenu asset={a} onMove={onMove} onDelete={onDelete} />
+    </li>
+  )
+}
+
+type AssetCol = 'name' | 'type' | 'size' | 'bytes'
+const kb = (n: number) =>
+  n < 1024 * 1024 ? `${Math.max(1, Math.round(n / 1024))} KB` : `${(n / 1024 / 1024).toFixed(1)} MB`
+
+/** Details: name, type, pixel size and file size, sortable (the view only). */
+function AssetTable({
+  assets,
+  tileProps,
+}: {
+  assets: Asset[]
+  tileProps: (a: Asset) => TileProps
+}) {
+  const [sort, setSort] = useState<SortState<AssetCol>>({ key: 'name', dir: 1 })
+  const type = (a: Asset) => (a.isVector ? 'SVG' : a.mime.replace('image/', '').toUpperCase())
+  const value = (a: Asset, k: AssetCol) =>
+    k === 'name'
+      ? a.name
+      : k === 'type'
+        ? type(a)
+        : k === 'size'
+          ? a.widthPx * a.heightPx
+          : a.blob.size
+  const rows = sortRows(assets, sort, value)
+  const cols: { key: AssetCol; label: string }[] = [
+    { key: 'name', label: 'Name' },
+    { key: 'type', label: 'Type' },
+    { key: 'size', label: 'Pixels' },
+    { key: 'bytes', label: 'File' },
+  ]
+  return (
+    <table className="w-full table-fixed text-left text-xs" data-testid="assets-details">
+      <thead className="text-muted-foreground">
+        <tr>
+          {cols.map((c) => (
+            <th
+              key={c.key}
+              aria-sort={
+                sort.key === c.key ? (sort.dir === 1 ? 'ascending' : 'descending') : 'none'
+              }
+              className={cn('px-1 py-1 font-medium', c.key === 'name' ? 'w-[45%]' : '')}
+            >
+              <button
+                type="button"
+                className="inline-flex min-h-8 items-center hover:text-foreground"
+                onClick={() => setSort((s) => nextSort(s, c.key))}
+              >
+                {c.label}
+                {sort.key === c.key && (sort.dir === 1 ? ' ↑' : ' ↓')}
+              </button>
+            </th>
+          ))}
+          <th className="w-9" aria-label="Options" />
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((a) => {
+          const p = tileProps(a)
+          return (
+            <tr key={a.id} className={cn('hover:bg-muted', p.dragging && 'opacity-50')}>
+              <td className="truncate px-1 py-1.5">
+                <button
+                  type="button"
+                  onClick={p.onPick}
+                  onPointerDown={p.onPointerDown}
+                  title={`Place ${a.name}`}
+                  className="w-full touch-manipulation truncate text-left text-sm"
+                >
+                  {a.name}
+                </button>
+              </td>
+              <td className="truncate px-1 text-muted-foreground">{type(a)}</td>
+              <td className="truncate px-1 text-muted-foreground">
+                {a.isVector ? '—' : `${a.widthPx}×${a.heightPx}`}
+              </td>
+              <td className="truncate px-1 text-muted-foreground">{kb(a.blob.size)}</td>
+              <td>
+                <AssetMenu asset={a} onMove={p.onMove} onDelete={p.onDelete} />
+              </td>
+            </tr>
+          )
+        })}
+      </tbody>
+    </table>
+  )
+}
+
+/** ⋯ for one image: rename, symbol name, move, Vector Maker, delete. */
+function AssetMenu({
+  asset: a,
+  onMove,
+  onDelete,
+}: {
+  asset: Asset
+  onMove: () => void
+  onDelete: () => void
+}) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <IconButton label={`Options for ${a.name}`} size="icon-sm">
+          <MoreHorizontal />
+        </IconButton>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem
+          onSelect={async () => {
+            const name = await askText({
+              title: 'Rename image',
+              label: 'Name',
+              initial: a.name,
+              okLabel: 'Rename',
+            })
+            if (name) updateLibrary((l) => void (l.assets[a.id].name = name))
+          }}
+        >
+          <Pencil /> Rename
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onSelect={async () => {
+            const v = await askText({
+              title: 'Symbol name',
+              description:
+                'Type {name} in any text to show this image there, like an icon. Leave it empty to stop using it as a symbol.',
+              label: 'Name (letters, numbers, - and _)',
+              initial: a.tags[0] ?? a.name.toLowerCase().replace(/[^a-z0-9_-]+/g, ''),
+              okLabel: 'Save',
+              allowEmpty: true,
+            })
+            if (v === null) return
+            const tag = v
+              .trim()
+              .toLowerCase()
+              .replace(/[{}\s]+/g, '')
+              .replace(/[^a-z0-9_-]/g, '')
+            updateLibrary((l) => void (l.assets[a.id].tags = tag ? [tag] : []))
+          }}
+        >
+          <Braces /> Symbol name…
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={onMove}>
+          <FolderInput /> Move to folder…
+        </DropdownMenuItem>
+        {!__COZY__ && (a.isVector || a.vectorDoc) && (
+          <DropdownMenuItem onSelect={() => useUi.getState().setVectorOpen({ assetId: a.id })}>
+            <PenTool /> Edit in Vector Maker
+          </DropdownMenuItem>
+        )}
+        <DropdownMenuSeparator />
+        <DropdownMenuItem danger onSelect={onDelete}>
+          <Trash2 /> Delete
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
 

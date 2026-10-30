@@ -231,12 +231,6 @@ export const HELP_TOPICS: HelpTopic[] = [
     section: 'Output',
     keywords: 'tts deck sheet custom deck online',
   },
-  {
-    id: 'gallery',
-    title: 'Gallery and proofreading',
-    section: 'Output',
-    keywords: 'overview proofread spelling review',
-  },
   ...(__COZY__
     ? []
     : [
@@ -318,8 +312,6 @@ export const HELP_SHOTS = [
   'vector-maker',
   'trace',
   'vector-save',
-  'gallery',
-  'proofread',
   'game-pack',
   'playtest',
   'print',

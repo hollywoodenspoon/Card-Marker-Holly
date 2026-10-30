@@ -41,7 +41,6 @@ The **Print** list only appears once the project has at least one deck. See [Pri
 
 ## Other places that use decks
 
-- **Gallery**: the deck filter shows only that deck's cards, with how many of each.
 - **Card data**: the deck filter shows only that deck's cards, and **Export CSV** saves just those rows.
 - **Tabletop Simulator**: pick a deck to export as deck sheets.
 
@@ -52,4 +51,3 @@ The **Print** list only appears once the project has at least one deck. See [Pri
 - [Printing on paper](help:printing)
 - [Cards list and editing many cards](help:cards)
 - [Tabletop Simulator](help:tabletop-simulator)
-- [Gallery and proofreading](help:gallery)

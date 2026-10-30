@@ -1,4 +1,4 @@
-import { ChevronDown, CircleHelp, FolderPlus, LayoutGrid, PenTool, Sheet, Upload } from '@/ui/icons'
+import { ChevronDown, CircleHelp, FolderPlus, PenTool, Sheet, Upload } from '@/ui/icons'
 import { useEditor } from '@/core/editor/editorStore'
 import { openHelp } from '@/help/openHelp'
 import { cn } from '@/lib/cn'
@@ -11,12 +11,6 @@ import { PanelBody } from './PanelBody'
 
 /** Views that take over the screen. Outputs (print, export) live in the top bar. */
 const VIEWS = [
-  {
-    label: 'Gallery',
-    title: 'Gallery and proofreading',
-    icon: LayoutGrid,
-    run: () => useUi.getState().setGalleryOpen(true),
-  },
   {
     label: 'Data',
     title: 'Card data: table, CSV export and mail merge',

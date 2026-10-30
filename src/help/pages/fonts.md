@@ -4,16 +4,16 @@ You can use the fonts that come with the app, or upload your own TTF and OTF fil
 
 ## Built-in fonts
 
-Open the **Fonts** tab in the left rail (on a phone, ☰ → **Fonts**). The **Built in** list shows:
+Open ☰ → **Settings** → **Fonts…** (or **Settings…** and the **Fonts** tab). The **Built in** list shows:
 
 - **Inter**, **Alegreya** and **Alegreya SC**: these come with the app and always print sharp.
 - **Georgia**, **Arial**, **Times New Roman** and **Courier New**: common fonts from your device. How they look depends on the device.
 
-![The Fonts tab](fonts.webp)
+![Fonts in Settings](fonts.webp)
 
 ## Uploading your own
 
-1. Open the **Fonts** tab and press **Upload fonts**.
+1. Open ☰ → **Settings** → **Fonts…** and press **Upload fonts**.
 2. Pick one or more `.ttf` or `.otf` files.
 3. They appear under **Your fonts**, each shown in its own font, with the file name and weight.
 

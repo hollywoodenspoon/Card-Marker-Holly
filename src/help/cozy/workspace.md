@@ -15,24 +15,31 @@ From left to right:
 - **Print**: opens the print preview and PDF export.
 - **Export ▾**: everything else that saves files: Card images (PNG, JPG, WebP)…, Tabletop Simulator… and Project backup file.
 - **Undo** and **Redo**.
-- **☰ menu**, at the right end: Find and replace…, All projects, **Show project folder**, and **Settings**. On a phone, ☰ also has Print, the Export items, Templates, Decks, Fonts, Keywords, Gallery and Card data.
+- **☰ menu**, at the right end: Find and replace…, All projects, **Show project folder**, and **Settings**. On a phone, ☰ also has Print, the Export items, Templates, Decks, Keywords and Card data.
 - **Settings** (inside ☰): Help, Units… and Theme…. Help stays here on every screen size.
 
 The ☰ menu sits at the top right everywhere, on the Home screen too.
 
 ## Left pane
 
-On a computer the left pane has a narrow rail of buttons. The top five are the places where your project's parts live, and switch the panel next to the rail:
+On a computer the left pane has a narrow rail of buttons. The top four are the places where your project's parts live, and switch the panel next to the rail:
 
 - **Cards**: every card, with search, reorder and multi-select.
 - **Templates**: your layouts for fronts and backs.
 - **Decks**: groups of cards with counts.
-- **Fonts**: upload and manage fonts.
 - **Keywords**: words styled automatically in card text.
+
+Fonts are in Settings: ☰ → **Settings** → **Fonts…**. See [Fonts](help:fonts).
+
+The Cards list and Assets each have four views, from the buttons above them: **Large list**, **Small list**, **Grid** and **Details** (a table; click a column to sort it, which never changes the card order). Each remembers its view on this device.
 
 Opening a tab only shows it: it never changes what your edits affect. You edit a template by clicking it in the Templates tab, with **Edit template**, or with the **Card / Template** switch; the Templates tab then opens by itself. **Back to card** returns to the Cards tab.
 
-Below a line come the full-screen views: **Gallery**, **Data** (card table, CSV and mail merge). **Help** sits at the bottom of the rail.
+Below a line comes the full-screen **Data** view (card table, CSV and mail merge). **Help** sits at the bottom of the rail.
+
+## Panel widths
+
+Drag the inner edge of a side panel to make it wider or narrower; the pointer changes when it's on the edge. Double-click the edge to go back to the usual width. On a touch screen, drag the small handle on the edge. Each width is kept on this device. To make everything bigger or smaller, use **UI size** in Settings.
 
 **Assets** sit at the bottom of the left pane. Click the **Assets** header to fold them away or open them again. The header buttons make a folder or upload images.
 
@@ -70,7 +77,7 @@ On a phone the card fills the screen:
 - Close a sheet with ✕, by tapping its button again, or by swiping its header down.
 - The **Edit** sheet stays low, so you can still see and tap the card above it.
 - When you edit text, a panel opens at the top of the screen with the text tools and a **Done** button.
-- **Templates**, **Decks**, **Fonts**, **Keywords**, **Print / export PDF**, the Export items and the other views are in the ☰ menu.
+- **Templates**, **Decks**, **Keywords**, **Print / export PDF**, the Export items and the other views are in the ☰ menu.
 
 ## See also
 

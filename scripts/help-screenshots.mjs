@@ -280,9 +280,15 @@ await wait(page)
 
 // Left pane tabs.
 await clip('assets', page.getByRole('region', { name: 'Assets' }))
-await rail('Fonts').click()
+// Fonts live in Settings.
+await app(page, async () => {
+  const { openSettings } = await import('/src/ui/settings/SettingsDialog.tsx')
+  openSettings('fonts')
+})
 await wait(page)
-await clip('fonts', left())
+await clip('fonts', page.getByRole('dialog', { name: 'Settings' }))
+await page.keyboard.press('Escape')
+await wait(page)
 await rail('Templates').click()
 await wait(page)
 await clip('templates', left())
@@ -356,23 +362,13 @@ await rail('Data').click()
 await wait(page, 900)
 await shot(page, 'data-table')
 await page.keyboard.press('Escape')
-await rail('Gallery').click()
-await wait(page, 1500)
-await shot(page, 'gallery')
-await page.getByRole('tab', { name: 'Proofread' }).click()
-await wait(page, 900)
-await shot(page, 'proofread')
-await page.keyboard.press('Escape')
-// Playtest: the game pack dialog, then the Playtest app (new tab) mid-game.
+// Playtest: the game pack dialog, then the Play workspace (same tab) mid-game.
 await exportItem(/Game pack/)
 await wait(page, 700)
 await shot(page, 'game-pack', page.getByRole('dialog'))
-const [pt] = await Promise.all([
-  page.context().waitForEvent('page'),
-  page.getByRole('button', { name: 'Playtest now' }).click(),
-])
-await pt.waitForURL(/playtest\/#pack=/)
-await pt.waitForLoadState('networkidle')
+const pt = page
+await page.getByRole('button', { name: 'Playtest now' }).click()
+await pt.waitForURL(/#\/play\/pack=/)
 await wait(pt, 1500)
 await pt.getByTestId('playtest-start-button').click()
 await wait(pt, 1500)
@@ -395,7 +391,8 @@ await app(pt, async () => {
 })
 await wait(pt, 1500)
 await shot(pt, 'playtest')
-await pt.close()
+// Back to Cards.
+await page.getByTestId('workspace-cards').filter({ visible: true }).click()
 await wait(page)
 await page.getByRole('banner').getByRole('button', { name: 'Print', exact: true }).click()
 await wait(page, 2500)

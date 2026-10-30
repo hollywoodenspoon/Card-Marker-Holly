@@ -6,6 +6,8 @@ Hearthside Cardworks has only a few settings. Most of them are in ☰ → **Sett
 
 Open ☰ at the top right (in the editor, or on the Home screen) and choose **Settings**:
 
+- **Settings…**: the Settings window, with **Appearance** (theme and **UI size**), **Fonts** and **About**.
+- **Fonts…**: the same window, at Fonts. See [Fonts](help:fonts).
 - **Help**: these pages.
 - **Units…**: the unit you see and type sizes in (in a project).
 - **Theme…**: the colours of the app. See [Themes](help:themes).
@@ -13,6 +15,10 @@ Open ☰ at the top right (in the editor, or on the Home screen) and choose **Se
 - **Install app**, when your browser can install the website as an app. See [Website and offline use](help:website).
 
 ![The ☰ menu with Settings open](settings-menu.webp)
+
+## UI size
+
+**Settings…** → **Appearance** → **UI size** makes everything bigger or smaller: text, buttons and panels, from 90 % to 150 %. Cards keep their own zoom. It's kept on this device.
 
 ## Units
 
@@ -40,7 +46,8 @@ The print settings (paper, margins, cut marks, backs…) are saved with the proj
 
 Some choices are about how you like to work, so they're kept on this device (in this browser on the website) rather than in the project:
 
-- the theme
+- the theme and the UI size
+- how wide each side panel is, and the view (large list, small list, grid or details) of the Cards list and Assets
 - whether the **Layers** and **Assets** sections are folded
 - that you closed the _Make your first card_ checklist
 - the unit new projects start with

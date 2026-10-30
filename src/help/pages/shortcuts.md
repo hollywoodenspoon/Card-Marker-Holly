@@ -2,7 +2,7 @@
 
 These are all the keys Hearthside Cardworks knows. On a Mac, use ⌘ wherever it says Ctrl, and Option wherever it says Alt.
 
-Shortcuts don't act while you're typing in a box. The card editor's keys also stop while a dialog or a full-screen view (Print, Gallery, Card data, Vector Maker, Help) is open, so they never change the hidden card.
+Shortcuts don't act while you're typing in a box. The card editor's keys also stop while a dialog or a full-screen view (Print, Card data, Vector Maker, Help) is open, so they never change the hidden card.
 
 ## Help
 
@@ -68,16 +68,16 @@ Shortcuts don't act while you're typing in a box. The card editor's keys also st
 | [[Shift]] + up / down arrow | Step 10 times as far      |
 | [[Enter]]                   | Confirm                   |
 
-## Print preview and Gallery
+## Print preview
 
 | Keys                                   | What it does                                            |
 | -------------------------------------- | ------------------------------------------------------- |
 | [[Space]] + drag, or middle mouse drag | Pan                                                     |
-| [[Ctrl]] + mouse wheel                 | Zoom (in the Gallery: make the cards bigger or smaller) |
+| [[Ctrl]] + mouse wheel                 | Zoom                                                    |
 | Mouse wheel                            | Pan or scroll                                           |
 | [[Ctrl+=]] / [[Ctrl+-]]                | Zoom in or out                                          |
-| [[Ctrl+0]]                             | Fit (in the Gallery: back to the normal card size)      |
-| [[Esc]]                                | Close Print, Gallery, Card data or Help                 |
+| [[Ctrl+0]]                             | Fit                                                     |
+| [[Esc]]                                | Close Print, Card data or Help                          |
 
 ## Vector Maker: tools
 

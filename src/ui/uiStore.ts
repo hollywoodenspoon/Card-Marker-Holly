@@ -12,7 +12,6 @@ interface UiState {
   /** Card image export dialog; `cardId` preselects one card. */
   imageExport: { cardId: string | null } | null
   findOpen: boolean
-  galleryOpen: boolean
   /** Export game pack dialog (for the Playtest app). */
   packOpen: boolean
   setPackOpen: (o: boolean) => void
@@ -26,7 +25,6 @@ interface UiState {
   setHelp: (h: UiState['help']) => void
   setUnitsOpen: (o: boolean) => void
   setTtsOpen: (o: boolean) => void
-  setGalleryOpen: (o: boolean) => void
   setFindOpen: (o: boolean) => void
   setImageExport: (v: UiState['imageExport']) => void
   /** Layers section of the right pane expanded (remembered per device). */
@@ -70,7 +68,6 @@ export const useUi = create<UiState>((set) => ({
   setPrintOpen: (printOpen) => set({ printOpen }),
   imageExport: null,
   findOpen: false,
-  galleryOpen: false,
   packOpen: false,
   setPackOpen: (packOpen) => set({ packOpen }),
   ttsOpen: false,
@@ -81,7 +78,6 @@ export const useUi = create<UiState>((set) => ({
   setVectorOpen: (vectorOpen) => set({ vectorOpen }),
   setUnitsOpen: (unitsOpen) => set({ unitsOpen }),
   setTtsOpen: (ttsOpen) => set({ ttsOpen }),
-  setGalleryOpen: (galleryOpen) => set({ galleryOpen }),
   setFindOpen: (findOpen) => set({ findOpen }),
   setImageExport: (imageExport) => set({ imageExport }),
   layersOpen: readOpen(LAYERS_KEY),

@@ -4,7 +4,6 @@ import {
   ImageDown,
   Download,
   Highlighter,
-  LayoutGrid,
   LayoutTemplate,
   Library,
   TextSearch,
@@ -122,9 +121,6 @@ function AppMenu({ phone }: { phone: boolean }) {
               <Highlighter /> Keywords
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onSelect={() => ui().setGalleryOpen(true)}>
-              <LayoutGrid /> Gallery and proofreading
-            </DropdownMenuItem>
             <DropdownMenuItem onSelect={() => ui().setDataView('table')}>
               <Sheet /> Card data (table, CSV, mail merge)
             </DropdownMenuItem>

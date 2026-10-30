@@ -7,7 +7,6 @@ import { TtsDialog } from '@/ui/export/TtsDialog'
 import { UnitsDialog } from '@/ui/panels/properties/UnitsDialog'
 import { FindReplaceDialog } from '@/ui/find/FindReplaceDialog'
 import { DataView } from '@/ui/data/DataView'
-import { GalleryView } from '@/ui/gallery/GalleryView'
 import { PrintView } from '@/ui/print/PrintView'
 import { followModeWithTabs } from '@/ui/panels/editMode'
 import { useUi } from '@/ui/uiStore'
@@ -25,7 +24,6 @@ export function AppShell() {
   usePasteImages()
   useEffect(followModeWithTabs, [])
   const printOpen = useUi((s) => s.printOpen)
-  const galleryOpen = useUi((s) => s.galleryOpen)
   const dataOpen = useUi((s) => !!s.dataView)
   const vectorOpen = useUi((s) => !!s.vectorOpen)
   const shell =
@@ -33,7 +31,6 @@ export function AppShell() {
   return (
     <>
       {shell}
-      {galleryOpen && <GalleryView />}
       {dataOpen && <DataView />}
       {vectorOpen && (
         <Suspense fallback={null}>
