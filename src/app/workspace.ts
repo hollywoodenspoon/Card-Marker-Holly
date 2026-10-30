@@ -16,11 +16,13 @@ export const WORKSPACES: { id: Workspace; label: string }[] = [
 
 export interface Route {
   ws: Workspace
-  /** Play only: the game pack to open. */
+  /** Play only: the game pack to open (kept while another workspace is on screen). */
   pack?: string
 }
 
 const KEY = 'cardmaker.workspace'
+/** Play's open pack, so a reload in another workspace still comes back to the game. */
+const PACK_KEY = 'cardmaker.playPack'
 const isWs = (v: unknown): v is Workspace => v === 'cards' || v === 'engine' || v === 'play'
 
 /** Reads a hash. "#pack=<id>" (the old Hearthside Table link) means Play with that pack. */
@@ -40,18 +42,21 @@ export function routeHash(r: Route): string {
   return r.ws === 'play' && r.pack ? `#/play/pack=${encodeURIComponent(r.pack)}` : `#/${r.ws}`
 }
 
-function remembered(): Workspace {
+function read(key: string): string | null {
   try {
-    const v = localStorage.getItem(KEY)
-    return isWs(v) ? v : 'cards'
+    return localStorage.getItem(key)
   } catch {
-    return 'cards'
+    return null
   }
 }
 
 function initial(): Route {
   if (__COZY__ || typeof location === 'undefined') return { ws: 'cards' }
-  return parseHash(location.hash) ?? { ws: remembered() }
+  const last = read(KEY)
+  const r = parseHash(location.hash) ?? { ws: isWs(last) ? last : 'cards' }
+  if (r.ws === 'play') return r
+  const pack = read(PACK_KEY)
+  return pack ? { ...r, pack } : r
 }
 
 interface WorkspaceState extends Route {
@@ -65,9 +70,11 @@ export const useWorkspace = create<WorkspaceState>((set, get) => ({
   ...initial(),
   go: (ws, pack) => {
     if (__COZY__) return
-    const r: Route = pack ? { ws, pack } : { ws }
-    set({ ws: r.ws, pack: r.pack })
-    if (location.hash !== routeHash(r)) history.pushState(null, '', routeHash(r))
+    // Play keeps its open pack while you're in another workspace.
+    const keep = pack ?? get().pack
+    set({ ws, pack: keep })
+    const hash = routeHash({ ws, pack: keep })
+    if (location.hash !== hash) history.pushState(null, '', hash)
   },
   setPack: (pack) => {
     const r: Route = { ws: get().ws, pack }
@@ -85,14 +92,19 @@ if (!__COZY__ && typeof window !== 'undefined') {
   if (location.hash !== routeHash(r)) history.replaceState(null, '', routeHash(r))
   const follow = () => {
     const next = parseHash(location.hash)
-    if (next) useWorkspace.setState({ ws: next.ws, pack: next.pack })
+    if (!next) return
+    // Only a Play route says which pack is open; elsewhere the open pack stays.
+    if (next.ws === 'play') useWorkspace.setState({ ws: next.ws, pack: next.pack })
+    else useWorkspace.setState({ ws: next.ws })
   }
   window.addEventListener('hashchange', follow)
   window.addEventListener('popstate', follow)
   useWorkspace.subscribe((s, prev) => {
-    if (s.ws === prev.ws) return
     try {
-      localStorage.setItem(KEY, s.ws)
+      if (s.ws !== prev.ws) localStorage.setItem(KEY, s.ws)
+      if (s.pack !== prev.pack)
+        if (s.pack) localStorage.setItem(PACK_KEY, s.pack)
+        else localStorage.removeItem(PACK_KEY)
     } catch {
       // Private windows: the workspace just isn't remembered.
     }
