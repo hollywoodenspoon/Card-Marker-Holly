@@ -1,7 +1,17 @@
 import { current } from 'immer'
 import type Konva from 'konva'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Circle, Group, Layer, Line, Path, Rect, Stage, Transformer } from 'react-konva'
+import {
+  Circle,
+  Group,
+  Image as KonvaImage,
+  Layer,
+  Line,
+  Path,
+  Rect,
+  Stage,
+  Transformer,
+} from 'react-konva'
 import { endVGesture, useVector, vcommit, type AnchorRef } from '../store'
 import {
   bounds,
@@ -1094,6 +1104,7 @@ export function VectorCanvas() {
                 shadowBlur={12}
                 listening={false}
               />
+              <ReferenceImage />
               {doc.layers.map((l) =>
                 l.visible ? (
                   <Group key={l.id} opacity={l.opacity}>
@@ -1177,4 +1188,27 @@ function shapeBox(g: { start: Pt; cur: Pt; shift: boolean; alt: boolean }) {
       h: Math.abs(dy) * 2,
     }
   return rectOf(g.start, { x: g.start.x + dx, y: g.start.y + dy })
+}
+
+/** The picture under a shape being drawn for the Engine (a click area over its scene). */
+function ReferenceImage() {
+  const ref = useVector((s) => s.reference)
+  const [img, setImg] = useState<HTMLImageElement | null>(null)
+  useEffect(() => {
+    if (!ref) return
+    const el = new window.Image()
+    el.onload = () => setImg(el)
+    el.src = ref.url
+    return () => setImg(null)
+  }, [ref])
+  if (!ref || !img) return null
+  return (
+    <KonvaImage
+      image={img}
+      width={ref.width}
+      height={ref.height}
+      opacity={0.75}
+      listening={false}
+    />
+  )
 }

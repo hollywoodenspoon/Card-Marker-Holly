@@ -73,7 +73,11 @@ export const effect = (piece: string, args: Args = {}): EffectStep => ({
   args,
 })
 
-export const ifStep = (condition: Condition, then: Step[] = [], otherwise: Step[] = []): IfStep => ({
+export const ifStep = (
+  condition: Condition,
+  then: Step[] = [],
+  otherwise: Step[] = [],
+): IfStep => ({
   kind: 'if',
   id: newId(),
   condition,
@@ -129,9 +133,23 @@ export function cloneSteps(steps: Step[]): Step[] {
   return steps.map((s): Step => {
     if (s.kind === 'effect') return { ...s, id: newId(), args: { ...s.args } }
     if (s.kind === 'if')
-      return { ...s, id: newId(), condition: { ...s.condition, args: { ...s.condition.args } }, then: cloneSteps(s.then), else: cloneSteps(s.else) }
+      return {
+        ...s,
+        id: newId(),
+        condition: { ...s.condition, args: { ...s.condition.args } },
+        then: cloneSteps(s.then),
+        else: cloneSteps(s.else),
+      }
     if (s.kind === 'choice')
-      return { ...s, id: newId(), options: s.options.map((o) => ({ ...o, id: newId(), steps: cloneSteps(o.steps) })) }
-    return { ...s, id: newId(), branches: s.branches.map((b) => ({ ...b, id: newId(), steps: cloneSteps(b.steps) })) }
+      return {
+        ...s,
+        id: newId(),
+        options: s.options.map((o) => ({ ...o, id: newId(), steps: cloneSteps(o.steps) })),
+      }
+    return {
+      ...s,
+      id: newId(),
+      branches: s.branches.map((b) => ({ ...b, id: newId(), steps: cloneSteps(b.steps) })),
+    }
   })
 }

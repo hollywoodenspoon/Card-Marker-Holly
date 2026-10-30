@@ -25,6 +25,8 @@ export interface GameCardsState {
   merged: MergedCards | null
   /** Sources that couldn't load (a deleted project, a pack no longer in this browser). */
   missing: CardSource[]
+  /** The images of the live card projects (usable in scenes), by asset id. */
+  cardImages: Record<string, { name: string; blob: Blob; source: string }>
 }
 
 export const useGameCards = create<GameCardsState>(() => ({
@@ -34,6 +36,7 @@ export const useGameCards = create<GameCardsState>(() => ({
   open: null,
   merged: null,
   missing: [],
+  cardImages: {},
 }))
 
 /** A short fingerprint of what a project's card pictures depend on. */
@@ -53,7 +56,10 @@ function fingerprint(doc: DocState, library: LibraryState): string {
 }
 
 /** A live project's pack bytes: the cached export, or a fresh one when the project changed. */
-async function projectPack(id: string, onProgress: (msg: string) => void): Promise<Uint8Array | null> {
+async function projectPack(
+  id: string,
+  onProgress: (msg: string) => void,
+): Promise<{ bytes: Uint8Array; library: LibraryState } | null> {
   const ed = useEditor.getState()
   let doc: DocState
   let library: LibraryState
@@ -70,7 +76,8 @@ async function projectPack(id: string, onProgress: (msg: string) => void): Promi
   const key = `packPrint:${id}`
   const row = await playtestDb().packs.get(id)
   const known = (await db.settings.get(key))?.value
-  if (row && known === print) return new Uint8Array(await row.file.arrayBuffer())
+  if (row && known === print)
+    return { bytes: new Uint8Array(await row.file.arrayBuffer()), library }
   if (!Object.keys(doc.cards).length) return null
   const { registerProjectFonts } = await import('@/assets/fonts')
   const { exportGamePack } = await import('@/print/pack/exportPack')
@@ -89,7 +96,7 @@ async function projectPack(id: string, onProgress: (msg: string) => void): Promi
   )
   await addPack(r.bytes)
   await db.settings.put({ key, value: print })
-  return r.bytes
+  return { bytes: r.bytes, library }
 }
 
 let loading = 0
@@ -102,12 +109,18 @@ export async function loadGameCards(game: GameDoc): Promise<void> {
   try {
     const parts: SourcePack[] = []
     const missing: CardSource[] = []
+    const cardImages: GameCardsState['cardImages'] = {}
     for (const src of game.sources) {
       let bytes: Uint8Array | null = null
       if (src.kind === 'pack') {
         const row = await playtestDb().packs.get(src.id)
         bytes = row ? new Uint8Array(await row.file.arrayBuffer()) : null
-      } else bytes = await projectPack(src.id, (progress) => set({ progress }))
+      } else {
+        const r = await projectPack(src.id, (progress) => set({ progress }))
+        bytes = r?.bytes ?? null
+        for (const a of Object.values(r?.library.assets ?? {}))
+          cardImages[a.id] = { name: a.name, blob: a.blob, source: src.name }
+      }
       if (!bytes) {
         missing.push(src)
         continue
@@ -118,7 +131,7 @@ export async function loadGameCards(game: GameDoc): Promise<void> {
     const merged = mergePacks(game.id, game.name, parts)
     const open = openPack(game.id, merged.pack)
     const old = useGameCards.getState().open
-    set({ status: 'ready', progress: null, open, merged, missing })
+    set({ status: 'ready', progress: null, open, merged, missing, cardImages })
     old?.close()
   } catch (e) {
     set({ status: 'error', progress: null, error: e instanceof Error ? e.message : String(e) })

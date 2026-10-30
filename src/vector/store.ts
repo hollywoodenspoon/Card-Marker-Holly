@@ -16,6 +16,8 @@ interface VectorState {
   doc: VectorDoc
   /** Asset being edited (Save can replace it). */
   assetId: string | null
+  /** A picture shown under the artboard's drawing (shape editing for the Engine). */
+  reference: { url: string; width: number; height: number } | null
   /** Selected paths. */
   selection: string[]
   /** Selected anchors (direct selection). */
@@ -47,6 +49,7 @@ export const useVector = create<VectorState>(() => {
   return {
     doc,
     assetId: null,
+    reference: null,
     selection: [],
     anchors: [],
     activeLayerId: doc.layers[0].id,
@@ -131,11 +134,16 @@ export function vredo() {
 }
 
 /** Start editing a document (a new one, or one opened from an asset or file). */
-export function loadVectorDoc(doc: VectorDoc, assetId: string | null = null) {
+export function loadVectorDoc(
+  doc: VectorDoc,
+  assetId: string | null = null,
+  reference: VectorState['reference'] = null,
+) {
   lastKey = undefined
   useVector.setState({
     doc,
     assetId,
+    reference,
     selection: [],
     anchors: [],
     activeLayerId: doc.layers[doc.layers.length - 1].id,

@@ -163,7 +163,17 @@ export function newGame(name = 'My game'): GameDoc {
 }
 
 export function newPictureScene(name = 'New scene', width = 1600, height = 900): PictureScene {
-  return { id: newId(), name, kind: 'picture', background: null, width, height, areas: [], objects: [], events: [] }
+  return {
+    id: newId(),
+    name,
+    kind: 'picture',
+    background: null,
+    width,
+    height,
+    areas: [],
+    objects: [],
+    events: [],
+  }
 }
 
 export const mapScene = (mapId: string, name: string): MapScene => ({
