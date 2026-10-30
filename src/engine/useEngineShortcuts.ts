@@ -8,6 +8,7 @@
  * - Ctrl/Cmd+Z, Shift+Z, Y: undo and redo. Delete: remove the inspected tile or block.
  */
 import { useEffect } from 'react'
+import { isActive } from '@/app/workspace'
 import { overlayOpen } from '@/ui/components/overlay'
 import { viewportApi } from './scene/viewportApi'
 import { FOV_STEP } from './scene/viewMath'
@@ -24,7 +25,7 @@ const MODE_KEYS: Record<string, Mode> = { t: 'terrain', p: 'paint', e: 'tile' }
 export function useEngineShortcuts() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (isTyping(e) || overlayOpen()) return
+      if (!isActive('engine') || isTyping(e) || overlayOpen()) return
       const s = useEngine.getState()
       const mod = e.ctrlKey || e.metaKey
       const key = e.key.toLowerCase()

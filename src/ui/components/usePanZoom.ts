@@ -91,7 +91,8 @@ export function usePanZoom(ref: React.RefObject<HTMLElement | null>, opts: PanZo
     const onKey = (e: KeyboardEvent) => {
       if (!(e.ctrlKey || e.metaKey) || isTyping(e.target)) return
       const el = ref.current
-      if (!el) return
+      // Not on screen (a hidden workspace or view): leave the keys alone.
+      if (!el || !el.getClientRects().length) return
       const mid = { x: el.clientWidth / 2, y: el.clientHeight / 2 }
       if (e.key === '0') o.current.onFit?.()
       else if (e.key === '=' || e.key === '+') o.current.onZoom?.(1.25, mid)

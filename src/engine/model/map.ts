@@ -107,6 +107,19 @@ export interface MapDoc {
   tileTypes: TileType[]
   tilesets: Tileset[]
   camera: MapCamera
+  /** Where this map's cards come from (used from phase 2 on). Older maps have none. */
+  cards?: CardSource
+}
+
+/**
+ * The cards the Engine works with: the Cardworks project open in Cards (live), or a
+ * game pack (.cmpack) loaded into it. Both are keyed by the Cardworks project id; the
+ * name is kept for display.
+ */
+export interface CardSource {
+  kind: 'project' | 'pack'
+  id: string
+  name: string
 }
 
 export const DEFAULT_CAMERA: MapCamera = { fov: 50, yaw: 0, tilt: 0.55 }

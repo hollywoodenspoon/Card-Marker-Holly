@@ -27,7 +27,7 @@ const themes = (): Plugin => ({
   },
 })
 
-/** The Playtest and Engine pages keep only their own manifest (the PWA plugin adds Hearthside Cardworks' to every page). */
+/** The old Playtest and Engine pages (now redirects to their workspaces) keep only their own manifest, for installed shortcuts. */
 const ownManifest = (): Plugin => ({
   name: 'own-manifest',
   enforce: 'post',
@@ -86,7 +86,7 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,svg,png,webp,woff2,woff,wasm,icc}'],
         maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
         navigateFallback: 'index.html',
-        // The Playtest and Engine apps are precached too, but open their own pages.
+        // The old Playtest and Engine pages are precached too, and redirect to their workspaces.
         navigateFallbackDenylist: [/\/playtest\//, /\/engine\//],
       },
     }),
@@ -99,8 +99,8 @@ export default defineConfig({
     // The editor shell (React, Konva, Radix, Dexie) is ~300 kB gzipped; the text editor is split out.
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
-      // Apps from one build: Hearthside Cardworks, the Playtest app, and the Engine.
-      // The extra apps are left out of the card-editor-only Cozy Edition.
+      // One app (Cards, Engine and Play workspaces), plus the old Playtest and Engine
+      // pages, which redirect to their workspaces. Cozy is the card editor only.
       input: {
         main: fileURLToPath(new URL('./index.html', import.meta.url)),
         ...(cozy

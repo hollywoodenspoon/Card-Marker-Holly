@@ -32,6 +32,7 @@ import { Input } from '@/ui/components/ui/input'
 import { toast } from '@/ui/components/feedback'
 import { NewProjectDialog } from './NewProjectDialog'
 import { exportStoredProject, importProjectFromFile } from '@/ui/actions/projectFileActions'
+import { WorkspaceSwitch } from '@/ui/shell/WorkspaceSwitch'
 
 const fail = (what: string, e: unknown) =>
   toast(`${what}: ${e instanceof Error ? e.message : String(e)}`, { tone: 'error' })
@@ -103,6 +104,7 @@ export function HomeScreen() {
         <span className="text-xs text-muted-foreground" data-testid="app-version">
           {APP_VERSION}
         </span>
+        <WorkspaceSwitch className="ml-2" />
         <div className="flex-1" />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

@@ -9,6 +9,7 @@
 import { builtinTileset, BUILTIN_TILESET } from './tileset'
 import {
   type Block,
+  type CardSource,
   cellKey,
   DEFAULT_CAMERA,
   defaultTileTypes,
@@ -58,8 +59,16 @@ function tidyV2(m: MapDoc): MapDoc {
     tileTypes: m.tileTypes?.length ? m.tileTypes : defaultTileTypes(),
     tilesets,
     camera: { ...DEFAULT_CAMERA, ...m.camera },
+    ...(isCardSource(m.cards) ? { cards: m.cards } : {}),
   }
 }
+
+const isCardSource = (c: unknown): c is CardSource =>
+  !!c &&
+  typeof c === 'object' &&
+  ((c as CardSource).kind === 'project' || (c as CardSource).kind === 'pack') &&
+  typeof (c as CardSource).id === 'string' &&
+  typeof (c as CardSource).name === 'string'
 
 function fromV1(v1: MapV1): MapDoc {
   const size = v1.size!

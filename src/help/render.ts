@@ -18,7 +18,7 @@ const esc = (s: string) =>
  * Help Markdown → HTML. Besides plain Markdown:
  *   [[Ctrl+Z]]            a key cap
  *   [text](help:id#head)  a link to another Help page (handled in-app)
- *   [text](playtest/)     a link to the Playtest app (new tab)
+ *   [text](playtest/)     a link to the Play workspace (Hearthside Table)
  *   ![alt](shot.webp)     a screenshot from public/help/
  *   > **Tip:** …          a callout (also **Note:**)
  * Raw HTML in a page is shown as text, never run.
@@ -61,9 +61,8 @@ export function renderHelp(md: string, imageBase: string): RenderedPage {
         const m = /^help:([\w-]+)(?:#([\w-]+))?$/.exec(t.href)
         if (m)
           return `<a href="#help/${m[1]}${m[2] ? `/${m[2]}` : ''}" data-help="${m[1]}"${m[2] ? ` data-anchor="${m[2]}"` : ''}>${text}</a>`
-        // The Playtest app, served next to Hearthside Cardworks (pictures live in <base>help/).
-        if (t.href === 'playtest/')
-          return `<a href="${imageBase}../playtest/" target="_blank" rel="noopener">${text}</a>`
+        // The Play workspace (Hearthside Table), in this window.
+        if (t.href === 'playtest/') return `<a href="#/play">${text}</a>`
         if (/^https:\/\//.test(t.href))
           return `<a href="${esc(t.href)}" target="_blank" rel="noopener noreferrer">${text}</a>`
         return text

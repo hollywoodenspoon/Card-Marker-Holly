@@ -15,6 +15,7 @@ export const BANNED = [
   /Android/,
   /Linux/,
   /Hearthside Table/,
+  /Hearthside Engine/,
 ]
 
 // Licence texts are kept word for word, so they are not checked.
