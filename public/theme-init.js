@@ -11,3 +11,11 @@ try {
   document.documentElement.classList.toggle('dark', dark)
   if (!basic) document.documentElement.dataset.theme = t
 } catch (e) {}
+// UI size (Settings → Appearance), also written by src/ui/theme/uiScale.ts.
+try {
+  var s = Number(localStorage.getItem('cardmaker.uiScale'))
+  if (s && s !== 1 && s >= 0.9 && s <= 1.5) {
+    document.documentElement.style.fontSize = 16 * s + 'px'
+    document.documentElement.style.setProperty('--ui-scale', String(s))
+  }
+} catch (e) {}

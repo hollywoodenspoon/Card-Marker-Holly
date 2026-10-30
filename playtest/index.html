@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-workspace="play">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="%BASE_URL%playtest/icon.svg" />
@@ -9,11 +9,9 @@
     <meta name="theme-color" content="#10131b" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#10131b" media="(prefers-color-scheme: dark)" />
     <title>Hearthside Table</title>
-    <!-- Apply the saved theme before first paint (a file, so strict security policies allow it). -->
-    <script src="%BASE_URL%theme-init.js"></script>
+    <!-- Hearthside Table is a workspace of the main app now: go there. -->
+    <script src="%BASE_URL%workspace-redirect.js"></script>
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/playtest-app/main.tsx"></script>
   </body>
 </html>

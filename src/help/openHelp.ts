@@ -28,7 +28,6 @@ export function openHelp(topic?: string, anchor?: string) {
 export function topicForView(): string | undefined {
   const ui = useUi.getState()
   if (ui.printOpen) return 'printing'
-  if (ui.galleryOpen) return 'gallery'
   if (ui.vectorOpen) return 'vector-basics'
   if (ui.dataView === 'import') return 'mail-merge'
   if (ui.dataView) return 'card-data'

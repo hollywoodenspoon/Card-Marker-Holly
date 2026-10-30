@@ -1,3 +1,4 @@
+import { isActive } from '@/app/workspace'
 import { useEffect } from 'react'
 import { overlayOpen } from '@/ui/components/overlay'
 import { useUi } from '@/ui/uiStore'
@@ -24,6 +25,8 @@ function isTyping(e: KeyboardEvent) {
 export function useShortcuts() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      // Another workspace is on screen: its keys are its own.
+      if (!isActive('cards')) return
       if (isTyping(e)) return
       // Not behind a dialog or full-screen view (Print, Gallery, Data, Vector Maker…):
       // Delete or the arrows there must not change the hidden card.

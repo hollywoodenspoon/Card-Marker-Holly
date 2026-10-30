@@ -52,14 +52,6 @@ Double-tap a text and a panel opens at the top of the screen with the text tools
 
 The − / % / + buttons at the bottom right zoom too, and the percentage button fits the sheet again. On a phone the preview shows one side at a time; tap **Front** or **Back** next to the sheet number below it to switch.
 
-## Gallery
-
-| Gesture           | What it does                     |
-| ----------------- | -------------------------------- |
-| Swipe up and down | Scroll through the cards         |
-| Pinch             | Make the cards bigger or smaller |
-| Tap a card        | Open it in the editor            |
-
 ## See also
 
 - [The workspace](help:workspace)

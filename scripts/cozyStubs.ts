@@ -36,8 +36,10 @@ export function cozyStubs(): Plugin {
     // by Vite; take them out again — the Cozy Edition ships only the card editor.
     closeBundle() {
       if (!isCozy()) return
-      for (const dir of ['playtest', 'engine'])
-        rmSync(path.join(outDir, dir), { recursive: true, force: true })
+      // The old Table and Engine pages (redirects to the Play and Engine workspaces) and
+      // their redirect script: Cozy is the card editor only.
+      for (const item of ['playtest', 'engine', 'workspace-redirect.js'])
+        rmSync(path.join(outDir, item), { recursive: true, force: true })
     },
     resolveId(id) {
       if (!isCozy()) return undefined

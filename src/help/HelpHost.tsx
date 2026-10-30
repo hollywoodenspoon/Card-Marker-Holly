@@ -1,3 +1,4 @@
+import { isActive } from '@/app/workspace'
 import { lazy, Suspense, useEffect } from 'react'
 import { useUi } from '@/ui/uiStore'
 import { openHelp, topicForView } from './openHelp'
@@ -11,7 +12,7 @@ export function HelpHost() {
   useEffect(() => {
     // F1 anywhere: the page about what's on screen.
     const onKey = (e: KeyboardEvent) => {
-      if (e.key !== 'F1' || useUi.getState().help) return
+      if (e.key !== 'F1' || useUi.getState().help || !isActive('cards')) return
       e.preventDefault()
       const topic = topicForView()
       // Help can't sit on top of a dialog: close export dialogs first.

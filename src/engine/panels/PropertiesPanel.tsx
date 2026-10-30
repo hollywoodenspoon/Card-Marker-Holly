@@ -31,7 +31,7 @@ export function PropertiesPanel() {
   const sel = useEngine((s) => s.selection)
   const mode = useEngine((s) => s.mode)
   return (
-    <aside className="w-64 shrink-0 overflow-y-auto border-l bg-panel p-3" aria-label="Properties">
+    <aside className="h-full w-full overflow-y-auto p-3" aria-label="Properties">
       {sel?.overhang ? (
         <OverhangProps />
       ) : sel ? (

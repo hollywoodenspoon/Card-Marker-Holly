@@ -7,6 +7,7 @@ describe('Cozy string check', () => {
     for (const word of [
       'Adventure Scuffle',
       'Hearthside Table',
+      'Hearthside Engine',
       'Card Maker',
       'github.com',
       'pacman -Syu',

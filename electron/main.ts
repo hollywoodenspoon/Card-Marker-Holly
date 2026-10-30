@@ -254,10 +254,6 @@ function stayOffline() {
 }
 
 let mainWindow: BrowserWindow | null = null
-// Hearthside Table, in its own window (opened from the editor).
-let tableWindow: BrowserWindow | null = null
-// Hearthside Engine (the game-maker), in its own window.
-let engineWindow: BrowserWindow | null = null
 
 // Each long run asks to stay awake (counted per window); the computer may sleep
 // again once no run is left, or the window that asked is gone.
@@ -285,7 +281,7 @@ const webPreferences = () => ({
   devTools: !__COZY__,
 })
 
-/** Links and keys every window shares: web links open in the browser, the table in its window. */
+/** Links and keys the window has: web links open in the browser, the app's own pages load here. */
 function guard(win: BrowserWindow) {
   const id = win.webContents.id
   win.on('closed', () => keepAwake(id, null))
@@ -300,8 +296,8 @@ function guard(win: BrowserWindow) {
   })
   win.webContents.setWindowOpenHandler(({ url }) => {
     const route = routeOpen(url, ownOrigins())
-    if (route === 'table' && !__COZY__) openTable(url)
-    else if (route === 'engine' && !__COZY__) openEngine(url)
+    // Play and Engine are workspaces of this window now; their old pages redirect here.
+    if (route === 'self' && !__COZY__) void win.loadURL(url)
     else if (route === 'external') void shell.openExternal(url)
     return { action: 'deny' }
   })
@@ -310,58 +306,6 @@ function guard(win: BrowserWindow) {
   })
 }
 
-/** Open Hearthside Table (with a pack, when the URL names one), or bring its window up. */
-function openTable(url: string) {
-  if (tableWindow && !tableWindow.isDestroyed()) {
-    void tableWindow.loadURL(url)
-    if (tableWindow.isMinimized()) tableWindow.restore()
-    tableWindow.focus()
-    return
-  }
-  const win = new BrowserWindow({
-    width: 1400,
-    height: 900,
-    minWidth: 360,
-    minHeight: 480,
-    title: 'Hearthside Table',
-    show: false,
-    backgroundColor: '#1c1c1f',
-    icon: path.join(distDir, 'pwa-512.png'),
-    // Bot runs keep full speed while the window is behind others.
-    webPreferences: { ...webPreferences(), backgroundThrottling: false },
-  })
-  tableWindow = win
-  win.once('ready-to-show', () => win.show())
-  guard(win)
-  win.on('closed', () => (tableWindow = null))
-  void win.loadURL(url)
-}
-
-/** Open Hearthside Engine (the game-maker), or bring its window up. */
-function openEngine(url: string) {
-  if (engineWindow && !engineWindow.isDestroyed()) {
-    void engineWindow.loadURL(url)
-    if (engineWindow.isMinimized()) engineWindow.restore()
-    engineWindow.focus()
-    return
-  }
-  const win = new BrowserWindow({
-    width: 1400,
-    height: 900,
-    minWidth: 360,
-    minHeight: 480,
-    title: 'Hearthside Engine',
-    show: false,
-    backgroundColor: '#1c1c1f',
-    icon: path.join(distDir, 'pwa-512.png'),
-    webPreferences: webPreferences(),
-  })
-  engineWindow = win
-  win.once('ready-to-show', () => win.show())
-  guard(win)
-  win.on('closed', () => (engineWindow = null))
-  void win.loadURL(url)
-}
 // Set once the page has saved for an update install, so closing doesn't wait again.
 let savedForUpdate = false
 
@@ -389,7 +333,8 @@ function createWindow() {
     show: false,
     backgroundColor: '#1c1c1f',
     icon: path.join(distDir, 'pwa-512.png'),
-    webPreferences: webPreferences(),
+    // Play's bot runs (Rush, the Balance lab) keep full speed while the window is behind others.
+    webPreferences: { ...webPreferences(), backgroundThrottling: false },
   })
   mainWindow = win
   win.once('ready-to-show', () => win.show())
@@ -411,8 +356,6 @@ function createWindow() {
   })
   win.on('closed', () => {
     mainWindow = null
-    // The table goes with the editor (the app quits).
-    tableWindow?.close()
   })
 
   void (devUrl ? win.loadURL(devUrl) : win.loadURL(`${APP_ORIGIN}/index.html`))

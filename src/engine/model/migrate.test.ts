@@ -46,6 +46,14 @@ describe('migrateMap', () => {
     expect(m.tilesets[0].id).toBe('builtin')
   })
 
+  it('keeps where the cards come from, and drops a broken one', () => {
+    const map = newMapDoc('Cards', { x: 2, z: 2 })
+    const cards = { kind: 'pack' as const, id: 'tfq', name: 'The First Quest' }
+    expect(migrateMap({ ...map, cards }).cards).toEqual(cards)
+    expect(migrateMap({ ...map, cards: { kind: 'web', id: 1 } }).cards).toBeUndefined()
+    expect('cards' in migrateMap(map)).toBe(false)
+  })
+
   it('rejects things that are not maps', () => {
     expect(() => migrateMap(null)).toThrow(MapFormatError)
     expect(() => migrateMap({ name: 'x' })).toThrow(/missing its map data/)

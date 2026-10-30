@@ -4,6 +4,16 @@ The editor looks a little different on a computer, a tablet and a phone, but it 
 
 ![The editor on a computer](editor.webp)
 
+## Cards, Engine and Play
+
+Hearthside Cardworks is one app with three workspaces. The switch at the left of every top bar moves between them (on a phone, tap the workspace name):
+
+- **Cards**: this card editor.
+- **Engine**: the game-maker, where maps are built. Its **Cards:** button picks the cards a map uses: the project open in Cards, or a game pack (`.cmpack`) you load.
+- **Play**: Hearthside Table, where game packs are played. See [Playtesting your game](help:playtest).
+
+Each workspace keeps its place while you're in another: a game or a map is just as you left it. Back in the browser returns to the workspace you came from.
+
 ## Top bar
 
 From left to right:
@@ -15,24 +25,31 @@ From left to right:
 - **Print**: opens the print preview and PDF export.
 - **Export ▾**: everything else that saves files: Card images (PNG, JPG, WebP)…, Tabletop Simulator…, Game pack for Hearthside Table… and Project backup file.
 - **Undo** and **Redo**.
-- **☰ menu**, at the right end: Find and replace…, Open Hearthside Table, All projects (and **Show project folder** in the desktop app), and **Settings**. On a phone, ☰ also has Print, the Export items, Templates, Decks, Fonts, Keywords, Gallery, Card data and the Vector Maker.
-- **Settings** (inside ☰): Help, Units…, Theme… and, in the apps, the update and install items. Help stays here on every screen size.
+- **☰ menu**, at the right end: Find and replace…, All projects (and **Show project folder** in the desktop app), and **Settings**. On a phone, ☰ also has Print, the Export items, Templates, Decks, Keywords, Card data and the Vector Maker.
+- **Settings** (inside ☰): **Settings…** (theme, UI size, fonts), Fonts…, Help, Units…, Theme… and, in the apps, the update and install items. Help stays here on every screen size. See [Settings](help:settings).
 
 The ☰ menu sits at the top right everywhere, on the Home screen too.
 
 ## Left pane
 
-On a computer the left pane has a narrow rail of buttons. The top five are the places where your project's parts live, and switch the panel next to the rail:
+On a computer the left pane has a narrow rail of buttons. The top four are the places where your project's parts live, and switch the panel next to the rail:
 
 - **Cards**: every card, with search, reorder and multi-select.
 - **Templates**: your layouts for fronts and backs.
 - **Decks**: groups of cards with counts.
-- **Fonts**: upload and manage fonts.
 - **Keywords**: words styled automatically in card text.
+
+Fonts are in Settings: ☰ → **Settings** → **Fonts…**. See [Fonts](help:fonts).
+
+The Cards list and Assets each have four views, from the buttons above them: **Large list**, **Small list**, **Grid** and **Details** (a table; click a column to sort it, which never changes the card order). Each remembers its view on this device.
 
 Opening a tab only shows it: it never changes what your edits affect. You edit a template by clicking it in the Templates tab, with **Edit template**, or with the **Card / Template** switch; the Templates tab then opens by itself. **Back to card** returns to the Cards tab.
 
-Below a line come the full-screen views: **Gallery**, **Data** (card table, CSV and mail merge) and **Vector** (the Vector Maker). **Help** sits at the bottom of the rail.
+Below a line come the full-screen views: **Data** (card table, CSV and mail merge) and **Vector** (the Vector Maker). **Help** sits at the bottom of the rail.
+
+## Panel widths
+
+Drag the inner edge of a side panel to make it wider or narrower, in every workspace; the pointer changes when it's on the edge. Double-click the edge to go back to the usual width. On a touch screen, drag the small handle on the edge. Each width is kept on this device. To make everything bigger or smaller, use **UI size** in Settings.
 
 **Assets** sit at the bottom of the left pane. Click the **Assets** header to fold them away or open them again. The header buttons draw a new vector, make a folder, or upload images.
 
@@ -70,7 +87,7 @@ On a phone the card fills the screen:
 - Close a sheet with ✕, by tapping its button again, or by swiping its header down.
 - The **Edit** sheet stays low, so you can still see and tap the card above it.
 - When you edit text, a panel opens at the top of the screen with the text tools and a **Done** button.
-- **Templates**, **Decks**, **Fonts**, **Keywords**, **Print / export PDF**, the Export items and the other views are in the ☰ menu.
+- **Templates**, **Decks**, **Keywords**, **Print / export PDF**, the Export items and the other views are in the ☰ menu.
 
 ## See also
 

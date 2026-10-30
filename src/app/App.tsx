@@ -1,58 +1,75 @@
-import { useEffect, useState } from 'react'
-import { useEditor } from '@/core/editor/editorStore'
-import { loadBuiltinFonts } from '@/assets/fonts'
-import { startAutosave } from '@/storage/autosave'
-import { folderStore, getBackend } from '@/storage'
+import { lazy, Suspense, useEffect, useState, type ReactNode } from 'react'
 import { HelpHost } from '@/help/HelpHost'
-import { initUpdates } from '@/ui/desktop/updates'
 import { FeedbackHost } from '@/ui/components/FeedbackHost'
-import { ChooseFolder } from '@/ui/home/ChooseFolder'
-import { HomeScreen } from '@/ui/home/HomeScreen'
 import { PwaToast } from '@/ui/pwa/PwaToast'
-import { AppShell } from '@/ui/shell/AppShell'
+import { SettingsDialog } from '@/ui/settings/SettingsDialog'
 import { ThemePicker } from '@/ui/theme/ThemeMenu'
-import { openProject, setAutosaveFlusher } from './session'
+import { useUi } from '@/ui/uiStore'
+import { APP_NAME, APP_VERSION } from './appInfo'
+import { CardsApp } from './CardsApp'
+import { useWorkspace, WORKSPACES, type Workspace } from './workspace'
 
+// Play (Hearthside Table) and Engine load only when first opened, so the card editor
+// stays as quick as before and Three.js loads only for the Engine. Neither is in Cozy.
+const PlayApp = __COZY__
+  ? null
+  : lazy(() => import('@/playtest-app/App').then((m) => ({ default: m.App })))
+const EngineApp = __COZY__
+  ? null
+  : lazy(() => import('@/engine/App').then((m) => ({ default: m.App })))
+
+/**
+ * One app, three workspaces: Cards, Engine and Play. A workspace stays mounted once
+ * opened (hidden when another is on screen), so a map or a game in progress is
+ * exactly as it was when you come back.
+ */
 export function App() {
-  const hasDoc = useEditor((s) => !!s.doc)
-  const [ready, setReady] = useState(false)
-  // Android: projects need a folder before anything else.
-  const [needsFolder, setNeedsFolder] = useState(false)
+  const ws = useWorkspace((s) => s.ws)
+  const [seen, setSeen] = useState<ReadonlySet<Workspace>>(() => new Set([ws]))
+  if (!seen.has(ws)) setSeen(new Set(seen).add(ws))
 
   useEffect(() => {
-    const saver = startAutosave(useEditor)
-    setAutosaveFlusher(saver.flush)
-    void (async () => {
-      await loadBuiltinFonts()
-      // Desktop app: update setting (asks once, after the app is on screen).
-      setTimeout(() => void initUpdates(), 1500)
-      const folders = folderStore()
-      if (folders && !(await folders.hasProjectsDir())) {
-        setNeedsFolder(true)
-        setReady(true)
-        return
-      }
-      const last = await getBackend().getSetting<string | null>('lastProjectId')
-      if (last) await openProject(last)
-      setReady(true)
-    })()
-    return () => saver.stop()
-  }, [])
+    const label = WORKSPACES.find((w) => w.id === ws)?.label
+    document.title =
+      ws === 'cards' ? `${APP_NAME} ${APP_VERSION}` : `${label} · ${APP_NAME} ${APP_VERSION}`
+    // Help is the card editor's: a link from it to another workspace closes it.
+    if (ws !== 'cards' && useUi.getState().help) useUi.getState().setHelp(null)
+  }, [ws])
 
-  if (!ready) return <div className="h-app bg-background" />
   return (
     <>
-      {needsFolder ? (
-        <ChooseFolder onChosen={() => setNeedsFolder(false)} />
-      ) : hasDoc ? (
-        <AppShell />
-      ) : (
-        <HomeScreen />
+      {seen.has('cards') && (
+        <Pane on={ws === 'cards'}>
+          <CardsApp />
+        </Pane>
+      )}
+      {PlayApp && seen.has('play') && (
+        <Pane on={ws === 'play'}>
+          <Suspense fallback={<Loading />}>
+            <PlayApp />
+          </Suspense>
+        </Pane>
+      )}
+      {EngineApp && seen.has('engine') && (
+        <Pane on={ws === 'engine'}>
+          <Suspense fallback={<Loading />}>
+            <EngineApp />
+          </Suspense>
+        </Pane>
       )}
       <PwaToast />
       <HelpHost />
       <FeedbackHost />
       <ThemePicker />
+      <SettingsDialog />
     </>
   )
+}
+
+function Pane({ on, children }: { on: boolean; children: ReactNode }) {
+  return <div style={{ display: on ? 'contents' : 'none' }}>{children}</div>
+}
+
+function Loading() {
+  return <div className="h-app bg-background" aria-busy="true" />
 }

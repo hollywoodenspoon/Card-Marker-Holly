@@ -1,14 +1,11 @@
 import {
-  Box,
   ChevronDown,
   Dices,
   ImageDown,
   Download,
   Highlighter,
-  LayoutGrid,
   LayoutTemplate,
   Library,
-  Type,
   TextSearch,
   FolderOpen,
   Home,
@@ -24,10 +21,7 @@ import {
   Swords,
   RefreshCw,
 } from '@/ui/icons'
-import { APP_NAME, ENGINE_NAME, PLAYTEST_NAME, VERSION_LABEL } from '@/app/appInfo'
-import { isAndroidApp } from '@/app/isAndroidApp'
-import { engineUrl } from '@/ui/export/engineUrl'
-import { playtestUrl } from '@/ui/export/playtestUrl'
+import { APP_NAME, PLAYTEST_NAME, VERSION_LABEL } from '@/app/appInfo'
 import { goHome } from '@/app/session'
 import { openHelp } from '@/help/openHelp'
 import { checkNow } from '@/ui/pwa/checkNow'
@@ -49,6 +43,7 @@ import { AddMenu } from './AddMenu'
 import { ModeSwitch } from './ModeSwitch'
 import { ProjectName } from './ProjectName'
 import { SaveIndicator } from './SaveIndicator'
+import { WorkspaceSwitch } from '@/ui/shell/WorkspaceSwitch'
 
 export function TopBar({ layout }: { layout: LayoutKind }) {
   const { setLeftOpen, setRightOpen } = useUi()
@@ -63,6 +58,7 @@ export function TopBar({ layout }: { layout: LayoutKind }) {
             <PanelLeft />
           </IconButton>
         )}
+        <WorkspaceSwitch className="mr-1" />
         <ProjectName className={phone ? 'max-w-[38vw]' : undefined} />
         <SaveIndicator compact={phone} />
         <div className="flex-1" />
@@ -121,16 +117,10 @@ function AppMenu({ phone }: { phone: boolean }) {
             <DropdownMenuItem onSelect={() => ui().setPhoneSheet('decks')}>
               <Library /> Decks
             </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => ui().setPhoneSheet('fonts')}>
-              <Type /> Fonts
-            </DropdownMenuItem>
             <DropdownMenuItem onSelect={() => ui().setPhoneSheet('keywords')}>
               <Highlighter /> Keywords
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onSelect={() => ui().setGalleryOpen(true)}>
-              <LayoutGrid /> Gallery and proofreading
-            </DropdownMenuItem>
             <DropdownMenuItem onSelect={() => ui().setDataView('table')}>
               <Sheet /> Card data (table, CSV, mail merge)
             </DropdownMenuItem>
@@ -145,17 +135,6 @@ function AppMenu({ phone }: { phone: boolean }) {
         <DropdownMenuItem onSelect={() => ui().setFindOpen(true)}>
           <TextSearch /> Find and replace…
         </DropdownMenuItem>
-        {!__COZY__ && !isAndroidApp() && (
-          // A new tab on the web; its own window in the desktop app.
-          <DropdownMenuItem onSelect={() => window.open(playtestUrl(), '_blank')}>
-            <Swords /> Open {PLAYTEST_NAME}
-          </DropdownMenuItem>
-        )}
-        {!__COZY__ && !isAndroidApp() && (
-          <DropdownMenuItem onSelect={() => window.open(engineUrl(), '_blank')}>
-            <Box /> Open {ENGINE_NAME}
-          </DropdownMenuItem>
-        )}
         <ShowFolderMenuItem />
         <DropdownMenuItem onSelect={() => void goHome()}>
           <Home /> All projects

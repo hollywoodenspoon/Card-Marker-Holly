@@ -7,7 +7,7 @@ Answers to the problems people run into most. If something isn't covered here, t
 Hearthside Cardworks puts real font files into the PDF so text prints sharp and exactly as shown. That needs the font file.
 
 - **Inter**, **Alegreya** and **Alegreya SC** come with the app and are always embedded.
-- Fonts you **upload** in the **Fonts** tab (TTF or OTF) are embedded too.
+- Fonts you **upload** in Settings → **Fonts** (TTF or OTF) are embedded too.
 - **Georgia**, **Arial**, **Times New Roman** and **Courier New** are fonts from your computer, and the app doesn't have their files. Text in them is printed as a 600 dpi picture instead. After the export, a message names the font.
 
 To fix it, upload the font file in **Fonts** (or switch to a font that came with the app) and export again. If you opened a project on another device, make sure its fonts came with it: backup files and project folders carry uploaded fonts, but not fonts from your computer. See [Fonts](help:fonts).

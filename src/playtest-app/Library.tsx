@@ -1,6 +1,6 @@
 import { CircleHelp, FileUp, Menu, Play, Trash2 } from '@/ui/icons'
 import { useEffect, useRef, useState } from 'react'
-import { APP_VERSION, PLAYTEST_NAME, VERSION_LABEL } from '@/app/appInfo'
+import { PLAYTEST_NAME, VERSION_LABEL } from '@/app/appInfo'
 import { UpdateButton } from '@/ui/pwa/UpdateButton'
 import { cn } from '@/lib/cn'
 import { addPack, playtestDb, type PackRow } from '@/playtest/library'
@@ -9,6 +9,7 @@ import { askConfirm, toast } from '@/ui/components/feedback'
 import { Button, IconButton } from '@/ui/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/ui/components/ui/dropdown'
 import { SettingsMenu } from '@/ui/settings/SettingsMenu'
+import { WorkspaceSwitch } from '@/ui/shell/WorkspaceSwitch'
 
 /** Your game packs: import a file from Hearthside Cardworks, open one to play, or remove it. */
 export function Library({ onOpen, onHelp }: { onOpen: (id: string) => void; onHelp: () => void }) {
@@ -80,9 +81,8 @@ export function Library({ onOpen, onHelp }: { onOpen: (id: string) => void; onHe
       }}
     >
       <header className="app-topbar flex shrink-0 items-center gap-2 border-b bg-panel px-3 py-2">
-        <img src={`${import.meta.env.BASE_URL}playtest/icon.svg`} alt="" className="size-7" />
-        <h1 className="text-sm font-semibold">{PLAYTEST_NAME}</h1>
-        <span className="text-xs text-muted-foreground">{APP_VERSION}</span>
+        <WorkspaceSwitch />
+        <h1 className="ml-1 truncate text-sm font-semibold">{PLAYTEST_NAME}</h1>
         <span className="flex-1" />
         <IconButton label="How to play (F1)" onClick={onHelp}>
           <CircleHelp />

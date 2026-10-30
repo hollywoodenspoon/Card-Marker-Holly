@@ -1,7 +1,9 @@
 # Hearthside Engine (working title)
 
-A game-maker for tile-and-block RPGs, built into the Hearthside Cardworks repo as a
-third app alongside the card editor and Hearthside Table. The owner designs the game
+A general game engine with Cardworks at its core, built into the Hearthside Cardworks
+repo. Since phase 1 (v0.8.1-beta) it is the **Engine** workspace of the one app, beside
+**Cards** (the card editor) and **Play** (Hearthside Table). The full plan is the
+"Hearthside Engine: the plan" doc; this file describes the code. The owner designs the game
 in a Canva-style editor; cards made in Cardworks can later become game data (and,
 eventually, in-game cards). See `docs/cozy-edition.md` for the sibling Windows build and
 the plan this follows.
@@ -25,7 +27,7 @@ through the existing `.cmpack` game pack. One repo means the two never drift.
 
 ## Layout (`src/engine/`)
 
-- `main.tsx`, `App.tsx`, `EngineShell.tsx`: the entry point and the shell. The top bar holds the File menu, undo/redo and the save badge. Below it are tools on the left, the mode bar over the viewports in the middle, and the selection's properties on the right.
+- `App.tsx`, `EngineShell.tsx`: the workspace's root and its shell. The top bar holds the File menu, undo/redo and the save badge. Below it are tools on the left, the mode bar over the viewports in the middle, and the selection's properties on the right.
 - `model/`: pure data, no Three.js.
   - `map.ts` is the `MapDoc` v2 (see below).
   - `tileset.ts` holds tilesets and tile UVs.
@@ -93,15 +95,24 @@ The component kit (`src/ui/components/ui/*`), theming (`src/ui/theme/*`, the `--
 token as the viewport backdrop), the `History` class, and `useLayout`. The Konva card
 renderer is **not** reused — it's replaced by `scene/`.
 
-## Build wiring
+## Build wiring (one app)
 
-- `engine/index.html` → `/src/engine/main.tsx`; assets in `public/engine/`.
-- `vite.config.ts`: `engine` rollup input (omitted in Cozy), own PWA manifest, and
-  `/engine/` in the service-worker navigate denylist.
-- Electron: `routeOpen` returns `'engine'` for `/engine/` pages; `openEngine()` in
-  `electron/main.ts` gives it its own window.
+- `src/app/workspace.ts`: the `useWorkspace` store and the hash routes (`#/cards`,
+  `#/engine`, `#/play`, `#/play/pack=<id>`). `src/app/App.tsx` mounts each workspace on
+  first use with `React.lazy` (so Three.js loads only for the Engine) and keeps it
+  mounted, hidden, after that. Hidden workspaces ignore keys (`isActive()`).
+- `src/ui/shell/WorkspaceSwitch.tsx`: Cards · Engine · Play at the start of every top bar.
+- `engine/index.html` and `playtest/index.html` are redirects (`public/workspace-redirect.js`)
+  to `#/engine` and `#/play`, keeping `#pack=`; their manifests stay for installed shortcuts.
+  Cozy drops both, and the redirect script.
+- Electron: one window; `routeOpen` returns `'self'` for the old pages, which load there.
+- The Engine's **Cards:** menu (`panels/CardSourceMenu.tsx`) saves `MapDoc.cards`: the
+  project open in Cards, or a `.cmpack` loaded into the Engine (shared with Play's packs).
 
 ## Roadmap
+
+The current roadmap is the plan doc's build order: phase 1 (one app) is built; next is
+phase 2 (the Cardworks core and scenes). The slice list below is the history so far.
 
 1. **Scaffold + viewport** (done): the app renders a textured-block demo map with a
    working camera and picking, reusing the Cardworks chrome.
@@ -120,3 +131,7 @@ renderer is **not** reused — it's replaced by `scene/`.
 7. _(later)_ **Cardworks integration:** import a `.cmpack`, place card-backed entities
    (data + art); room kept for a card-battle module.
 8. _(later)_ play mode, tile-anchored movement, RTwP/CRPG systems.
+
+Phase 1 of the plan (v0.8.1-beta): one app with Cards, Engine and Play workspaces; one
+UI across them; resizable side panels; UI size; Settings with fonts; view modes for cards
+and assets; Gallery and Proofread shelved; the Engine's card source.

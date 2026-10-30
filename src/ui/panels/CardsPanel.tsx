@@ -39,6 +39,8 @@ import {
 } from '@/ui/components/ui/dropdown'
 import { Input } from '@/ui/components/ui/input'
 import { useReorder } from '@/ui/components/useReorder'
+import { useViewMode, ViewModeToggle } from '@/ui/components/ViewModeToggle'
+import { nextSort, sortRows, type SortState } from '@/ui/components/viewMode'
 import { CardThumb as LiveThumb } from '@/ui/canvas/CardThumb'
 import { BulkBar } from './BulkBar'
 import { useUi } from '@/ui/uiStore'
@@ -50,6 +52,7 @@ import { saveCurrentCardAsTemplate } from '@/templates/commands'
 export function CardsPanel({ onPicked }: { onPicked?: () => void }) {
   const cards = useEditor((s) => s.doc?.cards)
   const currentId = useEditor((s) => s.view.cardId)
+  const [mode, setMode] = useViewMode('cards', 'large')
   const [q, setQ] = useState('')
   // Select mode: tick several cards and change them together.
   const [picked, setPicked] = useState<Set<string> | null>(null)
@@ -91,6 +94,7 @@ export function CardsPanel({ onPicked }: { onPicked?: () => void }) {
             className="pl-8"
           />
         </div>
+        <ViewModeToggle value={mode} onChange={setMode} />
         <div className="flex-1" />
         <Button
           size="sm"
@@ -151,39 +155,64 @@ export function CardsPanel({ onPicked }: { onPicked?: () => void }) {
           </Button>
         </div>
       )}
-      <ul className="min-h-0 flex-1 space-y-1 overflow-auto px-2 pb-3">
-        {filtered.map((c, i) => (
-          <li key={c.id} ref={rowRef(i)}>
-            {dragging && dragging.over === i && dragging.from !== i && <DropLine />}
-            <CardRow
-              card={c}
-              index={i}
-              active={picked ? picked.has(c.id) : c.id === currentId}
-              handleProps={q || picked ? undefined : handleProps}
-              dragged={dragging?.from === i}
-              checked={picked ? picked.has(c.id) : undefined}
-              onPick={pick}
-            />
-            {dragging && i === filtered.length - 1 && dragging.over === filtered.length && (
-              <DropLine />
-            )}
-          </li>
-        ))}
-        {!filtered.length && (
-          <li className="flex flex-col items-center gap-2 p-4 text-center text-sm text-muted-foreground">
-            {q ? (
-              'No cards match.'
-            ) : (
-              <>
-                No cards yet.
-                <Button size="sm" onClick={() => addCard()}>
-                  <Plus /> Add your first card
-                </Button>
-              </>
-            )}
-          </li>
-        )}
-      </ul>
+      {!filtered.length ? (
+        <div className="flex flex-col items-center gap-2 p-4 text-center text-sm text-muted-foreground">
+          {q ? (
+            'No cards match.'
+          ) : (
+            <>
+              No cards yet.
+              <Button size="sm" onClick={() => addCard()}>
+                <Plus /> Add your first card
+              </Button>
+            </>
+          )}
+        </div>
+      ) : mode === 'grid' ? (
+        <ul
+          className="grid min-h-0 flex-1 auto-rows-min grid-cols-[repeat(auto-fill,minmax(6.5rem,1fr))] gap-2 overflow-auto px-3 pb-3"
+          data-testid="cards-grid"
+        >
+          {filtered.map((c) => (
+            <li key={c.id}>
+              <CardTile
+                card={c}
+                active={picked ? picked.has(c.id) : c.id === currentId}
+                checked={picked ? picked.has(c.id) : undefined}
+                onPick={pick}
+              />
+            </li>
+          ))}
+        </ul>
+      ) : mode === 'details' ? (
+        <CardTable cards={filtered} currentId={currentId} picked={picked} onPick={pick} />
+      ) : (
+        <ul
+          className={cn(
+            'min-h-0 flex-1 overflow-auto px-2 pb-3',
+            mode === 'small' ? 'space-y-0.5' : 'space-y-1',
+          )}
+        >
+          {filtered.map((c, i) => (
+            <li key={c.id} ref={rowRef(i)}>
+              {dragging && dragging.over === i && dragging.from !== i && <DropLine />}
+              <CardRow
+                card={c}
+                index={i}
+                small={mode === 'small'}
+                active={picked ? picked.has(c.id) : c.id === currentId}
+                handleProps={q || picked ? undefined : handleProps}
+                dragged={dragging?.from === i}
+                checked={picked ? picked.has(c.id) : undefined}
+                onPick={pick}
+              />
+              {dragging && i === filtered.length - 1 && dragging.over === filtered.length && (
+                <DropLine />
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
       {picked && (
         <BulkBar
           ids={list.filter((c) => picked.has(c.id)).map((c) => c.id)}
@@ -199,6 +228,7 @@ const DropLine = () => <div className="mx-2 h-0.5 rounded bg-accent" />
 const CardRow = memo(function CardRow({
   card,
   index,
+  small,
   active,
   onPick: pickId,
   handleProps,
@@ -207,6 +237,8 @@ const CardRow = memo(function CardRow({
 }: {
   card: Card
   index: number
+  /** Small list: one line, a small front thumbnail. */
+  small?: boolean
   active: boolean
   onPick: (id: string) => void
   handleProps?: ReturnType<typeof useReorder>['handleProps']
@@ -215,7 +247,6 @@ const CardRow = memo(function CardRow({
   checked?: boolean
 }) {
   const [renaming, setRenaming] = useState(false)
-  const side = useEditor((s) => s.view.side)
   const handle = handleProps?.(index)
   const onPick = () => pickId(card.id)
   return (
@@ -252,12 +283,19 @@ const CardRow = memo(function CardRow({
         type="button"
         onClick={onPick}
         onDoubleClick={() => setRenaming(true)}
-        className="flex min-h-11 min-w-0 flex-1 items-center gap-2 text-left"
+        className={cn(
+          'flex min-w-0 flex-1 items-center gap-2 text-left',
+          small ? 'min-h-8 pointer-coarse:min-h-11' : 'min-h-11',
+        )}
       >
-        <span className="flex shrink-0 gap-1">
-          <LiveThumb card={card} side="front" heightPx={40} />
-          <LiveThumb card={card} side="back" heightPx={40} className="opacity-80" />
-        </span>
+        {small ? (
+          <LiveThumb card={card} side="front" heightPx={20} className="shrink-0" />
+        ) : (
+          <span className="flex shrink-0 gap-1">
+            <LiveThumb card={card} side="front" heightPx={40} />
+            <LiveThumb card={card} side="back" heightPx={40} className="opacity-80" />
+          </span>
+        )}
         {!renaming && <span className="truncate text-sm">{card.name}</span>}
       </button>
       {renaming && (
@@ -276,40 +314,214 @@ const CardRow = memo(function CardRow({
           }}
         />
       )}
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <IconButton label={`Options for ${card.name}`} size="icon-sm">
-            <MoreHorizontal />
-          </IconButton>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onSelect={() => setRenaming(true)}>Rename</DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => duplicateCard(card.id)}>
-            <Copy /> Duplicate
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => useUi.getState().setImageExport({ cardId: card.id })}>
-            <Image /> Export as image…
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <ChangeTemplateMenu card={card} />
-          <DropdownMenuItem onSelect={() => void saveAsTemplate(card)}>
-            <Save /> Save {side} as template…
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            danger
-            onSelect={() => {
-              deleteCard(card.id)
-              deletedToast(`“${card.name}”`)
-            }}
-          >
-            <Trash2 /> Delete
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <CardOptions card={card} onRename={() => setRenaming(true)} />
     </div>
   )
 })
+
+/** ⋯ for one card: rename, duplicate, export, change template, save as template, delete. */
+function CardOptions({ card, onRename }: { card: Card; onRename: () => void }) {
+  const side = useEditor((s) => s.view.side)
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <IconButton label={`Options for ${card.name}`} size="icon-sm">
+          <MoreHorizontal />
+        </IconButton>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onSelect={onRename}>Rename</DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => duplicateCard(card.id)}>
+          <Copy /> Duplicate
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => useUi.getState().setImageExport({ cardId: card.id })}>
+          <Image /> Export as image…
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <ChangeTemplateMenu card={card} />
+        <DropdownMenuItem onSelect={() => void saveAsTemplate(card)}>
+          <Save /> Save {side} as template…
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          danger
+          onSelect={() => {
+            deleteCard(card.id)
+            deletedToast(`“${card.name}”`)
+          }}
+        >
+          <Trash2 /> Delete
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
+
+/** Rename from the grid or the details table (no room to type in place). */
+async function renameFromDialog(card: Card) {
+  const name = await askText({
+    title: 'Rename card',
+    label: 'Card name',
+    initial: card.name,
+    okLabel: 'Rename',
+  })
+  if (name?.trim() && name.trim() !== card.name) renameCard(card.id, name.trim())
+}
+
+/** Grid: the front as a tile, its name under it. */
+const CardTile = memo(function CardTile({
+  card,
+  active,
+  checked,
+  onPick,
+}: {
+  card: Card
+  active: boolean
+  checked?: boolean
+  onPick: (id: string) => void
+}) {
+  return (
+    <div
+      className={cn(
+        'group relative flex flex-col items-center gap-1 rounded-lg p-1.5',
+        active ? 'bg-accent-soft' : 'hover:bg-muted',
+      )}
+    >
+      <button
+        type="button"
+        onClick={() => onPick(card.id)}
+        onDoubleClick={() => void renameFromDialog(card)}
+        aria-pressed={checked}
+        className="flex w-full min-w-0 flex-col items-center gap-1"
+      >
+        <LiveThumb card={card} side="front" heightPx={72} />
+        <span className="w-full truncate text-center text-xs">{card.name}</span>
+      </button>
+      {checked !== undefined && (
+        <input
+          type="checkbox"
+          className="absolute top-2 left-2 size-4 accent-accent"
+          checked={checked}
+          onChange={() => onPick(card.id)}
+          aria-label={`Select ${card.name}`}
+        />
+      )}
+      <div className="absolute top-1 right-1 rounded-md bg-panel/80 opacity-100 md:opacity-0 md:group-focus-within:opacity-100 md:group-hover:opacity-100 pointer-coarse:opacity-100">
+        <CardOptions card={card} onRename={() => void renameFromDialog(card)} />
+      </div>
+    </div>
+  )
+})
+
+type CardCol = 'name' | 'front' | 'back' | 'decks'
+
+/** Details: a table with sortable columns. Sorting changes the view, never the card order. */
+function CardTable({
+  cards,
+  currentId,
+  picked,
+  onPick,
+}: {
+  cards: Card[]
+  currentId: string | null | undefined
+  picked: Set<string> | null
+  onPick: (id: string) => void
+}) {
+  const templates = useEditor((s) => s.doc?.templates)
+  const decks = useEditor((s) => s.doc?.project.decks)
+  const [sort, setSort] = useState<SortState<CardCol>>({ key: 'name', dir: 1 })
+  const [ordered, setOrdered] = useState(false)
+  const tname = (id: string | null | undefined) => (id && templates?.[id]?.name) || '—'
+  const deckNames = (id: string) =>
+    (decks ?? [])
+      .filter((d) => (d.counts[id] ?? 0) > 0)
+      .map((d) => d.name)
+      .join(', ')
+  const value = (c: Card, k: CardCol) =>
+    k === 'name'
+      ? c.name
+      : k === 'front'
+        ? tname(c.frontTemplateId)
+        : k === 'back'
+          ? tname(c.backTemplateId)
+          : deckNames(c.id)
+  const rows = ordered ? sortRows(cards, sort, value) : cards
+  const cols: { key: CardCol; label: string }[] = [
+    { key: 'name', label: 'Name' },
+    { key: 'front', label: 'Front' },
+    { key: 'back', label: 'Back' },
+    { key: 'decks', label: 'Decks' },
+  ]
+  return (
+    <div className="min-h-0 flex-1 overflow-auto px-2 pb-3">
+      <table className="w-full table-fixed text-left text-xs" data-testid="cards-details">
+        <thead className="sticky top-0 bg-panel text-muted-foreground">
+          <tr>
+            {picked && <th className="w-7" aria-label="Selected" />}
+            {cols.map((col) => (
+              <th
+                key={col.key}
+                aria-sort={
+                  ordered && sort.key === col.key
+                    ? sort.dir === 1
+                      ? 'ascending'
+                      : 'descending'
+                    : 'none'
+                }
+                className="px-1.5 py-1 font-medium"
+              >
+                <button
+                  type="button"
+                  className="inline-flex min-h-8 items-center gap-1 hover:text-foreground"
+                  onClick={() => {
+                    setSort((s) => (ordered ? nextSort(s, col.key) : { key: col.key, dir: 1 }))
+                    setOrdered(true)
+                  }}
+                >
+                  {col.label}
+                  {ordered && sort.key === col.key && (sort.dir === 1 ? ' ↑' : ' ↓')}
+                </button>
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((c) => {
+            const on = picked ? picked.has(c.id) : c.id === currentId
+            return (
+              <tr
+                key={c.id}
+                onClick={() => onPick(c.id)}
+                className={cn('cursor-pointer', on ? 'bg-accent-soft' : 'hover:bg-muted')}
+              >
+                {picked && (
+                  <td className="px-1.5">
+                    <input
+                      type="checkbox"
+                      className="size-4 accent-accent"
+                      checked={picked.has(c.id)}
+                      onChange={() => onPick(c.id)}
+                      onClick={(e) => e.stopPropagation()}
+                      aria-label={`Select ${c.name}`}
+                    />
+                  </td>
+                )}
+                <td className="truncate px-1.5 py-2 text-sm">{c.name}</td>
+                <td className="truncate px-1.5 py-2 text-muted-foreground">
+                  {tname(c.frontTemplateId)}
+                </td>
+                <td className="truncate px-1.5 py-2 text-muted-foreground">
+                  {tname(c.backTemplateId)}
+                </td>
+                <td className="truncate px-1.5 py-2 text-muted-foreground">{deckNames(c.id)}</td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
+    </div>
+  )
+}
 
 /** This card's layout as a new template (the side being shown), named by the user. */
 async function saveAsTemplate(card: Card) {

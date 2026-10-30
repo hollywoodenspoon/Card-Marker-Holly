@@ -1,7 +1,7 @@
 import { FileDown, Loader2, Play } from '@/ui/icons'
 import { useMemo, useState } from 'react'
 import { APP_VERSION } from '@/app/appInfo'
-import { isAndroidApp } from '@/app/isAndroidApp'
+import { useWorkspace } from '@/app/workspace'
 import { useEditor } from '@/core/editor/editorStore'
 import { packFieldValues } from '@/print/pack/exportPack'
 import { deckSize } from '@/templates/deckCommands'
@@ -9,7 +9,6 @@ import { downloadBlob } from '@/ui/actions/download'
 import { Button } from '@/ui/components/ui/button'
 import { Dialog, DialogContent } from '@/ui/components/ui/dialog'
 import { useUi } from '@/ui/uiStore'
-import { playtestUrl } from './playtestUrl'
 
 /**
  * Export the card pool and decks as a game pack for the Playtest app. On the
@@ -38,8 +37,6 @@ function PackForm({ onDone }: { onDone: () => void }) {
   const cards = Object.values(doc.cards)
   const [busy, setBusy] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  // Playtest now opens Hearthside Table: a new tab on the web, its own window in the desktop app.
-  const canPlayNow = !isAndroidApp()
   // The field names the Playtest app will be able to read.
   const fields = useMemo(() => {
     const names = new Set<string>()
@@ -51,8 +48,6 @@ function PackForm({ onDone }: { onDone: () => void }) {
   const run = async (playNow: boolean) => {
     setError(null)
     setBusy('Preparing…')
-    // Open the tab now, while the click still counts (pop-up blockers), and point it at the pack later.
-    const tab = playNow ? window.open('about:blank', '_blank') : null
     try {
       const { exportGamePack } = await import('@/print/pack/exportPack')
       const r = await exportGamePack(
@@ -70,9 +65,7 @@ function PackForm({ onDone }: { onDone: () => void }) {
       if (playNow) {
         const { addPack } = await import('@/playtest/library')
         const info = await addPack(r.bytes)
-        const url = `${playtestUrl()}#pack=${encodeURIComponent(info.projectId)}`
-        if (tab) tab.location.href = url
-        else window.open(url, '_blank')
+        useWorkspace.getState().go('play', info.projectId)
       } else
         downloadBlob(
           new Blob([r.bytes as Uint8Array<ArrayBuffer>], { type: 'application/zip' }),
@@ -80,7 +73,6 @@ function PackForm({ onDone }: { onDone: () => void }) {
         )
       onDone()
     } catch (e) {
-      tab?.close()
       setError(e instanceof Error ? e.message : String(e))
     } finally {
       setBusy(null)
@@ -114,9 +106,9 @@ function PackForm({ onDone }: { onDone: () => void }) {
         </p>
       </div>
       <p className="text-xs text-muted-foreground">
-        Open the file in the{' '}
-        <a href={playtestUrl()} target="_blank" rel="noreferrer" className="text-accent underline">
-          Playtest app
+        Open the file in{' '}
+        <a href="#/play" className="text-accent underline" onClick={onDone}>
+          Play
         </a>{' '}
         (on any device, also a friend's phone). Export again after changing cards: the new pack
         replaces the old one there.
@@ -128,17 +120,16 @@ function PackForm({ onDone }: { onDone: () => void }) {
       )}
       <div className="flex flex-wrap justify-end gap-2">
         <Button
-          variant={canPlayNow ? 'secondary' : 'default'}
+          variant="secondary"
           onClick={() => void run(false)}
           disabled={!!busy || !cards.length}
         >
           {busy ? <Loader2 className="animate-spin" /> : <FileDown />} {busy ?? 'Save game pack'}
         </Button>
-        {canPlayNow && (
-          <Button onClick={() => void run(true)} disabled={!!busy || !cards.length}>
-            <Play /> Playtest now
-          </Button>
-        )}
+        {/* Opens the pack in the Play workspace, in this window. */}
+        <Button onClick={() => void run(true)} disabled={!!busy || !cards.length}>
+          <Play /> Playtest now
+        </Button>
       </div>
     </div>
   )

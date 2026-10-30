@@ -49,5 +49,4 @@ The replacement keeps the formatting of the text it replaces, so a bold word sta
 
 - [Text](help:text)
 - [Keywords, card numbers and symbols](help:keywords-numbers)
-- [Gallery and proofreading](help:gallery)
 - [Card data table and CSV](help:card-data)

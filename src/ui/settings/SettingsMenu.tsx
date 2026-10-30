@@ -1,4 +1,5 @@
-import { CircleHelp, Ruler, Settings2 } from '@/ui/icons'
+import { CircleHelp, Ruler, Settings2, Type } from '@/ui/icons'
+import { openSettings } from './SettingsDialog'
 import { UpdateMenuItems } from '@/ui/desktop/UpdateMenuItems'
 import {
   DropdownMenuItem,
@@ -10,8 +11,9 @@ import { InstallMenuItem } from '@/ui/pwa/InstallMenuItem'
 import { ThemeMenuItems } from '@/ui/theme/ThemeMenu'
 
 /**
- * ☰ → Settings: Help, Units (in a project), Theme, and the desktop app's
- * update and the browser's install items. The same in every menu of both apps.
+ * ☰ → Settings: the Settings dialog (appearance, fonts), Help, Units (in a project),
+ * Theme, and the desktop app's update and the browser's install items. The same in
+ * every workspace's menu.
  */
 export function SettingsMenu({ onHelp, onUnits }: { onHelp: () => void; onUnits?: () => void }) {
   return (
@@ -20,6 +22,12 @@ export function SettingsMenu({ onHelp, onUnits }: { onHelp: () => void; onUnits?
         <Settings2 /> Settings
       </DropdownMenuSubTrigger>
       <DropdownMenuSubContent>
+        <DropdownMenuItem onSelect={() => openSettings()} data-testid="open-settings">
+          <Settings2 /> Settings…
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => openSettings('fonts')}>
+          <Type /> Fonts…
+        </DropdownMenuItem>
         <DropdownMenuItem onSelect={onHelp}>
           <CircleHelp /> Help
         </DropdownMenuItem>

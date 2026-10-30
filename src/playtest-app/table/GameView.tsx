@@ -1,3 +1,4 @@
+import { isActive } from '@/app/workspace'
 import {
   ArrowLeft,
   CircleHelp,
@@ -57,6 +58,8 @@ import type { RushRun } from './rushTally'
 import { useBotDriver, useFrameTimer } from './useBotDriver'
 import { usePlaytest } from './usePlaytest'
 import { ZoneSheet } from './ZoneSheet'
+import { WorkspaceSwitch } from '@/ui/shell/WorkspaceSwitch'
+import { ResizablePanel } from '@/ui/components/ResizablePanel'
 
 const isTyping = (t: EventTarget | null) => {
   const el = t as HTMLElement | null
@@ -221,7 +224,8 @@ export function GameView({
   // Undo / redo and F to flip, while no dialog is open and not typing.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (isTyping(e.target) || document.querySelector('[role="dialog"][data-state="open"]')) return
+      if (!isActive('play') || isTyping(e.target)) return
+      if (document.querySelector('[role="dialog"][data-state="open"]')) return
       const pt = usePlaytest.getState()
       const mod = e.ctrlKey || e.metaKey
       const key = e.key.toLowerCase()
@@ -256,6 +260,7 @@ export function GameView({
   return (
     <div className="h-app pt-safe flex flex-col bg-background" aria-label="Playtest">
       <header className="app-topbar flex shrink-0 flex-wrap items-center gap-2 border-b bg-panel px-2 py-2">
+        <WorkspaceSwitch />
         <IconButton label="Back to your game packs" onClick={onBack}>
           <ArrowLeft />
         </IconButton>
@@ -424,12 +429,18 @@ export function GameView({
               )}
             </div>
             {logOpen && !phone && (
-              <aside
-                className="flex w-72 shrink-0 flex-col border-l bg-panel"
-                aria-label="Game log"
+              <ResizablePanel
+                id="play-log"
+                side="right"
+                initial={288}
+                min={220}
+                max={560}
+                label="game log"
+                ariaLabel="Game log"
+                className="flex flex-col border-l bg-panel"
               >
                 <LogPanel />
-              </aside>
+              </ResizablePanel>
             )}
           </div>
           {replay ? (

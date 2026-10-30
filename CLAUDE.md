@@ -157,7 +157,7 @@ Cards
 
 - Start in plan mode. Present the plan (stack choices, folder layout, data schema) before writing code, and wait for approval.
 - Commit to git after each milestone with a clear message.
-- Every PR bumps the version in `package.json` (keep the beta label, since 0.3.0-beta): fixes bump the last number (0.3.0-beta → 0.3.1-beta), major features bump the middle one (→ 0.4.0-beta). Start the PR title with it, e.g. "v0.3.1-beta: …". See DECISIONS.md.
+- Every PR bumps the version in `package.json` (keep the beta label, since 0.3.0-beta): most PRs bump the last number (0.8.0-beta → 0.8.1-beta): fixes, updates to features already built, and features still under construction. Only a major update bumps the middle one (→ 0.9.0-beta), and the owner decides what counts as major. Start the PR title with it, e.g. "v0.3.1-beta: …". See DECISIONS.md.
 - Run the dev server and test the app yourself. For print features, generate a PDF and check sizes and positions.
 - Keep `README.md` short: how to install, run, and build.
 - Do not add features outside this document without asking. Do not add accounts or a backend.

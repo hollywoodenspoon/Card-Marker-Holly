@@ -14,16 +14,18 @@ import { Tabs, TabsList, TabsTrigger } from '@/ui/components/ui/tabs'
 import { useEscapeToClose } from '@/ui/components/overlay'
 import { usePanZoom } from '@/ui/components/usePanZoom'
 import { ZoomBar } from '@/ui/components/ZoomBar'
-import { useUi } from '@/ui/uiStore'
 
 const NO_DECKS: Deck[] = []
 const DEFAULT_SIZE = 220
 const MIN_SIZE = 80
 const MAX_SIZE = 800
 
-/** All cards in a big grid, or as a text table for proofreading (with spell check). */
-export function GalleryView() {
-  const close = () => useUi.getState().setGalleryOpen(false)
+/**
+ * All cards in a big grid, or as a text table for proofreading (with spell check).
+ * Shelved since the one-app merge (owner, 2026-10-30): nothing opens it for now, and
+ * the code stays so it can come back.
+ */
+export function GalleryView({ onClose: close }: { onClose: () => void }) {
   useEscapeToClose(close)
   const cards = useEditor((s) => s.doc!.cards)
   const decks = useEditor((s) => s.doc!.project.decks) ?? NO_DECKS
@@ -62,10 +64,13 @@ export function GalleryView() {
         (!q || c.name.toLowerCase().includes(q.toLowerCase())),
     )
   }, [cards, deck, q])
-  const open = useCallback((c: Card) => {
-    selectCard(c.id)
-    useUi.getState().setGalleryOpen(false)
-  }, [])
+  const open = useCallback(
+    (c: Card) => {
+      selectCard(c.id)
+      close()
+    },
+    [close],
+  )
 
   return (
     <div
