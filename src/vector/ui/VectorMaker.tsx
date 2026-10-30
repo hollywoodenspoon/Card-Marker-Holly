@@ -7,6 +7,7 @@ import {
   Maximize,
   Redo2,
   Save,
+  Check,
   SlidersHorizontal,
   Undo2,
   ZoomIn,
@@ -37,6 +38,7 @@ import { HelpButton } from '@/help/HelpButton'
 import { clearDraft, hasContent, readDraft, writeDraft, type VectorDraft } from '../draft'
 import { SaveDialog } from './SaveDialog'
 import { TraceDialog } from './TraceDialog'
+import { closeShapeEditor, useShapeRequest } from '../shapeRequest'
 import { ToolBar } from './ToolBar'
 import { VectorCanvas } from './VectorCanvas'
 import { VLayersPanel } from './VLayersPanel'
@@ -69,8 +71,22 @@ async function openFor(assetId: string | null) {
   loadVectorDoc(newDoc())
 }
 
-/** Full-screen vector editor (pen, shapes, combining, layers), saving into assets. */
-export default function VectorMaker() {
+/**
+ * Full-screen vector editor (pen, shapes, combining, layers), saving into assets.
+ * With `shape`, it edits a shape for another tool instead (the Engine's click
+ * areas): it opens the given drawing over a reference picture, and Done hands it
+ * back (no asset, no draft).
+ */
+/** Shape editing: hand the drawing back to whoever asked for it, and close. */
+function finishShape() {
+  const r = useShapeRequest.getState().req
+  r?.onDone(useVector.getState().doc)
+  useVector.setState({ reference: null })
+  closeShapeEditor()
+}
+
+export default function VectorMaker({ shape = false }: { shape?: boolean }) {
+  const shapeReq = useShapeRequest((s) => s.req)
   const req = useUi((s) => s.vectorOpen)
   const layout = useLayout()
   const assetId = useVector((s) => s.assetId)
@@ -87,6 +103,15 @@ export default function VectorMaker() {
   const [draft, setDraft] = useState<VectorDraft | null>(null)
 
   useEffect(() => {
+    if (shape) {
+      const r = useShapeRequest.getState().req
+      if (r) loadVectorDoc(r.doc, null, r.reference ?? null)
+      requestAnimationFrame(() => {
+        setReady(true)
+        fitView()
+      })
+      return
+    }
     void openFor(req?.assetId ?? null).then(() => {
       const d = readDraft(projectId)
       // Offer the draft when starting fresh, or when it belongs to the asset being opened.
@@ -94,10 +119,11 @@ export default function VectorMaker() {
       setReady(true)
       requestAnimationFrame(fitView)
     })
-  }, [req?.assetId, projectId])
+  }, [req?.assetId, projectId, shape])
 
   // Keep the drawing as a draft while there are unsaved changes.
   useEffect(() => {
+    if (shape) return
     let t: ReturnType<typeof setTimeout> | undefined
     const unsub = useVector.subscribe((s, prev) => {
       if (s.doc === prev.doc && s.dirty === prev.dirty) return
@@ -113,9 +139,13 @@ export default function VectorMaker() {
       clearTimeout(t)
       unsub()
     }
-  }, [projectId])
+  }, [projectId, shape])
 
   const close = () => {
+    if (shape) {
+      useVector.setState({ reference: null })
+      return closeShapeEditor()
+    }
     const v = useVector.getState()
     if (v.dirty && hasContent(v.doc)) {
       // Nothing is lost: the drawing stays as a draft until it's saved or discarded.
@@ -151,7 +181,8 @@ export default function VectorMaker() {
       if (mod && k === 'z' && !e.shiftKey) return run(vundo)
       if ((mod && k === 'z' && e.shiftKey) || (mod && k === 'y')) return run(vredo)
       if (mod && k === 'd') return run(duplicateSelection)
-      if (mod && k === 's') return run(() => setSaving(true))
+      if (mod && k === 's')
+        return run(() => (useShapeRequest.getState().req ? finishShape() : setSaving(true)))
       if (mod && (k === '=' || k === '+'))
         return run(() => zoomTo(useVector.getState().view.zoom * 1.25))
       if (mod && k === '-') return run(() => zoomTo(useVector.getState().view.zoom / 1.25))
@@ -222,8 +253,10 @@ export default function VectorMaker() {
           <ArrowLeft />
         </IconButton>
         <div className="mr-1 min-w-0 truncate text-sm font-semibold">
-          Vector Maker
-          {assetName ? (
+          {shape ? 'Draw a shape' : 'Vector Maker'}
+          {shape && shapeReq ? (
+            <span className="font-normal text-muted-foreground"> · {shapeReq.title}</span>
+          ) : assetName ? (
             <span className="font-normal text-muted-foreground"> · {assetName}</span>
           ) : null}
         </div>
@@ -285,9 +318,15 @@ export default function VectorMaker() {
             </DropdownMenuContent>
           </DropdownMenu>
         )}
-        <Button onClick={() => setSaving(true)}>
-          <Save /> Save
-        </Button>
+        {shape ? (
+          <Button onClick={finishShape} data-testid="shape-done">
+            <Check /> Done
+          </Button>
+        ) : (
+          <Button onClick={() => setSaving(true)}>
+            <Save /> Save
+          </Button>
+        )}
       </header>
       {draft && (
         <div

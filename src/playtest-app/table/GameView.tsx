@@ -44,6 +44,9 @@ import { TournamentView, type DeckOption } from '../tournament/TournamentView'
 import { CardZoom } from './CardZoom'
 import { LogPanel } from './LogPanel'
 import { StartPanel } from './StartPanel'
+import { useHandoffStart } from './useHandoffStart'
+import { finishMatch, useHandoff } from '@/playtest/handoff'
+import { useWorkspace } from '@/app/workspace'
 import { TableCanvas } from './TableCanvas'
 import { Tracker } from './Tracker'
 import { exportReplay } from './replayFile'
@@ -100,6 +103,8 @@ export function GameView({
       ? toAct
       : null
   const driver = useBotDriver()
+  useHandoffStart()
+  const handoff = useHandoff((s) => (s.req?.gameId === pack.id && s.req.started ? s.req : null))
   useFrameTimer()
   const stage = useStage()
   const stageHidden = usePlaytest((s) => s.stageHidden)
@@ -388,6 +393,26 @@ export function GameView({
                       I'm {setup.seats[handOver]?.name}: show my side
                     </Button>
                   </div>
+                </div>
+              )}
+              {handoff && !replay && (
+                <div className="absolute top-3 right-3 z-[400] flex items-center gap-2 rounded-xl border bg-panel px-3 py-1.5 shadow-xl">
+                  <span className="text-xs text-muted-foreground">
+                    {winner ? 'Match over' : `Started by ${handoff.gameName}`}
+                  </span>
+                  <Button
+                    size="sm"
+                    variant={winner ? 'default' : 'secondary'}
+                    data-testid="back-to-game"
+                    onClick={() => {
+                      const w = rules?.winner ?? state?.winner
+                      finishMatch({ winner: w?.seat ?? null, finished: !!w })
+                      usePlaytest.getState().end()
+                      useWorkspace.getState().go('engine')
+                    }}
+                  >
+                    Back to {handoff.gameName}
+                  </Button>
                 </div>
               )}
               {winner && winKey !== winSeen && !replay && (

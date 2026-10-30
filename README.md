@@ -1,6 +1,6 @@
 # Hearthside Cardworks
 
-Version **0.8.1-beta** (beta). Formerly _Card Maker_. One app with three workspaces: **Cards** (the card editor), **Engine** (the game-maker) and **Play** (Hearthside Table).
+Version **0.8.2-beta** (beta). Formerly _Card Maker_. One app with three workspaces: **Cards** (the card editor), **Engine** (the game-maker) and **Play** (Hearthside Table).
 
 A card editor built with React, TypeScript, Vite and a Konva canvas. It runs as a website (projects stored in the browser), or as a desktop app for Arch Linux and CachyOS (projects stored as folders of ordinary files). There is no backend, and it works offline.
 

@@ -135,3 +135,41 @@ phase 2 (the Cardworks core and scenes). The slice list below is the history so 
 Phase 1 of the plan (v0.8.1-beta): one app with Cards, Engine and Play workspaces; one
 UI across them; resizable side panels; UI size; Settings with fonts; view modes for cards
 and assets; Gallery and Proofread shelved; the Engine's card source.
+
+## Games, Play and scenes (PR 1 of 3, v0.8.2-beta)
+
+Everything is now in a **game** (`model/game.ts`, `GameDoc`), stored in the Engine DB v3
+`games` table. A game holds card sources, decks, zones, variables, scenes, game events
+and recipes. Map scenes point at rows in `maps`, so the 3D editor and its autosave are
+unchanged; picture scenes live inside the game.
+
+- `storage/games.ts`, `storage/gameActions.ts`: the game store, first-run migration
+  (older maps become map scenes in "My game"), File-menu actions, game autosave,
+  `.hsgame` export/import (`io/gameFile.ts`).
+- `store/gameStore.ts`: `useGame`, the open game with its own undo history, the rail
+  panel, the centre view (a scene or a deck) and the selection.
+- `cards/`: `gameCards.ts` loads and merges the sources into one `OpenPack` (the
+  shape Play's table uses); live projects are exported with the card renderer and
+  cached by a content fingerprint. `merge.ts` merges packs (pure, tested).
+  `deckBridge.ts` routes Play's deck list to the game's decks. `draw.ts` holds the seeded
+  test draws.
+- `modules/`: the module registry. `adventureScuffle.ts` brings the deck builder
+  (suboptimal, optimal, very optimal).
+- `model/events.ts`, `events/`: Cause and Effect.
+  - `pieces.ts` is the registry of causes, conditions and effects.
+  - `run.ts` is the runner.
+  - `EventsEditor.tsx` is the sentence editor.
+- `scenes/`: `SceneView.tsx` draws the scene as SVG, with the glow filter.
+  `PictureEditor.tsx` draws areas and places things. `SceneProps.tsx` holds the glow
+  settings, the Vector Maker shape edit and the events. `ImagePicker.tsx` handles game
+  images and card-project images.
+- `runtime/`: `runtime.ts` is a game running (scenes, variables, messages, choices,
+  Back, the services `deck.build` and `cards.play`). `GamePlayer.tsx` is the full-screen
+  player.
+- `panels/game/`: the rail panels (Game, Scenes, Decks, Cards, Images, Variables), the
+  deck editor and the games dialog.
+- Play opens a game at `#/play/game=<id>` (`play/openForPlay.ts`). Per-pack data is keyed
+  by the game id, so replays, Rush, tournaments and the lab work on the game.
+  `src/playtest/handoff.ts` carries "Start a card game" to the table and the result back.
+- The Vector Maker has a shape mode (`src/vector/shapeRequest.ts`). It opens a drawing over
+  a reference picture, and Done returns the drawing instead of saving an asset.

@@ -12,6 +12,9 @@ describe('workspace routes', () => {
     expect(parseHash('#/play/pack=tfq')).toEqual({ ws: 'play', pack: 'tfq' })
     expect(parseHash('#/play/pack=a%20b')).toEqual({ ws: 'play', pack: 'a b' })
   })
+  it('reads an Engine game to open in Play', () => {
+    expect(parseHash('#/play/game=g1')).toEqual({ ws: 'play', game: 'g1' })
+  })
   it('treats the old Table link (#pack=) as Play', () => {
     expect(parseHash('#pack=tfq')).toEqual({ ws: 'play', pack: 'tfq' })
   })
@@ -27,6 +30,7 @@ describe('workspace routes', () => {
       { ws: 'engine' },
       { ws: 'play' },
       { ws: 'play', pack: 'a b' },
+      { ws: 'play', game: 'my game' },
     ] as const)
       expect(parseHash(routeHash(r))).toEqual(r)
     expect(routeHash({ ws: 'engine', pack: 'x' })).toBe('#/engine')

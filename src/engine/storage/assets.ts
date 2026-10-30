@@ -18,6 +18,48 @@ export class AssetStore {
     return id
   }
 
+  /** A game's own picture (a scene background, a character), with its pixel size. */
+  async putImage(file: Blob, name: string, gameId: string, folder?: string): Promise<string> {
+    const id = newId()
+    let width: number | undefined
+    let height: number | undefined
+    try {
+      const bmp = await createImageBitmap(file)
+      width = bmp.width
+      height = bmp.height
+      bmp.close()
+    } catch {
+      // Not a picture the browser can read: stored anyway, shown as missing.
+    }
+    await this.db.assets.put({
+      id,
+      name,
+      mime: file.type || 'image/png',
+      blob: file,
+      gameId,
+      folder,
+      width,
+      height,
+    })
+    this.cache.set(id, Promise.resolve(file))
+    return id
+  }
+
+  /** A game's own pictures, by name. */
+  async listGame(gameId: string): Promise<AssetRow[]> {
+    const rows = await this.db.assets.where('gameId').equals(gameId).toArray()
+    return rows.sort((a, b) => a.name.localeCompare(b.name))
+  }
+
+  async update(id: string, patch: Partial<Pick<AssetRow, 'name' | 'folder'>>) {
+    await this.db.assets.update(id, patch)
+  }
+
+  async remove(id: string) {
+    await this.db.assets.delete(id)
+    this.cache.delete(id)
+  }
+
   /** Store under a known id (restoring from a map file). */
   async putWithId(row: AssetRow): Promise<void> {
     await this.db.assets.put(row)

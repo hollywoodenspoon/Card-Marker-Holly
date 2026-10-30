@@ -1,5 +1,5 @@
 import { CircleHelp, Ruler, Settings2, Type } from '@/ui/icons'
-import { openSettings } from './SettingsDialog'
+import { openSettings } from './settingsDialogStore'
 import { UpdateMenuItems } from '@/ui/desktop/UpdateMenuItems'
 import {
   DropdownMenuItem,

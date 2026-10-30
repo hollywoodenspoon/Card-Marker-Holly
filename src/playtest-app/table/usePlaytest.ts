@@ -558,8 +558,7 @@ export const shownRules = (s: PlaytestStore): AsState | null =>
 
 /** The moment before the one on screen, while actions are being shown (for the cues). */
 export const shownBefore = (s: PlaytestStore): AsState | null => {
-  if (s.playback)
-    return s.playback.i > 0 ? s.playback.frames[s.playback.i - 1] : s.playback.from
+  if (s.playback) return s.playback.i > 0 ? s.playback.frames[s.playback.i - 1] : s.playback.from
   if (s.replay) return s.replay.i > 0 ? s.replay.frames[s.replay.i - 1] : null
   return null
 }

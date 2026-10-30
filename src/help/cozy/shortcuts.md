@@ -70,14 +70,14 @@ Shortcuts don't act while you're typing in a box. The card editor's keys also st
 
 ## Print preview
 
-| Keys                                   | What it does                                            |
-| -------------------------------------- | ------------------------------------------------------- |
-| [[Space]] + drag, or middle mouse drag | Pan                                                     |
-| [[Ctrl]] + mouse wheel                 | Zoom                                                    |
-| Mouse wheel                            | Pan or scroll                                           |
-| [[Ctrl+=]] / [[Ctrl+-]]                | Zoom in or out                                          |
-| [[Ctrl+0]]                             | Fit                                                     |
-| [[Esc]]                                | Close Print, Card data or Help                          |
+| Keys                                   | What it does                   |
+| -------------------------------------- | ------------------------------ |
+| [[Space]] + drag, or middle mouse drag | Pan                            |
+| [[Ctrl]] + mouse wheel                 | Zoom                           |
+| Mouse wheel                            | Pan or scroll                  |
+| [[Ctrl+=]] / [[Ctrl+-]]                | Zoom in or out                 |
+| [[Ctrl+0]]                             | Fit                            |
+| [[Esc]]                                | Close Print, Card data or Help |
 
 ## See also
 

@@ -240,6 +240,13 @@ export const HELP_TOPICS: HelpTopic[] = [
           section: 'Output',
           keywords: 'playtest play test game pack cmpack table board tokens score fields',
         },
+        {
+          id: 'engine',
+          title: 'Making a game in the Engine',
+          section: 'Output',
+          keywords:
+            'engine game scene picture click area glow cause effect event variable flag deck build map',
+        },
       ]),
   // Reference
   {

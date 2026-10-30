@@ -194,7 +194,23 @@ export async function addPack(bytes: Uint8Array, db = playtestDb()): Promise<Pac
 }
 
 /** Decks built for a pack, newest change first. */
+/**
+ * Where a game's decks really live. The Engine registers one: when Play is opened on
+ * an Engine game (the "pack" id is the game's id), its decks are the game's decks,
+ * not rows here. Kept as a hook so this module never depends on the Engine.
+ */
+export interface DeckBridge {
+  owns: (packId: string) => boolean
+  list: (packId: string) => Promise<DeckRow[]>
+  save: (deck: DeckRow) => Promise<void>
+  /** True when the deck was the bridge's (so it's handled). */
+  remove: (id: string) => Promise<boolean>
+}
+let bridge: DeckBridge | null = null
+export const setDeckBridge = (b: DeckBridge | null) => (bridge = b)
+
 export async function listDecks(packId: string, db = playtestDb()): Promise<DeckRow[]> {
+  if (bridge?.owns(packId)) return bridge.list(packId)
   const rows = await db.decks.where('packId').equals(packId).toArray()
   return rows.sort((a, b) => b.updatedAt - a.updatedAt)
 }
@@ -204,11 +220,15 @@ export async function saveDeck(
   db = playtestDb(),
 ): Promise<DeckRow> {
   const row = { ...deck, updatedAt: Date.now() }
-  await db.decks.put(row)
+  if (bridge?.owns(deck.packId)) await bridge.save(row)
+  else await db.decks.put(row)
   return row
 }
 
-export const deleteDeck = (id: string, db = playtestDb()) => db.decks.delete(id)
+export const deleteDeck = async (id: string, db = playtestDb()) => {
+  if (bridge && (await bridge.remove(id))) return
+  await db.decks.delete(id)
+}
 
 /** Replays of a pack, newest first. */
 export async function listReplays(packId: string, db = playtestDb()): Promise<ReplayRow[]> {

@@ -3,6 +3,7 @@ import { Button, IconButton } from '@/ui/components/ui/button'
 import { cn } from '@/lib/cn'
 import { type Mode, useEngine } from '../store/engineStore'
 import { useView } from '../store/viewStore'
+import { playGame } from '../runtime/play'
 
 const MODES: {
   id: Mode | 'objects' | 'play'
@@ -15,7 +16,7 @@ const MODES: {
   { id: 'paint', label: 'Paint', key: 'P', icon: Brush },
   { id: 'tile', label: 'Tile', key: 'E', icon: MousePointer2 },
   { id: 'objects', label: 'Objects', key: 'O', icon: Package, soon: true },
-  { id: 'play', label: 'Play', key: 'Space', icon: Play, soon: true },
+  { id: 'play', label: 'Play', key: 'Space', icon: Play },
 ]
 
 /**
@@ -40,7 +41,11 @@ export function ModeBar() {
           active={mode === m.id}
           disabled={m.soon}
           title={m.soon ? `${m.label} (${m.key}) — coming soon` : `${m.label} (${m.key})`}
-          onClick={() => !m.soon && useEngine.getState().setMode(m.id as Mode)}
+          onClick={() => {
+            if (m.soon) return
+            if (m.id === 'play') playGame(true)
+            else useEngine.getState().setMode(m.id as Mode)
+          }}
           className={cn('gap-1.5', m.soon && 'opacity-50')}
         >
           <m.icon /> {m.label}

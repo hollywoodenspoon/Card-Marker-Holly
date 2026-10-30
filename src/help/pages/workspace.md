@@ -9,7 +9,7 @@ The editor looks a little different on a computer, a tablet and a phone, but it 
 Hearthside Cardworks is one app with three workspaces. The switch at the left of every top bar moves between them (on a phone, tap the workspace name):
 
 - **Cards**: this card editor.
-- **Engine**: the game-maker, where maps are built. Its **Cards:** button picks the cards a map uses: the project open in Cards, or a game pack (`.cmpack`) you load.
+- **Engine**: the game-maker, where scenes, maps, decks and Cause and Effect are built. See [Making a game in the Engine](help:engine).
 - **Play**: Hearthside Table, where game packs are played. See [Playtesting your game](help:playtest).
 
 Each workspace keeps its place while you're in another: a game or a map is just as you left it. Back in the browser returns to the workspace you came from.

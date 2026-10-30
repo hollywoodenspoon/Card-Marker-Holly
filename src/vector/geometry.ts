@@ -300,3 +300,25 @@ export function area(subs: SubPath[]): number {
   }
   return Math.abs(total)
 }
+
+/**
+ * Whether a point is inside the shape (even-odd, like an SVG path filled with
+ * fill-rule="evenodd"; open subpaths count as closed). Curves are sampled, so it's
+ * exact to well under a pixel at the sizes the app draws. Used for click areas.
+ */
+export function pointInPaths(subs: SubPath[], p: Pt, samples = 16): boolean {
+  let inside = false
+  for (const sub of subs) {
+    if (sub.anchors.length < 2) continue
+    const poly: Pt[] = []
+    for (const seg of segments({ ...sub, closed: true }))
+      for (let k = 0; k < samples; k++) poly.push(bezierPoint(seg.pts, k / samples))
+    for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+      const a = poly[i]
+      const b = poly[j]
+      if (a.y > p.y !== b.y > p.y && p.x < ((b.x - a.x) * (p.y - a.y)) / (b.y - a.y) + a.x)
+        inside = !inside
+    }
+  }
+  return inside
+}
