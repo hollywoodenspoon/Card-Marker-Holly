@@ -11,8 +11,12 @@ import { useWorkspace, WORKSPACES, type Workspace } from './workspace'
 
 // Play (Hearthside Table) and Engine load only when first opened, so the card editor
 // stays as quick as before and Three.js loads only for the Engine. Neither is in Cozy.
-const PlayApp = __COZY__ ? null : lazy(() => import('@/playtest-app/App').then((m) => ({ default: m.App })))
-const EngineApp = __COZY__ ? null : lazy(() => import('@/engine/App').then((m) => ({ default: m.App })))
+const PlayApp = __COZY__
+  ? null
+  : lazy(() => import('@/playtest-app/App').then((m) => ({ default: m.App })))
+const EngineApp = __COZY__
+  ? null
+  : lazy(() => import('@/engine/App').then((m) => ({ default: m.App })))
 
 /**
  * One app, three workspaces: Cards, Engine and Play. A workspace stays mounted once
@@ -26,7 +30,8 @@ export function App() {
 
   useEffect(() => {
     const label = WORKSPACES.find((w) => w.id === ws)?.label
-    document.title = ws === 'cards' ? `${APP_NAME} ${APP_VERSION}` : `${label} · ${APP_NAME} ${APP_VERSION}`
+    document.title =
+      ws === 'cards' ? `${APP_NAME} ${APP_VERSION}` : `${label} · ${APP_NAME} ${APP_VERSION}`
     // Help is the card editor's: a link from it to another workspace closes it.
     if (ws !== 'cards' && useUi.getState().help) useUi.getState().setHelp(null)
   }, [ws])

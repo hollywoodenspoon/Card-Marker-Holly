@@ -15,7 +15,10 @@ export function routeOpen(url: string, origins: string[]): OpenRoute {
   }
   // URL.origin is "null" for custom schemes such as app://, so compare by hand.
   const origin = `${u.protocol}//${u.host}`
-  if (origins.includes(origin) && /^\/(?:.*\/)?(?:playtest|engine)\/(?:index\.html)?$/.test(u.pathname))
+  if (
+    origins.includes(origin) &&
+    /^\/(?:.*\/)?(?:playtest|engine)\/(?:index\.html)?$/.test(u.pathname)
+  )
     return 'self'
   if (u.protocol === 'https:') return 'external'
   return 'deny'

@@ -15,7 +15,11 @@ export const useSettingsDialog = create<{ open: Section | null }>(() => ({ open:
 export const openSettings = (section: Section = 'appearance') =>
   useSettingsDialog.setState({ open: section })
 
-const BASIC_LABELS: Record<string, string> = { light: 'Light', dark: 'Dark', system: 'Follow system' }
+const BASIC_LABELS: Record<string, string> = {
+  light: 'Light',
+  dark: 'Dark',
+  system: 'Follow system',
+}
 
 /**
  * ☰ → Settings…: one place for the settings of every workspace. Appearance (theme and

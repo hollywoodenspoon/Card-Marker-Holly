@@ -31,10 +31,7 @@ import { TilePicker, TileSwatch } from './TilePicker'
 export function ToolPanel() {
   const mode = useEngine((s) => s.mode)
   return (
-    <aside
-      className="flex h-full w-full flex-col gap-4 overflow-y-auto p-3"
-      aria-label="Tools"
-    >
+    <aside className="flex h-full w-full flex-col gap-4 overflow-y-auto p-3" aria-label="Tools">
       {mode === 'terrain' && <TerrainOptions />}
       {mode === 'paint' && <PaintOptions />}
       {mode === 'tile' && (

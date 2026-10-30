@@ -64,10 +64,13 @@ export function GalleryView({ onClose: close }: { onClose: () => void }) {
         (!q || c.name.toLowerCase().includes(q.toLowerCase())),
     )
   }, [cards, deck, q])
-  const open = useCallback((c: Card) => {
-    selectCard(c.id)
-    close()
-  }, [close])
+  const open = useCallback(
+    (c: Card) => {
+      selectCard(c.id)
+      close()
+    },
+    [close],
+  )
 
   return (
     <div

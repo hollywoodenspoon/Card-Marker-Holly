@@ -103,9 +103,7 @@ export function EngineShell() {
             <DropdownMenuSeparator />
             <SettingsMenu onHelp={() => openHelp('workspace')} />
             <DropdownMenuSeparator />
-            <div className="px-2 py-1.5 text-xs text-muted-foreground">
-              Engine {ENGINE_VERSION}
-            </div>
+            <div className="px-2 py-1.5 text-xs text-muted-foreground">Engine {ENGINE_VERSION}</div>
           </DropdownMenuContent>
         </DropdownMenu>
       </header>
