@@ -1,8 +1,9 @@
 /**
  * The app's three workspaces on one page: Cards (the card editor), Engine (the
  * game-maker) and Play (Hearthside Table). The URL hash names the open one, so
- * links, Back and reload keep it: "#/cards", "#/engine", "#/play" and
- * "#/play/pack=<id>" (a game pack to open). The Cozy Edition is Cards only.
+ * links, Back and reload keep it: "#/cards", "#/engine", "#/play",
+ * "#/play/pack=<id>" (a game pack to open) and "#/play/game=<id>" (an Engine game,
+ * with its merged cards and its decks). The Cozy Edition is Cards only.
  */
 import { create } from 'zustand'
 
@@ -18,11 +19,14 @@ export interface Route {
   ws: Workspace
   /** Play only: the game pack to open (kept while another workspace is on screen). */
   pack?: string
+  /** Play only: the Engine game to open (instead of a pack). */
+  game?: string
 }
 
 const KEY = 'cardmaker.workspace'
 /** Play's open pack, so a reload in another workspace still comes back to the game. */
 const PACK_KEY = 'cardmaker.playPack'
+const GAME_KEY = 'cardmaker.playGame'
 const isWs = (v: unknown): v is Workspace => v === 'cards' || v === 'engine' || v === 'play'
 
 /** Reads a hash. "#pack=<id>" (the old Hearthside Table link) means Play with that pack. */
@@ -34,12 +38,17 @@ export function parseHash(hash: string): Route | null {
   const [, ws, rest] = /^\/([a-z]+)\/?(.*)$/.exec(h) ?? []
   if (!isWs(ws)) return null
   if (ws !== 'play') return { ws }
-  const pack = new URLSearchParams(rest).get('pack')
+  const q = new URLSearchParams(rest)
+  const game = q.get('game')
+  if (game) return { ws, game }
+  const pack = q.get('pack')
   return pack ? { ws, pack } : { ws }
 }
 
 export function routeHash(r: Route): string {
-  return r.ws === 'play' && r.pack ? `#/play/pack=${encodeURIComponent(r.pack)}` : `#/${r.ws}`
+  if (r.ws !== 'play') return `#/${r.ws}`
+  if (r.game) return `#/play/game=${encodeURIComponent(r.game)}`
+  return r.pack ? `#/play/pack=${encodeURIComponent(r.pack)}` : '#/play'
 }
 
 function read(key: string): string | null {
@@ -55,6 +64,8 @@ function initial(): Route {
   const last = read(KEY)
   const r = parseHash(location.hash) ?? { ws: isWs(last) ? last : 'cards' }
   if (r.ws === 'play') return r
+  const game = read(GAME_KEY)
+  if (game) return { ...r, game }
   const pack = read(PACK_KEY)
   return pack ? { ...r, pack } : r
 }
@@ -62,6 +73,8 @@ function initial(): Route {
 interface WorkspaceState extends Route {
   /** Switch workspace (a new history entry, so Back returns). */
   go: (ws: Workspace, pack?: string) => void
+  /** Open Play on an Engine game (a new history entry). */
+  playGame: (game: string) => void
   /** Play: change the open pack without a new history entry. */
   setPack: (pack: string | undefined) => void
 }
@@ -70,15 +83,21 @@ export const useWorkspace = create<WorkspaceState>((set, get) => ({
   ...initial(),
   go: (ws, pack) => {
     if (__COZY__) return
-    // Play keeps its open pack while you're in another workspace.
-    const keep = pack ?? get().pack
-    set({ ws, pack: keep })
-    const hash = routeHash({ ws, pack: keep })
+    // Play keeps its open pack or game while you're in another workspace.
+    const r: Route = pack ? { ws, pack } : { ws, pack: get().pack, game: get().game }
+    set({ ws, pack: r.pack, game: r.game })
+    const hash = routeHash(r)
+    if (location.hash !== hash) history.pushState(null, '', hash)
+  },
+  playGame: (game) => {
+    if (__COZY__) return
+    set({ ws: 'play', game, pack: undefined })
+    const hash = routeHash({ ws: 'play', game })
     if (location.hash !== hash) history.pushState(null, '', hash)
   },
   setPack: (pack) => {
     const r: Route = { ws: get().ws, pack }
-    set({ pack })
+    set({ pack, game: undefined })
     if (location.hash !== routeHash(r)) history.replaceState(null, '', routeHash(r))
   },
 }))
@@ -94,7 +113,7 @@ if (!__COZY__ && typeof window !== 'undefined') {
     const next = parseHash(location.hash)
     if (!next) return
     // Only a Play route says which pack is open; elsewhere the open pack stays.
-    if (next.ws === 'play') useWorkspace.setState({ ws: next.ws, pack: next.pack })
+    if (next.ws === 'play') useWorkspace.setState({ ws: next.ws, pack: next.pack, game: next.game })
     else useWorkspace.setState({ ws: next.ws })
   }
   window.addEventListener('hashchange', follow)
@@ -105,6 +124,9 @@ if (!__COZY__ && typeof window !== 'undefined') {
       if (s.pack !== prev.pack)
         if (s.pack) localStorage.setItem(PACK_KEY, s.pack)
         else localStorage.removeItem(PACK_KEY)
+      if (s.game !== prev.game)
+        if (s.game) localStorage.setItem(GAME_KEY, s.game)
+        else localStorage.removeItem(GAME_KEY)
     } catch {
       // Private windows: the workspace just isn't remembered.
     }

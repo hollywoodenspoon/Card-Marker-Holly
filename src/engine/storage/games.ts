@@ -39,12 +39,19 @@ export class GameStore {
   /** Deletes the game, its map scenes' maps and its own images. */
   async remove(id: string): Promise<void> {
     const game = await this.load(id)
-    await this.db.transaction('rw', this.db.games, this.db.maps, this.db.assets, this.db.settings, async () => {
-      await this.db.games.delete(id)
-      for (const s of game?.scenes ?? []) if (s.kind === 'map') await this.db.maps.delete(s.mapId)
-      await this.db.assets.where('gameId').equals(id).delete()
-      if ((await this.getLastOpen()) === id) await this.db.settings.delete(LAST_OPEN)
-    })
+    await this.db.transaction(
+      'rw',
+      this.db.games,
+      this.db.maps,
+      this.db.assets,
+      this.db.settings,
+      async () => {
+        await this.db.games.delete(id)
+        for (const s of game?.scenes ?? []) if (s.kind === 'map') await this.db.maps.delete(s.mapId)
+        await this.db.assets.where('gameId').equals(id).delete()
+        if ((await this.getLastOpen()) === id) await this.db.settings.delete(LAST_OPEN)
+      },
+    )
   }
 
   /** A copy under a new id, with copies of its maps (images are shared by id). */

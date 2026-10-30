@@ -15,7 +15,8 @@ const history = new History<GameDoc>()
 export type GamePanel = 'game' | 'scenes' | 'decks' | 'cards' | 'images' | 'variables' | 'map'
 
 /** What the centre shows. */
-export type GameView = { kind: 'scene'; id: string } | { kind: 'deck'; id: string } | { kind: 'none' }
+export type GameView =
+  { kind: 'scene'; id: string } | { kind: 'deck'; id: string } | { kind: 'none' }
 
 export type GameSelection = { kind: 'area' | 'object'; id: string } | { kind: 'scene' } | null
 

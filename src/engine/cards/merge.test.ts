@@ -10,7 +10,15 @@ const pack = (pid: string, ids: string[], deck: string, w = 63): GamePack => ({
     projectId: pid,
     exportedAt: 5,
     cardSize: { w, h: 88 },
-    cards: ids.map((id) => ({ id, name: id, w, h: 88, fields: {}, front: `images/${id}.jpg`, back: null })),
+    cards: ids.map((id) => ({
+      id,
+      name: id,
+      w,
+      h: 88,
+      fields: {},
+      front: `images/${id}.jpg`,
+      back: null,
+    })),
     decks: [{ name: deck, counts: { [ids[0]]: 2 } }],
   },
   images: Object.fromEntries(ids.map((id) => [`images/${id}.jpg`, new Uint8Array([1])])),
@@ -38,6 +46,9 @@ describe('merging card sources', () => {
     ])
     expect(m.pack.info.cards).toHaveLength(1)
     expect(m.sourceOf.x).toBe('pack:a')
-    expect(mergePacks('g', 'G', [{ key: 'pack:a', name: 'A', pack: pack('a', ['x'], 'Main') }]).pack.info.decks[0].name).toBe('Main')
+    expect(
+      mergePacks('g', 'G', [{ key: 'pack:a', name: 'A', pack: pack('a', ['x'], 'Main') }]).pack.info
+        .decks[0].name,
+    ).toBe('Main')
   })
 })

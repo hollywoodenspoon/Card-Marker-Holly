@@ -41,7 +41,10 @@ describe('GameStore', () => {
     const map = newMapDoc('Town')
     await maps.save(map)
     const g = newGame('Card game')
-    g.scenes.push({ id: 's1', name: 'Town', kind: 'map', mapId: map.id, events: [] }, newPictureScene('Shop'))
+    g.scenes.push(
+      { id: 's1', name: 'Town', kind: 'map', mapId: map.id, events: [] },
+      newPictureScene('Shop'),
+    )
     await games.save(g)
     const copy = (await games.duplicate(g.id))!
     expect(copy.name).toBe('Card game (copy)')

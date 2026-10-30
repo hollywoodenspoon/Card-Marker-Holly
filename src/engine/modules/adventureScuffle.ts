@@ -1,8 +1,9 @@
 /**
  * The Adventure Scuffle! module: only what the engine can't know on its own. Deck
  * building at three levels with the builder Play already has (card values from a
- * bot league, then a greedy build, then bot-tested climbing for very optimal), and
- * its Cause and Effect pieces (see ../events/asPieces.ts).
+ * bot league, then a greedy build, then bot-tested climbing for very optimal).
+ * Starting a card game uses the general "Start a card game" effect, which opens
+ * Play's table (Adventure Scuffle!'s rules there) with the game's decks.
  */
 import { cardsFromPack, isAdventurePack } from '@/adventure/cards'
 import { buildDeck } from '@/adventure/deckgen/build'

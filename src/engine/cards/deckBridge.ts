@@ -49,7 +49,8 @@ async function importOldDecks(g: GameDoc) {
   )
   if (!rows.length) return
   await change(g.id, (x) => {
-    for (const r of rows) x.decks.push({ id: newId(), name: r.name, counts: countsOf(r.cards), origin: 'game' })
+    for (const r of rows)
+      x.decks.push({ id: newId(), name: r.name, counts: countsOf(r.cards), origin: 'game' })
   })
 }
 

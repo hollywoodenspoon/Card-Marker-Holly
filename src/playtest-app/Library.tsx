@@ -12,8 +12,17 @@ import { SettingsMenu } from '@/ui/settings/SettingsMenu'
 import { WorkspaceSwitch } from '@/ui/shell/WorkspaceSwitch'
 
 /** Your game packs: import a file from Hearthside Cardworks, open one to play, or remove it. */
-export function Library({ onOpen, onHelp }: { onOpen: (id: string) => void; onHelp: () => void }) {
+export function Library({
+  onOpen,
+  onOpenGame,
+  onHelp,
+}: {
+  onOpen: (id: string) => void
+  onOpenGame: (id: string) => void
+  onHelp: () => void
+}) {
   const [packs, setPacks] = useState<PackRow[] | null>(null)
+  const [games, setGames] = useState<{ id: string; name: string }[]>([])
   const [saved, setSaved] = useState<Set<string>>(new Set())
   const [over, setOver] = useState(false)
   const input = useRef<HTMLInputElement>(null)
@@ -30,6 +39,11 @@ export function Library({ onOpen, onHelp }: { onOpen: (id: string) => void; onHe
   }
   useEffect(() => {
     void refresh()
+    // The Engine's games (each with its card sources merged and its own decks).
+    if (!__COZY__)
+      void import('@/engine/play/openForPlay')
+        .then((m) => m.listGamesForPlay())
+        .then(setGames, () => setGames([]))
   }, [])
 
   const importFiles = async (files: FileList | File[]) => {
@@ -100,6 +114,24 @@ export function Library({ onOpen, onHelp }: { onOpen: (id: string) => void; onHe
       </header>
       <main className="min-h-0 flex-1 overflow-auto">
         <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 p-4">
+          {games.length > 0 && (
+            <section className="flex flex-col gap-2" aria-label="Your games">
+              <h2 className="text-base font-semibold">Your games</h2>
+              <p className="text-xs text-muted-foreground">
+                Games made in the Engine: all their card sources together, with their own decks.
+              </p>
+              <ul className="flex flex-col gap-2">
+                {games.map((g) => (
+                  <li key={g.id} className="flex items-center gap-3 rounded-xl border bg-panel p-3">
+                    <div className="min-w-0 flex-1 truncate font-medium">{g.name}</div>
+                    <Button onClick={() => onOpenGame(g.id)} data-testid={`open-game-${g.name}`}>
+                      <Play /> {saved.has(g.id) ? 'Continue' : 'Play'}
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="flex-1 text-base font-semibold">Your game packs</h2>
             <Button onClick={() => input.current?.click()}>

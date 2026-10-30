@@ -44,7 +44,8 @@ export interface GameFileParts {
 
 const toB64 = (bytes: Uint8Array) => {
   let s = ''
-  for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode(...bytes.subarray(i, i + 0x8000))
+  for (let i = 0; i < bytes.length; i += 0x8000)
+    s += String.fromCharCode(...bytes.subarray(i, i + 0x8000))
   return btoa(s)
 }
 const fromB64 = (data: string) => Uint8Array.from(atob(data), (c) => c.charCodeAt(0))
@@ -80,7 +81,8 @@ export function parseGameFile(text: string): GameFileParts {
     throw new GameFileError('This file is not valid JSON.')
   }
   const f = data as Partial<GameFile>
-  if (f.format !== 'hearthside-game') throw new GameFileError('This is not a Hearthside Engine game file.')
+  if (f.format !== 'hearthside-game')
+    throw new GameFileError('This is not a Hearthside Engine game file.')
   if (f.version !== 1) throw new GameFileError(`Unsupported game file version: ${f.version}.`)
   const raw = f.game as Partial<GameDoc> | undefined
   if (!raw || typeof raw !== 'object' || typeof raw.id !== 'string')
@@ -106,7 +108,10 @@ export function parseGameFile(text: string): GameFileParts {
     width: a.width,
     height: a.height,
   }))
-  const packs = (Array.isArray(f.packs) ? f.packs : []).map((p) => ({ id: p.id, bytes: fromB64(p.data) }))
+  const packs = (Array.isArray(f.packs) ? f.packs : []).map((p) => ({
+    id: p.id,
+    bytes: fromB64(p.data),
+  }))
   return { game, maps, assets, packs }
 }
 

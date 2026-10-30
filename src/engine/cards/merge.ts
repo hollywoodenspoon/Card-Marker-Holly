@@ -5,7 +5,13 @@
  * hashes). Each source's decks keep their names, marked with the source when the
  * game has more than one. Pure, so it's tested without a browser.
  */
-import { PACK_FORMAT, type GamePack, type PackCard, type PackDeck, type PackInfo } from '@/playtest/pack'
+import {
+  PACK_FORMAT,
+  type GamePack,
+  type PackCard,
+  type PackDeck,
+  type PackInfo,
+} from '@/playtest/pack'
 
 export interface SourcePack {
   /** "project:<id>" or "pack:<id>" (see sourceKey). */

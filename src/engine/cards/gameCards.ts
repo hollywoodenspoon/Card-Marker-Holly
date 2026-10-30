@@ -17,6 +17,8 @@ import { db } from '../storage/db'
 import { mergePacks, type MergedCards, type SourcePack } from './merge'
 
 export interface GameCardsState {
+  /** The game these cards are for (Play and the Engine may each ask for one). */
+  gameId: string | null
   status: 'idle' | 'loading' | 'ready' | 'error'
   progress: string | null
   error: string | null
@@ -30,6 +32,7 @@ export interface GameCardsState {
 }
 
 export const useGameCards = create<GameCardsState>(() => ({
+  gameId: null,
   status: 'idle',
   progress: null,
   error: null,
@@ -105,7 +108,7 @@ let loading = 0
 export async function loadGameCards(game: GameDoc): Promise<void> {
   const run = ++loading
   const set = (s: Partial<GameCardsState>) => run === loading && useGameCards.setState(s)
-  set({ status: 'loading', error: null, progress: null })
+  set({ gameId: game.id, status: 'loading', error: null, progress: null })
   try {
     const parts: SourcePack[] = []
     const missing: CardSource[] = []

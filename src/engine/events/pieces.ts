@@ -336,7 +336,8 @@ const builtins: PieceDef[] = [
     id: 'cards.play',
     label: 'Start a card game',
     group: 'Cards',
-    sentence: 'start a card game: {deckA} against {deckB} ({bot} bot)',
+    sentence:
+      'start a card game: {deckA} against {deckB} ({bot} bot), then set {won} if the player wins',
     fields: [
       { key: 'deckA', label: 'Player deck', kind: 'deck' },
       { key: 'deckB', label: 'Opponent deck', kind: 'deck' },
@@ -352,6 +353,7 @@ const builtins: PieceDef[] = [
         ],
         default: 'normal',
       },
+      { key: 'won', label: 'Flag for a win', kind: 'flag' },
     ],
     run: (ctx, a) => ctx.call('cards.play', a),
   },
