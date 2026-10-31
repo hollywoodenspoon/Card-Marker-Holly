@@ -96,8 +96,37 @@
           }
         }
       }
+    },
+    {
+      "character": {
+        "id": "e58cba7f-6e8a-463c-8a49-ea51540720f5",
+        "name": "Fighting pose, as if",
+        "prompt": "Gender-neutral base template character for an isometric tactics RPG, in the style of Final Fantasy Tactics and Ragnarok Online sprites with an anime face. Androgynous young adult, slim and lean, NOT stout and NOT chibi: about 4 heads tall, small head, long slender legs and arms, narrow shoulders, thin waist, slim neck. Soft neutral anime face: medium-sized eyes, small nose, small mouth. Very short, close-cropped dark-brown hair that hugs the head. Skin-tight body-fitting clothes like a plain base suit: fitted light grey short-sleeved top with no loose fabric, fitted dark grey shorts (not blue) that hug the thighs. Bare feet, light warm skin. No accessories, armour or weapon. Neutral relaxed standing pose, arms straight at the sides, head and eyes facing straight forward in every direction (the south/front view looks straight at the viewer, face centred, not turned). The character fills only the lower 80% of the canvas, with empty space above the head. Soft hand-painted pixel shading, warm muted tones, dark warm outline, light from the top-left.",
+        "size": {
+          "width": 64,
+          "height": 64
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "high top-down",
+        "created_at": "2026-10-31T05:20:10.847489+00:00"
+      },
+      "folder": "Fighting_pose_as_if",
+      "frames": {
+        "rotations": {
+          "south": "Fighting_pose_as_if/rotations/south.png",
+          "south-east": "Fighting_pose_as_if/rotations/south-east.png",
+          "east": "Fighting_pose_as_if/rotations/east.png",
+          "north-east": "Fighting_pose_as_if/rotations/north-east.png",
+          "north": "Fighting_pose_as_if/rotations/north.png",
+          "north-west": "Fighting_pose_as_if/rotations/north-west.png",
+          "west": "Fighting_pose_as_if/rotations/west.png",
+          "south-west": "Fighting_pose_as_if/rotations/south-west.png"
+        },
+        "animations": {}
+      }
     }
   ],
   "export_version": "3.1",
-  "export_date": "2026-10-31T05:04:32.945677"
+  "export_date": "2026-10-31T05:50:48.787576"
 }
