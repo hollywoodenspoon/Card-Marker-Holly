@@ -149,3 +149,19 @@ labels, no watermark.
 
 - **`base-template.png`:** 32 × 48 frames on a transparent background, in one shared palette. It has one row per animation per view, in the order of the table above.
 - **`base-template.json`:** the frame size, and for each animation its rows, frame count and frame times, with the views the Engine mirrors to get the right-facing ones. It opens in Aseprite with a 32 × 48 grid.
+
+---
+
+## What we used (2026-10-31)
+
+We used the "high camera angle" turnaround prompt in a fresh chat: one row of 5 standing views, 64 × 64 sprite-pixel cells. The Gemini original is in `art/sprites/source/`. Cleanup and build:
+
+```bash
+python3 scripts/sprites/cleanup.py art/sprites/source/gemini-turnaround.jpg 234   # 234 = views to mirror
+python3 scripts/sprites/build.py
+```
+
+The result is `art/sprites/base-template.png`, `.aseprite` and `.json`:
+- 64 × 64 frames, with the feet on row 59;
+- 5 views × the Stand animation (standing + breathing);
+- a hand-point layer.
