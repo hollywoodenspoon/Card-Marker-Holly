@@ -3,7 +3,7 @@
   "w": 48,
   "h": 48
  },
- "baseline": 44,
+ "baseline": 43,
  "views": [
   "front",
   "front34",
@@ -29,12 +29,12 @@
      "tag": "stand-front",
      "hand": [
       [
-       15,
-       34
+       17,
+       33
       ],
       [
-       15,
-       35
+       17,
+       34
       ]
      ],
      "weaponBehind": false
@@ -43,11 +43,11 @@
      "tag": "stand-front34",
      "hand": [
       [
-       16,
+       19,
        33
       ],
       [
-       16,
+       19,
        34
       ]
      ],
@@ -57,12 +57,12 @@
      "tag": "stand-side",
      "hand": [
       [
-       23,
-       34
+       24,
+       33
       ],
       [
-       23,
-       35
+       24,
+       34
       ]
      ],
      "weaponBehind": true
@@ -85,12 +85,12 @@
      "tag": "stand-back",
      "hand": [
       [
-       32,
-       34
+       31,
+       33
       ],
       [
-       32,
-       35
+       31,
+       34
       ]
      ],
      "weaponBehind": false
