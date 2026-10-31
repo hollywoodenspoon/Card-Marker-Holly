@@ -864,7 +864,8 @@
      ],
      "weaponBehind": true
     }
-   }
+   },
+   "northFrom": "north-east"
   },
   "kneel": {
    "frames": 1,
