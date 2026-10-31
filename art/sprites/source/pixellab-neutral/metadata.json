@@ -1,19 +1,19 @@
 {
-  "group_id": "e8c23fad-1219-42ce-89fb-516b4b9c556e",
+  "group_id": "ca0a4f07-c024-44b3-be04-399cf5e79d3f",
   "states": [
     {
       "character": {
-        "id": "b249d40c-798e-4b4f-92c6-24bcbe3f7b81",
+        "id": "eee9d975-d679-485e-b11c-f4a3f9bb5df9",
         "name": "Idle",
-        "prompt": "Gender-neutral base template character for an isometric tactics RPG, in the style of Final Fantasy Tactics and Ragnarok Online sprites with an anime face. Androgynous young adult, about 3.5 heads tall (not chibi). Neutral slim body: medium shoulders, straight torso, no defined waist, slim arms and legs. Soft neutral anime face: medium-sized eyes, small nose, small mouth, no strong jaw. Very short, close-cropped dark-brown hair that hugs the head. Clothes are skin-tight and body-fitting, like a plain base suit: a fitted light grey short-sleeved top that follows the body's shape with no loose fabric or folds, and fitted dark grey shorts (not blue) that hug the thighs. Bare feet, light warm skin. No accessories, armour or weapon. Relaxed standing pose, arms at the sides. Soft hand-painted pixel shading, warm muted tones, dark warm outline, light from the top-left.",
+        "prompt": "Gender-neutral base template character for an isometric tactics RPG, in the style of Final Fantasy Tactics and Ragnarok Online sprites with an anime face. Androgynous young adult, slim and lean, NOT stout and NOT chibi: about 4 heads tall, small head, long slender legs and arms, narrow shoulders, thin waist, slim neck. Soft neutral anime face: medium-sized eyes, small nose, small mouth. Very short, close-cropped dark-brown hair that hugs the head. Skin-tight body-fitting clothes like a plain base suit: fitted light grey short-sleeved top with no loose fabric, fitted dark grey shorts (not blue) that hug the thighs. Bare feet, light warm skin. No accessories, armour or weapon. Neutral relaxed standing pose, arms straight at the sides, head and eyes facing straight forward in every direction (the south/front view looks straight at the viewer, face centred, not turned). The character fills only the lower 80% of the canvas, with empty space above the head. Soft hand-painted pixel shading, warm muted tones, dark warm outline, light from the top-left.",
         "size": {
           "width": 64,
           "height": 64
         },
         "template_id": "mannequin",
         "directions": 8,
-        "view": "low top-down",
-        "created_at": "2026-10-31T03:34:55.803050+00:00"
+        "view": "high top-down",
+        "created_at": "2026-10-31T03:46:11.652208+00:00"
       },
       "folder": "Idle",
       "frames": {
@@ -32,5 +32,5 @@
     }
   ],
   "export_version": "3.1",
-  "export_date": "2026-10-31T03:39:34.752630"
+  "export_date": "2026-10-31T03:49:23.700145"
 }
