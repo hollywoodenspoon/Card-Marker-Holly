@@ -1,0 +1,101 @@
+{
+ "frame": {
+  "w": 48,
+  "h": 48
+ },
+ "baseline": 44,
+ "views": [
+  "front",
+  "front34",
+  "side",
+  "back34",
+  "back"
+ ],
+ "mirror": {
+  "front34": "front-right34",
+  "side": "right",
+  "back34": "back-right34"
+ },
+ "animations": {
+  "stand": {
+   "frames": 2,
+   "ms": [
+    500,
+    400
+   ],
+   "loop": true,
+   "views": {
+    "front": {
+     "tag": "stand-front",
+     "hand": [
+      [
+       15,
+       34
+      ],
+      [
+       15,
+       35
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "front34": {
+     "tag": "stand-front34",
+     "hand": [
+      [
+       16,
+       33
+      ],
+      [
+       16,
+       34
+      ]
+     ],
+     "weaponBehind": true
+    },
+    "side": {
+     "tag": "stand-side",
+     "hand": [
+      [
+       23,
+       34
+      ],
+      [
+       23,
+       35
+      ]
+     ],
+     "weaponBehind": true
+    },
+    "back34": {
+     "tag": "stand-back34",
+     "hand": [
+      [
+       29,
+       33
+      ],
+      [
+       29,
+       34
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "back": {
+     "tag": "stand-back",
+     "hand": [
+      [
+       32,
+       34
+      ],
+      [
+       32,
+       35
+      ]
+     ],
+     "weaponBehind": false
+    }
+   }
+  }
+ }
+}
