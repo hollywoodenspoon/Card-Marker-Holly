@@ -7,7 +7,7 @@ from PIL import Image
 import ase
 
 D = 'art/sprites/'
-N = 64
+N = 96  # PixelLab's animation canvas: the 64 x 64 character with 16 px of room on every side
 # All 8 directions are drawn (PixelLab), so nothing is mirrored and the weapon hand is
 # always the character's right hand.
 V = ['south', 'south-east', 'east', 'north-east', 'north', 'north-west', 'west', 'south-west']
@@ -19,7 +19,7 @@ BEHIND = {'south': False, 'south-east': False, 'east': False, 'north-east': Fals
 # Each animation: (strip name in parts/, frames, frame times in ms, hand y-offset per frame, tag colour)
 ANIMS = [
     ('stand', 2, [500, 400], [0, 1], (120, 160, 220)),
-    ('walk', 4, [170, 170, 170, 170], [0, -1, 0, -1], (120, 200, 140)),
+    ('walk', 6, [120] * 6, [0] * 6, (120, 200, 140)),
 ]
 # Set by eye where the automatic guess (hand_point) lands off the fist.
 OVERRIDES = {}
@@ -47,7 +47,7 @@ for r, v in enumerate(V):
 cols = max(a[1] for a in anims)
 sheet = Image.new('RGBA', (N * cols, N * len(V) * len(anims)))
 frames, tags = [], []
-meta = {'frame': {'w': N, 'h': N}, 'baseline': N - 5, 'views': V, 'mirror': {}, 'animations': {}}
+meta = {'frame': {'w': N, 'h': N}, 'baseline': 79, 'views': V, 'mirror': {}, 'animations': {}}
 for ai, (anim, count, ms, dy, colour) in enumerate(anims):
     strip = Image.open(f'{D}parts/{NAME}-{anim}.png')
     views = {}
