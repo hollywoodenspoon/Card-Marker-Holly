@@ -7,7 +7,8 @@ rotations at the top level, and other states under states/.) Every pose and anim
 art/sprites/parts/<name>-<key>.png: 8 rows (S, SE, E, NE, N, NW, W, SW), 96 x 96 frames (the
 64 x 64 character with 16 px of room on every side), feet on row 79. Each direction's frames move
 together, so an animation's own bob and jumps are kept. White effect streaks (slash arcs) are
-removed. Animations missing a direction are skipped and reported."""
+removed. Animations missing a direction are skipped and reported. Action animations (all
+but walk) reuse their north-east frames for north."""
 import os, sys
 from collections import deque
 from PIL import Image
@@ -21,6 +22,10 @@ STATE_KEYS = {
     'About_to_jump': 'pose-jump', 'About_to_dodge': 'pose-dodge', 'About_to_slash': 'pose-slash',
     'About_to_stab': 'pose-stab',
 }
+# Animations that keep their own north view. Every other animation (attacks and actions) reuses
+# north-east for north, since PixelLab's back-view actions don't read (owner's call).
+OWN_NORTH = {'walk'}
+NORTH_FROM = 'north-east'
 ANIM_KEYS = {
     'Walking': 'walk', 'Walk': 'walk', 'Cross_Punch': 'punch',
     'The_character_lunges_forward_while_the_right_arm_s': 'slash',
@@ -131,6 +136,8 @@ if __name__ == '__main__':
         for af in sorted(os.listdir(anim_root)) if os.path.isdir(anim_root) else []:
             akey = key_for(af, ANIM_KEYS)
             dirs = animation_dirs(os.path.join(anim_root, af))
+            if akey not in OWN_NORTH and NORTH_FROM in dirs:
+                dirs['north'] = dirs[NORTH_FROM]
             missing = [d for d in DIRS if d not in dirs]
             if missing:
                 print(f'skipped {akey} (from {folder}): missing {", ".join(missing)}')

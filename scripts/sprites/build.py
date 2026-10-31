@@ -78,6 +78,9 @@ for ai, (anim, count, ms, loop, colour) in enumerate(anims):
         views[v] = {'tag': f'{anim}-{v}', 'row': ai * len(V) + r,
                     'hand': [[x, y] for f in range(count)], 'weaponBehind': BEHIND[v]}
     meta['animations'][anim] = {'frames': count, 'ms': [ms] * count, 'loop': loop, 'views': views}
+    if count > 1 and anim not in ('stand', 'walk'):
+        # Action animations: north shows the north-east frames (the importer copied them).
+        meta['animations'][anim]['northFrom'] = 'north-east'
 sheet.save(f'{D}{NAME}.png')
 ase.write(f'{D}{NAME}.aseprite', ['Body', 'Hand points'], frames, tags, N, N, 450)
 assert ase.read(f'{D}{NAME}.aseprite')[0] == len(frames)
