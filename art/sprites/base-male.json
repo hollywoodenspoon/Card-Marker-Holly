@@ -27,6 +27,7 @@
    "views": {
     "front": {
      "tag": "stand-front",
+     "row": 0,
      "hand": [
       [
        23,
@@ -41,6 +42,7 @@
     },
     "front34": {
      "tag": "stand-front34",
+     "row": 1,
      "hand": [
       [
        24,
@@ -55,6 +57,7 @@
     },
     "side": {
      "tag": "stand-side",
+     "row": 2,
      "hand": [
       [
        33,
@@ -69,6 +72,7 @@
     },
     "back34": {
      "tag": "stand-back34",
+     "row": 3,
      "hand": [
       [
        41,
@@ -83,6 +87,7 @@
     },
     "back": {
      "tag": "stand-back",
+     "row": 4,
      "hand": [
       [
        42,
@@ -91,6 +96,133 @@
       [
        42,
        43
+      ]
+     ],
+     "weaponBehind": false
+    }
+   }
+  },
+  "walk": {
+   "frames": 4,
+   "ms": [
+    170,
+    170,
+    170,
+    170
+   ],
+   "loop": true,
+   "views": {
+    "front": {
+     "tag": "walk-front",
+     "row": 5,
+     "hand": [
+      [
+       23,
+       42
+      ],
+      [
+       23,
+       41
+      ],
+      [
+       23,
+       42
+      ],
+      [
+       23,
+       41
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "front34": {
+     "tag": "walk-front34",
+     "row": 6,
+     "hand": [
+      [
+       24,
+       38
+      ],
+      [
+       24,
+       37
+      ],
+      [
+       24,
+       38
+      ],
+      [
+       24,
+       37
+      ]
+     ],
+     "weaponBehind": true
+    },
+    "side": {
+     "tag": "walk-side",
+     "row": 7,
+     "hand": [
+      [
+       33,
+       38
+      ],
+      [
+       33,
+       37
+      ],
+      [
+       33,
+       38
+      ],
+      [
+       33,
+       37
+      ]
+     ],
+     "weaponBehind": true
+    },
+    "back34": {
+     "tag": "walk-back34",
+     "row": 8,
+     "hand": [
+      [
+       41,
+       40
+      ],
+      [
+       41,
+       39
+      ],
+      [
+       41,
+       40
+      ],
+      [
+       41,
+       39
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "back": {
+     "tag": "walk-back",
+     "row": 9,
+     "hand": [
+      [
+       42,
+       42
+      ],
+      [
+       42,
+       41
+      ],
+      [
+       42,
+       42
+      ],
+      [
+       42,
+       41
       ]
      ],
      "weaponBehind": false

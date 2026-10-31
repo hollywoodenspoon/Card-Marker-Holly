@@ -22,7 +22,12 @@ def hand_point(cell, side):
     return (x + (2 if side == 'left' else -2), y - 1)
 
 NAME = sys.argv[1] if len(sys.argv) > 1 else 'base-male'
-sheet = Image.open(D + NAME + '.png')
+# Each animation: (strip in parts/, frame count, frame times in ms, hand y-offset per frame, colour of its tags)
+ANIMS = [
+    ('stand', 2, [500, 400], [0, 1], (120, 160, 220)),
+    ('walk', 4, [170, 170, 170, 170], [0, -1, 0, -1], (120, 200, 140)),
+]
+COLS = max(a[1] for a in ANIMS)
 # Set by eye where the automatic guess (hand_point) lands off the fist.
 OVERRIDES = {
     'base-male': {'side': (33, 38), 'back34': (41, 40), 'back': (42, 42)},
@@ -33,20 +38,27 @@ HANDS = dict(OVERRIDES.get(NAME, {}))
 meta = {'frame': {'w': N, 'h': N}, 'baseline': N - 5, 'views': V,
         'mirror': {'front34': 'front-right34', 'side': 'right', 'back34': 'back-right34'},
         'animations': {}}
+stand = Image.open(D + 'parts/' + NAME + '-stand.png')
 for r, v in enumerate(V):
-    start = len(frames)
-    for f in range(2):
-        body = sheet.crop((f * N, r * N, f * N + N, r * N + N))
-        hp = Image.new('RGBA', (N, N), (0, 0, 0, 0))
-        HANDS.setdefault(v, hand_point(body, SIDE[v]))
+    HANDS.setdefault(v, hand_point(stand.crop((0, r * N, N, r * N + N)), SIDE[v]))
+sheet = Image.new('RGBA', (N * COLS, N * len(V) * len(ANIMS)))
+for ai, (anim, count, ms, dy, colour) in enumerate(ANIMS):
+    strip = Image.open(D + 'parts/' + NAME + '-' + anim + '.png')
+    views = {}
+    for r, v in enumerate(V):
+        start = len(frames)
         x, y = HANDS[v]
-        hp.putpixel((x, y + f), (255, 0, 0, 255))
-        frames.append({0: body, 1: hp})
-    tags.append((f'stand-{v}', start, start + 1, (120, 160, 220)))
-meta['animations']['stand'] = {
-    'frames': 2, 'ms': [500, 400], 'loop': True,
-    'views': {v: {'tag': f'stand-{v}', 'hand': [[HANDS[v][0], HANDS[v][1] + f] for f in range(2)],
-                  'weaponBehind': BEHIND[v]} for v in V}}
+        for f in range(count):
+            body = strip.crop((f * N, r * N, f * N + N, r * N + N))
+            sheet.alpha_composite(body, (f * N, (ai * len(V) + r) * N))
+            hp = Image.new('RGBA', (N, N), (0, 0, 0, 0))
+            hp.putpixel((x, y + dy[f]), (255, 0, 0, 255))
+            frames.append({0: body, 1: hp})
+        tags.append((f'{anim}-{v}', start, start + count - 1, colour))
+        views[v] = {'tag': f'{anim}-{v}', 'row': ai * len(V) + r,
+                    'hand': [[x, y + dy[f]] for f in range(count)], 'weaponBehind': BEHIND[v]}
+    meta['animations'][anim] = {'frames': count, 'ms': ms, 'loop': True, 'views': views}
+sheet.save(D + NAME + '.png')
 ase.write(D + NAME + '.aseprite', ['Body', 'Hand points'], frames, tags, N, N, 450)
 assert ase.read(D + NAME + '.aseprite')[0] == len(frames)
 json.dump(meta, open(D + NAME + '.json', 'w'), indent=1)
