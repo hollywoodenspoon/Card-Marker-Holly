@@ -41,68 +41,69 @@ def render(parts, eyes=(), extra=()):
       if any(n in col for n in [(x-1,y),(x+1,y),(x,y-1),(x,y+1)]): px[x,y]=OUT+(255,)
   return im
 
+def trap(y0,y1,top,bot,cx):
+  # rows from y0..y1, width tapering from top to bot, centred on cx
+  out=set()
+  for y in range(y0,y1+1):
+    t=(y-y0)/max(1,y1-y0); w=top+(bot-top)*t
+    for x in range(round(cx-w/2),round(cx+w/2)): out.add((x,y))
+  return out
+
 def view(v, breathe):
+  """RO-like proportions: a big round head (~45% of the height), a small tapered body,
+  slim arms, short legs and chunky feet. Feet on row 44."""
   b=1 if breathe else 0
   up=lambda s: shift(s,0,b)
-  P=[]
+  hx={'front':24,'front34':23,'side':23,'back34':24,'back':24}[v]
+  head=up(ell(hx,17,8.5,8))
   if v=='front':
-    legs=[('legL','skin',rect(19,36,21,42)),('legR','skin',rect(26,36,28,42)),
-          ('footL','skin',rect(18,43,21,44)),('footR','skin',rect(26,43,29,44))]
-    shorts=('shorts','shorts',rect(18,31,29,37)-rect(23,36,24,37))
-    torso=('torso','shirt',up(rect(17,22,30,31,cut=1)))
-    armL=[('slvL','shirt',up(rect(14,22,16,26))),('armL','skin',up(rect(14,27,16,33)))]
-    armR=[('slvR','shirt',up(rect(31,22,33,26))),('armR','skin',up(rect(31,27,33,33)))]
-    neck=('neck','skin',up(rect(22,19,25,21)))
-    head=up(ell(23.5,14,7,6.5))
-    hair=up({p for p in ell(23.5,13.2,7.6,7) if p[1]<=11 or (p[1]<=15 and (p[0]<=17 or p[0]>=30))})
-    P=legs+[shorts]+armL+armR+[torso,neck,('head','skin',head),('hair','hair',hair)]
-    eyes=[(20,15+b),(20,16+b),(27,15+b),(27,16+b)]
+    hair=up({p for p in ell(24,15.6,9.3,8.8) if p[1]<=13 or (p[1]<=15 and (p[0]+p[1])%3) or (p[1]<=21 and (p[0]<=17 or p[0]>=31))})
+    torso=up(trap(25,32,11,9,24.5)); neck=up(rect(23,24,25,25))
+    arms=[('armL','skin',up(trap(26,32,2,2,17.5)|rect(16,32,18,33))),('armR','skin',up(trap(26,32,2,2,31.5)|rect(30,32,32,33))),
+          ('slvL','shirt',up(rect(17,25,19,28))),('slvR','shirt',up(rect(29,25,31,28)))]
+    legs=[('legL','skin',rect(20,37,22,41)),('legR','skin',rect(26,37,28,41)),
+          ('footL','skin',rect(19,42,22,43)),('footR','skin',rect(26,42,29,43))]
+    shorts=('shorts','shorts',rect(19,32,29,37)-rect(23,36,25,37))
+    P=legs+[shorts,('torso','shirt',torso)]+arms+[('neck','skin',neck),('head','skin',head),('hair','hair',hair)]
+    eyes=[(x,y+b) for x in (20,21,27,28) for y in (18,19,20)]
   elif v=='front34':
-    legs=[('legR','skin',rect(25,36,27,42)),('footR','skin',rect(25,43,28,44)),
-          ('legL','skin',rect(19,36,21,42)),('footL','skin',rect(17,43,21,44))]
-    shorts=('shorts','shorts',rect(18,31,28,37)-rect(22,36,23,37))
-    torso=('torso','shirt',up(rect(18,22,29,31,cut=1)))
-    armB=[('slvB','shirt',up(rect(16,22,17,26))),('armB','skin',up(rect(16,27,17,32)))]
-    armF=[('slvF','shirt',up(rect(29,22,31,26))),('armF','skin',up(rect(29,27,31,33)))]
-    neck=('neck','skin',up(rect(21,19,24,21)))
-    head=up(ell(22.5,14,7,6.5))
-    hair=up({p for p in ell(23.3,13.2,7.6,7) if p[1]<=11 or (p[1]<=17 and p[0]>=26) or (p[1]<=14 and p[0]<=17)})
-    P=armB+legs+[shorts,torso]+armF+[neck,('head','skin',head),('hair','hair',hair)]
-    eyes=[(18,15+b),(18,16+b),(24,15+b),(24,16+b)]
+    hair=up({p for p in ell(24,15.6,9.3,8.8) if p[1]<=13 or (p[1]<=15 and (p[0]+p[1])%3) or (p[1]<=22 and p[0]>=28) or (p[1]<=18 and p[0]<=16)})
+    torso=up(trap(25,32,10,8,24)); neck=up(rect(22,24,24,25))
+    armB=[('slvB','shirt',up(rect(18,25,19,28))),('armB','skin',up(trap(27,32,2,2,18.5)|rect(18,32,19,33)))]
+    armF=[('slvF','shirt',up(rect(28,25,30,28))),('armF','skin',up(trap(26,32,2,2,29.5)|rect(28,32,30,33)))]
+    legs=[('legR','skin',rect(25,37,27,41)),('footR','skin',rect(25,42,28,43)),
+          ('legL','skin',rect(20,37,22,41)),('footL','skin',rect(18,42,22,43))]
+    shorts=('shorts','shorts',rect(19,32,28,37)-rect(23,36,24,37))
+    P=armB+legs+[shorts,('torso','shirt',torso)]+armF+[('neck','skin',neck),('head','skin',head),('hair','hair',hair)]
+    eyes=[(x,y+b) for x in (18,19,24,25) for y in (18,19,20)]
   elif v=='side':
-    legs=[('legB','skin',rect(23,36,25,42)),('footB','skin',rect(21,43,25,44)),
-          ('legF','skin',rect(21,36,23,42)),('footF','skin',rect(19,43,23,44))]
-    shorts=('shorts','shorts',rect(20,31,26,37))
-    torso=('torso','shirt',up(rect(20,22,27,31,cut=1)))
-    arm=[('slv','shirt',up(rect(22,22,25,26))),('arm','skin',up(rect(22,27,24,33)))]
-    neck=('neck','skin',up(rect(22,19,25,21)))
-    head=up(ell(23,14,6.5,6.5))
-    hair=up({p for p in ell(24,13.2,7,7) if p[1]<=11 or p[0]>=24 and p[1]<=18})
-    P=legs+[shorts,torso]+[neck,('head','skin',head),('hair','hair',hair)]+arm
-    eyes=[(19,15+b),(19,16+b)]
+    hair=up({p for p in ell(24,15.6,9,8.8) if p[1]<=13 or p[0]>=23 and p[1]<=23})
+    torso=up(trap(25,32,7,6,24)); neck=up(rect(22,24,24,25))
+    arm=[('slv','shirt',up(rect(23,25,25,28))),('arm','skin',up(rect(23,29,24,33)))]
+    legs=[('legB','skin',rect(23,37,25,41)),('footB','skin',rect(21,42,25,43)),
+          ('legF','skin',rect(21,37,23,41)),('footF','skin',rect(18,42,23,43))]
+    shorts=('shorts','shorts',rect(20,32,27,37))
+    P=legs+[shorts,('torso','shirt',torso),('neck','skin',neck),('head','skin',head),('hair','hair',hair)]+arm
+    eyes=[(x,y+b) for x in (16,17) for y in (18,19,20)]
   elif v=='back34':
-    legs=[('legL','skin',rect(19,36,21,42)),('footL','skin',rect(18,43,21,44)),
-          ('legR','skin',rect(25,36,27,42)),('footR','skin',rect(25,43,28,44))]
-    shorts=('shorts','shorts',rect(18,31,28,37)-rect(22,36,23,37))
-    torso=('torso','shirt',up(rect(18,22,29,31,cut=1)))
-    armF=[('slvF','shirt',up(rect(16,22,18,26))),('armF','skin',up(rect(16,27,18,33)))]
-    armB=[('slvB','shirt',up(rect(29,22,30,26))),('armB','skin',up(rect(29,27,30,32)))]
-    neck=('neck','skin',up(rect(22,19,25,21)))
-    head=up(ell(23.5,14,7,6.5))
-    hair=up({p for p in ell(23.5,13.6,7.6,7) if not (p[0]<=18 and p[1]>=15)})
-    P=legs+[shorts]+armB+[torso,neck,('head','skin',head),('hair','hair',hair)]+armF
+    hair=up({p for p in ell(24.3,16,9.3,9) if not (p[0]<=17 and p[1]>=17)})
+    torso=up(trap(25,32,10,8,24.5)); neck=up(rect(23,24,25,25))
+    armF=[('slvF','shirt',up(rect(18,25,20,28))),('armF','skin',up(trap(26,32,2,2,18.5)|rect(17,32,19,33)))]
+    armB=[('slvB','shirt',up(rect(29,25,30,28))),('armB','skin',up(trap(27,32,2,2,29.5)|rect(29,32,30,33)))]
+    legs=[('legL','skin',rect(20,37,22,41)),('footL','skin',rect(19,42,22,43)),
+          ('legR','skin',rect(25,37,27,41)),('footR','skin',rect(25,42,28,43))]
+    shorts=('shorts','shorts',rect(19,32,28,37)-rect(23,36,24,37))
+    P=legs+[shorts]+armB+[('torso','shirt',torso),('neck','skin',neck),('head','skin',head),('hair','hair',hair)]+armF
     eyes=[]
   else:
-    legs=[('legL','skin',rect(19,36,21,42)),('legR','skin',rect(26,36,28,42)),
-          ('footL','skin',rect(19,43,21,44)),('footR','skin',rect(26,43,28,44))]
-    shorts=('shorts','shorts',rect(18,31,29,37)-rect(23,36,24,37))
-    torso=('torso','shirt',up(rect(17,22,30,31,cut=1)))
-    armL=[('slvL','shirt',up(rect(14,22,16,26))),('armL','skin',up(rect(14,27,16,33)))]
-    armR=[('slvR','shirt',up(rect(31,22,33,26))),('armR','skin',up(rect(31,27,33,33)))]
-    neck=('neck','skin',up(rect(22,19,25,21)))
-    head=up(ell(23.5,14,7,6.5))
-    hair=up(ell(23.5,13.6,7.6,7))
-    P=legs+[shorts]+armL+armR+[torso,neck,('head','skin',head),('hair','hair',hair)]
+    hair=up(ell(24,16,9.3,9))
+    torso=up(trap(25,32,11,9,24.5)); neck=up(rect(23,24,25,25))
+    arms=[('armL','skin',up(trap(26,32,2,2,17.5)|rect(16,32,18,33))),('armR','skin',up(trap(26,32,2,2,31.5)|rect(30,32,32,33))),
+          ('slvL','shirt',up(rect(17,25,19,28))),('slvR','shirt',up(rect(29,25,31,28)))]
+    legs=[('legL','skin',rect(20,37,22,41)),('legR','skin',rect(26,37,28,41)),
+          ('footL','skin',rect(20,42,22,43)),('footR','skin',rect(26,42,28,43))]
+    shorts=('shorts','shorts',rect(19,32,29,37)-rect(23,36,25,37))
+    P=legs+[shorts,('torso','shirt',torso)]+arms+[('neck','skin',neck),('head','skin',head),('hair','hair',hair)]
     eyes=[]
   return render(P,eyes)
 
