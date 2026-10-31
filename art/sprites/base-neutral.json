@@ -407,6 +407,103 @@
      "weaponBehind": true
     }
    }
+  },
+  "ready": {
+   "frames": 1,
+   "ms": [
+    400
+   ],
+   "loop": true,
+   "views": {
+    "south": {
+     "tag": "ready-south",
+     "row": 16,
+     "hand": [
+      [
+       37,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "south-east": {
+     "tag": "ready-south-east",
+     "row": 17,
+     "hand": [
+      [
+       40,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "east": {
+     "tag": "ready-east",
+     "row": 18,
+     "hand": [
+      [
+       44,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "north-east": {
+     "tag": "ready-north-east",
+     "row": 19,
+     "hand": [
+      [
+       51,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "north": {
+     "tag": "ready-north",
+     "row": 20,
+     "hand": [
+      [
+       54,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "north-west": {
+     "tag": "ready-north-west",
+     "row": 21,
+     "hand": [
+      [
+       52,
+       58
+      ]
+     ],
+     "weaponBehind": true
+    },
+    "west": {
+     "tag": "ready-west",
+     "row": 22,
+     "hand": [
+      [
+       48,
+       58
+      ]
+     ],
+     "weaponBehind": true
+    },
+    "south-west": {
+     "tag": "ready-south-west",
+     "row": 23,
+     "hand": [
+      [
+       39,
+       58
+      ]
+     ],
+     "weaponBehind": true
+    }
+   }
   }
  }
 }

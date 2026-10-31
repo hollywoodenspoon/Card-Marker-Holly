@@ -20,6 +20,7 @@ BEHIND = {'south': False, 'south-east': False, 'east': False, 'north-east': Fals
 ANIMS = [
     ('stand', 2, [500, 400], [0, 1], (120, 160, 220)),
     ('walk', 6, [120] * 6, [0] * 6, (120, 200, 140)),
+    ('ready', 1, [400], [0], (220, 150, 110)),
 ]
 # Set by eye where the automatic guess (hand_point) lands off the fist.
 OVERRIDES = {}

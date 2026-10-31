@@ -31,6 +31,8 @@ def foot_dy(imgs):
 
 # PixelLab's animation names -> ours.
 ANIM_NAMES = {'Walking': 'walk', 'Walk': 'walk'}
+# PixelLab's extra states (folder names start with these) -> our one-frame poses.
+STATE_NAMES = {'Fighting_pose': 'ready'}
 
 
 def breathe(cell):
@@ -53,6 +55,16 @@ if __name__ == '__main__':
         sheet.alpha_composite(cell, (0, r * N))
         sheet.alpha_composite(breathe(cell), (N, r * N))
     sheet.save(f'art/sprites/parts/{name}-stand.png')
+    # Extra states (other standing poses): <folder>/states/<State>/rotations/<direction>.png
+    state_root = os.path.join(src, 'states')
+    for folder in sorted(os.listdir(state_root)) if os.path.isdir(state_root) else []:
+        pose = next((v for k, v in STATE_NAMES.items() if folder.startswith(k)), folder.lower())
+        strip = Image.new('RGBA', (N, N * len(DIRS)))
+        for r, d in enumerate(DIRS):
+            img = Image.open(os.path.join(state_root, folder, 'rotations', d + '.png')).convert('RGBA')
+            strip.alpha_composite(moved(img, foot_dy([img])), (0, r * N))
+        strip.save(f'art/sprites/parts/{name}-{pose}.png')
+        print(pose, '1 frame')
     anim_root = os.path.join(src, 'animations')
     for folder in sorted(os.listdir(anim_root)) if os.path.isdir(anim_root) else []:
         anim = ANIM_NAMES.get(folder, folder.lower())
