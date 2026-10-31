@@ -1,6 +1,6 @@
 """Turns a Gemini turnaround (5 views in a row on magenta) into a clean 64 x 64 sprite strip.
-Run from the repo root: python3 scripts/sprites/cleanup.py <image> [flip views, e.g. 234]
-Writes art/sprites/base-stand.png (5 views x 2 frames: standing, breathing)."""
+Run from the repo root: python3 scripts/sprites/cleanup.py <image> <flip views, e.g. 234> <name>
+Writes art/sprites/<name>.png (5 views x 2 frames: standing, breathing) and a 6x preview."""
 import sys
 from collections import deque
 from PIL import Image
@@ -53,6 +53,9 @@ def to_cell(fig, scale):
     for y in range(h):
         for x in range(w):
             r, g, b, a = sp[x, y]
+            # Edge pixels blended with the magenta background become the dark outline.
+            if r > 110 and b > 90 and b - g > 40:
+                r, g, b = 58, 34, 40
             sp[x, y] = (r, g, b, 255 if a > 140 else 0)
     cell = Image.new('RGBA', (CELL, CELL))
     cell.alpha_composite(small, ((CELL - w) // 2, CELL - FOOT - h))
@@ -70,6 +73,7 @@ def breathe(cell, waist):
 if __name__ == '__main__':
     im = Image.open(sys.argv[1]).convert('RGB')
     flip = sys.argv[2] if len(sys.argv) > 2 else ''
+    name = sys.argv[3] if len(sys.argv) > 3 else 'base'
     figs = figures(im, flip)
     scale = TALL / max(f.height for f in figs)   # one scale for all views, so sizes match
     cells = [to_cell(f, scale) for f in figs]
@@ -81,8 +85,8 @@ if __name__ == '__main__':
     # one shared palette
     rgb = sheet.convert('RGB').quantize(48, method=Image.Quantize.FASTOCTREE).convert('RGB')
     rgb.putalpha(sheet.getchannel('A'))
-    rgb.save('art/sprites/base-stand.png')
+    rgb.save(f'art/sprites/{name}.png')
     big = rgb.resize((rgb.width * 6, rgb.height * 6), Image.NEAREST)
     bg = Image.new('RGBA', big.size, (70, 74, 84, 255)); bg.alpha_composite(big)
-    bg.save('art/sprites/base-stand-preview.png')
+    bg.save(f'art/sprites/{name}-preview.png')
     print('waist row', waist, 'scale', round(scale, 4))

@@ -1,5 +1,5 @@
-"""Builds base-template.aseprite, .png and .json from base-stand.png (run cleanup.py first).
-Run from the repo root: python3 scripts/sprites/build.py"""
+"""Builds <name>.aseprite and <name>.json from <name>.png (run cleanup.py first).
+Run from the repo root: python3 scripts/sprites/build.py <name>   (base-male, base-female)"""
 import json, os, sys
 sys.path.insert(0, os.path.dirname(__file__))
 from PIL import Image
@@ -21,11 +21,15 @@ def hand_point(cell, side):
     x, y = max(near, key=lambda p: p[1])
     return (x + (2 if side == 'left' else -2), y - 1)
 
-sheet = Image.open(D + 'base-stand.png')
-sheet.save(D + 'base-template.png')
-frames, tags = [], []
+NAME = sys.argv[1] if len(sys.argv) > 1 else 'base-male'
+sheet = Image.open(D + NAME + '.png')
 # Set by eye where the automatic guess (hand_point) lands off the fist.
-HANDS = {'side': (33, 38), 'back34': (41, 40), 'back': (42, 42)}
+OVERRIDES = {
+    'base-male': {'side': (33, 38), 'back34': (41, 40), 'back': (42, 42)},
+    'base-female': {'side': (34, 41), 'back34': (42, 38), 'back': (42, 41)},
+}
+frames, tags = [], []
+HANDS = dict(OVERRIDES.get(NAME, {}))
 meta = {'frame': {'w': N, 'h': N}, 'baseline': N - 5, 'views': V,
         'mirror': {'front34': 'front-right34', 'side': 'right', 'back34': 'back-right34'},
         'animations': {}}
@@ -43,6 +47,6 @@ meta['animations']['stand'] = {
     'frames': 2, 'ms': [500, 400], 'loop': True,
     'views': {v: {'tag': f'stand-{v}', 'hand': [[HANDS[v][0], HANDS[v][1] + f] for f in range(2)],
                   'weaponBehind': BEHIND[v]} for v in V}}
-ase.write(D + 'base-template.aseprite', ['Body', 'Hand points'], frames, tags, N, N, 450)
-assert ase.read(D + 'base-template.aseprite')[0] == len(frames)
-json.dump(meta, open(D + 'base-template.json', 'w'), indent=1)
+ase.write(D + NAME + '.aseprite', ['Body', 'Hand points'], frames, tags, N, N, 450)
+assert ase.read(D + NAME + '.aseprite')[0] == len(frames)
+json.dump(meta, open(D + NAME + '.json', 'w'), indent=1)
