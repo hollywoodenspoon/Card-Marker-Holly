@@ -1,82 +1,238 @@
 # Animation prompts (Gemini)
 
-These prompts make the animation frames for the base characters (`art/sprites/base-male.png`, `base-female.png`). They follow how Final Fantasy Tactics does it:
-- The character is drawn **without a weapon**, holding an **empty grip** (a closed fist with a gap for a handle).
-- Weapons are separate sprites drawn at a few fixed angles. Each attack frame says which angle the weapon is at, so any weapon drawn later fits.
+How to make every animation for one base character in one fresh Gemini chat.
 
-## How to use
+**How it works:**
+- **Message 1 (setup)** sets all the rules once, with the character's turnaround attached.
+- **Every later message** is a short request, like `WALK — FRONT`. Gemini answers each with one row of frames.
 
-- **One image = one animation in one view.** That's a single row of frames, so 5 images per animation (front, front-left ¾, left, back-left ¾, back). Small jobs keep Gemini consistent.
-- Use a **fresh chat per character** and attach that base's turnaround (the Gemini original in `art/sprites/source/`). Stay in that chat for all of the character's animations.
-- Fill in the `[ ]` parts from the animation list below. Send me each image and I'll put it on the sheet.
+One request = one animation in one view. That's what keeps Gemini consistent; a whole sheet in one image falls apart.
 
-## The prompt
+Use a **separate fresh chat for each character** (male, female). Attach the turnaround image from `art/sprites/source/` (`gemini-male.jpg` or `gemini-female-large.jpg`).
+
+---
+
+## Message 1: setup (attach the turnaround)
 
 ```
-Using the attached character EXACTLY (same body, proportions, face, hair, grey undershirt and
-shorts, colours, outline, pixel scale and high camera angle), create ONE row of animation
-frames for an isometric tactics RPG, in the style of Final Fantasy Tactics and Ragnarok Online
-sprites.
+You are my sprite artist for an isometric tactics RPG. The attached image is the BASE
+CHARACTER, shown in five views. For the rest of this chat, every time I send a short request
+like "WALK — FRONT", you draw ONE image: ONE row of animation frames of THIS character,
+following every rule below exactly. Do not draw anything until I send a request. Reply
+"Ready" now.
 
-ANIMATION: [NAME]
-VIEW: [VIEW] — the same direction in every frame of this row.
-  (FRONT = facing the viewer; FRONT-LEFT 3/4 = facing toward the LEFT edge of the image and
-  toward the viewer; LEFT SIDE = profile facing the LEFT edge; BACK-LEFT 3/4 = turned away,
-  facing the upper-LEFT; BACK = facing away.)
-FRAMES: [N], left to right in time order:
-[FRAME LIST]
+=== STYLE ===
+- Final Fantasy Tactics (PS1) unit sprites and Ragnarok Online character sprites, with an
+  anime face.
+- Soft hand-painted pixel shading, warm muted tones, readable silhouettes.
+- A high camera angle: the camera looks DOWN at the character at about 30 degrees. The top
+  of the head is visible, the legs are slightly foreshortened, and the feet are small shapes
+  seen from above. This never changes.
 
-WEAPON HAND (important):
-- The character holds NO weapon. Weapons are added later as separate sprites.
-- The right hand is a closed grip, as if holding a sword handle: a fist with a small gap
-  through it. Keep that grip in every frame, even when the arm moves.
-- Pose the arm exactly as if a sword were held, at the angle given for each frame.
+=== THE CHARACTER (never changes) ===
+- Exactly the character in the attached image: same face, hair, body proportions, height,
+  skin, grey undershirt, grey shorts, bare feet and colours.
+- Only the pose changes. Never add clothes, armour, accessories, effects or a weapon.
 
-RULES:
-- The exact same character and size in every frame. Only the pose changes.
-- 8x scale: every sprite pixel is an exact 8x8 block of one flat colour. Crisp edges, no blur,
-  no anti-aliasing, no gradients.
-- Each frame sits in its own 512 x 512 cell. Image size: exactly [N x 512] x 512 pixels, no
-  gaps, no margins, no divider lines.
-- The feet stay on the same line in every cell, 32 pixels above the bottom edge (except
-  jumps and falls, as described).
-- The character stays horizontally centred in its cell and never crosses into another cell.
-- Background: flat solid magenta #FF00FF only. No shadow, no floor, no motion lines, no
-  effects, no text, no labels.
+=== THE WEAPON HAND (important) ===
+- The character NEVER holds a weapon. Weapons are added later as separate sprites, the way
+  Final Fantasy Tactics does.
+- The RIGHT hand is always a closed GRIP: a fist with a small gap through it, as if holding
+  a sword handle, unless a frame says the hand is open.
+- When a frame gives a WEAPON ANGLE, pose the arm and wrist exactly as if a sword were in the
+  grip pointing that way. The angles, always relative to the way the character faces:
+  UP, UP-FORWARD, FORWARD, DOWN-FORWARD, DOWN, BACK, UP-BACK.
+
+=== THE FIVE VIEWS (my request names one) ===
+- FRONT: facing the viewer directly. Nose pointing at the viewer, both eyes equally visible.
+- FRONT-LEFT: three-quarter view, turned toward the LEFT edge of the image and toward the
+  viewer. Nose pointing down-left.
+- LEFT: full side profile. Nose pointing to the LEFT edge of the image. One eye visible.
+- BACK-LEFT: three-quarter view from behind, turned away, facing the upper-LEFT. Back of the
+  head visible, face hidden.
+- BACK: facing directly away from the viewer. Face not visible.
+- Every frame in the row faces the SAME direction. Never face right.
+
+=== FORMAT (every image) ===
+- One row of frames, left to right in time order.
+- Every frame sits in its own 512 x 512 pixel cell. The image is exactly (number of frames x
+  512) wide and 512 tall: 1 frame = 512, 2 = 1024, 3 = 1536, 4 = 2048. No gaps, no margins,
+  no borders, no divider lines.
+- Pixel art at 8x scale: every sprite pixel is an exact 8 x 8 block of one flat colour. Crisp
+  square edges. No anti-aliasing, blur, gradients or noise.
+- The character is the same size as in the attached image (about 448 pixels tall when
+  standing), horizontally centred in each cell, never crossing into another cell.
+- The feet touch the same line in every cell: 32 pixels above the bottom edge (except jumps,
+  falls and poses that say otherwise).
+- A one-pixel dark warm outline (not black). Light from the top-left. 3 shades per material.
+  The same colours in every frame.
+- Background: flat solid magenta #FF00FF in every pixel not covered by the character. No
+  shadow, floor, motion lines, effects, text, numbers, labels or watermark.
+- PNG if possible.
 ```
 
-## The animations
+---
 
-The weapon angle is where an imaginary sword points: **up**, **up-forward**, **forward**, **down-forward**, **down**, **back** or **up-back**. "Forward" means the way the character faces.
+## Then one message per request
 
-| Animation | Frames | Frame list (paste into `[FRAME LIST]`) |
+Send these one at a time, starting each with the request line.
+
+After the first one of each animation, the next views only need the request line (e.g. `WALK — LEFT`). Gemini remembers the frame list. If a later view goes wrong, paste the full message again with the new view.
+
+### Core battle animations (do these first)
+
+**Walk (4 frames)**
+```
+WALK — FRONT
+4 frames:
+1. Contact: left foot stepped forward, right foot back; right arm swings forward, left arm back.
+2. Passing: legs together under the body, arms at the sides; the whole body 1 sprite pixel higher.
+3. Contact: RIGHT foot stepped forward, left foot back; LEFT arm swings forward, right arm back.
+4. Passing: legs together under the body, arms at the sides; the whole body 1 sprite pixel higher.
+Frames 1 and 3 must step with DIFFERENT legs. The grip hand hangs down, weapon angle DOWN.
+```
+
+**Attack: swing (3 frames)**
+```
+ATTACK SWING — FRONT
+3 frames:
+1. Wind-up: grip raised high behind the head, weapon angle UP-BACK; weight on the back foot,
+   body leaning back slightly.
+2. Strike: stepping forward, the arm extended forward at shoulder height, weapon angle
+   FORWARD; the body twisted into the swing.
+3. Follow-through: the arm low in front, weapon angle DOWN-FORWARD, body leaning in, front
+   knee bent.
+```
+
+**Hurt (1 frame)**
+```
+HURT — FRONT
+1 frame: recoiling backward from a hit; head tilted back, one eye shut, teeth gritted; arms
+pulled in toward the chest; weapon angle DOWN; feet still on the foot line.
+```
+
+**Knocked out (1 frame)**
+```
+KNOCKED OUT — FRONT
+1 frame: lying flat on the ground on the back, eyes closed, arms loose at the sides, the
+whole body along the bottom of the cell (it may lie diagonally to fit), fully inside the
+cell. Grip hand relaxed and open.
+```
+
+### More battle animations
+
+**Attack: thrust (2 frames)**
+```
+ATTACK THRUST — FRONT
+2 frames:
+1. Draw back: grip pulled back to the hip, weapon angle FORWARD, knees bent, weight back.
+2. Lunge: the arm fully extended forward, weapon angle FORWARD, front foot stepped forward,
+   body leaning in.
+```
+
+**Ready / guard (1 frame)**
+```
+READY — FRONT
+1 frame: feet apart, knees slightly bent, grip held in front of the chest, weapon angle
+UP-FORWARD, alert expression.
+```
+
+**Cast / use item (2 frames)**
+```
+CAST — FRONT
+2 frames:
+1. Both hands together in front of the chest, eyes closed, concentrating.
+2. Both arms raised up and forward, both hands OPEN with palms out, eyes open.
+```
+
+**Kneel / low health (1 frame)**
+```
+KNEEL — FRONT
+1 frame: down on one knee, the other foot flat; the grip hand resting on the ground beside
+the knee, weapon angle DOWN; head lowered, tired. The knee and foot on the foot line.
+```
+
+**Jump (2 frames)**
+```
+JUMP — FRONT
+2 frames:
+1. Crouch: knees deeply bent, arms swung back, ready to jump.
+2. In the air: feet tucked up, arms raised, the whole body 48 pixels above the usual foot
+   line.
+```
+
+**Victory (2 frames)**
+```
+VICTORY — FRONT
+2 frames:
+1. Grip raised straight up above the head, weapon angle UP, big smile.
+2. The same pose with a small hop, the whole body 16 pixels higher.
+```
+
+### Emotes and idle
+
+**Talk (2 frames)**
+```
+TALK — FRONT
+2 frames:
+1. Standing, head tilted slightly up, mouth open.
+2. Head nodded down by 1 sprite pixel, mouth closed.
+```
+
+**Surprised (1 frame)**
+```
+SURPRISED — FRONT
+1 frame: leaning back, eyes wide, mouth open, both hands raised near the shoulders.
+```
+
+**Sad (1 frame)**
+```
+SAD — FRONT
+1 frame: head down, shoulders slumped, arms hanging loosely, eyes looking down.
+```
+
+**Sit (1 frame)**
+```
+SIT — FRONT
+1 frame: sitting on the ground, knees up, arms resting on the knees. The seat on the foot
+line.
+```
+
+---
+
+## Order and count
+
+For each animation, do the views in this order: FRONT, FRONT-LEFT, LEFT, BACK-LEFT, BACK.
+
+| Animation | Frames | Images (5 views) |
 | --- | --- | --- |
-| Walk | 4 | 1) contact: left foot forward, right arm forward; 2) passing: legs together, body 1 pixel higher; 3) contact: right foot forward, left arm forward; 4) passing: legs together, body 1 pixel higher. The grip hand swings gently, weapon angle: down. |
-| Attack: swing | 3 | 1) wind-up: grip raised high behind the head, weapon angle up-back, weight on the back foot; 2) strike: arm extended forward at shoulder height, weapon angle forward, stepping in; 3) follow-through: arm low in front, weapon angle down-forward, body leaning in. |
-| Attack: thrust | 2 | 1) draw back: grip pulled back to the hip, weapon angle forward, knees bent; 2) lunge: arm fully extended forward, weapon angle forward, front foot stepped forward. |
-| Ready / guard | 1 | Feet apart, knees slightly bent, grip held in front of the chest, weapon angle up-forward. |
-| Cast / use item | 2 | 1) both hands together in front of the chest, eyes closed; 2) both arms raised up and forward, palms open (the grip hand opens). |
-| Hurt | 1 | Recoiling backward from a hit, one eye shut, arms pulled in, weapon angle down. |
-| Kneel (low health) | 1 | Down on one knee, the grip hand resting on the ground, head lowered, weapon angle down. |
-| Knocked out | 1 | Lying flat on the ground on the back, eyes closed, inside the cell, the body along the bottom of the cell. |
-| Jump | 2 | 1) crouch: knees bent, arms back; 2) in the air: feet tucked up, body 6 pixels above the usual foot line, arms up. |
-| Victory | 2 | 1) grip raised straight up, weapon angle up; 2) the same with a small hop, body 2 pixels higher. |
-| Emote: talk | 2 | 1) standing, head slightly up, mouth open; 2) head nodded down 1 pixel, mouth closed. |
-| Emote: surprised | 1 | Leaning back, eyes wide, hands up near the shoulders. |
-| Emote: sad | 1 | Head down, shoulders slumped, arms hanging. |
-| Sit | 1 | Sitting on the ground, knees up, arms resting on the knees. |
+| Walk | 4 | 5 |
+| Attack swing | 3 | 5 |
+| Hurt | 1 | 5 |
+| Knocked out | 1 | 5 |
+| Thrust | 2 | 5 |
+| Ready | 1 | 5 |
+| Cast | 2 | 5 |
+| Kneel | 1 | 5 |
+| Jump | 2 | 5 |
+| Victory | 2 | 5 |
+| Talk | 2 | 5 |
+| Surprised | 1 | 5 |
+| Sad | 1 | 5 |
+| Sit | 1 | 5 |
 
-**Order:** walk → attack swing → hurt → knocked out first (the core of a tactics battle), then the rest.
+That's 70 images per character. The first four rows (20 images) are enough to start a battle.
+
+Send me the images as you go: name them in the message, e.g. "walk front". I'll check each one and put it on the sheet.
 
 ## Fix-up lines (same chat)
 
-- `Keep the exact same image size: W x 512, no margins.`
-- `Redo frame N only. Keep the others exactly the same.`
-- `Same character and size as the attached image. Do not change the face, hair or clothes.`
+- `Wrong direction. This is VIEW: <view>. <the view's description from the setup>.`
+- `Redo frame N only. Keep the other frames exactly the same.`
+- `Same character as the attached base image. Don't change the face, hair, clothes or size.`
 - `No weapon. The right hand is an empty closed grip.`
-- `The feet must stay on the same line in every frame.`
-- `Face the LEFT edge of the image in every frame.`
+- `Exact image size: <width> x 512, no margins or divider lines.`
+- `The feet must touch the same line in every frame.`
+- `Frames 1 and 3 must step with different legs.`
 
-## Weapons (later)
-
-Each weapon is drawn once at the 7 angles above (up, up-forward, forward, down-forward, down, back, up-back), with its handle on a marked grip pixel. The sprite JSON lists the hand point and the weapon angle for every frame, so the Engine puts the right weapon picture in the hand.
+If Gemini starts drifting (the character changes, or it ignores the rules), start a fresh chat with Message 1 again. It's quicker than arguing with it.
