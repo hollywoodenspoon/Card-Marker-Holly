@@ -1,0 +1,508 @@
+{
+  "group_id": "9f7b7cd0-3aaf-4771-b081-6b025c9ccdad",
+  "states": [
+    {
+      "character": {
+        "id": "de52416e-7725-4573-844a-06bb5d33c57e",
+        "name": "Idle",
+        "prompt": "A raganarok online female character, bald, no nose, base model mannequin. ",
+        "size": {
+          "width": 64,
+          "height": 64
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "high top-down",
+        "created_at": "2026-10-31T07:01:29.302351+00:00"
+      },
+      "folder": "Idle",
+      "frames": {
+        "rotations": {
+          "south": "Idle/rotations/south.png",
+          "south-east": "Idle/rotations/south-east.png",
+          "east": "Idle/rotations/east.png",
+          "north-east": "Idle/rotations/north-east.png",
+          "north": "Idle/rotations/north.png",
+          "north-west": "Idle/rotations/north-west.png",
+          "west": "Idle/rotations/west.png",
+          "south-west": "Idle/rotations/south-west.png"
+        },
+        "animations": {
+          "Walking": {
+            "east": [
+              "Idle/animations/Walking/east/frame_000.png",
+              "Idle/animations/Walking/east/frame_001.png",
+              "Idle/animations/Walking/east/frame_002.png",
+              "Idle/animations/Walking/east/frame_003.png",
+              "Idle/animations/Walking/east/frame_004.png",
+              "Idle/animations/Walking/east/frame_005.png"
+            ],
+            "south-west": [
+              "Idle/animations/Walking/south-west/frame_000.png",
+              "Idle/animations/Walking/south-west/frame_001.png",
+              "Idle/animations/Walking/south-west/frame_002.png",
+              "Idle/animations/Walking/south-west/frame_003.png",
+              "Idle/animations/Walking/south-west/frame_004.png",
+              "Idle/animations/Walking/south-west/frame_005.png"
+            ],
+            "west": [
+              "Idle/animations/Walking/west/frame_000.png",
+              "Idle/animations/Walking/west/frame_001.png",
+              "Idle/animations/Walking/west/frame_002.png",
+              "Idle/animations/Walking/west/frame_003.png",
+              "Idle/animations/Walking/west/frame_004.png",
+              "Idle/animations/Walking/west/frame_005.png"
+            ],
+            "north": [
+              "Idle/animations/Walking/north/frame_000.png",
+              "Idle/animations/Walking/north/frame_001.png",
+              "Idle/animations/Walking/north/frame_002.png",
+              "Idle/animations/Walking/north/frame_003.png",
+              "Idle/animations/Walking/north/frame_004.png",
+              "Idle/animations/Walking/north/frame_005.png"
+            ],
+            "north-east": [
+              "Idle/animations/Walking/north-east/frame_000.png",
+              "Idle/animations/Walking/north-east/frame_001.png",
+              "Idle/animations/Walking/north-east/frame_002.png",
+              "Idle/animations/Walking/north-east/frame_003.png",
+              "Idle/animations/Walking/north-east/frame_004.png",
+              "Idle/animations/Walking/north-east/frame_005.png"
+            ],
+            "south": [
+              "Idle/animations/Walking/south/frame_000.png",
+              "Idle/animations/Walking/south/frame_001.png",
+              "Idle/animations/Walking/south/frame_002.png",
+              "Idle/animations/Walking/south/frame_003.png",
+              "Idle/animations/Walking/south/frame_004.png",
+              "Idle/animations/Walking/south/frame_005.png"
+            ],
+            "south-east": [
+              "Idle/animations/Walking/south-east/frame_000.png",
+              "Idle/animations/Walking/south-east/frame_001.png",
+              "Idle/animations/Walking/south-east/frame_002.png",
+              "Idle/animations/Walking/south-east/frame_003.png",
+              "Idle/animations/Walking/south-east/frame_004.png",
+              "Idle/animations/Walking/south-east/frame_005.png"
+            ],
+            "north-west": [
+              "Idle/animations/Walking/north-west/frame_000.png",
+              "Idle/animations/Walking/north-west/frame_001.png",
+              "Idle/animations/Walking/north-west/frame_002.png",
+              "Idle/animations/Walking/north-west/frame_003.png",
+              "Idle/animations/Walking/north-west/frame_004.png",
+              "Idle/animations/Walking/north-west/frame_005.png"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "character": {
+        "id": "1c45b735-0bac-4a69-b9a7-eb373236c826",
+        "name": "Going into combat",
+        "prompt": "A raganarok online female character, bald, no nose, base model mannequin. ",
+        "size": {
+          "width": 64,
+          "height": 64
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "high top-down",
+        "created_at": "2026-10-31T07:04:31.521675+00:00"
+      },
+      "folder": "Going_into_combat",
+      "frames": {
+        "rotations": {
+          "south": "Going_into_combat/rotations/south.png",
+          "south-east": "Going_into_combat/rotations/south-east.png",
+          "east": "Going_into_combat/rotations/east.png",
+          "north-east": "Going_into_combat/rotations/north-east.png",
+          "north": "Going_into_combat/rotations/north.png",
+          "north-west": "Going_into_combat/rotations/north-west.png",
+          "west": "Going_into_combat/rotations/west.png",
+          "south-west": "Going_into_combat/rotations/south-west.png"
+        },
+        "animations": {
+          "Cross_Punch": {
+            "south-west": [
+              "Going_into_combat/animations/Cross_Punch/south-west/frame_000.png",
+              "Going_into_combat/animations/Cross_Punch/south-west/frame_001.png",
+              "Going_into_combat/animations/Cross_Punch/south-west/frame_002.png",
+              "Going_into_combat/animations/Cross_Punch/south-west/frame_003.png",
+              "Going_into_combat/animations/Cross_Punch/south-west/frame_004.png",
+              "Going_into_combat/animations/Cross_Punch/south-west/frame_005.png"
+            ],
+            "south-east": [
+              "Going_into_combat/animations/Cross_Punch/south-east/frame_000.png",
+              "Going_into_combat/animations/Cross_Punch/south-east/frame_001.png",
+              "Going_into_combat/animations/Cross_Punch/south-east/frame_002.png",
+              "Going_into_combat/animations/Cross_Punch/south-east/frame_003.png",
+              "Going_into_combat/animations/Cross_Punch/south-east/frame_004.png",
+              "Going_into_combat/animations/Cross_Punch/south-east/frame_005.png"
+            ],
+            "west": [
+              "Going_into_combat/animations/Cross_Punch/west/frame_000.png",
+              "Going_into_combat/animations/Cross_Punch/west/frame_001.png",
+              "Going_into_combat/animations/Cross_Punch/west/frame_002.png",
+              "Going_into_combat/animations/Cross_Punch/west/frame_003.png",
+              "Going_into_combat/animations/Cross_Punch/west/frame_004.png",
+              "Going_into_combat/animations/Cross_Punch/west/frame_005.png"
+            ],
+            "east": [
+              "Going_into_combat/animations/Cross_Punch/east/frame_000.png",
+              "Going_into_combat/animations/Cross_Punch/east/frame_001.png",
+              "Going_into_combat/animations/Cross_Punch/east/frame_002.png",
+              "Going_into_combat/animations/Cross_Punch/east/frame_003.png",
+              "Going_into_combat/animations/Cross_Punch/east/frame_004.png",
+              "Going_into_combat/animations/Cross_Punch/east/frame_005.png"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "character": {
+        "id": "77af8aee-4057-473c-88d9-a35a4a3e720d",
+        "name": "Kneeling on one knee",
+        "prompt": "A raganarok online female character, bald, no nose, base model mannequin. ",
+        "size": {
+          "width": 64,
+          "height": 64
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "high top-down",
+        "created_at": "2026-10-31T07:05:00.969216+00:00"
+      },
+      "folder": "Kneeling_on_one_knee",
+      "frames": {
+        "rotations": {
+          "south": "Kneeling_on_one_knee/rotations/south.png",
+          "south-east": "Kneeling_on_one_knee/rotations/south-east.png",
+          "east": "Kneeling_on_one_knee/rotations/east.png",
+          "north-east": "Kneeling_on_one_knee/rotations/north-east.png",
+          "north": "Kneeling_on_one_knee/rotations/north.png",
+          "north-west": "Kneeling_on_one_knee/rotations/north-west.png",
+          "west": "Kneeling_on_one_knee/rotations/west.png",
+          "south-west": "Kneeling_on_one_knee/rotations/south-west.png"
+        },
+        "animations": {}
+      }
+    },
+    {
+      "character": {
+        "id": "8d15814f-5504-491a-b796-c407d9a28785",
+        "name": "Knocked out on the g",
+        "prompt": "A raganarok online female character, bald, no nose, base model mannequin. ",
+        "size": {
+          "width": 64,
+          "height": 64
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "high top-down",
+        "created_at": "2026-10-31T07:09:06.281694+00:00"
+      },
+      "folder": "Knocked_out_on_the_g",
+      "frames": {
+        "rotations": {
+          "south": "Knocked_out_on_the_g/rotations/south.png",
+          "south-east": "Knocked_out_on_the_g/rotations/south-east.png",
+          "east": "Knocked_out_on_the_g/rotations/east.png",
+          "north-east": "Knocked_out_on_the_g/rotations/north-east.png",
+          "north": "Knocked_out_on_the_g/rotations/north.png",
+          "north-west": "Knocked_out_on_the_g/rotations/north-west.png",
+          "west": "Knocked_out_on_the_g/rotations/west.png",
+          "south-west": "Knocked_out_on_the_g/rotations/south-west.png"
+        },
+        "animations": {}
+      }
+    },
+    {
+      "character": {
+        "id": "f181c6c3-8991-47c8-8f19-1c8ba3310c54",
+        "name": "Knocked out face up",
+        "prompt": "A raganarok online female character, bald, no nose, base model mannequin. ",
+        "size": {
+          "width": 64,
+          "height": 64
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "high top-down",
+        "created_at": "2026-10-31T07:11:12.211542+00:00"
+      },
+      "folder": "Knocked_out_face_up",
+      "frames": {
+        "rotations": {
+          "south": "Knocked_out_face_up/rotations/south.png",
+          "south-east": "Knocked_out_face_up/rotations/south-east.png",
+          "east": "Knocked_out_face_up/rotations/east.png",
+          "north-east": "Knocked_out_face_up/rotations/north-east.png",
+          "north": "Knocked_out_face_up/rotations/north.png",
+          "north-west": "Knocked_out_face_up/rotations/north-west.png",
+          "west": "Knocked_out_face_up/rotations/west.png",
+          "south-west": "Knocked_out_face_up/rotations/south-west.png"
+        },
+        "animations": {}
+      }
+    },
+    {
+      "character": {
+        "id": "169e5551-af6a-41e3-a4e0-8008be044f6f",
+        "name": "About to slash their",
+        "prompt": "A raganarok online female character, bald, no nose, base model mannequin. ",
+        "size": {
+          "width": 64,
+          "height": 64
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "high top-down",
+        "created_at": "2026-10-31T07:15:34.405496+00:00"
+      },
+      "folder": "About_to_slash_their",
+      "frames": {
+        "rotations": {
+          "south": "About_to_slash_their/rotations/south.png",
+          "south-east": "About_to_slash_their/rotations/south-east.png",
+          "east": "About_to_slash_their/rotations/east.png",
+          "north-east": "About_to_slash_their/rotations/north-east.png",
+          "north": "About_to_slash_their/rotations/north.png",
+          "north-west": "About_to_slash_their/rotations/north-west.png",
+          "west": "About_to_slash_their/rotations/west.png",
+          "south-west": "About_to_slash_their/rotations/south-west.png"
+        },
+        "animations": {
+          "The_character_lunges_forward_while_the_right_arm_s": {
+            "north-0497690b": [
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-0497690b/frame_000.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-0497690b/frame_001.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-0497690b/frame_002.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-0497690b/frame_003.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-0497690b/frame_004.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-0497690b/frame_005.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-0497690b/frame_006.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-0497690b/frame_007.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-0497690b/frame_008.png"
+            ],
+            "south-east": [
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/south-east/frame_000.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/south-east/frame_001.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/south-east/frame_002.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/south-east/frame_003.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/south-east/frame_004.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/south-east/frame_005.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/south-east/frame_006.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/south-east/frame_007.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/south-east/frame_008.png"
+            ],
+            "north-west-0c182209": [
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-west-0c182209/frame_000.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-west-0c182209/frame_001.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-west-0c182209/frame_002.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-west-0c182209/frame_003.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-west-0c182209/frame_004.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-west-0c182209/frame_005.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-west-0c182209/frame_006.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-west-0c182209/frame_007.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-west-0c182209/frame_008.png"
+            ],
+            "north-west-0c8211e1": [
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-west-0c8211e1/frame_000.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-west-0c8211e1/frame_001.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-west-0c8211e1/frame_002.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-west-0c8211e1/frame_003.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-west-0c8211e1/frame_004.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-west-0c8211e1/frame_005.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-west-0c8211e1/frame_006.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-west-0c8211e1/frame_007.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-west-0c8211e1/frame_008.png"
+            ],
+            "north-153ae556": [
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-153ae556/frame_000.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-153ae556/frame_001.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-153ae556/frame_002.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-153ae556/frame_003.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-153ae556/frame_004.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-153ae556/frame_005.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-153ae556/frame_006.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-153ae556/frame_007.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-153ae556/frame_008.png"
+            ],
+            "north-east": [
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-east/frame_000.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-east/frame_001.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-east/frame_002.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-east/frame_003.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-east/frame_004.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-east/frame_005.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-east/frame_006.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-east/frame_007.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/north-east/frame_008.png"
+            ],
+            "west": [
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/west/frame_000.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/west/frame_001.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/west/frame_002.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/west/frame_003.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/west/frame_004.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/west/frame_005.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/west/frame_006.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/west/frame_007.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/west/frame_008.png"
+            ],
+            "east": [
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/east/frame_000.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/east/frame_001.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/east/frame_002.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/east/frame_003.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/east/frame_004.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/east/frame_005.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/east/frame_006.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/east/frame_007.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/east/frame_008.png"
+            ],
+            "south-west": [
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/south-west/frame_000.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/south-west/frame_001.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/south-west/frame_002.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/south-west/frame_003.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/south-west/frame_004.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/south-west/frame_005.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/south-west/frame_006.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/south-west/frame_007.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/south-west/frame_008.png"
+            ],
+            "south": [
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/south/frame_000.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/south/frame_001.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/south/frame_002.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/south/frame_003.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/south/frame_004.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/south/frame_005.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/south/frame_006.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/south/frame_007.png",
+              "About_to_slash_their/animations/The_character_lunges_forward_while_the_right_arm_s/south/frame_008.png"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "character": {
+        "id": "24ee6caf-b8cc-42c7-b343-abb978cfa12c",
+        "name": "About to jump",
+        "prompt": "A raganarok online female character, bald, no nose, base model mannequin. ",
+        "size": {
+          "width": 64,
+          "height": 64
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "high top-down",
+        "created_at": "2026-10-31T07:16:55.552214+00:00"
+      },
+      "folder": "About_to_jump",
+      "frames": {
+        "rotations": {
+          "south": "About_to_jump/rotations/south.png",
+          "south-east": "About_to_jump/rotations/south-east.png",
+          "east": "About_to_jump/rotations/east.png",
+          "north-east": "About_to_jump/rotations/north-east.png",
+          "north": "About_to_jump/rotations/north.png",
+          "north-west": "About_to_jump/rotations/north-west.png",
+          "west": "About_to_jump/rotations/west.png",
+          "south-west": "About_to_jump/rotations/south-west.png"
+        },
+        "animations": {}
+      }
+    },
+    {
+      "character": {
+        "id": "8c36cf44-a551-482d-8e4a-4be4aefad84b",
+        "name": "About to dodge back",
+        "prompt": "A raganarok online female character, bald, no nose, base model mannequin. ",
+        "size": {
+          "width": 64,
+          "height": 64
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "high top-down",
+        "created_at": "2026-10-31T07:19:31.010477+00:00"
+      },
+      "folder": "About_to_dodge_back",
+      "frames": {
+        "rotations": {
+          "south": "About_to_dodge_back/rotations/south.png",
+          "south-east": "About_to_dodge_back/rotations/south-east.png",
+          "east": "About_to_dodge_back/rotations/east.png",
+          "north-east": "About_to_dodge_back/rotations/north-east.png",
+          "north": "About_to_dodge_back/rotations/north.png",
+          "north-west": "About_to_dodge_back/rotations/north-west.png",
+          "west": "About_to_dodge_back/rotations/west.png",
+          "south-west": "About_to_dodge_back/rotations/south-west.png"
+        },
+        "animations": {
+          "The_character_initiates_a_sharp_reactive_shift_by": {
+            "south-east": [
+              "About_to_dodge_back/animations/The_character_initiates_a_sharp_reactive_shift_by/south-east/frame_000.png",
+              "About_to_dodge_back/animations/The_character_initiates_a_sharp_reactive_shift_by/south-east/frame_001.png",
+              "About_to_dodge_back/animations/The_character_initiates_a_sharp_reactive_shift_by/south-east/frame_002.png",
+              "About_to_dodge_back/animations/The_character_initiates_a_sharp_reactive_shift_by/south-east/frame_003.png",
+              "About_to_dodge_back/animations/The_character_initiates_a_sharp_reactive_shift_by/south-east/frame_004.png",
+              "About_to_dodge_back/animations/The_character_initiates_a_sharp_reactive_shift_by/south-east/frame_005.png",
+              "About_to_dodge_back/animations/The_character_initiates_a_sharp_reactive_shift_by/south-east/frame_006.png",
+              "About_to_dodge_back/animations/The_character_initiates_a_sharp_reactive_shift_by/south-east/frame_007.png",
+              "About_to_dodge_back/animations/The_character_initiates_a_sharp_reactive_shift_by/south-east/frame_008.png"
+            ],
+            "south-west": [
+              "About_to_dodge_back/animations/The_character_initiates_a_sharp_reactive_shift_by/south-west/frame_000.png",
+              "About_to_dodge_back/animations/The_character_initiates_a_sharp_reactive_shift_by/south-west/frame_001.png",
+              "About_to_dodge_back/animations/The_character_initiates_a_sharp_reactive_shift_by/south-west/frame_002.png",
+              "About_to_dodge_back/animations/The_character_initiates_a_sharp_reactive_shift_by/south-west/frame_003.png",
+              "About_to_dodge_back/animations/The_character_initiates_a_sharp_reactive_shift_by/south-west/frame_004.png",
+              "About_to_dodge_back/animations/The_character_initiates_a_sharp_reactive_shift_by/south-west/frame_005.png",
+              "About_to_dodge_back/animations/The_character_initiates_a_sharp_reactive_shift_by/south-west/frame_006.png",
+              "About_to_dodge_back/animations/The_character_initiates_a_sharp_reactive_shift_by/south-west/frame_007.png",
+              "About_to_dodge_back/animations/The_character_initiates_a_sharp_reactive_shift_by/south-west/frame_008.png"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "character": {
+        "id": "fb689894-bbf2-4fee-8e7c-2c27fb9c3033",
+        "name": "About to stab their",
+        "prompt": "A raganarok online female character, bald, no nose, base model mannequin. ",
+        "size": {
+          "width": 64,
+          "height": 64
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "high top-down",
+        "created_at": "2026-10-31T07:27:23.145066+00:00"
+      },
+      "folder": "About_to_stab_their",
+      "frames": {
+        "rotations": {
+          "south": "About_to_stab_their/rotations/south.png",
+          "south-east": "About_to_stab_their/rotations/south-east.png",
+          "east": "About_to_stab_their/rotations/east.png",
+          "north-east": "About_to_stab_their/rotations/north-east.png",
+          "north": "About_to_stab_their/rotations/north.png",
+          "north-west": "About_to_stab_their/rotations/north-west.png",
+          "west": "About_to_stab_their/rotations/west.png",
+          "south-west": "About_to_stab_their/rotations/south-west.png"
+        },
+        "animations": {}
+      }
+    }
+  ],
+  "export_version": "3.1",
+  "export_date": "2026-10-31T10:45:00.241483"
+}

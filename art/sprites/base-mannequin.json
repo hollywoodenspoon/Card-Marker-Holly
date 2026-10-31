@@ -1,0 +1,1549 @@
+{
+ "frame": {
+  "w": 96,
+  "h": 96
+ },
+ "baseline": 79,
+ "views": [
+  "south",
+  "south-east",
+  "east",
+  "north-east",
+  "north",
+  "north-west",
+  "west",
+  "south-west"
+ ],
+ "mirror": {},
+ "animations": {
+  "stand": {
+   "frames": 2,
+   "ms": [
+    450,
+    450
+   ],
+   "loop": true,
+   "views": {
+    "south": {
+     "tag": "stand-south",
+     "row": 0,
+     "hand": [
+      [
+       34,
+       58
+      ],
+      [
+       34,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "south-east": {
+     "tag": "stand-south-east",
+     "row": 1,
+     "hand": [
+      [
+       37,
+       58
+      ],
+      [
+       37,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "east": {
+     "tag": "stand-east",
+     "row": 2,
+     "hand": [
+      [
+       41,
+       58
+      ],
+      [
+       41,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "north-east": {
+     "tag": "stand-north-east",
+     "row": 3,
+     "hand": [
+      [
+       55,
+       58
+      ],
+      [
+       55,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "north": {
+     "tag": "stand-north",
+     "row": 4,
+     "hand": [
+      [
+       58,
+       58
+      ],
+      [
+       58,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "north-west": {
+     "tag": "stand-north-west",
+     "row": 5,
+     "hand": [
+      [
+       56,
+       58
+      ],
+      [
+       56,
+       58
+      ]
+     ],
+     "weaponBehind": true
+    },
+    "west": {
+     "tag": "stand-west",
+     "row": 6,
+     "hand": [
+      [
+       51,
+       58
+      ],
+      [
+       51,
+       58
+      ]
+     ],
+     "weaponBehind": true
+    },
+    "south-west": {
+     "tag": "stand-south-west",
+     "row": 7,
+     "hand": [
+      [
+       37,
+       58
+      ],
+      [
+       37,
+       58
+      ]
+     ],
+     "weaponBehind": true
+    }
+   }
+  },
+  "walk": {
+   "frames": 6,
+   "ms": [
+    120,
+    120,
+    120,
+    120,
+    120,
+    120
+   ],
+   "loop": true,
+   "views": {
+    "south": {
+     "tag": "walk-south",
+     "row": 8,
+     "hand": [
+      [
+       34,
+       58
+      ],
+      [
+       34,
+       58
+      ],
+      [
+       34,
+       58
+      ],
+      [
+       34,
+       58
+      ],
+      [
+       34,
+       58
+      ],
+      [
+       34,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "south-east": {
+     "tag": "walk-south-east",
+     "row": 9,
+     "hand": [
+      [
+       37,
+       58
+      ],
+      [
+       37,
+       58
+      ],
+      [
+       37,
+       58
+      ],
+      [
+       37,
+       58
+      ],
+      [
+       37,
+       58
+      ],
+      [
+       37,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "east": {
+     "tag": "walk-east",
+     "row": 10,
+     "hand": [
+      [
+       41,
+       58
+      ],
+      [
+       41,
+       58
+      ],
+      [
+       41,
+       58
+      ],
+      [
+       41,
+       58
+      ],
+      [
+       41,
+       58
+      ],
+      [
+       41,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "north-east": {
+     "tag": "walk-north-east",
+     "row": 11,
+     "hand": [
+      [
+       55,
+       58
+      ],
+      [
+       55,
+       58
+      ],
+      [
+       55,
+       58
+      ],
+      [
+       55,
+       58
+      ],
+      [
+       55,
+       58
+      ],
+      [
+       55,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "north": {
+     "tag": "walk-north",
+     "row": 12,
+     "hand": [
+      [
+       58,
+       58
+      ],
+      [
+       58,
+       58
+      ],
+      [
+       58,
+       58
+      ],
+      [
+       58,
+       58
+      ],
+      [
+       58,
+       58
+      ],
+      [
+       58,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "north-west": {
+     "tag": "walk-north-west",
+     "row": 13,
+     "hand": [
+      [
+       56,
+       58
+      ],
+      [
+       56,
+       58
+      ],
+      [
+       56,
+       58
+      ],
+      [
+       56,
+       58
+      ],
+      [
+       56,
+       58
+      ],
+      [
+       56,
+       58
+      ]
+     ],
+     "weaponBehind": true
+    },
+    "west": {
+     "tag": "walk-west",
+     "row": 14,
+     "hand": [
+      [
+       51,
+       58
+      ],
+      [
+       51,
+       58
+      ],
+      [
+       51,
+       58
+      ],
+      [
+       51,
+       58
+      ],
+      [
+       51,
+       58
+      ],
+      [
+       51,
+       58
+      ]
+     ],
+     "weaponBehind": true
+    },
+    "south-west": {
+     "tag": "walk-south-west",
+     "row": 15,
+     "hand": [
+      [
+       37,
+       58
+      ],
+      [
+       37,
+       58
+      ],
+      [
+       37,
+       58
+      ],
+      [
+       37,
+       58
+      ],
+      [
+       37,
+       58
+      ],
+      [
+       37,
+       58
+      ]
+     ],
+     "weaponBehind": true
+    }
+   }
+  },
+  "ready": {
+   "frames": 1,
+   "ms": [
+    400
+   ],
+   "loop": true,
+   "views": {
+    "south": {
+     "tag": "ready-south",
+     "row": 16,
+     "hand": [
+      [
+       34,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "south-east": {
+     "tag": "ready-south-east",
+     "row": 17,
+     "hand": [
+      [
+       37,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "east": {
+     "tag": "ready-east",
+     "row": 18,
+     "hand": [
+      [
+       41,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "north-east": {
+     "tag": "ready-north-east",
+     "row": 19,
+     "hand": [
+      [
+       55,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "north": {
+     "tag": "ready-north",
+     "row": 20,
+     "hand": [
+      [
+       58,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "north-west": {
+     "tag": "ready-north-west",
+     "row": 21,
+     "hand": [
+      [
+       56,
+       58
+      ]
+     ],
+     "weaponBehind": true
+    },
+    "west": {
+     "tag": "ready-west",
+     "row": 22,
+     "hand": [
+      [
+       51,
+       58
+      ]
+     ],
+     "weaponBehind": true
+    },
+    "south-west": {
+     "tag": "ready-south-west",
+     "row": 23,
+     "hand": [
+      [
+       37,
+       58
+      ]
+     ],
+     "weaponBehind": true
+    }
+   }
+  },
+  "slash": {
+   "frames": 9,
+   "ms": [
+    90,
+    90,
+    90,
+    90,
+    90,
+    90,
+    90,
+    90,
+    90
+   ],
+   "loop": false,
+   "views": {
+    "south": {
+     "tag": "slash-south",
+     "row": 24,
+     "hand": [
+      [
+       34,
+       58
+      ],
+      [
+       34,
+       58
+      ],
+      [
+       34,
+       58
+      ],
+      [
+       34,
+       58
+      ],
+      [
+       34,
+       58
+      ],
+      [
+       34,
+       58
+      ],
+      [
+       34,
+       58
+      ],
+      [
+       34,
+       58
+      ],
+      [
+       34,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "south-east": {
+     "tag": "slash-south-east",
+     "row": 25,
+     "hand": [
+      [
+       37,
+       58
+      ],
+      [
+       37,
+       58
+      ],
+      [
+       37,
+       58
+      ],
+      [
+       37,
+       58
+      ],
+      [
+       37,
+       58
+      ],
+      [
+       37,
+       58
+      ],
+      [
+       37,
+       58
+      ],
+      [
+       37,
+       58
+      ],
+      [
+       37,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "east": {
+     "tag": "slash-east",
+     "row": 26,
+     "hand": [
+      [
+       41,
+       58
+      ],
+      [
+       41,
+       58
+      ],
+      [
+       41,
+       58
+      ],
+      [
+       41,
+       58
+      ],
+      [
+       41,
+       58
+      ],
+      [
+       41,
+       58
+      ],
+      [
+       41,
+       58
+      ],
+      [
+       41,
+       58
+      ],
+      [
+       41,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "north-east": {
+     "tag": "slash-north-east",
+     "row": 27,
+     "hand": [
+      [
+       55,
+       58
+      ],
+      [
+       55,
+       58
+      ],
+      [
+       55,
+       58
+      ],
+      [
+       55,
+       58
+      ],
+      [
+       55,
+       58
+      ],
+      [
+       55,
+       58
+      ],
+      [
+       55,
+       58
+      ],
+      [
+       55,
+       58
+      ],
+      [
+       55,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "north": {
+     "tag": "slash-north",
+     "row": 28,
+     "hand": [
+      [
+       58,
+       58
+      ],
+      [
+       58,
+       58
+      ],
+      [
+       58,
+       58
+      ],
+      [
+       58,
+       58
+      ],
+      [
+       58,
+       58
+      ],
+      [
+       58,
+       58
+      ],
+      [
+       58,
+       58
+      ],
+      [
+       58,
+       58
+      ],
+      [
+       58,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "north-west": {
+     "tag": "slash-north-west",
+     "row": 29,
+     "hand": [
+      [
+       56,
+       58
+      ],
+      [
+       56,
+       58
+      ],
+      [
+       56,
+       58
+      ],
+      [
+       56,
+       58
+      ],
+      [
+       56,
+       58
+      ],
+      [
+       56,
+       58
+      ],
+      [
+       56,
+       58
+      ],
+      [
+       56,
+       58
+      ],
+      [
+       56,
+       58
+      ]
+     ],
+     "weaponBehind": true
+    },
+    "west": {
+     "tag": "slash-west",
+     "row": 30,
+     "hand": [
+      [
+       51,
+       58
+      ],
+      [
+       51,
+       58
+      ],
+      [
+       51,
+       58
+      ],
+      [
+       51,
+       58
+      ],
+      [
+       51,
+       58
+      ],
+      [
+       51,
+       58
+      ],
+      [
+       51,
+       58
+      ],
+      [
+       51,
+       58
+      ],
+      [
+       51,
+       58
+      ]
+     ],
+     "weaponBehind": true
+    },
+    "south-west": {
+     "tag": "slash-south-west",
+     "row": 31,
+     "hand": [
+      [
+       37,
+       58
+      ],
+      [
+       37,
+       58
+      ],
+      [
+       37,
+       58
+      ],
+      [
+       37,
+       58
+      ],
+      [
+       37,
+       58
+      ],
+      [
+       37,
+       58
+      ],
+      [
+       37,
+       58
+      ],
+      [
+       37,
+       58
+      ],
+      [
+       37,
+       58
+      ]
+     ],
+     "weaponBehind": true
+    }
+   }
+  },
+  "kneel": {
+   "frames": 1,
+   "ms": [
+    400
+   ],
+   "loop": true,
+   "views": {
+    "south": {
+     "tag": "kneel-south",
+     "row": 32,
+     "hand": [
+      [
+       34,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "south-east": {
+     "tag": "kneel-south-east",
+     "row": 33,
+     "hand": [
+      [
+       37,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "east": {
+     "tag": "kneel-east",
+     "row": 34,
+     "hand": [
+      [
+       41,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "north-east": {
+     "tag": "kneel-north-east",
+     "row": 35,
+     "hand": [
+      [
+       55,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "north": {
+     "tag": "kneel-north",
+     "row": 36,
+     "hand": [
+      [
+       58,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "north-west": {
+     "tag": "kneel-north-west",
+     "row": 37,
+     "hand": [
+      [
+       56,
+       58
+      ]
+     ],
+     "weaponBehind": true
+    },
+    "west": {
+     "tag": "kneel-west",
+     "row": 38,
+     "hand": [
+      [
+       51,
+       58
+      ]
+     ],
+     "weaponBehind": true
+    },
+    "south-west": {
+     "tag": "kneel-south-west",
+     "row": 39,
+     "hand": [
+      [
+       37,
+       58
+      ]
+     ],
+     "weaponBehind": true
+    }
+   }
+  },
+  "down-up": {
+   "frames": 1,
+   "ms": [
+    400
+   ],
+   "loop": true,
+   "views": {
+    "south": {
+     "tag": "down-up-south",
+     "row": 40,
+     "hand": [
+      [
+       34,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "south-east": {
+     "tag": "down-up-south-east",
+     "row": 41,
+     "hand": [
+      [
+       37,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "east": {
+     "tag": "down-up-east",
+     "row": 42,
+     "hand": [
+      [
+       41,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "north-east": {
+     "tag": "down-up-north-east",
+     "row": 43,
+     "hand": [
+      [
+       55,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "north": {
+     "tag": "down-up-north",
+     "row": 44,
+     "hand": [
+      [
+       58,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "north-west": {
+     "tag": "down-up-north-west",
+     "row": 45,
+     "hand": [
+      [
+       56,
+       58
+      ]
+     ],
+     "weaponBehind": true
+    },
+    "west": {
+     "tag": "down-up-west",
+     "row": 46,
+     "hand": [
+      [
+       51,
+       58
+      ]
+     ],
+     "weaponBehind": true
+    },
+    "south-west": {
+     "tag": "down-up-south-west",
+     "row": 47,
+     "hand": [
+      [
+       37,
+       58
+      ]
+     ],
+     "weaponBehind": true
+    }
+   }
+  },
+  "down-face": {
+   "frames": 1,
+   "ms": [
+    400
+   ],
+   "loop": true,
+   "views": {
+    "south": {
+     "tag": "down-face-south",
+     "row": 48,
+     "hand": [
+      [
+       34,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "south-east": {
+     "tag": "down-face-south-east",
+     "row": 49,
+     "hand": [
+      [
+       37,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "east": {
+     "tag": "down-face-east",
+     "row": 50,
+     "hand": [
+      [
+       41,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "north-east": {
+     "tag": "down-face-north-east",
+     "row": 51,
+     "hand": [
+      [
+       55,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "north": {
+     "tag": "down-face-north",
+     "row": 52,
+     "hand": [
+      [
+       58,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "north-west": {
+     "tag": "down-face-north-west",
+     "row": 53,
+     "hand": [
+      [
+       56,
+       58
+      ]
+     ],
+     "weaponBehind": true
+    },
+    "west": {
+     "tag": "down-face-west",
+     "row": 54,
+     "hand": [
+      [
+       51,
+       58
+      ]
+     ],
+     "weaponBehind": true
+    },
+    "south-west": {
+     "tag": "down-face-south-west",
+     "row": 55,
+     "hand": [
+      [
+       37,
+       58
+      ]
+     ],
+     "weaponBehind": true
+    }
+   }
+  },
+  "pose-slash": {
+   "frames": 1,
+   "ms": [
+    400
+   ],
+   "loop": true,
+   "views": {
+    "south": {
+     "tag": "pose-slash-south",
+     "row": 56,
+     "hand": [
+      [
+       34,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "south-east": {
+     "tag": "pose-slash-south-east",
+     "row": 57,
+     "hand": [
+      [
+       37,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "east": {
+     "tag": "pose-slash-east",
+     "row": 58,
+     "hand": [
+      [
+       41,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "north-east": {
+     "tag": "pose-slash-north-east",
+     "row": 59,
+     "hand": [
+      [
+       55,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "north": {
+     "tag": "pose-slash-north",
+     "row": 60,
+     "hand": [
+      [
+       58,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "north-west": {
+     "tag": "pose-slash-north-west",
+     "row": 61,
+     "hand": [
+      [
+       56,
+       58
+      ]
+     ],
+     "weaponBehind": true
+    },
+    "west": {
+     "tag": "pose-slash-west",
+     "row": 62,
+     "hand": [
+      [
+       51,
+       58
+      ]
+     ],
+     "weaponBehind": true
+    },
+    "south-west": {
+     "tag": "pose-slash-south-west",
+     "row": 63,
+     "hand": [
+      [
+       37,
+       58
+      ]
+     ],
+     "weaponBehind": true
+    }
+   }
+  },
+  "pose-stab": {
+   "frames": 1,
+   "ms": [
+    400
+   ],
+   "loop": true,
+   "views": {
+    "south": {
+     "tag": "pose-stab-south",
+     "row": 64,
+     "hand": [
+      [
+       34,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "south-east": {
+     "tag": "pose-stab-south-east",
+     "row": 65,
+     "hand": [
+      [
+       37,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "east": {
+     "tag": "pose-stab-east",
+     "row": 66,
+     "hand": [
+      [
+       41,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "north-east": {
+     "tag": "pose-stab-north-east",
+     "row": 67,
+     "hand": [
+      [
+       55,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "north": {
+     "tag": "pose-stab-north",
+     "row": 68,
+     "hand": [
+      [
+       58,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "north-west": {
+     "tag": "pose-stab-north-west",
+     "row": 69,
+     "hand": [
+      [
+       56,
+       58
+      ]
+     ],
+     "weaponBehind": true
+    },
+    "west": {
+     "tag": "pose-stab-west",
+     "row": 70,
+     "hand": [
+      [
+       51,
+       58
+      ]
+     ],
+     "weaponBehind": true
+    },
+    "south-west": {
+     "tag": "pose-stab-south-west",
+     "row": 71,
+     "hand": [
+      [
+       37,
+       58
+      ]
+     ],
+     "weaponBehind": true
+    }
+   }
+  },
+  "pose-jump": {
+   "frames": 1,
+   "ms": [
+    400
+   ],
+   "loop": true,
+   "views": {
+    "south": {
+     "tag": "pose-jump-south",
+     "row": 72,
+     "hand": [
+      [
+       34,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "south-east": {
+     "tag": "pose-jump-south-east",
+     "row": 73,
+     "hand": [
+      [
+       37,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "east": {
+     "tag": "pose-jump-east",
+     "row": 74,
+     "hand": [
+      [
+       41,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "north-east": {
+     "tag": "pose-jump-north-east",
+     "row": 75,
+     "hand": [
+      [
+       55,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "north": {
+     "tag": "pose-jump-north",
+     "row": 76,
+     "hand": [
+      [
+       58,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "north-west": {
+     "tag": "pose-jump-north-west",
+     "row": 77,
+     "hand": [
+      [
+       56,
+       58
+      ]
+     ],
+     "weaponBehind": true
+    },
+    "west": {
+     "tag": "pose-jump-west",
+     "row": 78,
+     "hand": [
+      [
+       51,
+       58
+      ]
+     ],
+     "weaponBehind": true
+    },
+    "south-west": {
+     "tag": "pose-jump-south-west",
+     "row": 79,
+     "hand": [
+      [
+       37,
+       58
+      ]
+     ],
+     "weaponBehind": true
+    }
+   }
+  },
+  "pose-dodge": {
+   "frames": 1,
+   "ms": [
+    400
+   ],
+   "loop": true,
+   "views": {
+    "south": {
+     "tag": "pose-dodge-south",
+     "row": 80,
+     "hand": [
+      [
+       34,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "south-east": {
+     "tag": "pose-dodge-south-east",
+     "row": 81,
+     "hand": [
+      [
+       37,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "east": {
+     "tag": "pose-dodge-east",
+     "row": 82,
+     "hand": [
+      [
+       41,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "north-east": {
+     "tag": "pose-dodge-north-east",
+     "row": 83,
+     "hand": [
+      [
+       55,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "north": {
+     "tag": "pose-dodge-north",
+     "row": 84,
+     "hand": [
+      [
+       58,
+       58
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "north-west": {
+     "tag": "pose-dodge-north-west",
+     "row": 85,
+     "hand": [
+      [
+       56,
+       58
+      ]
+     ],
+     "weaponBehind": true
+    },
+    "west": {
+     "tag": "pose-dodge-west",
+     "row": 86,
+     "hand": [
+      [
+       51,
+       58
+      ]
+     ],
+     "weaponBehind": true
+    },
+    "south-west": {
+     "tag": "pose-dodge-south-west",
+     "row": 87,
+     "hand": [
+      [
+       37,
+       58
+      ]
+     ],
+     "weaponBehind": true
+    }
+   }
+  }
+ }
+}

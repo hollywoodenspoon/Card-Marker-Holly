@@ -16,11 +16,20 @@ SIDE = {'south': 'left', 'south-east': 'left', 'east': 'left', 'north-east': 'ri
         'north': 'right', 'north-west': 'right', 'west': 'right', 'south-west': 'left'}
 BEHIND = {'south': False, 'south-east': False, 'east': False, 'north-east': False,
           'north': False, 'north-west': True, 'west': True, 'south-west': True}
-# Each animation: (strip name in parts/, frames, frame times in ms, hand y-offset per frame, tag colour)
+# Each pose or animation: (key, ms per frame, loops, tag colour). The frame count comes from its
+# strip in parts/; ones without a strip are skipped.
 ANIMS = [
-    ('stand', 2, [500, 400], [0, 1], (120, 160, 220)),
-    ('walk', 6, [120] * 6, [0] * 6, (120, 200, 140)),
-    ('ready', 1, [400], [0], (220, 150, 110)),
+    ('stand', 450, True, (120, 160, 220)),
+    ('walk', 120, True, (120, 200, 140)),
+    ('ready', 400, True, (220, 150, 110)),
+    ('slash', 90, False, (230, 110, 110)),
+    ('kneel', 400, True, (180, 140, 220)),
+    ('down-up', 400, True, (140, 140, 140)),
+    ('down-face', 400, True, (140, 140, 140)),
+    ('pose-slash', 400, True, (200, 200, 120)),
+    ('pose-stab', 400, True, (200, 200, 120)),
+    ('pose-jump', 400, True, (200, 200, 120)),
+    ('pose-dodge', 400, True, (200, 200, 120)),
 ]
 # Set by eye where the automatic guess (hand_point) lands off the fist.
 OVERRIDES = {}
@@ -38,8 +47,12 @@ def hand_point(cell, side):
     return (x + (2 if side == 'left' else -2), y - 1)
 
 
-NAME = sys.argv[1] if len(sys.argv) > 1 else 'base-neutral'
-anims = [a for a in ANIMS if os.path.exists(f'{D}parts/{NAME}-{a[0]}.png')]
+NAME = sys.argv[1] if len(sys.argv) > 1 else 'base-mannequin'
+anims = []
+for key, ms, loop, colour in ANIMS:
+    path = f'{D}parts/{NAME}-{key}.png'
+    if os.path.exists(path):
+        anims.append((key, Image.open(path).width // N, ms, loop, colour))
 stand = Image.open(f'{D}parts/{NAME}-stand.png')
 HANDS = dict(OVERRIDES.get(NAME, {}))
 for r, v in enumerate(V):
@@ -49,7 +62,7 @@ cols = max(a[1] for a in anims)
 sheet = Image.new('RGBA', (N * cols, N * len(V) * len(anims)))
 frames, tags = [], []
 meta = {'frame': {'w': N, 'h': N}, 'baseline': 79, 'views': V, 'mirror': {}, 'animations': {}}
-for ai, (anim, count, ms, dy, colour) in enumerate(anims):
+for ai, (anim, count, ms, loop, colour) in enumerate(anims):
     strip = Image.open(f'{D}parts/{NAME}-{anim}.png')
     views = {}
     for r, v in enumerate(V):
@@ -59,12 +72,12 @@ for ai, (anim, count, ms, dy, colour) in enumerate(anims):
             body = strip.crop((f * N, r * N, f * N + N, r * N + N))
             sheet.alpha_composite(body, (f * N, (ai * len(V) + r) * N))
             hp = Image.new('RGBA', (N, N))
-            hp.putpixel((x, y + dy[f]), (255, 0, 0, 255))
+            hp.putpixel((x, y), (255, 0, 0, 255))
             frames.append({0: body, 1: hp})
         tags.append((f'{anim}-{v}', start, start + count - 1, colour))
         views[v] = {'tag': f'{anim}-{v}', 'row': ai * len(V) + r,
-                    'hand': [[x, y + dy[f]] for f in range(count)], 'weaponBehind': BEHIND[v]}
-    meta['animations'][anim] = {'frames': count, 'ms': ms, 'loop': True, 'views': views}
+                    'hand': [[x, y] for f in range(count)], 'weaponBehind': BEHIND[v]}
+    meta['animations'][anim] = {'frames': count, 'ms': [ms] * count, 'loop': loop, 'views': views}
 sheet.save(f'{D}{NAME}.png')
 ase.write(f'{D}{NAME}.aseprite', ['Body', 'Hand points'], frames, tags, N, N, 450)
 assert ase.read(f'{D}{NAME}.aseprite')[0] == len(frames)
