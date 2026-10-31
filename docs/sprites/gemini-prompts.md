@@ -167,3 +167,5 @@ The results are `art/sprites/base-male.*` and `base-female.*` (`.png`, `.aseprit
 - 64 × 64 frames, with the feet on row 59;
 - 5 views × the Stand animation (standing + breathing);
 - a hand-point layer.
+
+The female base mixes two Gemini images. Front, back-¾ and back come from `gemini-female-large.jpg` (sharper). Front-¾ and side come from `gemini-female.jpg`, because the large image's views 2 and 3 came out broken. Each image is scaled on its own so all views stand 56 px tall.
