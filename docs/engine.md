@@ -197,7 +197,10 @@ unchanged; picture scenes live inside the game.
   `World.allCards`), or cards drawn by a booster's pool and chances. The list and every-card
   effects have a normal or foil choice. A list of cards in a
   piece is one text setting (`id,id*3`, see `events/cardList.ts`) edited by `CardListPicker`.
-  Open a booster has a "how many". Edit my deck with no deck picked opens the player's own.
+  Start a card game: the player plays their own deck (`runtime/cardGame.ts`: edited deck,
+  starting deck, else declined); the opponent is a picked deck or a character's league duelist.
+  The win flag is optional; the condition `cards.lastGame` (won / lost / declined) reads the
+  result. Open a booster has a "how many". Edit my deck with no deck picked opens the player's own.
 - `cards/autoAce.ts`: fills the Ace field (`Name_AS`) and text (`{ace}`) when the loaded cards
   are an Adventure Scuffle! pack and the game has neither; `EngineShell` runs it once per game
   per session after the cards load.

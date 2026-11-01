@@ -72,6 +72,27 @@ const worldPieces: PieceDef[] = [
   // Conditions
   {
     kind: 'condition',
+    id: 'cards.lastGame',
+    label: 'The last card game ended',
+    group: 'Cards',
+    sentence: 'the last card game {result}',
+    fields: [
+      {
+        key: 'result',
+        label: 'Result',
+        kind: 'select',
+        options: [
+          { value: 'won', label: 'was won by the player' },
+          { value: 'lost', label: 'was lost by the player' },
+          { value: 'declined', label: 'was declined (the player had no deck)' },
+        ],
+        default: 'won',
+      },
+    ],
+    test: (ctx, a) => ctx.world?.lastGame() === String(a.result ?? 'won'),
+  },
+  {
+    kind: 'condition',
     id: 'money.has',
     label: 'The player has money',
     group: 'Money and items',

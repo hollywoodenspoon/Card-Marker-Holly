@@ -71,6 +71,8 @@ export interface World {
   /** The player's points on a track, and their rating. */
   points: (track: string) => number
   rating: () => number
+  /** How the last card game ended: won, lost, declined (no deck), or '' (none yet). */
+  lastGame: () => string
   /** Draws and puts out a release; updates the ban list. */
   runRelease: (release: string) => Promise<void>
   updateBans: (lift: boolean) => Promise<void>
@@ -407,13 +409,23 @@ const builtins: PieceDef[] = [
     label: 'Start a card game',
     group: 'Cards',
     sentence:
-      'start a card game: {deckA} against {deckB} ({bot} bot), then set {won} if the player wins',
+      'start a card game: the player against {who} using {deckB} ({bot} bot); {won} is set if the player wins',
     fields: [
-      { key: 'deckA', label: 'Player deck', kind: 'deck' },
-      { key: 'deckB', label: 'Opponent deck', kind: 'deck' },
+      {
+        key: 'who',
+        label: 'Opponent',
+        kind: 'character',
+        blank: 'nobody in particular',
+      },
+      {
+        key: 'deckB',
+        label: 'Opponent deck',
+        kind: 'deck',
+        blank: 'the character’s own league deck',
+      },
       {
         key: 'bot',
-        label: 'Opponent',
+        label: 'Opponent plays',
         kind: 'select',
         options: [
           { value: 'easy', label: 'Easy' },
@@ -423,7 +435,7 @@ const builtins: PieceDef[] = [
         ],
         default: 'normal',
       },
-      { key: 'won', label: 'Flag for a win', kind: 'flag' },
+      { key: 'won', label: 'Flag for a win', kind: 'flag', blank: 'no flag' },
     ],
     run: (ctx, a) => ctx.call('cards.play', a),
   },

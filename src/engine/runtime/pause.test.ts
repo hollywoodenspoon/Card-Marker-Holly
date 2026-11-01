@@ -2,10 +2,10 @@ import 'fake-indexeddb/auto'
 import { describe, expect, it, vi } from 'vitest'
 import { useHandoff } from '@/playtest/handoff'
 import { useGameCards, type GameCardsState } from '../cards/gameCards'
-import { effect, newEvent } from '../model/events'
+import { effect, ifStep, newEvent } from '../model/events'
 import { newDeck, newGame, newPictureScene, newVariable } from '../model/game'
 import { readSave } from '../storage/saves'
-import { loadSnapshot, startRuntime, stopRuntime, useRuntime } from './runtime'
+import { answerRuntime, loadSnapshot, startRuntime, stopRuntime, useRuntime } from './runtime'
 
 vi.mock('@/app/workspace', () => ({
   useWorkspace: { getState: () => ({ playGame: () => undefined, go: () => undefined }) },
@@ -30,13 +30,14 @@ describe('pausing a card game', () => {
     const a = newDeck('A', { a: 2 })
     const b = newDeck('B', { b: 2 })
     g.decks.push(a, b)
+    g.economy.startingCards = a.id
     useGameCards.setState({
       gameId: g.id,
       status: 'ready',
       merged: { pack: { info: { cards: [] } } },
     } as unknown as Partial<GameCardsState>)
     const ev = newEvent({ piece: 'scene.start', args: {} })
-    ev.steps.push(effect('cards.play', { deckA: a.id, deckB: b.id, bot: 'easy', won: won.id }))
+    ev.steps.push(effect('cards.play', { deckB: b.id, bot: 'easy', won: won.id }))
     scene.events.push(ev)
 
     startRuntime(g)
@@ -63,5 +64,40 @@ describe('pausing a card game', () => {
     expect(useRuntime.getState().pendingMatch).toBeNull()
     stopRuntime()
     useHandoff.setState({ req: null })
+  })
+
+  it('declines a card game when the player has no deck, and the next steps can tell', async () => {
+    const g = newGame('NoDeck')
+    const scene = newPictureScene('Home')
+    g.scenes.push(scene)
+    g.startScene = scene.id
+    const b = newDeck('B', { b: 2 })
+    g.decks.push(b)
+    const won = newVariable('Won', 'flag')
+    g.variables.push(won)
+    useGameCards.setState({
+      gameId: g.id,
+      status: 'ready',
+      merged: { pack: { info: { cards: [] } } },
+    } as unknown as Partial<GameCardsState>)
+    const ev = newEvent({ piece: 'scene.start', args: {} })
+    ev.steps.push(effect('cards.play', { deckB: b.id, bot: 'easy' }))
+    ev.steps.push(
+      ifStep(
+        { piece: 'cards.lastGame', args: { result: 'declined' } },
+        [effect('flag.set', { flag: won.id, state: 'on' })],
+        [],
+      ),
+    )
+    scene.events.push(ev)
+
+    startRuntime(g)
+    await until(() => !!useRuntime.getState().message)
+    expect(useRuntime.getState().message).toBe('You need a deck to play a card game.')
+    expect(useHandoff.getState().req).toBeNull()
+    answerRuntime()
+    await until(() => useRuntime.getState().vars[won.id] === true)
+    expect(useRuntime.getState().vars[won.id]).toBe(true)
+    stopRuntime()
   })
 })
