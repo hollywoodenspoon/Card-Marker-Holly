@@ -63,8 +63,9 @@ describe('the Balance lab', () => {
         used((id) => !!rules(id)?.finalBlow),
       ]) {
         expect(all).toBeGreaterThan(0)
-        // Many come up in 150 games; before, none of them were ever counted.
-        expect(seen).toBeGreaterThan(all / 3)
+        // Many come up in 150 games; before, none of them were ever counted. (Pairs
+        // has fewer reveals, so fewer response windows, than the old one-at-a-time.)
+        expect(seen).toBeGreaterThanOrEqual(all / 3)
       }
     },
   )

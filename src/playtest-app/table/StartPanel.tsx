@@ -1,14 +1,16 @@
 import { Film, FlaskConical, Layers, Play, Trophy, TriangleAlert, Zap } from '@/ui/icons'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { BOT_LEVELS, BOT_NAMES, type BotLevel } from '@/adventure/bot'
 import { checkDeck } from '@/adventure/deck'
-import { REVEAL_LABELS, REVEAL_RULES, type RevealRule } from '@/adventure/state'
+import { DECK_LEVEL_NAMES, DECK_LEVELS, type DeckLevel } from '@/adventure/deckgen/build'
 import { listDecks, type DeckRow } from '@/playtest/library'
 import { randomSeed } from '@/playtest/rng'
 import { presets, validateSetup, type GameSetup } from '@/playtest/setup'
 import { deckCards } from '@/playtest/state'
+import { toast } from '@/ui/components/feedback'
 import { Button } from '@/ui/components/ui/button'
 import { Input, Label, NativeSelect } from '@/ui/components/ui/input'
+import { autoBuildDeck } from '../decks/autoBuildDeck'
 import { useDeckCards } from '../decks/useDeckCards'
 import { usePack } from './packContext'
 import type { RushRun } from './rushTally'
@@ -16,6 +18,10 @@ import { THINK_TIMES, usePlaytest, type Bots } from './usePlaytest'
 
 const ALL = '__all'
 const SAVED = 'saved:'
+/** Auto Build at a level: a new deck from the whole pack, built when the game starts. */
+const AUTO = 'auto:'
+const autoLevel = (choice: string) =>
+  choice.startsWith(AUTO) ? (choice.slice(AUTO.length) as DeckLevel) : null
 const KEY = 'cardmaker.playtest'
 
 const AS_SETUP = 'preset:adventure-scuffle'
@@ -28,7 +34,6 @@ function remembered(): {
   mode?: Mode
   levels?: BotLevel[]
   opening?: 'rps' | 'coin'
-  reveal?: RevealRule
 } {
   try {
     return JSON.parse(localStorage.getItem(KEY) ?? '{}')
@@ -42,7 +47,6 @@ function remember(v: {
   mode: Mode
   levels: BotLevel[]
   opening: 'rps' | 'coin'
-  reveal: RevealRule
 }) {
   try {
     localStorage.setItem(KEY, JSON.stringify(v))
@@ -87,7 +91,10 @@ export function StartPanel({
   )
   const setup = setups.find((s) => s.id === setupId) ?? setups[0]
   const valid = (id: string | undefined) =>
-    id === ALL || decks.some((d) => d.id === id) || saved.some((d) => SAVED + d.id === id)
+    id === ALL ||
+    decks.some((d) => d.id === id) ||
+    saved.some((d) => SAVED + d.id === id) ||
+    (!!id && DECK_LEVELS.some((l) => AUTO + l === id))
       ? id!
       : ''
   const fallback = decks.length ? decks.map((d) => d.id) : [ALL]
@@ -115,15 +122,19 @@ export function StartPanel({
   const list = useMemo(() => info.cards.map((c, order) => ({ ...c, order })), [info.cards])
   const savedDeck = (choice: string) =>
     choice.startsWith(SAVED) ? saved.find((d) => SAVED + d.id === choice) : undefined
+  /** A list of card ids as the table's cards, in the deck's order. */
+  const cardsOf = (ids: string[]) => {
+    const order = new Map(ids.map((id, i) => [id, i]))
+    return deckCards(
+      list.filter((c) => order.has(c.id)).sort((a, b) => order.get(a.id)! - order.get(b.id)!),
+      Object.fromEntries(ids.map((id) => [id, 1])),
+    )
+  }
   const cardsFor = (choice: string) => {
     const own = savedDeck(choice)
-    if (own) {
-      const order = new Map(own.cards.map((id, i) => [id, i]))
-      return deckCards(
-        list.filter((c) => order.has(c.id)).sort((a, b) => order.get(a.id)! - order.get(b.id)!),
-        Object.fromEntries(own.cards.map((id) => [id, 1])),
-      )
-    }
+    if (own) return cardsOf(own.cards)
+    // Auto Build: built when the game starts.
+    if (autoLevel(choice)) return null
     return choice === ALL
       ? deckCards(list, null)
       : choice
@@ -137,7 +148,6 @@ export function StartPanel({
   const [mode, setMode] = useState<Mode>(last.mode ?? 'free')
   const [levels, setLevels] = useState<BotLevel[]>(last.levels ?? ['normal', 'normal'])
   const [opening, setOpening] = useState<'rps' | 'coin'>(last.opening ?? 'rps')
-  const [reveal, setReveal] = useState<RevealRule>(last.reveal ?? 'classic')
   const thinkMs = usePlaytest((s) => s.thinkMs)
   // Against the bot you are Player 1; the bot plays Player 2.
   const botSeats = mode === 'bot' ? [1] : mode === 'botbot' || mode === 'rush' ? [0, 1] : []
@@ -146,18 +156,61 @@ export function StartPanel({
   const ruled = canRule && mode !== 'free'
   const ids = (i: number) => cardsFor(chosen[i])?.map((c) => c.cardId) ?? []
   const deckProblem = (i: number) => {
+    // An Auto Build deck is legal by construction.
+    if (autoLevel(chosen[i])) return null
     const c = checkDeck(ids(i), byId)
     return c.ok ? null : c.problems[0]
   }
   const blocked = ruled && setup.seats.some((_, i) => deckProblem(i))
 
-  const start = () => {
-    const picks = setup.seats.map((_, i) => chosen[i])
-    remember({ setupId: setup.id, decks: chosen, mode, levels, opening, reveal })
+  // Auto Build progress while the decks are built.
+  const [building, setBuilding] = useState<{ text: string; part: number } | null>(null)
+  const stopBuild = useRef(false)
+
+  const start = async () => {
+    remember({ setupId: setup.id, decks: chosen, mode, levels, opening })
+    // Build the Auto Build decks first (fresh each game).
+    const built: (string[] | null)[] = [null, null, null, null]
+    const autos = setup.seats.map((_, i) => autoLevel(chosen[i]))
+    if (autos.some(Boolean)) {
+      stopBuild.current = false
+      const packDecks = decks.map((d) => cardsFor(d.id)?.map((c) => c.cardId) ?? [])
+      try {
+        for (let i = 0; i < autos.length; i++) {
+          const level = autos[i]
+          if (!level) continue
+          const r = await autoBuildDeck(
+            pack.id,
+            deckCardsInfo.cards,
+            packDecks,
+            level,
+            (text, part) => setBuilding({ text: `${setup.seats[i].name}: ${text}`, part }),
+            () => stopBuild.current,
+          )
+          if (!r) return
+          built[i] = r.ids
+          toast(
+            `${setup.seats[i].name}'s ${DECK_LEVEL_NAMES[level]} deck: ${r.ids.map((id) => byId[id]?.name ?? id).join(', ')}.`,
+          )
+        }
+      } catch (e) {
+        toast(`Auto Build stopped: ${e instanceof Error ? e.message : String(e)}`)
+        return
+      } finally {
+        setBuilding(null)
+      }
+    }
+    const ids = (i: number) => built[i] ?? cardsFor(chosen[i])?.map((c) => c.cardId) ?? []
+    const picks = setup.seats.map((_, i) => (built[i] ? cardsOf(built[i]!) : cardsFor(chosen[i])))
     const pt = usePlaytest.getState()
     if (ruled && mode === 'rush') {
-      const deckName = (i: number) =>
-        savedDeck(chosen[i])?.name ?? decks.find((d) => d.id === chosen[i])?.name ?? 'All cards'
+      const deckName = (i: number) => {
+        const level = autoLevel(chosen[i])
+        if (level) return `${DECK_LEVEL_NAMES[level]} (Auto Build)`
+        return (
+          savedDeck(chosen[i])?.name ?? decks.find((d) => d.id === chosen[i])?.name ?? 'All cards'
+        )
+      }
       const names = [deckName(0), deckName(1)]
       // The same deck on both sides still needs two names to tell them apart.
       if (names[0] === names[1]) names[1] = `${names[1]} (2)`
@@ -184,11 +237,10 @@ export function StartPanel({
           ) as [string, string],
           seed: randomSeed(),
           opening,
-          reveal,
         },
         { hotseat: mode === 'hotseat', bots },
       )
-    else pt.start(pack.id, setup, picks.map(cardsFor))
+    else pt.start(pack.id, setup, picks)
   }
 
   return (
@@ -300,25 +352,6 @@ export function StartPanel({
         )}
         {ruled && mode !== 'rush' && (
           <div className="flex items-center gap-2">
-            <Label htmlFor="pt-reveal" className="w-28 shrink-0">
-              Reveal size
-            </Label>
-            <NativeSelect
-              id="pt-reveal"
-              value={reveal}
-              onChange={(e) => setReveal(e.target.value as RevealRule)}
-              data-testid="playtest-reveal"
-            >
-              {REVEAL_RULES.map((r) => (
-                <option key={r} value={r}>
-                  {REVEAL_LABELS[r]}
-                </option>
-              ))}
-            </NativeSelect>
-          </div>
-        )}
-        {ruled && mode !== 'rush' && (
-          <div className="flex items-center gap-2">
             <Label htmlFor="pt-opening" className="w-28 shrink-0">
               Initiative
             </Label>
@@ -381,6 +414,15 @@ export function StartPanel({
                       {decks.map((d) => (
                         <option key={d.id} value={d.id}>
                           {d.name}
+                        </option>
+                      ))}
+                    </optgroup>
+                  )}
+                  {canRule && (
+                    <optgroup label="Auto Build (a new deck each game)">
+                      {DECK_LEVELS.map((l) => (
+                        <option key={l} value={AUTO + l}>
+                          Auto Build: {DECK_LEVEL_NAMES[l]}
                         </option>
                       ))}
                     </optgroup>
@@ -470,9 +512,29 @@ export function StartPanel({
             one Ace.
           </p>
         )}
+        {building && (
+          <div
+            role="status"
+            className="flex flex-col gap-1 text-xs text-muted-foreground"
+            data-testid="auto-build-progress"
+          >
+            <div className="flex items-center justify-between gap-2">
+              <span>Auto Build · {building.text}</span>
+              <Button size="sm" variant="secondary" onClick={() => (stopBuild.current = true)}>
+                Stop
+              </Button>
+            </div>
+            <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+              <div
+                className="h-full bg-accent transition-[width]"
+                style={{ width: `${Math.round(building.part * 100)}%` }}
+              />
+            </div>
+          </div>
+        )}
         <Button
-          onClick={start}
-          disabled={errors.length > 0 || blocked}
+          onClick={() => void start()}
+          disabled={errors.length > 0 || blocked || !!building}
           data-testid="playtest-start-button"
         >
           {ruled && mode === 'rush' ? (

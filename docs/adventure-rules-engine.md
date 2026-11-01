@@ -4,18 +4,18 @@ The Mutual Reveal rules as code, in `src/adventure/`. It is plain TypeScript wit
 
 ## Files
 
-| File         | What it holds                                                                                      |
-| ------------ | -------------------------------------------------------------------------------------------------- |
-| `cards.ts`   | `AsCard`: a card's values read from the pack's `_AS` fields, with `archetypes` from `Archetype_AS` |
-| `deck.ts`    | Free Company check: 12 different cards, at most 1 Ace                                              |
-| `board.ts`   | The 2 × 3 field: slot numbers, neighbours, mirrored positions, names                               |
-| `state.ts`   | `AsState`, the whole game as plain data                                                            |
-| `engine.ts`  | `createGame`, `legalMoves`, `apply`, `prompt`                                                      |
-| `stats.ts`   | Card values and Engagement totals                                                                  |
-| `observe.ts` | `observeAs`: the game as one player may know it                                                    |
-| `table.ts`   | `toTable`: draws a game on the Hearthside Table setup                                              |
-| `effects/`   | Card abilities: `reader.ts` (reads the text), `blocks.ts`, `helpers.ts` (keywords), `registry.ts`  |
-| `fixtures/`  | Test cards (basic and The First Quest), random games, saved scripted games (JSON)                  |
+| File         | What it holds                                                                                                                                                              |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cards.ts`   | `AsCard`: a card's values read from the pack's `_AS` fields, with `archetypes` from `Archetype_AS`                                                                         |
+| `deck.ts`    | Free Company check: 12 different cards, at most 1 Ace                                                                                                                      |
+| `board.ts`   | The 2 × 3 field: slot numbers, neighbours, mirrored positions, names                                                                                                       |
+| `state.ts`   | `AsState`, the whole game as plain data                                                                                                                                    |
+| `engine.ts`  | `createGame`, `legalMoves`, `apply`, `prompt`                                                                                                                              |
+| `stats.ts`   | Card values and Engagement totals                                                                                                                                          |
+| `observe.ts` | `observeAs`: the game as one player may know it                                                                                                                            |
+| `table.ts`   | `toTable`: draws a game on the Hearthside Table setup                                                                                                                      |
+| `effects/`   | Card abilities: `reader.ts` (reads the text), `blocks.ts`, `mechanics.ts` (tokens, Hire, coins, Interpose, Endure, Living Weapons), `helpers.ts` (keywords), `registry.ts` |
+| `fixtures/`  | Test cards (basic, The First Quest, and `allCards.ts`: every card from `game/adventure-scuffle/cards.csv`), random games, saved scripted games (JSON)                      |
 
 ## The field
 
@@ -156,7 +156,7 @@ The card ability tests (`effects/cards.test.ts`) build small boards from `fixtur
 
 `lab/ladder.ts`: the bot ladder. `runLadder(input, options, exec, stopped)` plays a round robin of entrants (`LADDER_ENTRANTS`) on the pack's legal premades plus 6 random decks, seats swapped, in slices of 4 games (`ladder.worker.ts`). `fitRatings` is a Bradley–Terry fit (minorization–maximization) reported as Elo, Easy at 1000. `ladderReport` gives Markdown.
 
-`NewGame.reveal` (`'classic'`, `'pairs'` or `'triples'`; classic when left out) sets the reveal group size, stored in the state as `reveal`. `revealOptions(s, seat, count)` gives the opening reveal as a touching group (adjacent pairs, or connected triples on the 2×3 grid; all that's left when 3 or fewer face-down cards remain). Every later reveal is `count` cards (fewer only when fewer are face down), each next to a card already revealed on that field; they needn't touch each other. When too few cards are next to a revealed one, the group takes all of those and makes up the rest from the other face-down cards.
+`NewGame.reveal` sets the reveal group size, stored in the state as `reveal`. Pairs is the rule (Rulebook v2.6) and the default; `'classic'` (one at a time after the opening pairs) and `'triples'` only replay games saved before v2.6. A saved game without the field was played under Classic: `savedGame()` tags it when replays, saved games and paused Engine matches load. `revealOptions(s, seat, count)` gives the opening reveal as a touching group (adjacent pairs, or connected triples on the 2×3 grid; all that's left when 3 or fewer face-down cards remain). Every later reveal is `count` cards (fewer only when fewer are face down), each next to a card already revealed on that field; they needn't touch each other. When too few cards are next to a revealed one, the group takes all of those and makes up the rest from the other face-down cards.
 
 `sim/sim.ts`: `simulate({cards, decks, games, levels, seed})` plays bot games and counts:
 

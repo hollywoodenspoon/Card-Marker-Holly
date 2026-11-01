@@ -34,7 +34,8 @@ export function useHandoffStart() {
           names: req.names,
           seed: req.resume?.seed ?? randomSeed(),
           opening: 'rps',
-          reveal: 'classic',
+          // A paused match carries on under the rule it started with.
+          reveal: req.resume ? (req.resume.reveal ?? 'classic') : 'pairs',
         },
         { hotseat: !req.bot, bots: [null, req.bot], moves: req.resume?.moves },
       )

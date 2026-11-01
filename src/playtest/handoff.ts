@@ -6,11 +6,14 @@
  */
 import { create } from 'zustand'
 import type { Move } from '@/adventure/engine'
+import type { RevealRule } from '@/adventure/state'
 
 /** What a paused card game needs to start again: the seed and every move made so far. */
 export interface PausedMatch {
   seed: number
   moves: Move[][]
+  /** The reveal rule it started under (absent: paused before Rulebook v2.6, so Classic). */
+  reveal?: RevealRule
 }
 
 export interface MatchResult {

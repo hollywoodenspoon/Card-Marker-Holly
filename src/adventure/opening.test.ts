@@ -53,13 +53,14 @@ describe('the opening', () => {
     expect(observeAs(s, 0).rps).toEqual(['paper', null])
   })
 
-  it('bots get through it and the winner takes the initiative', () => {
+  it('bots get through it', () => {
     for (const level of ['easy', 'normal', 'hard'] as const) {
       let s = createGame(game({ opening: 'rps', seed: 11 }))
       for (let n = 0; n < 40 && (s.step.k === 'rps' || s.step.k === 'initiative'); n++) {
         const seat = s.step.seat
         const m = botMove(observeAs(s, seat), level, n + 1)
-        if (m.t === 'initiative') expect(m.take).toBe(true)
+        // Under pairs, going second can be worth it, so either answer is fine.
+        if (m.t === 'initiative') expect(typeof m.take).toBe('boolean')
         s = apply(s, m)
       }
       expect(s.step.k).toBe('place')

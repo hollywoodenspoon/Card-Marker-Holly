@@ -9,14 +9,39 @@ const printed = (s: AsState, card: string) => ({
   d: s.cards[card]?.d ?? 0,
 })
 
-/** A field card's Attack and Defense now: printed, plus its Inherent changes while face up. */
+/**
+ * A field card's Attack and Defense now: printed, plus its Inherent changes
+ * while face up, plus its own Living Weapon (not on an ability-active card, and
+ * a weapon on an opponent's card adds nothing), less its debuff tokens (never
+ * below 0).
+ */
 export function statsAt(s: AsState, seat: Seat, slot: number): { a: number; d: number } {
   const f = s.players[seat].field[slot]
   if (!f?.card) return { a: 0, d: 0 }
-  const v = printed(s, f.card)
+  let v = printed(s, f.card)
   const r = rulesOf(s, f.card)
-  return f.faceUp && r?.stat ? r.stat(s, seat, slot, v) : v
+  if (f.faceUp && r?.stat) v = r.stat(s, seat, slot, v)
+  if (f.weapon && f.weapon.owner === seat && f.state !== 'ability') {
+    const w = printed(s, f.weapon.card)
+    v = { a: v.a + w.a, d: v.d + w.d }
+  }
+  if (f.tokens) v = { a: Math.max(0, v.a - f.tokens.a), d: Math.max(0, v.d - f.tokens.d) }
+  return v
 }
+
+/** Does this field card have Interpose now (its own rule, or one given this round)? */
+export function interposes(s: AsState, seat: Seat, slot: number): boolean {
+  const f = s.players[seat].field[slot]
+  if (!f?.card || !f.faceUp) return false
+  return (
+    !!s.players[seat].round.interpose?.includes(f.card) ||
+    !!rulesOf(s, f.card)?.interpose?.(s, seat, slot)
+  )
+}
+
+/** Debuff tokens on a player's field (Terror counts the opponent's). */
+export const tokensOn = (s: AsState, seat: Seat) =>
+  s.players[seat].field.reduce((n, f) => n + (f.tokens ? f.tokens.a + f.tokens.d : 0), 0)
 
 export const attackAt = (s: AsState, seat: Seat, slot: number) => statsAt(s, seat, slot).a
 export const defenseAt = (s: AsState, seat: Seat, slot: number) => statsAt(s, seat, slot).d
@@ -73,7 +98,13 @@ function liveSides(s: AsState, attacker: Seat): EngagementSides | null {
     : [...new Set([...near(target), ...unbound(def, 'defense')])]
   const attackers = atkSlots.filter((i) => own[i].card && own[i].state === 'attacking')
   if (!attackers.includes(main)) attackers.push(main)
-  const defenders = defSlots.filter((i) => theirs[i].card && theirs[i].state === 'defending')
+  // Interpose: a defending card joins the defense stack wherever it is.
+  const defenders = all.filter(
+    (i) =>
+      theirs[i].card &&
+      theirs[i].state === 'defending' &&
+      (defSlots.includes(i) || interposes(s, def, i)),
+  )
   return {
     main,
     target,
@@ -137,6 +168,10 @@ export function engagementSides(s: AsState, attacker: Seat): EngagementSides | n
   const rd = s.players[def].round
   if (live && (defenseUnbound(s, def) || (rd.unbound ?? []).some((u) => u.side === 'defense')))
     for (const i of live.defenders) defenders.add(i)
+  // An Interpose that turns on during combat adds its card at once.
+  theirs.forEach((f, i) => {
+    if (f.card && f.state === 'defending' && interposes(s, def, i)) defenders.add(i)
+  })
   return {
     main: lock.origin,
     target: lock.target,
@@ -177,4 +212,17 @@ export function finalBlow(
   const entry = last && e.fs[last.seat][last.index]
   const n = entry && rulesOf(s, entry.card)?.finalBlow
   return last && entry && n ? { seat: last.seat, card: entry.card, n } : null
+}
+
+/**
+ * The defense stack a player's card is in: the cards defending against the
+ * opponent's attack (the Engagement's when one is on, else as it would form).
+ */
+export function defenseStack(s: AsState, seat: Seat): number[] {
+  return engagementSides(s, other(seat))?.defenders ?? []
+}
+
+/** The attack stack of a player: the Main Attacker and its helpers. */
+export function attackStack(s: AsState, seat: Seat): number[] {
+  return engagementSides(s, seat)?.attackers ?? []
 }

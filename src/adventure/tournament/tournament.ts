@@ -1,7 +1,7 @@
 import { shuffle } from '@/playtest/rng'
 import type { BotLevel } from '../bot'
 import type { Move } from '../engine'
-import type { Seat } from '../state'
+import type { RevealRule, Seat } from '../state'
 
 /**
  * Tournaments, as plain data and pure functions (portable, like the rules
@@ -100,6 +100,8 @@ export interface GameRecord {
   /** The fixed initiative given at the start (games 2+), or the opening used. */
   initiative?: Seat
   opening?: 'rps' | 'coin'
+  /** The reveal rule it was played under (absent: before Rulebook v2.6, Classic). */
+  reveal?: RevealRule
   winner: Seat | null
   moves: Move[]
   points: [number, number]

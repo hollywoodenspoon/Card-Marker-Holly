@@ -1,5 +1,6 @@
 import { rarelyUsed, type CardRow, type LabView } from './analyze'
 import type { AsCard } from '../cards'
+import { unreadParts } from '../effects/registry'
 import { STAGE_NAMES, type LabResult, type LabStage } from './run'
 
 /** The Balance lab's results as Markdown (for Copy report and the results file). */
@@ -50,6 +51,19 @@ export function labReport(r: LabResult, cards: AsCard[]): string {
     'The goal is a decent play rate for every card, not perfect balance. Value is in log-odds of winning (0 is an average card in that view). "Picked" is how often the auto-builder put the card in an Optimal deck when it could.',
     '',
   )
+  // A card the rules engine can't read plays with its stats only: its numbers mean little.
+  const unread = cards.filter((c) => unreadParts(c).length)
+  if (unread.length)
+    L.push(
+      `## ⚠ ${unread.length} card${unread.length === 1 ? '' : 's'} the rules engine can't read`,
+      '',
+      'These played with their stats only (no ability), so their results, and the decks they were in, are not reliable. The words it could not read are in quotes.',
+      '',
+      ...unread.map(
+        (c) => `- ${c.name}${c.code ? ` (${c.code})` : ''}: "${unreadParts(c).join('" / "')}"`,
+      ),
+      '',
+    )
   L.push('## Suggestions', '')
   if (!r.suggestions.length) L.push('Nothing stands out.', '')
   const ranks = { 1: 'Core set', 2: 'Breaks the game in the full pool', 3: 'The rest' }

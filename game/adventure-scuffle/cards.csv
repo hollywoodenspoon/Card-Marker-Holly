@@ -1,0 +1,189 @@
+Name_AS,Code_AS,Type_AS,FS_AS,A_AS,D_AS,Fate_AS,Ability_AS,Deck_AS,Archetype_AS
+Crimson Duelist {ace},TFQ-01,Field,2,4,4,293,May not be the target of an opponent's Field Ability.,Adventurer's Guild,
+Spirited Knight,TFQ-02,Battle,1,3,2,126,Attacking Side: +1 {fightingspirit_as}. Initiative: +1 {fightingspirit_as}.,Adventurer's Guild,
+Spiritforged Monk,TFQ-03,Battle,1,2,3,537,Initiative: +1 {fightingspirit_as}. Defending Side: +1 {fightingspirit_as}.,Adventurer's Guild,
+Strategic Vanguard,TFQ-04,Battle,1,2,3,550,Defending Side: You may swap one of your attackers to one of your defenders.,Adventurer's Guild,
+Decoy Ninja,TFQ-05,Battle,1,2,2,319,No-Initiative: You may swap this card's position with a ready card on your field.,Adventurer's Guild,
+Adventuring Ranger,TFQ-06,Flip,2,1,1,499,"Flip Ability, if an Adventuring card is also on your field: Opponent rests a card from their Support.",Adventurer's Guild,
+Adventuring Marksman,TFQ-07,Field,1,3,2,139,Opponent rests a card from their Support.,Adventurer's Guild,
+Adventuring Witch,TFQ-08,Field,2,2,2,332,Swap target opponent's ready card on the field with a random card from their Support. The card that enters the field inherits the state of the card it swapped with. The card it swapped with is rested.,Adventurer's Guild,
+Adventuring Quartermaster,TFQ-09,Field,1,2,3,563,Swap a card on your field with a card from your Support. The card placed on the field is Ready.,Adventurer's Guild,
+Adventuring Knight,TFQ-10,Flip,2,1,1,512,"Flip Ability, if an Adventuring card is also on your field: Swap the target opponent's card's position with another card on their field.",Adventurer's Guild,
+Mission Handler,TFQ-11,Support,3,2,1,229,Once per round: Swap a ready card's position with another ready card on your field. This card is not rested after use.,Adventurer's Guild,
+Adventuring Dragoon,TFQ-12,Support,2,2,2,344,Rest 1: Target opponent's card on the field is turned to the ability-active position without resolving its ability.,Adventurer's Guild,
+Hero of Rianz {ace},TFQ-13,Field,2,4,3,113,Attack Unbound: Non-adjacent cards are counted for attack.,Hero's Retinue,Rianz
+Barrier Wizard,TFQ-14,Battle,1,2,2,357,Defending Side: +1 {fightingspirit_as}. Initiative: +1 {fightingspirit_as}.,Hero's Retinue,
+Saboteur Guard,TFQ-15,Battle,2,1,2,615,"Attacking Side: Opponent rests a card from their Support, if able.",Hero's Retinue,
+Azure Assassin,TFQ-16,Flip,2,2,1,242,Flip Ability: Swap target opponent's ready card on the field with a random card from their Support. The card that enters the field inherits the state of the card it swapped with.,Hero's Retinue,
+Rianz Swindler,TFQ-17,Field,1,2,2,370,Swap the target opponent's card's position with another card on their field.,Hero's Retinue,Rianz
+Weapon Master,TFQ-18,Inherent,1,3,2,151,Center: +1 {defense_as}. Flank: +1 {attack_as}.,Hero's Retinue,
+Trusted Shield-Bearer,TFQ-19,Inherent,1,2,3,576,Flank: +1 {attack_as}. Center: +1 {defense_as}.,Hero's Retinue,
+Rianz Sentinel,TFQ-20,Support,2,2,2,383,Reveal this card. Once per round: your opponent reveals a random card from their Support to you.,Hero's Retinue,Rianz
+Light Dragoon,TFQ-21,Support,2,2,2,396,Swap this card's position with another card on your field. This card inherits the state of the card it swapped with.,Hero's Retinue,
+Ranger of the Tower,TFQ-22,Inherent,2,2,2,409,This card cannot be repositioned by an opponent's ability.,Hero's Retinue,
+Rianz Emissary,TFQ-23,Inherent,1,2,2,422,If a Rianz card is also on your field: +1 {attack_as}. If a Rianz card is in your rest zone: +1 {defense_as}.,Hero's Retinue,Rianz
+Howling Barbarian,TFQ-24,Flip,1,3,2,164,"Flip Ability: This card is included in your attacking group this round, regardless of its Fate Number rank.",Hero's Retinue,
+Necromancer of Rotos {ace},TFQ-25,Inherent,3,3,3,306,3+ Rest Zone: Defense Unbound.,Necromancer Deck,
+Grave Jackal,TFQ-26,Battle,1,3,2,177,"Initiative, 3+ Rest Zone: +1 {fightingspirit_as}. If a Grave card is also on your field: +1 {fightingspirit_as}.",Necromancer Deck,Grave
+Grave Bloodsucker,TFQ-27,Battle,1,2,2,434,"No-Initiative, 3+ Rest Zone: +1 {fightingspirit_as}. If a Grave card is also on your field: +1 {fightingspirit_as}.",Necromancer Deck,Grave
+Grave Whisperer,TFQ-28,Inherent,2,2,2,447,If a Grave card is also on your field: +1 {attack_as}. If a Grave card is in your rest zone: +1 {defense_as}.,Necromancer Deck,Grave
+Grave Acolyte,TFQ-29,Support,3,1,2,627,"Return a Grave card from your rest zone to your Support. If a Grave card is in your rest zone, this card does not need to be rested after use.",Necromancer Deck,Grave
+Grave Reclaimer,TFQ-30,Field,2,2,2,460,"Swap the position of a Grave card on your field (this card included) with another card on your field. To choose a face-down Grave card, show it to your opponent; it stays face down.",Necromancer Deck,Grave
+Grave Keeper,TFQ-31,Field,2,2,2,473,Rest 1: Target a ready card on the opponent's field. It is turned to the ability-active position without resolving its ability.,Necromancer Deck,Grave
+Ghoulish Assassin,TFQ-32,Rest,2,2,1,254,If a Ghoulish card is also on your field: You may use this card for Fighting Spirit this Engagement. It gets +1 {fightingspirit_as}.,Necromancer Deck,Ghoulish
+Ghoulish Mammoth,TFQ-33,Rest,2,1,2,640,If a Ghoulish card is in your rest zone: You may use this card for Fighting Spirit this Engagement. It gets +1 {fightingspirit_as}.,Necromancer Deck,Ghoulish
+Ghoulish Stalker,TFQ-34,Battle,1,3,2,190,If a Ghoulish card was revealed as Fighting Spirit this Engagement: +1 {fightingspirit_as}.,Necromancer Deck,Ghoulish
+Undead Chimera,TFQ-35,Rest,2,2,1,267,Won First Engagement: You may use this card for Fighting Spirit this Engagement. It gets +1 {fightingspirit_as}.,Necromancer Deck,
+Abominable Bishop,TFQ-36,Rest,2,1,2,653,Lost Previous Engagement: You may use this card for Fighting Spirit this Engagement. It gets +1 {fightingspirit_as}.,Necromancer Deck,
+Unassuming Mage {ace},TFQ-37,Inherent,3,1,1,305,"If opponent has an Ace on their field: +3 {attack_as} and +3 {defense_as}. If opponent has a Fear card on their field: In the Skirmish, each time you get a response opportunity, you may first swap this card's position with another card on your field.",Bonus Cards,
+Coin-Toss Bravo,TFQ-38,Battle,1,3,1,100,"Flip a coin when revealed: Heads +2 {fightingspirit_as}, Tails +0 {fightingspirit_as} instead of printed value.",Bonus Cards,
+Ghoulish Trickster,TFQ-39,Flip,1,2,2,486,"Flip Ability: Swap the position of a Ghoulish card on your field (this card included) with another card on your field. To choose a face-down Ghoulish card, show it to your opponent; it stays face down.",Bonus Cards,Ghoulish
+Lucky Charm Bearer,TFQ-40,Battle,1,2,3,589,If you have 2 or more cards in your rest zone: +1 {fightingspirit_as}.,Bonus Cards,
+Runaway Familiar,TFQ-41,Inherent,1,2,1,280,"Whenever this card would be rested, it goes to your Support instead. This card cannot be rested to pay a cost.",Bonus Cards,
+Backwards Blade,TFQ-42,Inherent,2,1,3,666,2+ Rest Zone: This card's {attack_as} Value and {defense_as} Value are swapped.,Bonus Cards,
+Gambler's Gambit,TFQ-43,Rest,1,2,3,602,"Second Engagement: Flip a coin. Heads: you may use this card for Fighting Spirit this Engagement, and it gets +2 {fightingspirit_as}. Tails: nothing happens, and you may still reveal Fighting Spirit or pass.",Bonus Cards,
+Living Weapon Dusk,TFQ-44,Rest,1,2,1,437,No-Initiative: Attach this card to a ready card on your field.,Bonus Cards,Living Weapon
+Fear the First Shadow,TFQ-45,Flip,1,3,2,313,Flip Ability: Target an Ace on the opponent's field. It is turned to the ability-active position without resolving its ability.,Bonus Cards,
+Warchief of the Horde {ace},TUF-01,Inherent,2,3,3,152,Horde cards on your field cannot be repositioned by an opponent's ability.,The United Horde,Horde
+Orc Berserker,TUF-02,Inherent,1,3,2,103,If a Horde card is next to this card: +1 {attack_as}.,The United Horde,Horde
+Goblin Ambusher,TUF-03,Field,1,3,2,123,Swap this card's position with another Horde card on your field.,The United Horde,Horde
+Goblin Skulker,TUF-04,Flip,2,2,2,144,Flip Ability: Swap the position of a Horde card on your field (this card included) with another card on your field.,The United Horde,Horde
+Kobold Grave-Robber,TUF-05,Field,2,2,1,201,"Rest 1, if another Horde card is on your field: Target a card in opponent's rest zone. Turn it face down. It cannot be used for a Rest Ability for the rest of the game.",The United Horde,Horde
+Kobold Scavenger,TUF-06,Rest,2,1,2,250,If two or more Horde cards are in your attack stack: You may use this card for Fighting Spirit this Engagement. It gets +1 {fightingspirit_as}.,The United Horde,Horde
+War Drummer,TUF-07,Support,3,1,1,299,Once per round: Swap the positions of two Horde cards on your field. This card is not rested after use.,The United Horde,Horde
+Kobold Skirmisher,TUF-08,Rest,2,2,1,348,If a Horde card is also on your field: You may use this card for Fighting Spirit this Engagement. It gets +1 {fightingspirit_as}.,The United Horde,Horde
+Kobold Trapsetter,TUF-09,Field,2,2,2,398,"Rest 1, if another Horde card is on your field: Target a card in opponent's rest zone. Turn it face down. It cannot be used to refill their field during Regroup Phase.",The United Horde,Horde
+Orc Provisioner,TUF-10,Support,2,2,2,496,Put a Horde card from your rest zone into your Support.,The United Horde,Horde
+Sahuagin Reef-Strider,TUF-11,Support,2,2,2,594,Swap a Horde card on your field with a card from your Support. The card placed on the field is Ready.,The United Horde,Horde
+Sahuagin Undertow,TUF-12,Inherent,2,2,2,643,If a Horde card is next to this card: +1 {defense_as}.,The United Horde,Horde
+Unmade Wretch,TUF-13,Field,2,2,2,260,"Rest 1, if an Unmade card is also on your field: Target opponent's card. It is turned to the ability-active position without resolving its ability.",The Creeping Dread,Unmade
+Unmade Husk,TUF-14,Inherent,1,2,3,604,If an Unmade card is also on your field: +2 {defense_as}.,The Creeping Dread,Unmade
+Unmade Remnant,TUF-15,Inherent,1,3,1,114,If an Unmade card is in your rest zone: +2 {attack_as}.,The Creeping Dread,Unmade
+Unmade Chorus,TUF-16,Battle,1,2,2,309,If an Unmade card was revealed as Fighting Spirit this Engagement: +2 {fightingspirit_as}.,The Creeping Dread,Unmade
+Unmade Vessel,TUF-17,Field,1,3,2,211,"Swap the position of an Unmade card on your field (this card included) with another card on your field. To choose a face-down Unmade card, show it to your opponent; it stays face down.",The Creeping Dread,Unmade
+Unmade Shade,TUF-18,Rest,2,2,2,358,If an Unmade card is also on your field: You may use this card for Fighting Spirit this Engagement. It gets +1 {fightingspirit_as}.,The Creeping Dread,Unmade
+Whispering Dread,TUF-19,Battle,2,2,2,408,Final Blow: +1 {fightingspirit_as}.,The Creeping Dread,Whispering
+Whispering First,TUF-20,Battle,2,3,1,162,First Blood: +1 {fightingspirit_as}.,The Creeping Dread,Whispering
+Whispering Silence,TUF-21,Battle,2,1,3,654,Ambush: +1 {fightingspirit_as}.,The Creeping Dread,Whispering
+Whispering Echo,TUF-22,Battle,2,2,2,457,Echo Bond: If another Whispering card was already revealed this Engagement: +1 {fightingspirit_as}.,The Creeping Dread,Whispering
+Whispering Bond,TUF-23,Support,2,2,2,506,"Your opponent reveals a random card from their Support to you. If a Whispering card is in your rest zone, this card does not need to be rested after use.",The Creeping Dread,Whispering
+Whispering Voice,TUF-24,Rest,2,2,2,555,If a Whispering card is also on your field: You may use this card for Fighting Spirit this Engagement. It gets +1 {fightingspirit_as}.,The Creeping Dread,Whispering
+Deepdelver Vanguard {ace},TUF-25,Battle,1,4,3,388,Attacking Side: Non-adjacent cards are counted for attack.,Deepdelver,Deepdelver
+Deepdelver Prospector,TUF-26,Inherent,1,3,1,119,If a Deepdelver card is also on your field: +1 {attack_as}.,Deepdelver,Deepdelver
+Deepdelver Excavator,TUF-27,Field,2,2,2,658,Rest 1: Non-adjacent Deepdelver cards are counted for attack.,Deepdelver,Deepdelver
+Doomsayer,TUF-28,Inherent,2,3,1,196,If opponent has 3+ cards in their rest zone: +1 {attack_as} and +1 {defense_as}.,Bonus Cards,
+Catacomb Priest,TUF-29,Field,2,1,3,622,Rest 1: Return a Ghoulish card from your rest zone to your Support.,Bonus Cards,
+Cackling Demon,TUF-30,Field,2,2,2,341,Rest 1: Opponent rests a card from their Support.,Bonus Cards,
+Prayerful Devotee,TUF-31,Field,3,1,2,508,Rest 1: Swap the target opponent's card's position with another card on their field.,Bonus Cards,
+Volatile Cannoneer,TUF-32,Field,1,2,2,236,Target player rests a card from their Support.,Bonus Cards,
+Priestess of Rianz,TUF-33,Support,2,2,2,435,Put a card from your rest zone into your Support.,Bonus Cards,Rianz
+Wildcard Wanderer,TUF-34,Flip,1,3,2,216,Flip Ability: Swap a card on your field with a card from your Support. The card placed on the field is Ready.,Bonus Cards,
+Sunlight Guardian {ace},TLC-01,Battle,1,4,3,304,Attacking Side: +2 {fightingspirit_as}. Defending Side: +1 {fightingspirit_as}.,Anti-Incursion,
+Solar Dawnblade,TLC-02,Battle,1,4,1,108,First Engagement: +1 {fightingspirit_as}. Attacking Side: +1 {fightingspirit_as}.,Anti-Incursion,
+Comet Lance,TLC-03,Battle,1,4,1,157,Second Engagement: +1 {fightingspirit_as}. Attacking Side: +1 {fightingspirit_as}.,Anti-Incursion,
+Duskfang Dagger,TLC-04,Battle,2,3,1,206,Ambush: +1 {fightingspirit_as}.,Anti-Incursion,
+Dawnbreaker,TLC-05,Battle,2,3,1,255,Final Blow: +1 {fightingspirit_as}.,Anti-Incursion,
+Solar Reaver,TLC-06,Rest,2,2,1,353,First Engagement: You may use this card for Fighting Spirit this Engagement. It gets +1 {fightingspirit_as}.,Anti-Incursion,
+Emberfall Spear,TLC-07,Rest,2,1,2,551,Second Engagement: You may use this card for Fighting Spirit this Engagement. It gets +1 {fightingspirit_as}.,Anti-Incursion,
+Radiant Oathblade,TLC-08,Rest,2,2,1,403,"Won First Engagement, Attacking Side: You may use this card for Fighting Spirit this Engagement. It gets +1 {fightingspirit_as}.",Anti-Incursion,
+Sunfire Warhammer,TLC-09,Rest,2,1,2,599,"Lost Previous Engagement, Defending Side: You may use this card for Fighting Spirit this Engagement. It gets +1 {fightingspirit_as}.",Anti-Incursion,
+Dawnlight Scepter,TLC-10,Support,2,2,2,452,Initiative: Put a card from your rest zone into your Support. This card is not rested after use.,Anti-Incursion,
+Dawnguard Gauntlet,TLC-11,Support,2,2,2,501,Opponent rests a card from their Support. If you have 3 or fewer cards in Support: this card does not need to be rested after use.,Anti-Incursion,
+Radiant Bulwark,TLC-12,Battle,2,1,3,648,Defending Side: +1 {fightingspirit_as}.,Anti-Incursion,
+Fear Incarnate {ace},TLC-13,Field,2,3,3,106,Place a debuff token on 2 target cards on the opponent's field.,Fear Descends,
+Fear the Burning Eye,TLC-14,Flip,1,2,2,153,"Flip Ability: Place a debuff token on the opponent's field card with the highest Attack Value, reducing its Attack Value.",Fear Descends,
+Fear the Watching Eye,TLC-15,Battle,2,2,2,347,"Attacking Side: Place a debuff token on a defending card on the opponent's field, reducing its Defense Value.",Fear Descends,
+Fear the Rending Claw,TLC-16,Field,1,3,1,172,Terror 2+: Target a ready card on the opponent's field. It is turned to the ability-active position without resolving its ability.,Fear Descends,
+Fear the Coiling Tentacle,TLC-17,Support,2,2,2,613,Terror 2+: Opponent rests a card from their Support.,Fear Descends,
+Fear the Core,TLC-18,Battle,1,2,3,395,+1 {fightingspirit_as} for every 2 debuff tokens on the opponent's field (at most +2 {fightingspirit_as}).,Fear Descends,
+Cult Recruiter,TLC-19,Inherent,3,1,2,284,Center: +1 {defense_as}. If a Fear card is also on your field: +1 {attack_as}.,Fear Descends,
+Cult Zealot,TLC-20,Battle,1,2,2,127,Terror 2+: +1 {fightingspirit_as}.,Fear Descends,
+Cult Doomcaller,TLC-21,Field,2,2,1,431,Rest 1: Place a debuff token on a card on the opponent's field.,Fear Descends,
+Cult Initiate,TLC-22,Rest,2,2,1,644,Terror 1+: You may use this card for Fighting Spirit this Engagement. It gets +1 {fightingspirit_as}.,Fear Descends,
+Cult Ritualist,TLC-23,Battle,2,2,2,528,If a Fear card was revealed as Fighting Spirit this Engagement: +1 {fightingspirit_as}.,Fear Descends,
+Cult High Priest,TLC-24,Inherent,1,2,2,219,Terror 3+: +1 {attack_as} and +1 {defense_as}.,Fear Descends,
+Falcon Knight {ace},TLC-25,Inherent,3,3,3,281,If a Falcon card is also on your field: +1 {attack_as} and +1 {defense_as}.,Falconwatch,Falcon
+Falcon Scout,TLC-26,Inherent,1,3,1,118,If a Falcon card is also on your field: +1 {attack_as}.,Falconwatch,Falcon
+Falcon Handler,TLC-27,Inherent,2,2,2,418,If a Falcon card is in your rest zone: +1 {defense_as}.,Falconwatch,Falcon
+Falcon Ranger,TLC-28,Field,2,2,2,328,If a Falcon card is also on your field: Opponent rests a card from their Support.,Falconwatch,Falcon
+Falcon Strider,TLC-29,Field,1,2,2,354,Target a ready card on the opponent's field. It is turned to the ability-active position without resolving its ability.,Falconwatch,Falcon
+Woodland Tracker,TLC-30,Battle,1,1,3,598,Attacking Side: +1 {fightingspirit_as}. If a Falcon card is also on your field: +1 {fightingspirit_as}.,Falconwatch,
+Trailblazing Scout,TLC-31,Battle,1,1,3,634,Defending Side: +1 {fightingspirit_as}. No-Initiative: +1 {fightingspirit_as}.,Falconwatch,
+Nimble Outrider,TLC-32,Field,2,2,1,171,Swap this card's position with another card on your field.,Falconwatch,
+Keen-Eyed Marksman,TLC-33,Battle,2,1,3,571,"Defending Side: Opponent rests a card from their Support, if able.",Falconwatch,
+Camp Sentry,TLC-34,Inherent,2,2,1,145,Center: +1 {attack_as}. Flank: +1 {defense_as}.,Falconwatch,
+Ridge Watcher,TLC-35,Support,2,2,2,392,Swap a ready card's position with another ready card on your field.,Falconwatch,
+Wayfinder's Aide,TLC-36,Rest,2,1,2,545,If a Falcon card is also on your field: You may use this card for Fighting Spirit this Engagement. It gets +1 {fightingspirit_as}.,Falconwatch,
+Doppelganger Thief,TLC-37,Field,2,3,2,203,Rest 2: Copy and use the Field Ability of a card on the opponent's field (excluding abilities that themselves copy another ability).,Bonus Cards,
+Living Weapon Heartsong {ace},TAC-01,Support,2,2,2,342,Attach this card to a ready card on your field.,Vault of the Worthy,Living Weapon
+Living Weapon Dawn,TAC-02,Rest,1,1,2,385,Initiative: Attach this card to a ready card on your field.,Vault of the Worthy,Living Weapon
+Living Weapon Sacrifice,TAC-03,Rest,2,1,1,393,Rest 1: Attach this card to a ready card on your field.,Vault of the Worthy,Living Weapon
+Living Weapon Remembrance,TAC-04,Rest,2,1,1,412,3+ Rest Zone: Attach this card to a ready card on your field. That card has Interpose.,Vault of the Worthy,Living Weapon
+Living Weapon Kinship,TAC-05,Rest,1,2,1,335,If a Living Weapon is attached to a card on your field: Attach this card to a ready card on your field.,Vault of the Worthy,Living Weapon
+Living Weapon Doubt,TAC-06,Support,1,1,2,401,No-Initiative: Attach this card to a face-up card on the opponent's field. It cannot be their Main Attacker this round.,Vault of the Worthy,Living Weapon
+Armiger Custodian,TAC-07,Support,2,2,2,378,Rest up to two Living Weapons from your Support.,Vault of the Worthy,
+Armiger Bestower,TAC-08,Field,2,2,2,350,Rest 1: Attach a Living Weapon from your rest zone to a ready card on your field.,Vault of the Worthy,
+Armiger Warden,TAC-09,Support,1,2,3,424,"Target a ready card on your field with a Living Weapon attached. This round, it cannot be the target of an opponent's ability.",Vault of the Worthy,
+Armiger Page,TAC-10,Support,2,2,2,363,"Target a Living Weapon on your field. Put it in your rest zone, and put this card in its position. This card inherits the state of the card it replaced.",Vault of the Worthy,
+Armiger Proctor,TAC-11,Flip,2,2,2,356,Flip Ability: You may attach a Living Weapon from your Support to a ready card on your field.,Vault of the Worthy,
+Armiger Trialmaster,TAC-12,Support,2,2,2,369,"Target a ready card on your field with a Living Weapon attached. It is included in your attacking group this round, regardless of its Fate Number rank.",Vault of the Worthy,
+Gilded Merchant-Prince {ace},TAC-13,Field,2,3,3,249,Hire: Swap up to two cards in your Support with cards in your rest zone.,Gilded Caravan,
+Gilded Broker,TAC-14,Support,3,1,1,362,"Once per round, Hire: Swap a card in your Support with a card in your rest zone. If a Sellsword card is also on your field, this card does not need to be rested after use.",Gilded Caravan,
+Gilded Gambler,TAC-15,Battle,1,2,3,263,"Flip a coin when revealed: Heads: +1 {fightingspirit_as}. Tails, Hire: Swap a card in your Support with a card in your rest zone.",Gilded Caravan,
+Gilded Ledger-Keeper,TAC-16,Inherent,1,2,3,561,If a Sellsword card is in your rest zone: +1 {defense_as}.,Gilded Caravan,
+Sellsword Blade,TAC-17,Battle,1,3,1,117,Rest 1: +2 {fightingspirit_as}.,Gilded Caravan,
+Sellsword Veteran,TAC-18,Inherent,1,3,2,142,2+ Rest Zone: +1 {attack_as}.,Gilded Caravan,
+Sellsword Mercenary,TAC-19,Field,2,2,2,326,Rest 1: Target a ready card on the opponent's field. It is turned to the ability-active position without resolving its ability.,Gilded Caravan,
+Sellsword Deserter,TAC-20,Rest,2,2,2,479,If a Gilded card is in your rest zone: You may use this card for Fighting Spirit this Engagement. It gets +1 {fightingspirit_as}.,Gilded Caravan,
+Caravan Guard,TAC-21,Battle,1,2,3,608,Defending Side: Flip a coin. Heads: +2 {fightingspirit_as}.,Gilded Caravan,
+Lucky Peddler,TAC-22,Support,2,2,1,405,Flip a coin. Heads: Put a card from your rest zone into your Support. This card is not rested after use. Tails: nothing happens.,Gilded Caravan,
+Toll Collector,TAC-23,Flip,2,2,1,297,"Flip Ability, Hire: Swap a card in your Support with a card in your rest zone.",Gilded Caravan,
+Pack Mule,TAC-24,Rest,2,2,2,456,Initiative: You may use this card for Fighting Spirit this Engagement. It gets +1 {fightingspirit_as}.,Gilded Caravan,
+Frost Jarl {ace},TAC-25,Inherent,2,3,3,617,Endure.,Frostpeak Clans,
+Frost Shieldmaiden,TAC-26,Inherent,1,2,3,538,If a Frost card is also on your field: Endure.,Frostpeak Clans,
+Frost Raider,TAC-27,Battle,1,3,2,134,Attacking Side: +1 {fightingspirit_as}. If you have 3 or fewer cards in Support: +1 {fightingspirit_as}.,Frostpeak Clans,
+Frost Binder,TAC-28,Field,2,2,1,337,"Rest 1: Target a ready card on the opponent's field. At Regroup, it stays on the field instead of going to Support.",Frostpeak Clans,
+Peak Ram,TAC-29,Battle,1,3,1,109,"Attacking Side, Initiative: +2 {fightingspirit_as}.",Frostpeak Clans,
+Peak Yeti,TAC-30,Inherent,1,3,3,178,Endure.,Frostpeak Clans,
+Peak Eagle,TAC-31,Rest,2,2,1,376,If you have 3 or fewer cards in Support: You may use this card for Fighting Spirit this Engagement. It gets +1 {fightingspirit_as}.,Frostpeak Clans,
+Peak Shepherd,TAC-32,Support,2,2,1,441,No-Initiative: Put a card from your rest zone into your Support. This card is not rested after use.,Frostpeak Clans,
+Mountain Hermit,TAC-33,Battle,1,2,3,487,Defending Side: +1 {fightingspirit_as}. If you have 3 or fewer cards in Support: +1 {fightingspirit_as}.,Frostpeak Clans,
+Glacier Guard,TAC-34,Inherent,1,3,3,592,Endure.,Frostpeak Clans,
+Snowblind Tracker,TAC-35,Flip,2,2,1,289,Flip Ability: Swap the positions of two face-down cards on the opponent's field.,Frostpeak Clans,
+Cliffside Watcher,TAC-36,Inherent,2,2,1,233,3+ Rest Zone: +1 {attack_as} and +1 {defense_as}.,Frostpeak Clans,
+Raven Matriarch {ace},TEC-01,Flip,1,3,3,137,Flip Ability: Target a ready card on the opponent's field. It is turned to the ability-active position without resolving its ability. If a Crow card is also on your field: Swap this card's position with another card on your field.,Murder of Crows,
+Raven Infiltrator,TEC-02,Flip,2,2,2,181,"Flip Ability, if a Crow card is also on your field: Swap target opponent's ready card on the field with a random card from their Support. The card that enters the field inherits the state of the card it swapped with.",Murder of Crows,
+Raven Striker,TEC-03,Flip,1,3,2,112,"Flip Ability, if a Crow card is also on your field: Swap the target opponent's card's position with another card on their field.",Murder of Crows,
+Raven Blade,TEC-04,Flip,1,3,2,104,"Flip Ability: This card is included in your attacking group this round, regardless of its Fate Number rank.",Murder of Crows,
+Crow Scout,TEC-05,Support,2,2,2,314,"Your opponent reveals a random card from their Support to you. If a Raven card is also on your field, this card does not need to be rested after use.",Murder of Crows,
+Crow Decoy,TEC-06,Support,2,2,2,492,Swap this card's position with another card on your field. This card inherits the state of the card it swapped with.,Murder of Crows,
+Crow Courier,TEC-07,Support,3,1,1,371,Swap a card on your field with a card from your Support. The card placed on the field is Ready.,Murder of Crows,
+Crow Spotter,TEC-08,Support,3,2,1,427,Once per round: Swap a ready card's position with another ready card on your field. This card is not rested after use.,Murder of Crows,
+Crow Saboteur,TEC-09,Support,2,2,1,578,Initiative: Opponent rests a card from their Support.,Murder of Crows,
+Rooftop Lookout,TEC-10,Flip,2,2,1,226,Flip Ability: Your opponent reveals a random card from their Support to you.,Murder of Crows,
+Snare Weaver,TEC-11,Flip,2,2,2,259,Flip Ability: Target a face-down ready card on the opponent's field. It is turned to the ability-active position without resolving its ability.,Murder of Crows,
+Smoke Runner,TEC-12,Support,2,2,2,533,Rest 1: Swap the target opponent's card's position with another card on their field.,Murder of Crows,
+Rapier Virtuoso {ace},TEC-13,Battle,1,4,4,132,First Blood: +1 {fightingspirit_as}. Riposte: +2 {fightingspirit_as}.,Duelists' Academy,
+Rapier Adept,TEC-14,Battle,1,3,2,158,Riposte: +1 {fightingspirit_as}. If a Mentor card is also on your field: +1 {fightingspirit_as}.,Duelists' Academy,
+Rapier Fencer,TEC-15,Battle,1,2,3,517,"Riposte, Defending Side: +2 {fightingspirit_as}.",Duelists' Academy,
+Rapier Second,TEC-16,Rest,2,2,1,414,Riposte: You may use this card for Fighting Spirit this Engagement. It gets +1 {fightingspirit_as}.,Duelists' Academy,
+Mentor of the Blade,TEC-17,Inherent,2,3,1,224,If a Rapier card is also on your field: +1 {attack_as}.,Duelists' Academy,
+Mentor of the Guard,TEC-18,Inherent,1,2,2,631,Center: +1 {defense_as}. If a Rapier card is also on your field: +1 {defense_as}.,Duelists' Academy,
+Mentor of Footwork,TEC-19,Field,2,2,2,366,"Swap the position of a Rapier card on your field with another card on your field. To choose a face-down Rapier card, show it to your opponent; it stays face down.",Duelists' Academy,
+Mentor of Drills,TEC-20,Support,3,1,1,469,Put a Rapier card from your rest zone into your Support.,Duelists' Academy,
+Sparring Partner,TEC-21,Battle,1,2,3,583,Riposte: +1 {fightingspirit_as}. Defending Side: +1 {fightingspirit_as}.,Duelists' Academy,
+Feinting Swordswoman,TEC-22,Battle,2,3,1,185,Final Blow: +1 {fightingspirit_as}.,Duelists' Academy,
+Duel Challenger,TEC-23,Field,2,2,1,318,Target the opponent's ready card in this card's Mirrored Position. It is turned to the ability-active position without resolving its ability.,Duelists' Academy,
+Challenge Herald,TEC-24,Flip,2,2,1,271,Flip Ability: Your opponent reveals a random card from their Support to you.,Duelists' Academy,
+Bastion High Warden {ace},TEC-25,Inherent,2,3,3,573,If a Bastion card is also on your field: Interpose. If your defense stack has 3 or more cards: +2 {defense_as}.,Bastion Wardens,
+Bastion Shieldbearer,TEC-26,Inherent,1,2,3,619,Rest 1: Interpose.,Bastion Wardens,
+Bastion Sentinel,TEC-27,Inherent,1,2,3,637,No-Initiative: Interpose.,Bastion Wardens,
+Bastion Squire,TEC-28,Battle,1,2,3,302,Defending Side: +1 {fightingspirit_as}. If an Aegis card is also on your field: +1 {fightingspirit_as}.,Bastion Wardens,
+Aegis Wardwright,TEC-29,Field,2,2,1,205,"Target a ready card on your field. This round, it has Interpose.",Bastion Wardens,
+Aegis Chaplain,TEC-30,Support,2,2,1,433,Rest 1: Target a ready card on the opponent's field. It cannot be their Main Attacker this round.,Bastion Wardens,
+Aegis Warder,TEC-31,Rest,2,2,2,585,Defending Side: You may use this card for Fighting Spirit this Engagement. It gets +1 {fightingspirit_as}.,Bastion Wardens,
+Aegis Lightkeeper,TEC-32,Battle,1,1,3,548,"Defending Side, if your defense stack has 3 or more cards: +2 {fightingspirit_as}.",Bastion Wardens,
+Gate Guard,TEC-33,Inherent,1,2,3,659,Lost Previous Engagement: Interpose.,Bastion Wardens,
+Tower Archer,TEC-34,Battle,1,2,2,147,"Defending Side, First Blood: +2 {fightingspirit_as}.",Bastion Wardens,
+Wall Mason,TEC-35,Field,1,3,2,168,Swap a ready card's position with another ready card on your field.,Bastion Wardens,
+Sally Captain,TEC-36,Inherent,2,3,1,121,Flank: +1 {attack_as}.,Bastion Wardens,

@@ -8,7 +8,7 @@ Earlier PRs were numbered under the old reading. Their real version numbers,
 tags and releases stay as they were, so nothing breaks (pacman, the update
 notice and old links all keep working). This table shows what each would have
 been under the current rule. Versions keep counting up from the repo's current
-one: #61 was **0.8.1-beta**, then the Engine's three PRs took **0.8.2-beta**, **0.8.3-beta** and **0.8.4-beta**.
+one: #61 was **0.8.1-beta**, then the Engine's three PRs took **0.8.2-beta**, **0.8.3-beta** and **0.8.4-beta**, and the pairs rule with every card in the engine took **0.8.5-beta**.
 
 | PR  | Title                                                     | Shipped as    | Under the current rule | Released |
 | --- | --------------------------------------------------------- | ------------- | ---------------------- | -------- |
@@ -25,9 +25,10 @@ one: #61 was **0.8.1-beta**, then the Engine's three PRs took **0.8.2-beta**, **
 | #59 | Hearthside Engine: block map editor                       | 0.7.0-beta    | 0.3.7-beta             | no       |
 | #60 | Hearthside Engine: tile columns, tilesets, viewports      | 0.8.0-beta    | 0.3.8-beta             | no       |
 | #61 | One app: Cards, Engine and Play                           | 0.8.1-beta    | 0.8.1-beta             | no       |
-| #62 | Engine 1 of 3: games, Play and scenes                      | 0.8.2-beta    | 0.8.2-beta             | no       |
+| #62 | Engine 1 of 3: games, Play and scenes                     | 0.8.2-beta    | 0.8.2-beta             | no       |
 | —   | Engine 2 of 3: characters, money, shops, weeks, saves     | 0.8.3-beta    | 0.8.3-beta             | no       |
 | #67 | Engine 3 of 3: league, tournaments, simulator, template   | 0.8.4-beta    | 0.8.4-beta             | no       |
 | #68 | Template Aces; calendar; give-cards effects; own deck        | 0.8.6-beta    | 0.8.6-beta             | no       |
 
 Earlier PRs (#1–#48) used the 0.1.0 alpha line and are unchanged.
+| — | Pairs rule, all 188 cards in the engine, Auto Build | 0.8.5-beta | 0.8.5-beta | no |

@@ -945,3 +945,19 @@ Agreed with the owner in discussion; the plan is in the PR. Adventure Scuffle! i
 - Open a booster has a "how many boosters" setting, default 1; each pack gets its own reveal. Steps saved before it existed have no count and open one.
 - "Edit my deck" with no deck picked, or a picked deck that no longer exists, opens the player's own deck (`player-deck`, shown as "My deck") and creates it on the spot, so a game with no decks at all still works.
 - **Ace auto-fill:** when a game has neither an Ace field nor Ace text and its loaded cards are an Adventure Scuffle! pack with a `Name_AS` field, the Ace field becomes `Name_AS` and the text `{ace}` (editable in Items → Card collection). It runs once per game per session, after the cards load, and only when both are empty. Assumption: someone who deliberately clears both gets them filled again next session.
+
+## Pairs rule, all cards in the engine, ladder cap, Auto Build (v0.8.5-beta)
+
+- **Pairs is the Skirmish rule** (Rulebook v2.6). Classic and Triples are gone from every picker. A game saved before v2.6 has no `reveal` field and was played under Classic, so `savedGame()` tags it when replays, saved games, paused Engine matches and imported replay files load; new games always store `'pairs'`.
+- **The cards and rulebook live in `game/adventure-scuffle/`** (`cards.csv`, `rulebook.md`, a changelog). Card, balance and rule changes go there in the same PR (`.claude/rules/adventure-scuffle.md`). Stats in ability text use the `{attack_as}`-style symbols so the reader reads them.
+- **Set codes:** TUF, TLC, TAC, TEC after TFQ, numbered deck by deck in the set plan's order, then bonus cards. Assumed: Wildcard Wanderer is TUF-34 and Doppelganger Thief TLC-37 (the doc only says "sets 2 to 4").
+- **New mechanics** read from the text (`effects/mechanics.ts`). Assumptions where the rulebook is open:
+  - "Rest N: Interpose" is offered to its owner as the stacks form (the initiative player first); conditional Interpose is checked live, so "Lost Previous Engagement: Interpose" can join the Second Engagement.
+  - Endure is offered at Regroup to the owner of each face-up active card with it; Frost Binder's target stays without a choice.
+  - "Can't be the Main Attacker" passes Main Attacker to the next attacker by Fate; if none can, the player plays no Engagement.
+  - A Rest weapon attaches from the rest zone as an extra in a response window (not using the response); Unassuming Mage's swap is the same kind of extra, once per window.
+  - A coin card flips once when its ability is used; its "Heads"/"Tails" clauses are one ability.
+  - "Rest N: +N FS" (Sellsword Blade) is offered as the card is revealed.
+  - Armiger Page: the Living Weapon "on your field" is a Living Weapon card sitting on the field as a normal card.
+- **Bot ladder:** Normal and Hard think at most 2 s a move in the ladder; the results show how often each hit the cap.
+- **Auto Build on the table:** built fresh at Start, from the whole pack, with the Decks screen's builder.
