@@ -26,6 +26,7 @@ import type { GameEvent } from '../model/events'
 import type { GameDoc } from '../model/game'
 import { autoEvents, autosave, cardsReady, randomInt, showMessage } from './runtime'
 import { closeScreen, get, set, showScreen, type ActivityOption } from './state'
+import { showHint } from './hints'
 import { runRelease, updateBans } from './releases'
 import { runWeekStep } from './weekStep'
 import { canEnter, runTournament } from './tournament'
@@ -342,6 +343,7 @@ export function makeWorld(
     rating: () => get().world?.rating ?? 0,
     runRelease: (id) => runRelease(ctx, id),
     updateBans: (lift) => updateBans(ctx, lift),
+    showHint: (text, once, name) => showHint(ctx, { text, once, name }),
   }
   return world
 }

@@ -168,6 +168,19 @@ export function GamePlayer() {
         )}
         {screen?.kind === 'calendar' && <CalendarScreen onClose={() => closeScreen()} />}
         {screen?.kind === 'tournament' && <TournamentScreen />}
+        {screen?.kind === 'hint' && (
+          <Panel
+            title={t('hint.title')}
+            testId="player-hint"
+            footer={
+              <PlayerButton primary onClick={() => closeScreen()}>
+                {t('hint.ok')}
+              </PlayerButton>
+            }
+          >
+            <p className="text-base leading-relaxed whitespace-pre-wrap">{screen.text}</p>
+          </Panel>
+        )}
         {menu === 'calendar' && <CalendarScreen onClose={() => setMenu(null)} />}
         {menu === 'bag' && <BagScreen onClose={() => setMenu(null)} />}
         {menu === 'log' && <LogScreen onClose={() => setMenu(null)} />}

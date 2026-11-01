@@ -66,6 +66,8 @@ export interface World {
   /** Draws and puts out a release; updates the ban list. */
   runRelease: (release: string) => Promise<void>
   updateBans: (lift: boolean) => Promise<void>
+  /** A tutorial hint; `once` remembers it by `name` (or its words). Does nothing when tutorials are off. */
+  showHint: (text: string, once: boolean, name: string) => Promise<void>
 }
 
 export interface FieldDef {

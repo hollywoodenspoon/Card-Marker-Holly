@@ -61,6 +61,7 @@ export const TEXT_DEFS: TextDef[] = [
   { key: 'release.new', group: 'Cards', label: 'New cards', default: '{count} new cards are out: {name}.' },
   { key: 'ban.announce', group: 'Cards', label: 'Ban announced', default: 'Ban list update in {weeks} weeks.' },
   { key: 'ban.now', group: 'Cards', label: 'Ban in force', default: 'The ban list changed: {cards}.' },
+  { key: 'hint.ok', group: 'Hints', label: 'Hint button', default: 'Got it' },
   { key: 'hint.title', group: 'Hints', label: 'Hint title', default: 'Hint' },
   { key: 'duel.pause', group: 'Duels', label: 'Pause', default: 'Pause and save' },
 ]

@@ -48,6 +48,7 @@ import { tileCountOf } from './model/map'
 import { assets } from './storage/assets'
 import { importMapFromText } from './storage/mapActions'
 import {
+  createAdventureGame,
   createGame,
   duplicateGame,
   exportGame,
@@ -500,6 +501,9 @@ function FileMenu({
       <DropdownMenuContent align="start">
         <DropdownMenuItem onSelect={() => void createGame()}>
           <FilePlus2 /> New game
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => void createAdventureGame()}>
+          <FilePlus2 /> New game from the Adventure Scuffle! template
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={onGames}>
           <FolderOpen /> Games…

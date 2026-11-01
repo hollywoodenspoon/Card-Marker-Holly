@@ -166,7 +166,7 @@ async function playMatch(ctx: RunContext, m: BMatch): Promise<boolean> {
       break
     }
     if (pick !== 0) continue
-    const res = await playMatchGame(game, [mine, theirs], [line('tourney.you'), duelist?.name ?? '?'], bot)
+    const res = await playMatchGame(game, [mine, theirs], [line('tourney.you'), duelist?.name ?? '?'], bot, { matchId: m.id })
     if (ctx.stopped()) return true
     if (!res.finished) continue
     score = res.winner === 0 ? [score[0] + 1, score[1]] : [score[0], score[1] + 1]

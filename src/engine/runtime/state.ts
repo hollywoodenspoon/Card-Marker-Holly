@@ -2,6 +2,7 @@
  * The running game's state, in one store the player UI reads. Split from
  * runtime.ts so the flow (runtime.ts) and the player's things (world.ts) share it.
  */
+import type { Move } from '@/adventure/engine'
 import { create } from 'zustand'
 import type { Collection, Inventory } from '../economy/collection'
 import type { Pulled } from '../economy/booster'
@@ -52,9 +53,9 @@ export interface PendingMatch {
   decks: [string[], string[]]
   names: [string, string]
   bot: 'easy' | 'normal' | 'hard' | null
-  /** The moves made so far (replayed on load). */
-  moves: unknown[]
-  seed: number | null
+  /** The moves made so far, in groups (replayed on load). */
+  moves: Move[][]
+  seed: number
   /** Variable to set to whether seat 0 won, and the tournament match it is, if any. */
   won?: string
   matchId?: string

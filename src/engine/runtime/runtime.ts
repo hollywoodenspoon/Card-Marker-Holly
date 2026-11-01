@@ -8,7 +8,7 @@
  * return. The player's world (world.ts) works on the same state.
  */
 import { useWorkspace } from '@/app/workspace'
-import { requestMatch } from '@/playtest/handoff'
+import { requestMatch, type MatchResult, type PausedMatch } from '@/playtest/handoff'
 import { next, randomSeed } from '@/playtest/rng'
 import { loadGameCards, useGameCards } from '../cards/gameCards'
 import { collectionOf } from '../economy/collection'
@@ -20,10 +20,11 @@ import { startingDuelists } from '../league/duelists'
 import { dateLabel, eventsOn } from '../model/calendar'
 import type { Args, GameEvent } from '../model/events'
 import { countsOf, deckList, type DeckLevel, type GameDoc, type Scene } from '../model/game'
-import { autoSlotNames } from '../model/settings'
+import { autoSlotNames, manualSlotNames } from '../model/settings'
 import { deckBuilderFor } from '../modules/registry'
 import { listSaves, readSave, writeSave, type SaveSlot } from '../storage/saves'
 import { leagueCards } from './leagueCards'
+import { line } from './lines'
 import { fromSnapshot, takeSnapshot, type Snapshot } from './snapshot'
 import { closeScreen, get, idle, pushLog, set, useRuntime } from './state'
 import { fillText } from './text'
@@ -226,13 +227,44 @@ async function prepareWorld(game: GameDoc, id: number) {
   }
 }
 
-/** A saved game may have been in a tournament: carry on with it (a finished one is dropped). */
+/**
+ * A saved game may have been in a duel (paused) or in a tournament: carry on with
+ * them (a finished tournament is dropped). The paused duel comes back first.
+ */
 async function resumeAfterLoad(game: GameDoc, id: number) {
   const w = get().world
-  if (!w?.active) return
-  if (w.active.phase === 'done' || !game.league.enabled) return void set({ world: { ...w, active: null } })
+  if (!w?.active && !get().pendingMatch) return
+  if (w?.active && (w.active.phase === 'done' || !game.league.enabled))
+    set({ world: { ...w, active: null } })
   await cardsReady(game)
-  if (id === run) await resumeTournament(context(id))
+  if (id !== run) return
+  await resumeMatch(game, id)
+  if (id === run && get().world?.active) await resumeTournament(context(id))
+}
+
+/** Plays a paused duel on from where it stopped and hands its result to what started it. */
+async function resumeMatch(game: GameDoc, id: number) {
+  const p = get().pendingMatch
+  if (!p) return
+  set({ pendingMatch: null })
+  const res = await playMatchGame(
+    game,
+    p.decks,
+    p.names,
+    p.bot,
+    { won: p.won, matchId: p.matchId },
+    { seed: p.seed, moves: p.moves },
+  )
+  if (id !== run || !res.finished) return
+  const w = get().world
+  const a = w?.active
+  if (w && a?.current && a.current.matchId === p.matchId) {
+    const [x, y] = a.current.score
+    const score: [number, number] = res.winner === 0 ? [x + 1, y] : [x, y + 1]
+    set({ world: { ...w, active: { ...a, current: { ...a.current, score } } } })
+  } else if (p.won) {
+    set({ vars: { ...get().vars, [p.won]: res.winner === 0 } })
+  }
 }
 
 export function stopRuntime() {
@@ -378,23 +410,64 @@ async function playCards(game: GameDoc, a: Args, live: () => boolean) {
     [mine, theirs],
     [`You (${name(a.deckA)})`, bot ? `${name(a.deckB)} (bot)` : name(a.deckB)],
     bot,
+    { won: a.won ? String(a.won) : undefined },
   )
   if (!live()) return
   if (a.won) set({ vars: { ...get().vars, [String(a.won)]: result.winner === 0 } })
 }
 
-/** One card game on Play's table; resolves when the player returns (seat 0 is the player). */
+/**
+ * One card game on Play's table; resolves when the player returns (seat 0 is the
+ * player). If the player pauses to save, the duel is saved into a slot and the
+ * running game stops, so the caller finds itself stopped.
+ */
 export async function playMatchGame(
   game: GameDoc,
   decks: [string[], string[]],
   names: [string, string],
   bot: 'easy' | 'normal' | 'hard' | null,
-): Promise<{ winner: number | null; finished: boolean }> {
-  const result = await new Promise<{ winner: number | null; finished: boolean }>((done) => {
-    requestMatch({ gameId: game.id, gameName: game.name, decks, names, bot, done })
+  meta: { won?: string; matchId?: string } = {},
+  resume?: PausedMatch,
+): Promise<MatchResult> {
+  const result = await new Promise<MatchResult>((done) => {
+    requestMatch({
+      gameId: game.id,
+      gameName: game.name,
+      decks,
+      names,
+      bot,
+      resume,
+      pauseLabel: line('duel.pause'),
+      done,
+    })
     set({ away: true })
     useWorkspace.getState().playGame(game.id)
   })
   set({ away: false })
+  if (result.paused) {
+    set({
+      pendingMatch: {
+        decks,
+        names,
+        bot,
+        moves: result.paused.moves,
+        seed: result.paused.seed,
+        ...meta,
+      },
+    })
+    await saveForPause(game)
+    stopRuntime()
+    return { winner: null, finished: false }
+  }
   return result
+}
+
+/** Saves into the oldest autosave slot, or the first slot when the game has no autosave. */
+async function saveForPause(game: GameDoc): Promise<void> {
+  const auto = autoSlotNames(game.settings)
+  const slots = auto.length ? auto : manualSlotNames(game.settings)
+  if (!slots.length) return
+  const rows = await listSaves(game.id)
+  const at = (s: string) => rows.find((r) => r.slot === s)?.savedAt ?? -1
+  await saveRuntime([...slots].sort((a, b) => at(a) - at(b))[0]!)
 }

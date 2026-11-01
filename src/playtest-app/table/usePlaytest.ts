@@ -161,7 +161,7 @@ interface PlaytestStore {
     packId: string,
     setup: GameSetup,
     game: NewGame,
-    opts: { hotseat: boolean; bots?: Bots },
+    opts: { hotseat: boolean; bots?: Bots; moves?: Move[][] },
   ) => void
   /** Continue a saved game. */
   resume: (
@@ -243,8 +243,10 @@ export const usePlaytest = create<PlaytestStore>((set, get) => ({
       placing: false,
       ...NO_RULES,
     }),
-  startRules: (packId, setup, game, { hotseat, bots = NO_BOTS }) => {
-    const rules = createGame(game)
+  startRules: (packId, setup, game, { hotseat, bots = NO_BOTS, moves = [] }) => {
+    // A paused game is played again from its start, move by move (it is deterministic).
+    let rules = createGame(game)
+    for (const group of moves) for (const m of group) rules = apply(rules, m)
     set({
       packId,
       setup,
@@ -262,7 +264,7 @@ export const usePlaytest = create<PlaytestStore>((set, get) => ({
       botPaused: false,
       playback: null,
       game,
-      moves: [],
+      moves,
       movesFuture: [],
       viewer: firstViewer(rules, bots, hotseat),
     })
