@@ -20,6 +20,7 @@ export type FieldKind =
   | 'expression'
   | 'item'
   | 'card'
+  | 'cardList'
   | 'shop'
   | 'booster'
   | 'calEvent'
@@ -47,7 +48,12 @@ export interface World {
   /** A negative n takes (never below 0). */
   give: (kind: Owned, id: string, n: number) => void
   openShop: (id: string) => Promise<void>
-  openBooster: (id: string) => Promise<void>
+  /** Opens `count` boosters, one reveal after the other. */
+  openBooster: (id: string, count: number) => Promise<void>
+  /** Draws `count` cards by a booster's pool and chances, adds them and shows them. */
+  giveFromBooster: (id: string, count: number) => Promise<void>
+  cardName: (id: string) => string
+  /** Blank or unknown deck: the first deck of the game, or the player's own. */
   editDeck: (deckId: string) => Promise<void>
   showCalendar: () => Promise<void>
   /** Shows this week's activities, runs the picked one, then moves to the next week. */
@@ -76,6 +82,8 @@ export interface FieldDef {
   kind: FieldKind
   options?: { value: string; label: string }[]
   default?: string | number | boolean
+  /** Words for "nothing picked" when leaving it empty is fine (it isn't shown as a mistake). */
+  blank?: string
 }
 
 /** Where a cause can be attached. */

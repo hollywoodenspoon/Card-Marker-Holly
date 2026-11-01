@@ -192,6 +192,10 @@ unchanged; picture scenes live inside the game.
   and foil copies, spare copies, decks kept within what's owned).
 - `events/worldPieces.ts`: the new pieces (say, money, items, cards, boosters, shops,
   Edit my deck, weeks, calendar, end the game). They act through `RunContext.world`.
+  Giving cards: one card, several chosen cards, random cards from a list, "the player
+  chooses N of these", or cards drawn by a booster's pool and chances. A list of cards in a
+  piece is one text setting (`id,id*3`, see `events/cardList.ts`) edited by `CardListPicker`.
+  Open a booster has a "how many". Edit my deck with no deck picked opens the player's own.
 - `runtime/`: `state.ts` (the store and screens the steps wait for), `runtime.ts` (the
   flow, saves), `world.ts` (the world for a run, and buy / sell / deck edits for the UI),
   `text.ts` (variables in text), `snapshot.ts` (what a save holds). `player/` holds the

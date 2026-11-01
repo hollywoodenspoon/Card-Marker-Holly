@@ -5,6 +5,7 @@
  */
 import type { Args } from '../model/events'
 import { dateOf } from '../model/calendar'
+import { expandCardList, parseCardList } from './cardList'
 import { registerPiece, type Owned, type PieceDef, type RunContext } from './pieces'
 
 const num = (v: unknown, d = 0) =>
@@ -261,9 +262,88 @@ const worldPieces: PieceDef[] = [
     id: 'booster.open',
     label: 'Open a booster',
     group: 'Cards',
-    sentence: 'give the player a {booster} booster to open',
-    fields: [{ key: 'booster', label: 'Booster', kind: 'booster' }],
-    run: (ctx, a) => ctx.world?.openBooster(String(a.booster ?? '')),
+    sentence: 'give the player {count} {booster} booster(s) to open',
+    fields: [
+      { key: 'count', label: 'How many boosters', kind: 'int', default: 1 },
+      { key: 'booster', label: 'Booster', kind: 'booster' },
+    ],
+    // Games made before "how many" existed have no count: that is one booster.
+    run: async (ctx, a) => {
+      const n = Math.max(0, Math.floor(num(a.count, 1)))
+      await ctx.world?.openBooster(String(a.booster ?? ''), n)
+    },
+  },
+  {
+    kind: 'effect',
+    id: 'cards.giveSet',
+    label: 'Give several chosen cards',
+    group: 'Cards',
+    sentence: 'give the player all of these cards: {cards}',
+    fields: [{ key: 'cards', label: 'Cards', kind: 'cardList' }],
+    run: (ctx, a) => {
+      for (const c of parseCardList(a.cards)) ctx.world?.give('card', c.id, c.n)
+    },
+  },
+  {
+    kind: 'effect',
+    id: 'cards.giveRandom',
+    label: 'Give random cards from a list',
+    group: 'Cards',
+    sentence: 'give the player {count} cards picked at random from {cards}',
+    fields: [
+      { key: 'count', label: 'How many cards', kind: 'int', default: 1 },
+      { key: 'cards', label: 'Cards', kind: 'cardList' },
+    ],
+    run: (ctx, a) => {
+      // A card listed with several copies is more likely, like several tickets in a hat.
+      const hat = expandCardList(parseCardList(a.cards))
+      const n = Math.max(0, Math.floor(num(a.count, 1)))
+      if (!hat.length) return
+      for (let i = 0; i < n; i++)
+        ctx.world?.give('card', hat[Math.min(hat.length - 1, Math.floor(ctx.random() * hat.length))], 1)
+    },
+  },
+  {
+    kind: 'effect',
+    id: 'cards.choose',
+    label: 'Let the player choose cards from a list',
+    group: 'Cards',
+    sentence: 'let the player choose {count} of {cards} to keep',
+    fields: [
+      { key: 'count', label: 'How many cards', kind: 'int', default: 1 },
+      { key: 'cards', label: 'Cards', kind: 'cardList' },
+    ],
+    run: async (ctx, a) => {
+      const w = ctx.world
+      if (!w) return
+      const left = parseCardList(a.cards).map((c) => c.id)
+      const n = Math.max(0, Math.floor(num(a.count, 1)))
+      // Each pick leaves the list, so the player gets different cards.
+      for (let i = 0; i < n && left.length && !ctx.stopped(); i++) {
+        const pick =
+          left.length === 1
+            ? 0
+            : await ctx.choose(
+                n > 1 ? `Choose a card (${i + 1} of ${n})` : 'Choose a card',
+                left.map((id) => w.cardName(id)),
+              )
+        const [id] = left.splice(Math.max(0, pick), 1)
+        if (id) w.give('card', id, 1)
+      }
+    },
+  },
+  {
+    kind: 'effect',
+    id: 'cards.fromBooster',
+    label: 'Give random cards from a booster’s pool',
+    group: 'Cards',
+    sentence: 'give the player {count} cards drawn like the {booster} booster does',
+    fields: [
+      { key: 'count', label: 'How many cards', kind: 'int', default: 1 },
+      { key: 'booster', label: 'Booster', kind: 'booster' },
+    ],
+    run: (ctx, a) =>
+      ctx.world?.giveFromBooster(String(a.booster ?? ''), Math.max(0, Math.floor(num(a.count, 1)))),
   },
   {
     kind: 'effect',
@@ -271,7 +351,7 @@ const worldPieces: PieceDef[] = [
     label: 'Edit my deck',
     group: 'Cards',
     sentence: 'let the player edit {deck} from the cards they own',
-    fields: [{ key: 'deck', label: 'Deck', kind: 'deck' }],
+    fields: [{ key: 'deck', label: 'Deck', kind: 'deck', blank: 'the player’s own deck' }],
     run: (ctx, a) => ctx.world?.editDeck(String(a.deck ?? '')),
   },
   {

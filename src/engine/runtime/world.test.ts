@@ -16,7 +16,7 @@ import {
   stopRuntime,
   useRuntime,
 } from './runtime'
-import { buy, moneyOf, sell, sellable, setDeckCard } from './world'
+import { PLAYER_DECK, buy, deckToEdit, moneyOf, sell, sellable, setDeckCard } from './world'
 
 const tick = async (n = 3) => {
   for (let i = 0; i < n; i++) await new Promise((r) => setTimeout(r, 0))
@@ -137,6 +137,111 @@ describe('the player’s world', () => {
     expect(sell(shop.id, 'card', 'a')).toBe(true)
     expect(sell(shop.id, 'card', 'a')).toBe(false)
     expect(st().collection.a).toEqual({ normal: 2, foil: 0 })
+    stopRuntime()
+  })
+
+  it('“Edit my deck” works with no deck made yet, using the player’s own', async () => {
+    const { g, scene } = demo()
+    const ev = newEvent({ piece: 'scene.start', args: {} })
+    ev.steps.push(effect('cards.giveSet', { cards: 'a*2,b' }), effect('deck.edit', {}))
+    scene.events.push(ev)
+    startRuntime(g)
+    await tick()
+    expect(st().screen).toMatchObject({ kind: 'deck', deckId: PLAYER_DECK })
+    setDeckCard(PLAYER_DECK, 'a', 5)
+    expect(st().decks[PLAYER_DECK]).toEqual({ a: 2 })
+    expect(st().ownedDecks).toEqual([PLAYER_DECK])
+    stopRuntime()
+  })
+
+  it('a deck that was picked but no longer exists falls back to the player’s own', () => {
+    const g = newGame('Decks')
+    const d = newDeck('Mine')
+    g.decks.push(d)
+    expect(deckToEdit(g, d.id)).toBe(d.id)
+    expect(deckToEdit(g, 'gone')).toBe(PLAYER_DECK)
+    expect(deckToEdit(g, '')).toBe(PLAYER_DECK)
+  })
+
+  it('gives several boosters, one reveal after the other', async () => {
+    const { g, scene } = demo()
+    const pack = newBooster('Pack')
+    g.boosters.push(pack)
+    const ev = newEvent({ piece: 'scene.start', args: {} })
+    ev.steps.push(
+      effect('booster.open', { booster: pack.id, count: 3 }),
+      effect('message.show', { text: 'Done' }),
+    )
+    scene.events.push(ev)
+    startRuntime(g)
+    await tick()
+    for (let i = 0; i < 3; i++) {
+      expect(st().screen).toMatchObject({ kind: 'booster' })
+      closeScreen()
+      await tick()
+    }
+    expect(st().message).toBe('Done')
+    const total = Object.values(st().collection).reduce((n, c) => n + c.normal + c.foil, 0)
+    expect(total).toBe(9)
+    stopRuntime()
+  })
+
+  it('an old booster step with no count still opens one', async () => {
+    const { g, scene } = demo()
+    const pack = newBooster('Pack')
+    g.boosters.push(pack)
+    const ev = newEvent({ piece: 'scene.start', args: {} })
+    ev.steps.push(effect('booster.open', { booster: pack.id }), effect('message.show', { text: 'Done' }))
+    scene.events.push(ev)
+    startRuntime(g)
+    await tick()
+    closeScreen()
+    await tick()
+    expect(st().message).toBe('Done')
+    stopRuntime()
+  })
+
+  it('gives chosen cards, random ones from a list, and lets the player choose', async () => {
+    const { g, scene } = demo()
+    const ev = newEvent({ piece: 'scene.start', args: {} })
+    ev.steps.push(
+      effect('cards.giveSet', { cards: 'a*2,b' }),
+      effect('cards.giveRandom', { count: 4, cards: 'c' }),
+      effect('cards.choose', { count: 2, cards: 'a,b,A' }),
+      effect('message.show', { text: 'Done' }),
+    )
+    scene.events.push(ev)
+    startRuntime(g)
+    await tick(6)
+    // First choice: Card a, then (a is gone from the list) Card A.
+    expect(st().choice?.options).toEqual(['Card a', 'Card b', 'Card A'])
+    answerRuntime(0)
+    await tick(6)
+    expect(st().choice?.options).toEqual(['Card b', 'Card A'])
+    answerRuntime(1)
+    await tick(6)
+    expect(st().message).toBe('Done')
+    const col = st().collection
+    expect(col.a).toEqual({ normal: 3, foil: 0 })
+    expect(col.b).toEqual({ normal: 1, foil: 0 })
+    expect(col.c).toEqual({ normal: 4, foil: 0 })
+    expect(col.A).toEqual({ normal: 1, foil: 0 })
+    stopRuntime()
+  })
+
+  it('draws a number of cards by a booster’s pool and chances', async () => {
+    const { g, scene } = demo()
+    const pack = newBooster('Pack')
+    g.boosters.push(pack)
+    const ev = newEvent({ piece: 'scene.start', args: {} })
+    ev.steps.push(effect('cards.fromBooster', { booster: pack.id, count: 5 }))
+    scene.events.push(ev)
+    startRuntime(g)
+    await tick()
+    const sc = st().screen
+    expect(sc?.kind === 'booster' && sc.pack.cards.length).toBe(5)
+    const total = Object.values(st().collection).reduce((n, c) => n + c.normal + c.foil, 0)
+    expect(total).toBe(5)
     stopRuntime()
   })
 
