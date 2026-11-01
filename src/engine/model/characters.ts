@@ -68,6 +68,8 @@ export interface Character {
   template: string | null
   /** By layer id. */
   parts: Record<string, CharacterPart>
+  /** The game's own marks on a character: "important", "rival"… (free words). */
+  flags?: string[]
 }
 
 export const newOption = (name: string, image: ImageRef | null = null): PortraitOption => ({

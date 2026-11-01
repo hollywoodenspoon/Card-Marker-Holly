@@ -38,10 +38,16 @@ export interface Booster {
   rarities: Rarity[]
 }
 
+/** Limited stock: starts at `max` and refills by `refill` each week. */
+export interface StockRule {
+  max: number
+  refill: number
+}
+
 export type ShopEntry =
-  | { id: string; kind: 'item'; ref: string; price: number | null }
-  | { id: string; kind: 'booster'; ref: string; price: number | null }
-  | { id: string; kind: 'card'; ref: string; foil: boolean; price: number }
+  | { id: string; kind: 'item'; ref: string; price: number | null; stock?: StockRule }
+  | { id: string; kind: 'booster'; ref: string; price: number | null; stock?: StockRule }
+  | { id: string; kind: 'card'; ref: string; foil: boolean; price: number; stock?: StockRule; market?: boolean }
 
 /** The four rarities, by Ace and foil (the key for prices). */
 export type RarityKey = 'common' | 'uncommon' | 'rare' | 'diamond'

@@ -1,28 +1,27 @@
 import { useEffect, useState } from 'react'
 import { usePortrait } from '../../portraits/render'
+import { useLine } from '../lines'
 import { answerRuntime, useRuntime } from '../runtime'
 import { setFinishTyping, skipTyping } from './typing'
-
-/** Characters per second while typing. */
-const SPEED = 45
 
 const reduced = () =>
   typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches
 
 /** Text that types itself out; a click or Enter shows it all. */
-function useTyping(text: string) {
-  const [shown, setShown] = useState(() => (reduced() ? text.length : 0))
+function useTyping(text: string, speed: number) {
+  const instant = reduced() || speed <= 0
+  const [shown, setShown] = useState(() => (instant ? text.length : 0))
   const [prev, setPrev] = useState(text)
   if (prev !== text) {
     setPrev(text)
-    setShown(reduced() ? text.length : 0)
+    setShown(instant ? text.length : 0)
   }
-  const done = shown >= text.length
+  const done = instant || shown >= text.length
   useEffect(() => {
     if (done) return
-    const t = setInterval(() => setShown((n) => Math.min(text.length, n + 1)), 1000 / SPEED)
+    const t = setInterval(() => setShown((n) => Math.min(text.length, n + 1)), 1000 / speed)
     return () => clearInterval(t)
-  }, [text, done])
+  }, [text, done, speed])
   useEffect(() => {
     setFinishTyping(() => {
       if (done) return false
@@ -31,7 +30,7 @@ function useTyping(text: string) {
     })
     return () => setFinishTyping(null)
   }, [text, done])
-  return { text: text.slice(0, shown), done }
+  return { text: instant ? text : text.slice(0, shown), done }
 }
 
 /**
@@ -45,7 +44,8 @@ export function DialogueBox() {
   const choice = useRuntime((s) => s.choice)
   const portrait = usePortrait(game, speaker?.character, speaker?.expression)
   const text = message ?? choice?.prompt ?? ''
-  const typing = useTyping(text)
+  const t = useLine()
+  const typing = useTyping(text, game?.settings.textSpeed ?? 40)
   if (message === null && !choice) return null
   return (
     <div className="pb-safe absolute inset-x-2 bottom-2 flex items-end gap-3 sm:inset-x-[8%]">
@@ -80,7 +80,7 @@ export function DialogueBox() {
           >
             {typing.text}
             <span className="mt-2 block text-right text-xs text-white/60">
-              {typing.done ? 'Continue ▸' : '…'}
+              {typing.done ? t('dialogue.continue') : '…'}
             </span>
           </button>
         ) : (

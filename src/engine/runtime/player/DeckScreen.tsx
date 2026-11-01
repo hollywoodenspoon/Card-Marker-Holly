@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useGameCards } from '../../cards/gameCards'
 import { deckSize } from '../../model/game'
+import { useLine } from '../lines'
 import { closeScreen, useRuntime } from '../runtime'
 import { setDeckCard } from '../world'
 import { CardFace } from './CardFace'
@@ -14,6 +15,7 @@ export function DeckScreen({ deckId }: { deckId: string }) {
   const deck = useRuntime((s) => s.decks[deckId]) ?? NONE
   const collection = useRuntime((s) => s.collection)
   const cards = useGameCards((s) => s.merged?.pack.info.cards)
+  const t = useLine()
   const [query, setQuery] = useState('')
   const owned = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -28,14 +30,14 @@ export function DeckScreen({ deckId }: { deckId: string }) {
       footer={
         <>
           <input
-            aria-label="Search your cards"
-            placeholder="Search your cards"
+            aria-label={t('deck.search')}
+            placeholder={t('deck.search')}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="h-11 min-w-0 flex-1 rounded-md border border-white/15 bg-black/40 px-2 text-base text-white outline-none md:h-9 md:text-sm"
           />
           <PlayerButton primary onClick={() => closeScreen()}>
-            Done
+            {t('booster.close')}
           </PlayerButton>
         </>
       }

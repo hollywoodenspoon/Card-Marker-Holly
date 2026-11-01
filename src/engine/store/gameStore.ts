@@ -23,6 +23,7 @@ export type GamePanel =
   | 'items'
   | 'shops'
   | 'calendar'
+  | 'rules'
   | 'map'
 
 /** What the centre shows. */
@@ -34,6 +35,7 @@ export type GameView =
       id: string
     }
   | { kind: 'calendar' }
+  | { kind: 'text' }
   | { kind: 'none' }
 
 export type GameSelection = { kind: 'area' | 'object'; id: string } | { kind: 'scene' } | null

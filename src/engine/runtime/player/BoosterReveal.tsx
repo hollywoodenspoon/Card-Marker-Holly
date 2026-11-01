@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { cn } from '@/lib/cn'
 import type { OpenedPack } from '../state'
+import { useLine } from '../lines'
 import { useRuntime } from '../runtime'
 import { CardFace } from './CardFace'
 import { useCardName } from './useCardName'
@@ -9,6 +10,7 @@ import { Panel, PlayerButton } from './Panel'
 /** A booster opening: the cards face down, turned one at a time, foils shining. */
 export function BoosterReveal({ pack, onDone }: { pack: OpenedPack; onDone: () => void }) {
   const booster = useRuntime((s) => s.game?.boosters.find((b) => b.id === pack.booster))
+  const t = useLine()
   const [shown, setShown] = useState(0)
   const all = shown >= pack.cards.length
   const next = () => setShown((n) => Math.min(pack.cards.length, n + 1))
@@ -20,13 +22,13 @@ export function BoosterReveal({ pack, onDone }: { pack: OpenedPack; onDone: () =
       footer={
         <>
           <span className="flex-1 text-sm text-white/70">
-            {all ? 'All cards are in your collection.' : 'Tap a card to turn it over.'}
+            {all ? t('booster.done') : t('booster.tap')}
           </span>
           {!all && (
-            <PlayerButton onClick={() => setShown(pack.cards.length)}>Show all</PlayerButton>
+            <PlayerButton onClick={() => setShown(pack.cards.length)}>{t('booster.showAll')}</PlayerButton>
           )}
           <PlayerButton primary onClick={all ? onDone : next} data-testid="booster-next">
-            {all ? 'Done' : 'Next card'}
+            {all ? t('booster.close') : t('booster.next')}
           </PlayerButton>
         </>
       }

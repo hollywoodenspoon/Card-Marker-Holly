@@ -17,11 +17,12 @@ import {
 } from '../economy/collection'
 import { runSteps, testCondition } from '../events/run'
 import type { Owned, RunContext, World } from '../events/pieces'
-import { eventsOn, isOn } from '../model/calendar'
+import { eventsOn, isOn, sizes } from '../model/calendar'
+import { hasEnded } from '../model/settings'
 import { isAce, rarityKey, type ShopEntry } from '../model/economy'
 import type { GameEvent } from '../model/events'
 import type { GameDoc } from '../model/game'
-import { autoEvents, cardsReady, randomInt, showMessage } from './runtime'
+import { autoEvents, autosave, cardsReady, randomInt, showMessage } from './runtime'
 import { closeScreen, get, set, showScreen, type ActivityOption } from './state'
 
 const game = (): GameDoc => {
@@ -283,6 +284,13 @@ export function makeWorld(
     nextWeek: async () => {
       const week = get().week + 1
       set({ week })
+      const g = game()
+      if (g.settings.autosaveOnWeek) autosave()
+      if (hasEnded(g.settings, sizes(g.calendar).year, week)) {
+        closeScreen()
+        set({ ended: g.settings.ending.text || 'The end.', message: null, choice: null, speaker: null })
+        return
+      }
       await runAll(weekStart(), ctx)
       if (live()) await runAll(autoEvents(game(), week, get().calSeed), ctx)
     },

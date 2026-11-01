@@ -2,6 +2,7 @@ import { useGame } from '../../store/gameStore'
 import { BoosterView } from './BoosterView'
 import { ActivityView, CalEventView, CalendarPreview } from './CalendarViews'
 import { CharacterView } from './CharacterView'
+import { TextView } from '../rules/TextView'
 import { PortraitView } from './PortraitView'
 import { ShopView } from './ShopView'
 
@@ -37,6 +38,8 @@ export function WorldView() {
     }
     case 'calendar':
       return <CalendarPreview />
+    case 'text':
+      return <TextView />
     default:
       return gone
   }

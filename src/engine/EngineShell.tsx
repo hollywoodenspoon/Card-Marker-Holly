@@ -22,6 +22,7 @@ import {
   Variable,
   Clapperboard,
   CalendarDays,
+  SlidersHorizontal,
   Coins,
   Store,
   Users,
@@ -77,6 +78,7 @@ import { CharactersPanel } from './panels/world/CharactersPanel'
 import { ItemsPanel } from './panels/world/ItemsPanel'
 import { ShopsPanel } from './panels/world/ShopsPanel'
 import { CalendarPanel } from './panels/world/CalendarPanel'
+import { SettingsPanel } from './panels/rules/SettingsPanel'
 import { WorldView } from './panels/world/WorldView'
 import { isWorldView, worldHelp } from './panels/world/worldViews'
 import { GamesDialog } from './panels/game/GamesDialog'
@@ -104,6 +106,7 @@ const RAIL: { id: Panel; label: string; icon: typeof Layers }[] = [
   { id: 'items', label: 'Items', icon: Coins },
   { id: 'shops', label: 'Shops', icon: Store },
   { id: 'calendar', label: 'Calendar', icon: CalendarDays },
+  { id: 'rules', label: 'Rules', icon: SlidersHorizontal },
   { id: 'map', label: 'Map tools', icon: MapIcon },
 ]
 
@@ -329,6 +332,7 @@ function LeftPanel() {
         {shown === 'items' && <ItemsPanel />}
         {shown === 'shops' && <ShopsPanel />}
         {shown === 'calendar' && <CalendarPanel />}
+        {shown === 'rules' && <SettingsPanel />}
         {shown === 'map' && <ToolPanel />}
       </div>
     </div>

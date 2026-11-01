@@ -14,11 +14,16 @@ import { loadGameCards, useGameCards } from '../cards/gameCards'
 import { collectionOf } from '../economy/collection'
 import { recipeRunner, runSteps } from '../events/run'
 import type { RunContext } from '../events/pieces'
+import { emptyWorld } from '../league/worldState'
+import { makeRng } from '../league/rng'
+import { startingDuelists } from '../league/duelists'
 import { dateLabel, eventsOn } from '../model/calendar'
 import type { Args, GameEvent } from '../model/events'
 import { countsOf, deckList, type DeckLevel, type GameDoc, type Scene } from '../model/game'
+import { autoSlotNames } from '../model/settings'
 import { deckBuilderFor } from '../modules/registry'
-import { readSave, writeSave, type SaveSlot } from '../storage/saves'
+import { listSaves, readSave, writeSave, type SaveSlot } from '../storage/saves'
+import { leagueCards } from './leagueCards'
 import { fromSnapshot, takeSnapshot, type Snapshot } from './snapshot'
 import { closeScreen, get, idle, pushLog, set, useRuntime } from './state'
 import { fillText } from './text'
@@ -90,7 +95,7 @@ function context(id: number): RunContext {
       if (!sceneById(sceneId)) return
       const now = get().sceneId
       set({ sceneId, trail: now && now !== sceneId ? [...get().trail, now] : get().trail })
-      autosave()
+      if (get().game?.settings.autosaveOnScene) autosave()
       enqueue(sceneStart(sceneId))
     },
     setObjectVisible: (obj, visible) => set({ hidden: { ...get().hidden, [obj]: !visible } }),
@@ -114,6 +119,23 @@ function context(id: number): RunContext {
 }
 
 export const currentContext = () => context(run)
+
+/** Runs a job in the same queue as the steps (the player's clicks wait for it). */
+export function enqueueTask(job: () => Promise<void>) {
+  const id = run
+  queue = queue.then(async () => {
+    if (id !== run) return
+    set({ busy: true })
+    try {
+      await job()
+    } catch (e) {
+      console.error('Task failed', e)
+    } finally {
+      if (id === run) set({ busy: false })
+    }
+  })
+  return queue
+}
 
 /** Run steps one batch at a time, in order (a scene's start waits for the click that went there). */
 function enqueue(events: GameEvent[]) {
@@ -172,11 +194,30 @@ export function startRuntime(game: GameDoc, from?: string) {
     collection: start ? collectionOf(start.counts) : {},
     calSeed: randomSeed() || 1,
   })
+  void enqueueTask(() => prepareWorld(game, run))
   if (!from) {
     void enqueue(byCause(game.events, 'game.start'))
     void enqueue(autoEvents(game, 0, get().calSeed))
   }
   if (first) void enqueue(sceneStart(first))
+}
+
+/** Makes the league's world when the game has one and this playthrough has none yet. */
+async function prepareWorld(game: GameDoc, id: number) {
+  if (!game.league.enabled || get().world) return
+  set({ status: 'Getting the cards ready…' })
+  try {
+    await cardsReady(game)
+    if (id !== run) return
+    const rng = makeRng(randomInt())
+    const league = game.league
+    const region = league.names.regions.length ? rng.pick(league.names.regions) : ''
+    const world = emptyWorld(rng.seed(), league.playerRating, region)
+    world.duelists = startingDuelists(league, rng, leagueCards(game))
+    set({ world })
+  } finally {
+    if (id === run) set({ status: null })
+  }
 }
 
 export function stopRuntime() {
@@ -207,9 +248,22 @@ export async function saveRuntime(slot: SaveSlot): Promise<void> {
   })
 }
 
-/** The autosave on every scene change (quietly ignores a browser without storage). */
-function autosave() {
-  saveRuntime('auto').catch(() => undefined)
+/**
+ * Autosaves into the game's autosave slots, taking turns: an empty one first, then the
+ * oldest. Quietly does nothing without storage or with no autosave slots.
+ */
+export function autosave() {
+  const game = get().game
+  if (!game) return
+  const slots = autoSlotNames(game.settings)
+  if (!slots.length) return
+  listSaves(game.id)
+    .then((rows) => {
+      const at = (s: string) => rows.find((r) => r.slot === s)?.savedAt ?? -1
+      const slot = [...slots].sort((a, b) => at(a) - at(b))[0]
+      return saveRuntime(slot)
+    })
+    .catch(() => undefined)
 }
 
 /** Puts a saved game back and starts its scene again. */
@@ -217,6 +271,7 @@ export function loadSnapshot(game: GameDoc, snap: Snapshot) {
   reset()
   seed = Number(snap.seed) || randomSeed()
   set({ ...idle, ...fromSnapshot(snap), running: true, game })
+  void enqueueTask(() => prepareWorld(game, run))
   const scene = get().sceneId
   if (scene && sceneById(scene)) void enqueue(sceneStart(scene))
   else set({ sceneId: game.startScene ?? game.scenes[0]?.id ?? null })
@@ -244,7 +299,7 @@ export function backScene() {
   if (st.busy || !st.trail.length) return
   const prev = st.trail[st.trail.length - 1]
   set({ sceneId: prev, trail: st.trail.slice(0, -1) })
-  autosave()
+  if (st.game?.settings.autosaveOnScene) autosave()
   void enqueue(sceneStart(prev))
 }
 

@@ -6,6 +6,7 @@ import { create } from 'zustand'
 import type { Collection, Inventory } from '../economy/collection'
 import type { Pulled } from '../economy/booster'
 import type { GameDoc, ImageRef } from '../model/game'
+import type { ActiveTournament, WorldState } from '../league/worldState'
 
 /** Who's talking in the dialogue box. */
 export interface Speaker {
@@ -43,6 +44,21 @@ export type Screen =
   | { kind: 'deck'; deckId: string }
   | { kind: 'activity'; options: ActivityOption[]; forced: boolean }
   | { kind: 'calendar' }
+  | { kind: 'tournament' }
+  | { kind: 'hint'; text: string }
+
+/** A card game in progress, kept so a save can bring it back. */
+export interface PendingMatch {
+  decks: [string[], string[]]
+  names: [string, string]
+  bot: 'easy' | 'normal' | 'hard' | null
+  /** The moves made so far (replayed on load). */
+  moves: unknown[]
+  seed: number | null
+  /** Variable to set to whether seat 0 won, and the tournament match it is, if any. */
+  won?: string
+  matchId?: string
+}
 
 export interface RuntimeState {
   running: boolean
@@ -74,12 +90,19 @@ export interface RuntimeState {
   ended: string | null
   /** A longer job the player waits for ("Building a deck… 40%"). */
   status: string | null
+  /** The league's world: NPC duelists, bans, market… null when the game has none. */
+  world: WorldState | null
+  /** The world step is running (the week change waits for it). */
+  stepping: boolean
+  /** A duel the player paused and saved: what it takes to start it again. */
+  pendingMatch: PendingMatch | null
   /** True while Play's table runs a card game this game started. */
   away: boolean
   /** Steps are running (clicks wait until they finish). */
   busy: boolean
 }
 
+export type { ActiveTournament }
 export const idle: RuntimeState = {
   running: false,
   game: null,
@@ -99,6 +122,9 @@ export const idle: RuntimeState = {
   ownedDecks: [],
   screen: null,
   ended: null,
+  world: null,
+  stepping: false,
+  pendingMatch: null,
   status: null,
   away: false,
   busy: false,

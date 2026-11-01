@@ -1,6 +1,6 @@
 import type { GameView } from '../../store/gameStore'
 
-const WORLD_VIEWS = ['portrait', 'character', 'shop', 'booster', 'activity', 'calEvent', 'calendar']
+const WORLD_VIEWS = ['portrait', 'character', 'shop', 'booster', 'activity', 'calEvent', 'calendar', 'text']
 
 export const isWorldView = (v: GameView) => WORLD_VIEWS.includes(v.kind)
 
@@ -20,6 +20,8 @@ export function worldHelp(kind: GameView['kind']): string | null {
       return '“Pick this week’s activity” lists the activities and this week’s events, runs the picked one, then starts the next week (the weekly tick and automatic events run then).'
     case 'calendar':
       return 'The player’s Calendar shows what they know is coming: each event is announced as set.'
+    case 'text':
+      return 'These lines are shown in the game’s menus and screens. Change them for another voice or language.'
     default:
       return null
   }
