@@ -882,3 +882,39 @@ Owner feedback after trying the editor (2026-10-29), checked against the engine 
 - **Calendar events** are activities (offered that week), forced (the only choice) or automatic. Random events pick among the weeks of a month, season or year where an important event (or a chosen one) falls; each playthrough rolls its own, the same all the way through, so they can be announced ahead. Exams: one random event on important events in seasons 1–3, and one on Nationals in season 4.
 - **End conditions** are calendar events with "End the game"; the ending screen offers Load a save or Exit.
 - **Saves:** 3 slots and an autosave (on every scene change, Back included), per game, in the Engine DB (v4 `saves`). Assumption: a save can't resume halfway through steps, so loading starts the saved scene again (its "scene starts" steps run). Saves use the game as it is now.
+
+## Tournaments, releases, bans, duelists, the world step and the simulator (PR 3 of 3, v0.8.4-beta): agreed design
+
+Agreed with the owner in discussion; the plan is in the PR. Adventure Scuffle! is the first game and fills general tools with data.
+
+- **Everything is editable** (owner, firm rule). No number, name, wording, schedule or rule is fixed in code. The design docs' values (7 years, 60 starting cards, 50/30/20 prizes, 40 % ban share, 4 weeks' warning, 120 duelists…) are only the first game's defaults. Player-facing text comes from one game text list; the look of player screens stays in one place (colours, fonts) so a theme editor can follow.
+- **Deferred to a later PR:** 2D tile maps, assist mode, the player-screen theme editor. (Adventure Scuffle!'s town is a menu of picture scenes.)
+- **Tournaments**
+  - A tournament is a list of stages (round robin, Swiss, groups, single or double elimination); a stage passes its top N to the next.
+  - Points per placing per tournament type, and the thresholds that give a chance at an invitation, are settings. Prize pools, places paid and entry fees are set per tournament.
+  - Official ladder (defaults): Locals, Regionals, Nationals, Pro Tour, World Championship, as in the roadmap.
+  - **No skipping:** a tournament you entered cannot be auto-simulated, nor can your matches. You may forfeit a match (a loss). Swiss and round robin go on; single elimination ends your run; double elimination counts it as one loss.
+  - Tournaments you did not enter still happen: the NPC world plays them.
+  - The other entrants' matches are settled by a quick calculation; you can spectate any other match of the round as a real bot duel (1×, 2×, 4×, skip).
+  - The existing pure engine in `src/adventure/tournament/` is reused for brackets and standings.
+- **Releases and bans**
+  - Starting pool: a fixed set that is always in (The First Quest, 45) plus a semi-random related draw (15). Each release is a semi-random draw too. The count, start season and draw rules (Ace limits, families, new mechanics) are settings. Seeded per save.
+  - Releases and bans are calendar events on their own dates; the owner sets when, how many, and can add or remove them or place hand-made ones.
+  - Default: no bans in year 1 (the world's 1.5 years of history have none either); the first ban update comes after year 1. The watch list may start earlier. The history before week 1 is empty in v1 of this feature, but the data allows earlier releases and bans later.
+  - Ban data comes from play in the game itself (simulated and real), weighted towards Nationals, Pro Tour and World Championship results. Ban size, share threshold, notice, length, unbans and the rest are settings.
+  - The game may run any number of years, or never end; endings are set by the owner (an event, a year, never).
+- **Duelists and characters**
+  - Duelists are Engine records that point at a character; their decks are built from the live card source (never copied), through the module's deck builder (`src/adventure/deckgen/`), kept behind one function so it can change.
+  - **Levels** (editable list; defaults): local, regional, national, and Pro Tour / World Championship (international). Each tournament type has an appearance chance per level, so a Locals-only player rarely meets higher levels; international players appear only at Pro Tours and Worlds. Duelists move between levels with their results.
+  - Characters can be flagged (important, rival, and the owner's own tags). The rival's rule reads the flag.
+  - The character maker adds colour-ramp presets, random re-roll, clash rules, saved presets, the player's own maker on the new-game screen, and generated characters from rules. Art is the owner's, added through the existing portrait templates; placeholders are used for testing.
+  - The first pool is about 16 hand-made duelists plus the generator; the pool size is a setting.
+- **The world step and the economy**
+  - The NPC world advances one step when the week changes (when is a setting), in a background worker during the player's week, and is finished by its end (if not, the game waits and shows progress; that is a setting). Nothing is simulated in advance.
+  - The step covers NPC matches, careers, level moves, card use, prices, supply and shop stock.
+  - **Market:** supply = a setting for countries, stores per country and booster boxes per shop per month (10 to start; 12 boosters a box), turned into expected copies of each card by the boosters' rarities and drop rates, plus an initial supply. Demand = a player population (separate from the named duelists, who are a sample) and meta use, with banned status. Price = base value moved by demand against supply; the formula and weights are settings. Aggregate expected values, not per-player simulation.
+  - Booster pack prices stay as set; shop stock is limited and changes. Scalper-style events use Cause and Effect.
+  - The money chart includes a rough simulated weekly routine (jobs, study, prizes), editable.
+- **The season simulator** runs the same weekly step many times without a player (presets: never enters, enters everything, enters what qualifies), reports who rose and fell, card use, ban flags, the rival's path and the money chart, and ships as an internal tool hidden by a developer-tools switch.
+- **Tutorial hints**: events on duel-moment causes (first Fighting Spirit, first Regroup…), wording in the game text list. There is no built-in tutorial; the owner can make none or build one. A hint pauses the duel with a box by default, once per save; both are settings per hint.
+- **Saves**: the number of save slots and autosave slots are settings (PR 2 had 3 and 1). A duel can be paused and saved mid-way (the save then holds the duel's state).
