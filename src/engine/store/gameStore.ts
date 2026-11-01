@@ -12,11 +12,29 @@ import { newGame, type GameDoc } from '../model/game'
 const history = new History<GameDoc>()
 
 /** The left rail's sections. */
-export type GamePanel = 'game' | 'scenes' | 'decks' | 'cards' | 'images' | 'variables' | 'map'
+export type GamePanel =
+  | 'game'
+  | 'scenes'
+  | 'decks'
+  | 'cards'
+  | 'images'
+  | 'variables'
+  | 'characters'
+  | 'items'
+  | 'shops'
+  | 'calendar'
+  | 'map'
 
 /** What the centre shows. */
 export type GameView =
-  { kind: 'scene'; id: string } | { kind: 'deck'; id: string } | { kind: 'none' }
+  | { kind: 'scene'; id: string }
+  | { kind: 'deck'; id: string }
+  | {
+      kind: 'portrait' | 'character' | 'shop' | 'booster' | 'activity' | 'calEvent'
+      id: string
+    }
+  | { kind: 'calendar' }
+  | { kind: 'none' }
 
 export type GameSelection = { kind: 'area' | 'object'; id: string } | { kind: 'scene' } | null
 

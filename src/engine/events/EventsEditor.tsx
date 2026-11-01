@@ -37,6 +37,7 @@ import {
   newEvent,
   randomStep,
   type Args,
+  type Condition,
   type GameEvent,
   type Step,
 } from '../model/events'
@@ -204,6 +205,56 @@ function EventCard({
 }
 
 type EditSteps = (recipe: (steps: Step[]) => void) => void
+
+/** A list of steps on its own (an activity's, a calendar event's), without a cause. */
+export function StepsEditor({ steps, onChange }: { steps: Step[]; onChange: EditSteps }) {
+  const choices = useChoices()
+  return <StepList steps={steps} choices={choices} editSteps={onChange} depth={0} />
+}
+
+/** One condition, or none ("always"). */
+export function ConditionEditor({
+  condition,
+  onChange,
+  none = 'never',
+}: {
+  condition: Condition | null
+  onChange: (c: Condition | null) => void
+  /** What no condition means, in words. */
+  none?: string
+}) {
+  const choices = useChoices()
+  const conditions = piecesOf('condition')
+  const def = condition ? piece(condition.piece) : undefined
+  return (
+    <div className="flex flex-wrap items-center gap-1 text-sm">
+      <NativeSelect
+        aria-label="Condition"
+        className="h-8 w-auto text-xs"
+        value={condition?.piece ?? ''}
+        onChange={(e) => {
+          const d = piece(e.target.value)
+          onChange(d ? { piece: d.id, args: defaultArgs(d) } : null)
+        }}
+      >
+        <option value="">{none}</option>
+        {conditions.map((c) => (
+          <option key={c.id} value={c.id}>
+            {c.label}
+          </option>
+        ))}
+      </NativeSelect>
+      {condition && (
+        <Sentence
+          def={def}
+          args={condition.args}
+          choices={choices}
+          onArg={(k, v) => onChange({ ...condition, args: { ...condition.args, [k]: v } })}
+        />
+      )}
+    </div>
+  )
+}
 
 function StepList({
   steps,

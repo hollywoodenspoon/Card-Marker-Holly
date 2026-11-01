@@ -5,7 +5,13 @@
  * editor share them.
  */
 import { useEffect, useState } from 'react'
-import { portraitLayers, templateOf, type DrawnLayer } from '../model/characters'
+import {
+  portraitLayers,
+  templateOf,
+  type Character,
+  type DrawnLayer,
+  type PortraitTemplate,
+} from '../model/characters'
 import type { GameDoc } from '../model/game'
 import { imageUrl } from '../scenes/images'
 import { recolorPixels } from './recolor'
@@ -69,6 +75,15 @@ export function usePortrait(
 ): string | null {
   const c = game?.characters.find((x) => x.id === characterId) ?? null
   const t = game ? templateOf(game.portraits, c) : null
+  return usePortraitOf(t, c, expression)
+}
+
+/** A portrait URL from a template and a character (the editor's previews). */
+export function usePortraitOf(
+  t: PortraitTemplate | null,
+  c: Character | null,
+  expression?: string | null,
+): string | null {
   const layers = t && c ? portraitLayers(t, c, expression) : []
   const key = t ? JSON.stringify([t.width, t.height, layers]) : ''
   const [state, setState] = useState<{ key: string; url: string | null } | null>(null)

@@ -21,6 +21,10 @@ import {
   Upload,
   Variable,
   Clapperboard,
+  CalendarDays,
+  Coins,
+  Store,
+  Users,
 } from '@/ui/icons'
 import { Button, IconButton } from '@/ui/components/ui/button'
 import {
@@ -69,6 +73,12 @@ import { DeckView } from './panels/game/DeckView'
 import { CardsPanel } from './panels/game/CardsPanel'
 import { ImagesPanel } from './panels/game/ImagesPanel'
 import { VariablesPanel } from './panels/game/VariablesPanel'
+import { CharactersPanel } from './panels/world/CharactersPanel'
+import { ItemsPanel } from './panels/world/ItemsPanel'
+import { ShopsPanel } from './panels/world/ShopsPanel'
+import { CalendarPanel } from './panels/world/CalendarPanel'
+import { WorldView } from './panels/world/WorldView'
+import { isWorldView, worldHelp } from './panels/world/worldViews'
 import { GamesDialog } from './panels/game/GamesDialog'
 import { PictureEditor } from './scenes/PictureEditor'
 import { SceneProps } from './scenes/SceneProps'
@@ -90,6 +100,10 @@ const RAIL: { id: Panel; label: string; icon: typeof Layers }[] = [
   { id: 'cards', label: 'Cards', icon: SquareStack },
   { id: 'images', label: 'Images', icon: ImageIcon },
   { id: 'variables', label: 'Variables', icon: Variable },
+  { id: 'characters', label: 'Characters', icon: Users },
+  { id: 'items', label: 'Items', icon: Coins },
+  { id: 'shops', label: 'Shops', icon: Store },
+  { id: 'calendar', label: 'Calendar', icon: CalendarDays },
   { id: 'map', label: 'Map tools', icon: MapIcon },
 ]
 
@@ -311,6 +325,10 @@ function LeftPanel() {
         {shown === 'cards' && <CardsPanel />}
         {shown === 'images' && <ImagesPanel />}
         {shown === 'variables' && <VariablesPanel />}
+        {shown === 'characters' && <CharactersPanel />}
+        {shown === 'items' && <ItemsPanel />}
+        {shown === 'shops' && <ShopsPanel />}
+        {shown === 'calendar' && <CalendarPanel />}
         {shown === 'map' && <ToolPanel />}
       </div>
     </div>
@@ -326,7 +344,14 @@ function Centre() {
       : null,
   )
   const count = useEngine((s) => tileCountOf(s.map))
+  const world = useGame((s) => isWorldView(s.view))
   if (deck) return <DeckView deck={deck} />
+  if (world)
+    return (
+      <div className="min-h-0 flex-1">
+        <WorldView />
+      </div>
+    )
   if (scene?.kind === 'picture') return <PictureEditor key={scene.id} scene={scene} />
   if (scene?.kind === 'map')
     return (
@@ -359,6 +384,8 @@ function Centre() {
 function RightPanel() {
   const scene = useGame(openScene)
   const view = useGame((s) => s.view.kind)
+  const help = worldHelp(view)
+  if (help) return <p className="p-4 text-sm text-muted-foreground">{help}</p>
   if (scene?.kind === 'picture') return <SceneProps scene={scene} />
   if (scene?.kind === 'map') return <PropertiesPanel />
   if (view === 'deck')
