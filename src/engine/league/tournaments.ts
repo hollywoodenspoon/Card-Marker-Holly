@@ -165,17 +165,24 @@ export const createFor = (def: TournamentDef, contenders: Contender[], seed: num
 
 // ---------- finding tournaments in the calendar ----------
 
-/** The tournament ids a list of steps would run (walks into branches). */
-export function tournamentsIn(steps: Step[]): string[] {
-  const out: string[] = []
+/** The arguments of every use of an effect piece in a list of steps (walks into branches). */
+export function effectsIn(steps: Step[], piece: string): Record<string, unknown>[] {
+  const out: Record<string, unknown>[] = []
   for (const s of steps) {
     if (s.kind === 'effect') {
-      if (s.piece === 'tournament.run' && typeof s.args.tournament === 'string') out.push(s.args.tournament)
-    } else if (s.kind === 'if') out.push(...tournamentsIn(s.then), ...tournamentsIn(s.else))
-    else if (s.kind === 'choice') for (const o of s.options) out.push(...tournamentsIn(o.steps))
-    else for (const b of s.branches) out.push(...tournamentsIn(b.steps))
+      if (s.piece === piece) out.push(s.args)
+    } else if (s.kind === 'if') out.push(...effectsIn(s.then, piece), ...effectsIn(s.else, piece))
+    else if (s.kind === 'choice') for (const o of s.options) out.push(...effectsIn(o.steps, piece))
+    else for (const b of s.branches) out.push(...effectsIn(b.steps, piece))
   }
   return out
+}
+
+/** The tournament ids a list of steps would run (walks into branches). */
+export function tournamentsIn(steps: Step[]): string[] {
+  return effectsIn(steps, 'tournament.run')
+    .map((a) => a.tournament)
+    .filter((t): t is string => typeof t === 'string')
 }
 
 /** The tournaments the calendar holds on a week. */

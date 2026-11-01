@@ -47,6 +47,7 @@ export type GameView =
   | { kind: 'league' }
   | { kind: 'bans' }
   | { kind: 'market' }
+  | { kind: 'simulator' }
   | { kind: 'text' }
   | { kind: 'none' }
 

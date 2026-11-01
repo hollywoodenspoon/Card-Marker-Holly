@@ -10,6 +10,7 @@ import { TournamentView } from './TournamentView'
 import { ReleaseView } from './ReleaseView'
 import { BansView } from './BansView'
 import { MarketView } from './MarketView'
+import { SimulatorView } from './SimulatorView'
 
 /** The centre for characters, shops, boosters and the calendar. */
 export function WorldView() {
@@ -55,6 +56,8 @@ export function WorldView() {
       return <BansView />
     case 'market':
       return <MarketView />
+    case 'simulator':
+      return <SimulatorView />
     case 'calendar':
       return <CalendarPreview />
     case 'text':

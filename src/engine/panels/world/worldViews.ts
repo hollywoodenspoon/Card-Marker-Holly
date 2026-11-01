@@ -1,6 +1,6 @@
 import type { GameView } from '../../store/gameStore'
 
-const WORLD_VIEWS = ['portrait', 'character', 'shop', 'booster', 'activity', 'calEvent', 'calendar', 'text', 'league', 'tournament', 'release', 'bans', 'market']
+const WORLD_VIEWS = ['portrait', 'character', 'shop', 'booster', 'activity', 'calEvent', 'calendar', 'text', 'league', 'tournament', 'release', 'bans', 'market', 'simulator']
 
 export const isWorldView = (v: GameView) => WORLD_VIEWS.includes(v.kind)
 
@@ -30,6 +30,8 @@ export function worldHelp(kind: GameView['kind']): string | null {
       return 'Bans are announced ahead and come into force some weeks later. The hand-picked list is always included.'
     case 'market':
       return 'The market only runs while the league is on. Prices change at the end of each week.'
+    case 'simulator':
+      return 'Each player runs the whole calendar with the league’s tournaments, releases, bans and market. Change a number, run again, and compare. Nothing here touches a saved game.'
     case 'text':
       return 'These lines are shown in the game’s menus and screens. Change them for another voice or language.'
     default:

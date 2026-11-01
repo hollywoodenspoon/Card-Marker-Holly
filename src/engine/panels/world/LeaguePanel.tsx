@@ -11,6 +11,7 @@ import { ListRow } from './ListRow'
 export function LeaguePanel() {
   const league = useGame((s) => s.game.league)
   const view = useGame((s) => s.view)
+  const devTools = useGame((s) => s.game.settings.devTools)
   const { commit, setView } = useGame.getState()
   const isOpen = (kind: string, id: string) => view.kind === kind && 'id' in view && view.id === id
   const empty = !league.levels.length && !league.tournaments.length
@@ -143,6 +144,13 @@ export function LeaguePanel() {
           ))}
         </ul>
       </Section>
+      {devTools && (
+        <Section title="Developer tools">
+          <Button size="sm" variant="outline" onClick={() => setView({ kind: 'simulator' })}>
+            Season simulator
+          </Button>
+        </Section>
+      )}
     </div>
   )
 }
