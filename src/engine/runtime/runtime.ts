@@ -204,13 +204,18 @@ export function startRuntime(game: GameDoc, from?: string) {
 
 /** Makes the league's world when the game has one and this playthrough has none yet. */
 async function prepareWorld(game: GameDoc, id: number) {
-  if (!game.league.enabled || get().world) return
+  if (get().world) return
+  const league = game.league
+  if (!league.enabled) {
+    // No league: the world still keeps shop stock and what the player has seen.
+    set({ world: emptyWorld(randomInt(), league.playerRating, '') })
+    return
+  }
   set({ status: 'Getting the cards ready…' })
   try {
     await cardsReady(game)
     if (id !== run) return
     const rng = makeRng(randomInt())
-    const league = game.league
     const region = league.names.regions.length ? rng.pick(league.names.regions) : ''
     const world = emptyWorld(rng.seed(), league.playerRating, region)
     world.duelists = startingDuelists(league, rng, leagueCards(game))

@@ -36,6 +36,8 @@ export interface PortraitLayer {
   color: string
   /** False: a character may leave this layer empty (no hat). */
   required: boolean
+  /** Colours the character generator picks from (empty: the layer's own colour). */
+  palette?: string[]
   options: PortraitOption[]
 }
 
@@ -111,6 +113,30 @@ export function newCharacter(name: string, template: PortraitTemplate | null): C
   for (const l of template?.layers ?? [])
     parts[l.id] = { option: l.required ? (l.options[0]?.id ?? null) : null, color: l.color }
   return { id: newId(), name, nameColor: '#ffd27a', template: template?.id ?? null, parts }
+}
+
+/**
+ * A made-up character: each layer gets a random option and, from the layer's
+ * palette, a colour. `rnd` gives numbers in [0, 1) so the same stream gives the same
+ * person (the model stays free of the league's random stream).
+ */
+export function generateCharacter(
+  template: PortraitTemplate,
+  rnd: () => number,
+  name: string,
+  id: string = newId(),
+): Character {
+  const pick = <T>(list: readonly T[]): T => list[Math.floor(rnd() * list.length)]
+  const parts: Record<string, CharacterPart> = {}
+  for (const l of template.layers) {
+    // A layer that may stay empty is left empty now and then.
+    const used = l.options.length > 0 && (l.required || rnd() < 0.6)
+    parts[l.id] = {
+      option: used ? pick(l.options).id : null,
+      color: l.palette?.length && l.recolor !== 'none' ? pick(l.palette) : l.color,
+    }
+  }
+  return { id, name, nameColor: '#ffd27a', template: template.id, parts }
 }
 
 /** One layer as drawn: its picture, how to colour it, and the colour. */
