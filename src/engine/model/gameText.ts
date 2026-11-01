@@ -63,6 +63,10 @@ export const TEXT_DEFS: TextDef[] = [
   { key: 'ban.now', group: 'Cards', label: 'Ban in force', default: 'The ban list changed: {cards}.' },
   { key: 'hint.ok', group: 'Hints', label: 'Hint button', default: 'Got it' },
   { key: 'hint.title', group: 'Hints', label: 'Hint title', default: 'Hint' },
+  { key: 'duel.noDeck', group: 'Duels', label: 'No deck to play', default: 'You need a deck to play a card game.' },
+  { key: 'duel.noOpponent', group: 'Duels', label: 'Opponent has no deck', default: 'They have no deck to play with.' },
+  { key: 'duel.you', group: 'Duels', label: 'Your seat name', default: 'You' },
+  { key: 'duel.myDeck', group: 'Duels', label: 'Your own deck name', default: 'My deck' },
   { key: 'duel.pause', group: 'Duels', label: 'Pause', default: 'Pause and save' },
 ]
 

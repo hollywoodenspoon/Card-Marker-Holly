@@ -118,7 +118,7 @@ describe('Cause and Effect', () => {
 
   it('hands module effects to the runtime, and skips unknown pieces', async () => {
     const { c, log } = ctx()
-    await runSteps([effect('nope.unknown'), effect('cards.play', { deckA: 'x', deckB: 'y' })], c)
+    await runSteps([effect('nope.unknown'), effect('cards.play', { deckB: 'y' })], c)
     expect(log).toEqual(['call cards.play'])
   })
 

@@ -23,6 +23,7 @@ import { countsOf, deckList, type DeckLevel, type GameDoc, type Scene } from '..
 import { autoSlotNames, manualSlotNames } from '../model/settings'
 import { deckBuilderFor } from '../modules/registry'
 import { listSaves, readSave, writeSave, type SaveSlot } from '../storage/saves'
+import { opponentOf, playerDeck, type LastGame } from './cardGame'
 import { leagueCards } from './leagueCards'
 import { line } from './lines'
 import { fromSnapshot, takeSnapshot, type Snapshot } from './snapshot'
@@ -397,23 +398,36 @@ async function buildDeckNow(game: GameDoc, a: Args, live: () => boolean) {
 }
 
 async function playCards(game: GameDoc, a: Args, live: () => boolean) {
-  const decks = get().decks
-  const list = (id: unknown) => deckList({ counts: decks[String(id ?? '')] ?? {} })
-  const mine = list(a.deckA)
-  const theirs = list(a.deckB)
-  if (!mine.length || !theirs.length)
-    return context(run).showMessage('A card game needs two decks with cards in them.')
-  const name = (id: unknown) => game.decks.find((d) => d.id === id)?.name ?? 'Deck'
+  const st = get()
+  const finish = (last: LastGame) => {
+    const w = get().world
+    if (w) set({ world: { ...w, lastGame: last } })
+  }
+  // The player plays their own deck. No deck: the challenge is declined.
+  const mine = playerDeck(game, st)
+  if (!mine) {
+    finish('declined')
+    return context(run).showMessage(line('duel.noDeck'))
+  }
+  const foe = opponentOf(game, st, a, leagueCards(game), makeRng(randomInt()))
+  if (!foe) {
+    finish('declined')
+    return context(run).showMessage(line('duel.noOpponent'))
+  }
+  const w = get().world
+  if (foe.created && w) set({ world: { ...w, duelists: [...w.duelists, foe.created] } })
+  const mineName = game.decks.find((d) => d.id === mine.id)?.name ?? line('duel.myDeck')
   const bot = a.bot === 'none' ? null : ((a.bot as 'easy' | 'normal' | 'hard') ?? 'normal')
   const result = await playMatchGame(
     game,
-    [mine, theirs],
-    [`You (${name(a.deckA)})`, bot ? `${name(a.deckB)} (bot)` : name(a.deckB)],
+    [mine.cards, foe.cards],
+    [`${line('duel.you')} (${mineName})`, bot ? `${foe.name} (bot)` : foe.name],
     bot,
     { won: a.won ? String(a.won) : undefined },
   )
   if (!live()) return
   if (a.won) set({ vars: { ...get().vars, [String(a.won)]: result.winner === 0 } })
+  finish(result.winner === 0 ? 'won' : 'lost')
 }
 
 /**
