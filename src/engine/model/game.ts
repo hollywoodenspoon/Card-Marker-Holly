@@ -10,6 +10,9 @@ import { defaultCalendar, type Calendar } from './calendar'
 import type { Character, PortraitTemplate } from './characters'
 import { defaultEconomy, type Booster, type Economy, type Item, type Shop } from './economy'
 import type { GameEvent, Recipe } from './events'
+import { type GameText, tidyText } from './gameText'
+import { emptyLeague, tidyLeague, type League } from './league'
+import { defaultSettings, tidySettings, type GameSettings } from './settings'
 import type { CardSource } from './map'
 
 export type { CardSource }
@@ -148,6 +151,10 @@ export interface GameDoc {
   shops: Shop[]
   boosters: Booster[]
   calendar: Calendar
+  settings: GameSettings
+  /** Overrides of the game text list (key → wording). */
+  text: GameText
+  league: League
 }
 
 export const DEFAULT_ZONES = (): Zone[] => [
@@ -176,6 +183,9 @@ export function newGame(name = 'My game'): GameDoc {
     shops: [],
     boosters: [],
     calendar: defaultCalendar(),
+    settings: defaultSettings(),
+    text: {},
+    league: emptyLeague(),
   }
 }
 
@@ -277,5 +287,8 @@ export function tidyGame(raw: Partial<GameDoc> & { id: string }): GameDoc {
       activities: Array.isArray(raw.calendar?.activities) ? raw.calendar.activities : [],
       events: Array.isArray(raw.calendar?.events) ? raw.calendar.events : [],
     },
+    settings: tidySettings(raw.settings),
+    text: tidyText(raw.text),
+    league: tidyLeague(raw.league),
   }
 }

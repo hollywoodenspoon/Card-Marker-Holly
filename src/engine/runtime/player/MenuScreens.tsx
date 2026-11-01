@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react'
 import { useGameCards } from '../../cards/gameCards'
 import { money } from '../../model/economy'
 import { useImageUrl } from '../../scenes/images'
-import { listSaves, SLOTS, type SaveRow, type SaveSlot } from '../../storage/saves'
+import { autoSlotNames, manualSlotNames, isAutoSlot } from '../../model/settings'
+import { listSaves, type SaveRow, type SaveSlot } from '../../storage/saves'
+import { useLine } from '../lines'
 import { loadRuntime, saveRuntime, useRuntime } from '../runtime'
 import { moneyOf } from '../world'
 import { CardFace } from './CardFace'
@@ -15,11 +17,12 @@ export function BagScreen({ onClose }: { onClose: () => void }) {
   const collection = useRuntime((s) => s.collection)
   useRuntime((s) => s.vars)
   const cards = useGameCards((s) => s.merged?.pack.info.cards)
+  const t = useLine()
   if (!game) return null
   const owned = (cards ?? []).filter((c) => collection[c.id])
   const copies = Object.values(collection).reduce((n, c) => n + c.normal + c.foil, 0)
   return (
-    <Panel title="Bag" wide onClose={onClose} testId="player-bag">
+    <Panel title={t('menu.bag')} wide onClose={onClose} testId="player-bag">
       {game.economy.money && (
         <p className="mb-3 text-lg font-semibold">{money(moneyOf(), game.economy)}</p>
       )}
@@ -72,8 +75,9 @@ function ItemTile({
 /** Everything said so far. */
 export function LogScreen({ onClose }: { onClose: () => void }) {
   const log = useRuntime((s) => s.log)
+  const t = useLine()
   return (
-    <Panel title="Log" onClose={onClose} testId="player-log">
+    <Panel title={t('menu.log')} onClose={onClose} testId="player-log">
       {!log.length && <p className="text-sm text-white/70">Nothing said yet.</p>}
       <ol className="flex flex-col gap-2">
         {log.map((l, i) => (
@@ -95,7 +99,9 @@ export function LogScreen({ onClose }: { onClose: () => void }) {
 
 /** Save to one of 3 slots, or load any slot (the autosave too). */
 export function SavesScreen({ onClose }: { onClose: () => void }) {
-  const gameId = useRuntime((s) => s.game?.id)
+  const game = useRuntime((s) => s.game)
+  const gameId = game?.id
+  const t = useLine()
   const [rows, setRows] = useState<SaveRow[]>([])
   const [v, setV] = useState(0)
   useEffect(() => {
@@ -108,26 +114,29 @@ export function SavesScreen({ onClose }: { onClose: () => void }) {
       live = false
     }
   }, [gameId, v])
+  const slots = game ? [...autoSlotNames(game.settings), ...manualSlotNames(game.settings)] : []
   const row = (slot: SaveSlot) => rows.find((r) => r.slot === slot)
   return (
-    <Panel title="Save and load" onClose={onClose} testId="player-saves">
+    <Panel title={t('menu.saves')} onClose={onClose} testId="player-saves">
       <p className="mb-3 text-sm text-white/70">
         A saved game starts again at the start of its scene.
       </p>
       <ul className="flex flex-col gap-2">
-        {SLOTS.map((slot) => {
+        {slots.map((slot) => {
           const r = row(slot)
           return (
             <li key={slot} className="flex flex-wrap items-center gap-2 rounded-lg bg-white/5 p-2">
               <span className="min-w-0 flex-1">
                 <span className="block text-sm font-medium">
-                  {slot === 'auto' ? 'Autosave' : `Slot ${slot}`}
+                  {isAutoSlot(slot)
+                    ? t('save.auto', { n: slot.replace('auto', '') || 1 })
+                    : t('save.slot', { n: slot })}
                 </span>
                 <span className="block truncate text-xs text-white/60">
                   {r ? `${r.label} · ${new Date(r.savedAt).toLocaleString()}` : 'Empty'}
                 </span>
               </span>
-              {slot !== 'auto' && (
+              {!isAutoSlot(slot) && (
                 <PlayerButton
                   onClick={async () => {
                     await saveRuntime(slot)

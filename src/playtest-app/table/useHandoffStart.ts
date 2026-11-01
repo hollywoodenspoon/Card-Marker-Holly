@@ -32,11 +32,11 @@ export function useHandoffStart() {
           cards: deck.cards,
           decks: req.decks,
           names: req.names,
-          seed: randomSeed(),
+          seed: req.resume?.seed ?? randomSeed(),
           opening: 'rps',
           reveal: 'classic',
         },
-        { hotseat: !req.bot, bots: [null, req.bot] },
+        { hotseat: !req.bot, bots: [null, req.bot], moves: req.resume?.moves },
       )
     const list = pack.info.cards.map((c, order) => ({ ...c, order }))
     const counts = (ids: string[]) => {

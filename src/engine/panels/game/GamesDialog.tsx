@@ -5,6 +5,7 @@ import { Dialog, DialogContent } from '@/ui/components/ui/dialog'
 import { Input } from '@/ui/components/ui/input'
 import { askConfirm } from '@/ui/components/feedback'
 import {
+  createAdventureGame,
   createGame,
   deleteGame,
   duplicateGame,
@@ -38,6 +39,9 @@ function GamesList({ onClose }: { onClose: () => void }) {
     <div className="space-y-3">
       <Button onClick={() => void createGame().then(onClose)}>
         <FilePlus2 /> New game
+      </Button>
+      <Button variant="outline" onClick={() => void createAdventureGame().then(onClose)}>
+        <FilePlus2 /> New game from the Adventure Scuffle! template
       </Button>
       <ul className="max-h-[50vh] space-y-1 overflow-y-auto" data-testid="games-list">
         {rows.map((g) => {

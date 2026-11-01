@@ -3,6 +3,7 @@
  * store, the database and "last open" in step. Opening a map scene loads its map
  * into the 3D editor (engineStore), which autosaves maps as before.
  */
+import { adventureScuffleGame } from '../model/adventureTemplate'
 import { newMapDoc } from '../model/map'
 import { mapScene, newGame, newPictureScene, type GameDoc, type Scene } from '../model/game'
 import { useEngine } from '../store/engineStore'
@@ -42,6 +43,13 @@ export async function createGame(name = 'New game') {
   const town = newPictureScene('Start')
   g.scenes.push(town)
   g.startScene = town.id
+  await games.save(g)
+  await openGameDoc(g)
+}
+
+/** A new game that starts from the Adventure Scuffle! template (all of it editable). */
+export async function createAdventureGame(name = 'Adventure Scuffle!') {
+  const g = adventureScuffleGame(name)
   await games.save(g)
   await openGameDoc(g)
 }

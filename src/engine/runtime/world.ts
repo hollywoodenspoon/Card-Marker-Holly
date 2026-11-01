@@ -17,12 +17,19 @@ import {
 } from '../economy/collection'
 import { runSteps, testCondition } from '../events/run'
 import type { Owned, RunContext, World } from '../events/pieces'
-import { eventsOn, isOn } from '../model/calendar'
+import { eventsOn, isOn, sizes } from '../model/calendar'
+import { inCirculation } from '../league/worldState'
+import { priceKey } from '../league/market'
+import { hasEnded } from '../model/settings'
 import { isAce, rarityKey, type ShopEntry } from '../model/economy'
 import type { GameEvent } from '../model/events'
 import type { GameDoc } from '../model/game'
-import { autoEvents, cardsReady, randomInt, showMessage } from './runtime'
+import { autoEvents, autosave, cardsReady, randomInt, showMessage } from './runtime'
 import { closeScreen, get, set, showScreen, type ActivityOption } from './state'
+import { showHint } from './hints'
+import { runRelease, updateBans } from './releases'
+import { runWeekStep } from './weekStep'
+import { canEnter, runTournament } from './tournament'
 
 const game = (): GameDoc => {
   const g = get().game
@@ -50,9 +57,10 @@ export function poolCards(only?: Record<string, number> | null): PoolCard[] {
   const g = get().game
   const cards = useGameCards.getState().merged?.pack.info.cards ?? []
   if (!g) return []
-  return cards
-    .filter((c) => !only || only[c.id])
-    .map((c) => ({ id: c.id, ace: isAce(c.fields, g.economy) }))
+  const wanted = cards.filter((c) => !only || only[c.id])
+  // Only released cards turn up in boosters (before any release, all of them do).
+  const out = inCirculation(get().world, wanted)
+  return (out.length ? out : wanted).map((c) => ({ id: c.id, ace: isAce(c.fields, g.economy) }))
 }
 
 export function cardAce(id: string): boolean {
@@ -97,13 +105,29 @@ export function setDeckCard(deckId: string, cardId: string, n: number) {
 
 // ---------- shops ----------
 
+/** Copies left of a limited entry (null: unlimited). */
+export function stockLeft(shopId: string, e: ShopEntry): number | null {
+  if (!e.stock) return null
+  return Math.max(0, get().world?.stock[`${shopId}:${e.id}`] ?? e.stock.max)
+}
+
 export function entryPrice(e: ShopEntry): number {
   const g = get().game
   if (!g) return 0
+  if (e.kind === 'card' && e.market) {
+    const p = get().world?.prices[priceKey(e.ref, e.foil)]
+    if (p !== undefined) return p
+  }
   if (e.price !== null) return Math.max(0, e.price)
   if (e.kind === 'item') return g.items.find((i) => i.id === e.ref)?.price ?? 0
   if (e.kind === 'booster') return g.boosters.find((b) => b.id === e.ref)?.price ?? 0
   return 0
+}
+
+function setStock(shopId: string, e: ShopEntry, n: number) {
+  const w = get().world
+  if (!w) return
+  set({ world: { ...w, stock: { ...w.stock, [`${shopId}:${e.id}`]: n } } })
 }
 
 /** Buys a shop entry. A booster opens straight away. False when the money's short. */
@@ -113,9 +137,15 @@ export async function buy(shopId: string, entryId: string): Promise<boolean> {
   if (!e) return false
   const price = entryPrice(e)
   if (moneyOf() < price) return false
+  const left = stockLeft(shopId, e)
+  if (left !== null && left <= 0) return false
+  if (left !== null) setStock(shopId, e, left - 1)
   if (e.kind === 'booster') {
     const pack = await rollBooster(e.ref)
-    if (!pack) return false
+    if (!pack) {
+      if (left !== null) setStock(shopId, e, left)
+      return false
+    }
     setMoney(moneyOf() - price)
     const sc = get().screen
     if (sc?.kind === 'shop') set({ screen: { ...sc, pack } })
@@ -281,8 +311,18 @@ export function makeWorld(
       if (live()) await world.nextWeek()
     },
     nextWeek: async () => {
-      const week = get().week + 1
+      const ending = get().week
+      await runWeekStep(ctx, ending)
+      if (!live()) return
+      const week = ending + 1
       set({ week })
+      const g = game()
+      if (g.settings.autosaveOnWeek) autosave()
+      if (hasEnded(g.settings, sizes(g.calendar).year, week)) {
+        closeScreen()
+        set({ ended: g.settings.ending.text || 'The end.', message: null, choice: null, speaker: null })
+        return
+      }
       await runAll(weekStart(), ctx)
       if (live()) await runAll(autoEvents(game(), week, get().calSeed), ctx)
     },
@@ -296,6 +336,14 @@ export function makeWorld(
       closeScreen()
       set({ ended: text || 'The end.', message: null, choice: null, speaker: null })
     },
+    runTournament: (tournament, deck, placeVar) =>
+      live() ? runTournament(ctx, { tournament, deck, placeVar }) : Promise.resolve(),
+    canEnter,
+    points: (track) => get().world?.points[track] ?? 0,
+    rating: () => get().world?.rating ?? 0,
+    runRelease: (id) => runRelease(ctx, id),
+    updateBans: (lift) => updateBans(ctx, lift),
+    showHint: (text, once, name) => showHint(ctx, { text, once, name }),
   }
   return world
 }

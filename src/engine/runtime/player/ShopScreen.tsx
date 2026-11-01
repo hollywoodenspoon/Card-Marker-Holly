@@ -3,8 +3,9 @@ import { cn } from '@/lib/cn'
 import { useGameCards } from '../../cards/gameCards'
 import { money } from '../../model/economy'
 import { useImageUrl } from '../../scenes/images'
+import { useLine } from '../lines'
 import { closeScreen, useRuntime } from '../runtime'
-import { buy, entryPrice, moneyOf, sell, sellable, sellPrice } from '../world'
+import { buy, entryPrice, moneyOf, sell, sellable, sellPrice, stockLeft } from '../world'
 import { BoosterReveal } from './BoosterReveal'
 import { CardFace } from './CardFace'
 import { Panel, PlayerButton } from './Panel'
@@ -12,9 +13,11 @@ import { Panel, PlayerButton } from './Panel'
 /** A shop: what it sells, and what it buys back from the player. */
 export function ShopScreen({ shopId }: { shopId: string }) {
   const game = useRuntime((s) => s.game)
+  const line = useLine()
   const screen = useRuntime((s) => s.screen)
   // Re-render on money, items and cards.
   useRuntime((s) => s.vars)
+  useRuntime((s) => s.world)
   const inventory = useRuntime((s) => s.inventory)
   const collection = useRuntime((s) => s.collection)
   const cardNames = useGameCards((s) => s.merged?.pack.info.cards)
@@ -57,16 +60,18 @@ export function ShopScreen({ shopId }: { shopId: string }) {
       title={shop.name}
       wide
       onClose={() => closeScreen()}
-      closeLabel="Leave the shop"
+      closeLabel={line('shop.leave')}
       testId="player-shop"
       footer={
         <>
           <span className="flex-1 text-sm text-white/80" data-testid="player-money">
-            {econ.money ? `Money: ${money(moneyOf(), econ)}` : 'This game has no money set.'}
+            {econ.money
+              ? line('shop.money', { money: money(moneyOf(), econ) })
+              : line('shop.noMoney')}
           </span>
           {note && <span className="text-sm text-amber-300">{note}</span>}
           <PlayerButton primary onClick={() => closeScreen()}>
-            Leave
+            {line('shop.close')}
           </PlayerButton>
         </>
       }
@@ -89,6 +94,8 @@ export function ShopScreen({ shopId }: { shopId: string }) {
         <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
           {shop.sells.map((e) => {
             const price = entryPrice(e)
+            const left = stockLeft(shop.id, e)
+            const soldOut = left !== null && left <= 0
             return (
               <li key={e.id} className="flex flex-col gap-1.5 rounded-lg bg-white/5 p-2">
                 {e.kind === 'card' ? (
@@ -99,15 +106,18 @@ export function ShopScreen({ shopId }: { shopId: string }) {
                 <span className="text-sm leading-tight">
                   {nameOf(e.kind, e.ref)}
                   {e.kind === 'card' && e.foil ? ' (foil)' : ''}
+                  {left !== null && !soldOut && (
+                    <span className="text-white/60"> · {left} left</span>
+                  )}
                 </span>
                 <PlayerButton
                   primary
-                  disabled={moneyOf() < price}
+                  disabled={soldOut || moneyOf() < price}
                   onClick={async () => {
-                    setNote((await buy(shop.id, e.id)) ? null : 'Not enough money.')
+                    setNote((await buy(shop.id, e.id)) ? null : line('shop.short'))
                   }}
                 >
-                  Buy · {money(price, econ)}
+                  {soldOut ? line('shop.soldOut') : `Buy · ${money(price, econ)}`}
                 </PlayerButton>
               </li>
             )

@@ -82,6 +82,58 @@ export function ShopView({ shop }: { shop: Shop }) {
                   Foil
                 </label>
               )}
+              {e.kind === 'card' && (
+                <label className="flex items-center gap-1 text-xs">
+                  <input
+                    type="checkbox"
+                    checked={!!e.market}
+                    onChange={(ev) =>
+                      edit((s) => {
+                        const x = s.sells[i]
+                        if (x.kind === 'card') x.market = ev.target.checked
+                      })
+                    }
+                  />
+                  Market price
+                </label>
+              )}
+              <Input
+                type="number"
+                min={0}
+                aria-label={`${nameOf(e)} stock`}
+                placeholder="no limit"
+                title="Stock: copies in stock (empty: unlimited)"
+                className="h-9 w-24 md:h-8"
+                value={e.stock?.max ?? ''}
+                onChange={(ev) =>
+                  edit((s) => {
+                    const x = s.sells[i]
+                    if (ev.target.value === '') delete x.stock
+                    else
+                      x.stock = {
+                        max: Math.max(0, Math.floor(Number(ev.target.value) || 0)),
+                        refill: x.stock?.refill ?? 0,
+                      }
+                  }, `st:${e.id}`)
+                }
+              />
+              {e.stock && (
+                <Input
+                  type="number"
+                  min={0}
+                  aria-label={`${nameOf(e)} restock per week`}
+                  title="Restock per week"
+                  className="h-9 w-20 md:h-8"
+                  value={e.stock.refill}
+                  onChange={(ev) =>
+                    edit((s) => {
+                      const x = s.sells[i]
+                      if (x.stock)
+                        x.stock.refill = Math.max(0, Math.floor(Number(ev.target.value) || 0))
+                    }, `sr:${e.id}`)
+                  }
+                />
+              )}
               <Input
                 type="number"
                 min={0}
@@ -110,7 +162,9 @@ export function ShopView({ shop }: { shop: Shop }) {
           ))}
         </ul>
         <p className="text-xs text-muted-foreground">
-          Items and boosters with no price here sell at their own price.
+          Items and boosters with no price here sell at their own price. Stock is how many copies
+          the shop has (empty: unlimited); the second number is restocked each week. “Market
+          price” follows the league’s card prices once the world runs.
         </p>
         <div className="flex flex-wrap items-end gap-2">
           <NativeSelect

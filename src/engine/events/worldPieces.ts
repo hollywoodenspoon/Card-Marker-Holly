@@ -174,6 +174,28 @@ const worldPieces: PieceDef[] = [
   },
   {
     kind: 'effect',
+    id: 'hint.show',
+    label: 'Show a tutorial hint',
+    group: 'Text',
+    sentence: 'show the hint {text}, shown {once}, remembered as {name}',
+    fields: [
+      { key: 'text', label: 'Hint', kind: 'longText', default: '' },
+      {
+        key: 'once',
+        label: 'How often',
+        kind: 'select',
+        options: [
+          { value: 'once', label: 'only the first time' },
+          { value: 'always', label: 'every time' },
+        ],
+        default: 'once',
+      },
+      { key: 'name', label: 'Name (to remember it)', kind: 'text', default: '' },
+    ],
+    run: (ctx, a) => ctx.world?.showHint(String(a.text ?? ''), a.once !== 'always', String(a.name ?? '')),
+  },
+  {
+    kind: 'effect',
     id: 'money.change',
     label: 'Give or take money',
     group: 'Money and items',

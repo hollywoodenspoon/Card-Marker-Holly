@@ -1,12 +1,12 @@
 /**
- * Saved games for the player: three slots and an autosave per game, in the
+ * Saved games for the player: the game's number of slots and autosave slots, in the
  * Engine DB's `saves` table (v4).
  */
 import type { Snapshot } from '../runtime/snapshot'
 import { db } from './db'
 
-export type SaveSlot = 'auto' | '1' | '2' | '3'
-export const SLOTS: SaveSlot[] = ['auto', '1', '2', '3']
+/** "auto", "auto2"… (autosaves) and "1", "2"… (the player's); how many is the game's setting. */
+export type SaveSlot = string
 
 export interface SaveRow {
   /** `${gameId}:${slot}` */

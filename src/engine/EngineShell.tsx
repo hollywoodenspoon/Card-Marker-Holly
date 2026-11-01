@@ -22,9 +22,11 @@ import {
   Variable,
   Clapperboard,
   CalendarDays,
+  SlidersHorizontal,
   Coins,
   Store,
   Users,
+  Trophy,
 } from '@/ui/icons'
 import { Button, IconButton } from '@/ui/components/ui/button'
 import {
@@ -46,6 +48,7 @@ import { tileCountOf } from './model/map'
 import { assets } from './storage/assets'
 import { importMapFromText } from './storage/mapActions'
 import {
+  createAdventureGame,
   createGame,
   duplicateGame,
   exportGame,
@@ -76,7 +79,9 @@ import { VariablesPanel } from './panels/game/VariablesPanel'
 import { CharactersPanel } from './panels/world/CharactersPanel'
 import { ItemsPanel } from './panels/world/ItemsPanel'
 import { ShopsPanel } from './panels/world/ShopsPanel'
+import { LeaguePanel } from './panels/world/LeaguePanel'
 import { CalendarPanel } from './panels/world/CalendarPanel'
+import { SettingsPanel } from './panels/rules/SettingsPanel'
 import { WorldView } from './panels/world/WorldView'
 import { isWorldView, worldHelp } from './panels/world/worldViews'
 import { GamesDialog } from './panels/game/GamesDialog'
@@ -104,6 +109,8 @@ const RAIL: { id: Panel; label: string; icon: typeof Layers }[] = [
   { id: 'items', label: 'Items', icon: Coins },
   { id: 'shops', label: 'Shops', icon: Store },
   { id: 'calendar', label: 'Calendar', icon: CalendarDays },
+  { id: 'league', label: 'League', icon: Trophy },
+  { id: 'rules', label: 'Rules', icon: SlidersHorizontal },
   { id: 'map', label: 'Map tools', icon: MapIcon },
 ]
 
@@ -146,6 +153,11 @@ export function EngineShell() {
   const isMap = scene?.kind === 'map'
   const gameName = useGame((s) => s.game.name)
   const shapeOpen = useShapeRequest((s) => !!s.req)
+  // On a phone the panels sheet covers the centre: picking something closes it.
+  useEffect(
+    () => useGame.subscribe((s, prev) => void (s.view !== prev.view && setLeftSheet(false))),
+    [],
+  )
 
   // Open last session's game (or make one from older maps) and start autosaving.
   useEffect(() => {
@@ -329,6 +341,8 @@ function LeftPanel() {
         {shown === 'items' && <ItemsPanel />}
         {shown === 'shops' && <ShopsPanel />}
         {shown === 'calendar' && <CalendarPanel />}
+        {shown === 'league' && <LeaguePanel />}
+        {shown === 'rules' && <SettingsPanel />}
         {shown === 'map' && <ToolPanel />}
       </div>
     </div>
@@ -492,6 +506,9 @@ function FileMenu({
       <DropdownMenuContent align="start">
         <DropdownMenuItem onSelect={() => void createGame()}>
           <FilePlus2 /> New game
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => void createAdventureGame()}>
+          <FilePlus2 /> New game from the Adventure Scuffle! template
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={onGames}>
           <FolderOpen /> Games…

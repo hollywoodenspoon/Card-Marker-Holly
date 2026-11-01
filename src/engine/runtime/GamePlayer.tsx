@@ -12,10 +12,12 @@ import {
 import { SceneView } from '../scenes/SceneView'
 import { DialogueBox } from './player/DialogueBox'
 import { skipTyping } from './player/typing'
+import { useLine } from './lines'
 import { DeckScreen } from './player/DeckScreen'
 import { BagScreen, LogScreen, SavesScreen } from './player/MenuScreens'
 import { BoosterReveal } from './player/BoosterReveal'
 import { Panel, PlayerButton } from './player/Panel'
+import { TournamentScreen } from './player/TournamentScreen'
 import { ShopScreen } from './player/ShopScreen'
 import { ActivityScreen, CalendarScreen } from './player/WeekScreens'
 import {
@@ -47,6 +49,7 @@ export function GamePlayer() {
   const ended = useRuntime((s) => s.ended)
   const canBack = useRuntime((s) => s.trail.length > 0 && !s.busy)
   const [menu, setMenu] = useState<Menu>(null)
+  const t = useLine()
 
   useEffect(() => {
     if (!running) return
@@ -113,10 +116,10 @@ export function GamePlayer() {
           {game.name}
           {scene ? ` · ${scene.name}` : ''}
         </span>
-        {usesWeeks && menuButton('calendar', 'Calendar', CalendarDays)}
-        {usesBag && menuButton('bag', 'Bag', Backpack)}
-        {menuButton('log', 'Log', ScrollText)}
-        {menuButton('saves', 'Save and load', Save)}
+        {usesWeeks && menuButton('calendar', t('menu.calendar'), CalendarDays)}
+        {usesBag && menuButton('bag', t('menu.bag'), Backpack)}
+        {menuButton('log', t('menu.log'), ScrollText)}
+        {menuButton('saves', t('menu.saves'), Save)}
         <PlayerButton
           className="bg-transparent"
           aria-label="Exit"
@@ -128,7 +131,7 @@ export function GamePlayer() {
       </div>
       <div className="relative min-h-0 flex-1">
         {!scene ? (
-          <Centre>This game has no scenes yet. Add one in the Scenes panel.</Centre>
+          <Centre>{t('game.noScenes')}</Centre>
         ) : scene.kind === 'picture' ? (
           <SceneView
             scene={scene}
@@ -145,7 +148,7 @@ export function GamePlayer() {
             its “scene starts” events still run.
           </Centre>
         )}
-        {away && <Centre>The card game is open on the table. Come back when it’s over.</Centre>}
+        {away && <Centre>{t('game.away')}</Centre>}
         {status && (
           <div
             role="status"
@@ -164,15 +167,29 @@ export function GamePlayer() {
           <ActivityScreen options={screen.options} forced={screen.forced} />
         )}
         {screen?.kind === 'calendar' && <CalendarScreen onClose={() => closeScreen()} />}
+        {screen?.kind === 'tournament' && <TournamentScreen />}
+        {screen?.kind === 'hint' && (
+          <Panel
+            title={t('hint.title')}
+            testId="player-hint"
+            footer={
+              <PlayerButton primary onClick={() => closeScreen()}>
+                {t('hint.ok')}
+              </PlayerButton>
+            }
+          >
+            <p className="text-base leading-relaxed whitespace-pre-wrap">{screen.text}</p>
+          </Panel>
+        )}
         {menu === 'calendar' && <CalendarScreen onClose={() => setMenu(null)} />}
         {menu === 'bag' && <BagScreen onClose={() => setMenu(null)} />}
         {menu === 'log' && <LogScreen onClose={() => setMenu(null)} />}
         {menu === 'saves' && <SavesScreen onClose={() => setMenu(null)} />}
         {ended !== null && !menu && (
-          <Panel title="The end" testId="player-ended">
+          <Panel title={t('game.end')} testId="player-ended">
             <p className="mb-4 text-base leading-relaxed whitespace-pre-wrap">{ended}</p>
             <div className="flex flex-wrap gap-2">
-              <PlayerButton onClick={() => setMenu('saves')}>Load a save</PlayerButton>
+              <PlayerButton onClick={() => setMenu('saves')}>{t('game.load')}</PlayerButton>
               <PlayerButton primary onClick={stopRuntime}>
                 Exit
               </PlayerButton>

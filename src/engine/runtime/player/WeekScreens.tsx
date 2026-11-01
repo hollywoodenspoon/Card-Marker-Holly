@@ -3,6 +3,7 @@ import { cn } from '@/lib/cn'
 import { dateLabel, dateOf, seasonName, upcoming } from '../../model/calendar'
 import { useImageUrl } from '../../scenes/images'
 import type { ActivityOption } from '../state'
+import { useLine } from '../lines'
 import { closeScreen, useRuntime } from '../runtime'
 import { Panel, PlayerButton } from './Panel'
 
@@ -38,6 +39,7 @@ export function ActivityScreen({
 }
 
 function ActivityCard({ option, onPick }: { option: ActivityOption; onPick: () => void }) {
+  const t = useLine()
   const url = useImageUrl(option.image)
   return (
     <button
@@ -58,7 +60,7 @@ function ActivityCard({ option, onPick }: { option: ActivityOption; onPick: () =
           )}
         </span>
         <span className="block text-sm text-white/70">
-          {option.locked ? option.lockText || 'Not possible this week.' : option.description}
+          {option.locked ? option.lockText || t('week.locked') : option.description}
         </span>
       </span>
     </button>
@@ -67,6 +69,7 @@ function ActivityCard({ option, onPick }: { option: ActivityOption; onPick: () =
 
 /** The calendar: today's date and the events the player knows are coming. */
 export function CalendarScreen({ onClose }: { onClose: () => void }) {
+  const t = useLine()
   const calendar = useRuntime((s) => s.game?.calendar)
   const week = useRuntime((s) => s.week)
   const seed = useRuntime((s) => s.calSeed)
@@ -80,7 +83,7 @@ export function CalendarScreen({ onClose }: { onClose: () => void }) {
   }
   const weekly = calendar.events.filter((e) => e.when.kind === 'weekly')
   return (
-    <Panel title="Calendar" onClose={onClose} testId="player-calendar">
+    <Panel title={t('menu.calendar')} onClose={onClose} testId="player-calendar">
       <p className="mb-3 text-lg font-semibold">{dateLabel(calendar, week)}</p>
       {weekly.length > 0 && (
         <p className="mb-3 text-sm text-white/70">
@@ -103,7 +106,7 @@ export function CalendarScreen({ onClose }: { onClose: () => void }) {
                 )}
               >
                 <span className="w-20 shrink-0 text-white/60 tabular-nums">
-                  {x.week === week ? 'This week' : `Week ${dateOf(calendar, x.week).weekOfSeason}`}
+                  {x.week === week ? t('week.this') : `Week ${dateOf(calendar, x.week).weekOfSeason}`}
                 </span>
                 <span className="min-w-0 flex-1">
                   {x.event.name}

@@ -4,6 +4,7 @@
  * is always "just arrived in this scene".
  */
 import type { RuntimeState } from './state'
+import type { WorldState } from '../league/worldState'
 
 export interface Snapshot {
   v: 1
@@ -20,6 +21,11 @@ export interface Snapshot {
   seed: number
   log: RuntimeState['log']
   ownedDecks: string[]
+  /** The league's world (duelists, bans, market…), when the game has one. */
+  world?: WorldState | null
+  /** A duel in progress, to resume it. */
+  pendingMatch?: RuntimeState['pendingMatch']
+  ended?: string | null
 }
 
 export function takeSnapshot(s: RuntimeState, seed: number): Snapshot {
@@ -37,6 +43,9 @@ export function takeSnapshot(s: RuntimeState, seed: number): Snapshot {
     seed,
     log: s.log,
     ownedDecks: s.ownedDecks,
+    world: s.world,
+    pendingMatch: s.pendingMatch,
+    ended: s.ended,
   })
 }
 
@@ -55,5 +64,8 @@ export function fromSnapshot(snap: Partial<Snapshot>): Partial<RuntimeState> {
     calSeed: Number(snap.calSeed) || 1,
     log: Array.isArray(snap.log) ? snap.log : [],
     ownedDecks: Array.isArray(snap.ownedDecks) ? snap.ownedDecks : [],
+    world: snap.world && typeof snap.world === 'object' ? snap.world : null,
+    pendingMatch: snap.pendingMatch ?? null,
+    ended: typeof snap.ended === 'string' ? snap.ended : null,
   }
 }

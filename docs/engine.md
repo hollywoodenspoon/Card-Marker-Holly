@@ -198,3 +198,31 @@ unchanged; picture scenes live inside the game.
 - `panels/world/`: the Characters, Items, Shops and Calendar rail panels and their centre
   views (portrait template, character, shop, booster, activity, calendar event, calendar
   preview).
+
+## League, world step, simulator and the first-game template (PR 3 of 3, v0.8.4-beta)
+
+`GameDoc` gained `settings`, `text` and `league` (`tidyGame` fills them for older games).
+The Engine saves hold a structured `world` (duelists, points, ratings, prices, stock, bans,
+releases) next to the variables, and `pendingMatch` for a paused match.
+
+- `model/settings.ts`: ending (after N years or never), save and autosave slot counts, tutorial
+  and developer-tools switches, when the world step runs. `model/gameText.ts`: every
+  player-facing line is a keyed default the game can reword (`runtime/lines.ts` reads it).
+- `model/league.ts`: levels, tracks, tournaments (stages, entry, points, prizes), releases,
+  ban rules, market rules, names. `adventureLeague()` is only the first game's values.
+- `league/` is pure and seeded: `bracket.ts` (round robin, Swiss, groups, single and double
+  elimination, quick settle), `duelists.ts`, `cards.ts`, `releases.ts`, `bans.ts`, `market.ts`,
+  `tournaments.ts`, `step.ts` (the weekly world step) and `simulate.ts` (many weeks, a made-up player).
+- `runtime/`: `tournament.ts` (the player's bracket on Play's table; a forfeit is a loss; no
+  skipping), `weekStep.ts` (runs the step at the week change and tells the news), `hints.ts`
+  (tutorial hints), and `playMatchGame` in `runtime.ts` (pause, save, resume by replaying the seed
+  and the moves through `adventure/engine`).
+- `events/leaguePieces.ts` and `worldPieces.ts`: tournament, release, ban and hint pieces.
+- `panels/world/`: League rail panel with the tournament, release, bans, market and Season
+  simulator views. The simulator is behind `settings.devTools`.
+- `model/adventureTemplate.ts`: **File → New game from the Adventure Scuffle! template**. A
+  normal game made of normal data (money, a deck, a booster and shop, activities, a calendar of
+  releases, bans and tournaments, tutorial hints, a 7-year ending). Add a card source in the
+  Cards panel and it plays.
+- Play: the table's **Pause and save** button hands the match back with `seed` and `moves`;
+  loading the save resumes at the same position.

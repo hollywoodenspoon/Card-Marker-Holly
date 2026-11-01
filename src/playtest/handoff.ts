@@ -5,6 +5,20 @@
  * depends on the Engine.
  */
 import { create } from 'zustand'
+import type { Move } from '@/adventure/engine'
+
+/** What a paused card game needs to start again: the seed and every move made so far. */
+export interface PausedMatch {
+  seed: number
+  moves: Move[][]
+}
+
+export interface MatchResult {
+  winner: number | null
+  finished: boolean
+  /** Set when the player paused to save: the game is carried on from this later. */
+  paused?: PausedMatch
+}
 
 export interface MatchRequest {
   /** The Engine game (Play's pack id while it runs). */
@@ -15,9 +29,13 @@ export interface MatchRequest {
   names: [string, string]
   /** The opponent's bot level, or null for two people on one device. */
   bot: 'easy' | 'normal' | 'hard' | null
+  /** Carry on a paused game instead of starting a new one. */
+  resume?: PausedMatch
+  /** The words on the pause button (the game's own text). Absent: the game cannot be paused. */
+  pauseLabel?: string
   /** Set once the table has started it. */
   started?: boolean
-  done: (result: { winner: number | null; finished: boolean }) => void
+  done: (result: MatchResult) => void
 }
 
 export const useHandoff = create<{ req: MatchRequest | null }>(() => ({ req: null }))
@@ -25,7 +43,7 @@ export const useHandoff = create<{ req: MatchRequest | null }>(() => ({ req: nul
 export const requestMatch = (req: MatchRequest) => useHandoff.setState({ req })
 
 /** Return to the game that asked, with the match's result. */
-export function finishMatch(result: { winner: number | null; finished: boolean }) {
+export function finishMatch(result: MatchResult) {
   const req = useHandoff.getState().req
   useHandoff.setState({ req: null })
   req?.done(result)

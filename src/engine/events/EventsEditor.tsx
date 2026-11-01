@@ -43,7 +43,6 @@ import {
 } from '../model/events'
 import { useGameCards } from '../cards/gameCards'
 import { useGame } from '../store/gameStore'
-import './worldPieces'
 import { defaultArgs, piece, piecesOf, type Attach, type FieldDef, type PieceDef } from './pieces'
 
 /** What pickers can choose from: the open game's things, by id and name. */
@@ -73,6 +72,9 @@ function useChoices() {
       shop: game.shops.map((s) => ({ id: s.id, name: s.name })),
       booster: game.boosters.map((b) => ({ id: b.id, name: b.name })),
       calEvent: game.calendar.events.map((e) => ({ id: e.id, name: e.name })),
+      tournament: game.league.tournaments.map((t) => ({ id: t.id, name: t.name })),
+      release: game.league.releases.map((r) => ({ id: r.id, name: r.name })),
+      track: game.league.tracks.map((t) => ({ id: t.id, name: t.name })),
     }
   }, [game, cards])
 }

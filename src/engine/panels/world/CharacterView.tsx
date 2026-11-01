@@ -30,6 +30,27 @@ export function CharacterView({ character }: { character: Character }) {
             onChange={(v) => v && edit((c) => void (c.nameColor = v), `ch-col:${character.id}`)}
           />
           <div className="flex flex-col gap-1">
+            <Label htmlFor={`flags-${character.id}`}>Marks (commas)</Label>
+            <Input
+              id={`flags-${character.id}`}
+              placeholder="important, rival"
+              key={(character.flags ?? []).join(',')}
+              defaultValue={(character.flags ?? []).join(', ')}
+              onBlur={(e) =>
+                edit(
+                  (c) =>
+                    void (c.flags = e.target.value
+                      .split(',')
+                      .map((f) => f.trim())
+                      .filter(Boolean)),
+                )
+              }
+            />
+            <p className="text-xs text-muted-foreground">
+              Free words for your own rules, like “important” or “rival”.
+            </p>
+          </div>
+          <div className="flex flex-col gap-1">
             <Label>Portrait template</Label>
             <NativeSelect
               aria-label="Portrait template"

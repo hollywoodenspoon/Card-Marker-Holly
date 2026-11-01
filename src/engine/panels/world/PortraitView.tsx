@@ -158,6 +158,26 @@ export function PortraitView({ template }: { template: PortraitTemplate }) {
                     Can be left empty
                   </label>
                 </div>
+                {l.recolor !== 'none' && (
+                  <div className="mt-2 flex flex-col gap-1">
+                    <Label htmlFor={`pal-${l.id}`}>Colours for made-up people (hex, commas)</Label>
+                    <Input
+                      id={`pal-${l.id}`}
+                      placeholder="#c08060, #8d5524, #f1c27d"
+                      defaultValue={(l.palette ?? []).join(', ')}
+                      key={(l.palette ?? []).join(',')}
+                      onBlur={(e) =>
+                        editLayer(
+                          l.id,
+                          (x) =>
+                            void (x.palette = e.target.value
+                              .split(/[\s,]+/)
+                              .filter((c) => /^#[0-9a-f]{3,8}$/i.test(c))),
+                        )
+                      }
+                    />
+                  </div>
+                )}
                 <ul className="mt-2 flex flex-col gap-2">
                   {l.options.map((o, oi) => (
                     <li key={o.id} className="rounded-md bg-muted/40 p-2">

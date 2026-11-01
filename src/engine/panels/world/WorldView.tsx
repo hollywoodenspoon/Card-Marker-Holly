@@ -2,8 +2,15 @@ import { useGame } from '../../store/gameStore'
 import { BoosterView } from './BoosterView'
 import { ActivityView, CalEventView, CalendarPreview } from './CalendarViews'
 import { CharacterView } from './CharacterView'
+import { TextView } from '../rules/TextView'
 import { PortraitView } from './PortraitView'
 import { ShopView } from './ShopView'
+import { LeagueView } from './LeagueView'
+import { TournamentView } from './TournamentView'
+import { ReleaseView } from './ReleaseView'
+import { BansView } from './BansView'
+import { MarketView } from './MarketView'
+import { SimulatorView } from './SimulatorView'
 
 /** The centre for characters, shops, boosters and the calendar. */
 export function WorldView() {
@@ -35,8 +42,26 @@ export function WorldView() {
       const e = game.calendar.events.find((x) => x.id === id)
       return e ? <CalEventView key={e.id} event={e} /> : gone
     }
+    case 'league':
+      return <LeagueView />
+    case 'tournament': {
+      const t = game.league.tournaments.find((x) => x.id === id)
+      return t ? <TournamentView key={t.id} tournament={t} /> : gone
+    }
+    case 'release': {
+      const r = game.league.releases.find((x) => x.id === id)
+      return r ? <ReleaseView key={r.id} release={r} /> : gone
+    }
+    case 'bans':
+      return <BansView />
+    case 'market':
+      return <MarketView />
+    case 'simulator':
+      return <SimulatorView />
     case 'calendar':
       return <CalendarPreview />
+    case 'text':
+      return <TextView />
     default:
       return gone
   }

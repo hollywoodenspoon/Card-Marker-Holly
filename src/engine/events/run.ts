@@ -6,6 +6,7 @@
 import type { Condition, Recipe, Step } from '../model/events'
 import { piece, type RunContext } from './pieces'
 import './worldPieces'
+import './leaguePieces'
 
 /** Whether a condition holds (an unknown piece never does). */
 export function testCondition(c: Condition, ctx: RunContext): boolean {

@@ -413,6 +413,26 @@ export function GameView({
                   >
                     Back to {handoff.gameName}
                   </Button>
+                  {handoff.pauseLabel && rules && hasStart && !winner && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      data-testid="pause-match"
+                      onClick={() => {
+                        const { game, moves } = usePlaytest.getState()
+                        if (!game) return
+                        finishMatch({
+                          winner: null,
+                          finished: false,
+                          paused: { seed: game.seed, moves },
+                        })
+                        usePlaytest.getState().end()
+                        useWorkspace.getState().go('engine')
+                      }}
+                    >
+                      {handoff.pauseLabel}
+                    </Button>
+                  )}
                 </div>
               )}
               {winner && winKey !== winSeen && !replay && (
