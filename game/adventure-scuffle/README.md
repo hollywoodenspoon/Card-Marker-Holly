@@ -16,5 +16,6 @@ The single source of truth for the card game. Git keeps the history, so there ar
 
 Newest first. Every card, balance or rule change gets a line here.
 
+- **2026-11-01, balance:** first run with every card read by the engine and pairs as the rule (`balance/2026-11-01-v2.6-pairs.md`, 20,000 games). No card changed yet: the flags are Trailblazing Scout, Feinting Swordswoman, Bastion Sentinel, Falcon Strider, Dawnbreaker and Falcon Scout (too strong) and a set of too-weak cards, for the owner to decide.
 - **2026-11-01, Rulebook v2.6:** pairs is the Skirmish rule (2 cards at a time after the opening pairs); Classic and Triples retired.
 - **2026-11-01, cards.csv:** first version in the repo: 188 cards. Built from the First Quest v3.2, Horde/Dread/Deepdelver/Anti-Incursion and Falconwatch/Cut Cards CSVs, with every change in `docs/design/adventure-scuffle-sets.md` applied (Adventuring errata TFQ-06/07/08/09/10/12, TFQ-44 Living Weapon Dusk, TFQ-45 Fear the First Shadow, Unmade Wretch's lock, The United Horde replacing The Banded Horde) and the seven drafted decks added. Set codes given to every card outside The First Quest; Wildcard Wanderer is TUF-34 (was BN-01) and Doppelganger Thief TLC-37.
