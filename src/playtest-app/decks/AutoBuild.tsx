@@ -1,19 +1,11 @@
 import { Sparkles, Square } from '@/ui/icons'
 import { useRef, useState } from 'react'
 import type { AsCard } from '@/adventure/cards'
-import { checkDeck } from '@/adventure/deck'
-import {
-  buildDeck,
-  DECK_LEVEL_NAMES,
-  DECK_LEVELS,
-  notesFor,
-  type DeckLevel,
-} from '@/adventure/deckgen/build'
-import { randomSeed } from '@/playtest/rng'
+import { DECK_LEVEL_NAMES, DECK_LEVELS, type DeckLevel } from '@/adventure/deckgen/build'
 import { toast } from '@/ui/components/feedback'
 import { Button } from '@/ui/components/ui/button'
 import { NativeSelect } from '@/ui/components/ui/input'
-import { cardValues, veryOptimalDeck } from './deckgenClient'
+import { autoBuildDeck } from './autoBuildDeck'
 
 /**
  * "Auto-build": a new Free Company from the whole pack at one of three levels.
@@ -36,25 +28,24 @@ export function AutoBuild({
   const [busy, setBusy] = useState<string | null>(null)
   const [part, setPart] = useState(0)
   const stop = useRef(false)
-  const byId = Object.fromEntries(cards.map((c) => [c.id, c]))
 
   const run = async () => {
     stop.current = false
-    setPart(0)
-    setBusy('Working out how strong each card is (bot games)…')
     try {
-      const values = await cardValues(packId, cards, setPart, () => stop.current)
-      if (!values) return
-      const seed = randomSeed()
-      let ids: string[]
-      if (level === 'veryOptimal') {
-        setPart(0)
-        setBusy('Tuning the deck with games against the pack decks…')
-        const gauntlet = packDecks.filter((d) => checkDeck(d, byId).ok)
-        ids = await veryOptimalDeck(cards, values, gauntlet, seed, setPart, () => stop.current)
-      } else ids = buildDeck(cards, values, level, seed).cards
-      onBuilt(`${DECK_LEVEL_NAMES[level]} deck`, ids)
-      toast(notesFor(ids, cards, values).join(' '))
+      const built = await autoBuildDeck(
+        packId,
+        cards,
+        packDecks,
+        level,
+        (text, p) => {
+          setBusy(text)
+          setPart(p)
+        },
+        () => stop.current,
+      )
+      if (!built) return
+      onBuilt(`${DECK_LEVEL_NAMES[level]} deck`, built.ids)
+      toast(built.notes.join(' '))
     } catch (e) {
       toast(`Auto-build stopped: ${e instanceof Error ? e.message : String(e)}`)
     } finally {
