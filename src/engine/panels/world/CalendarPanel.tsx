@@ -4,7 +4,14 @@ import { Section } from '@/ui/components/fields'
 import { Input, Label } from '@/ui/components/ui/input'
 import { CalendarDays, Plus } from '@/ui/icons'
 import { cloneSteps } from '../../model/events'
-import { newActivity, newCalendarEvent, whenLabel, type Calendar } from '../../model/calendar'
+import {
+  monthsOfSeason,
+  newActivity,
+  newCalendarEvent,
+  seasonName,
+  whenLabel,
+  type Calendar,
+} from '../../model/calendar'
 import { useGame } from '../../store/gameStore'
 import { ListRow } from './ListRow'
 
@@ -59,6 +66,55 @@ export function CalendarPanel() {
               edit((c) => void (c.seasonNames = e.target.value.split(',').map((s) => s.trim())))
             }
           />
+        </div>
+        <div className="flex flex-col gap-1">
+          <Label htmlFor="cal-start-year">First year shown</Label>
+          <Input
+            id="cal-start-year"
+            type="number"
+            className="w-32"
+            value={cal.startYear}
+            onChange={(e) =>
+              edit(
+                (c) => void (c.startYear = Math.floor(Number(e.target.value)) || 1),
+                'cal-startYear',
+              )
+            }
+          />
+          <p className="text-xs text-muted-foreground">
+            Only for show: year 1 of the game is called this, so the calendar moves through 2025,
+            2026… Rules still count years from 1. Leave at 1 to show “year 1”.
+          </p>
+        </div>
+        <div className="flex flex-col gap-2">
+          <Label>Month names</Label>
+          {Array.from({ length: Math.max(1, cal.seasonsPerYear) }, (_, i) => i + 1).map((sn) => (
+            <div key={sn} className="flex flex-col gap-1">
+              <span className="text-xs font-medium text-muted-foreground">
+                {seasonName(cal, sn)}
+              </span>
+              <div className="grid grid-cols-[repeat(auto-fit,minmax(7rem,1fr))] gap-1.5">
+                {monthsOfSeason(cal, sn).map((m) => (
+                  <Input
+                    key={`${m}:${cal.monthNames[m - 1] ?? ''}`}
+                    aria-label={`Name of month ${m}`}
+                    placeholder={`Month ${m}`}
+                    defaultValue={cal.monthNames[m - 1] ?? ''}
+                    onBlur={(e) =>
+                      edit((c) => {
+                        const names = Array.from(
+                          { length: Math.max(c.monthNames.length, m) },
+                          (_, k) => c.monthNames[k] ?? '',
+                        )
+                        names[m - 1] = e.target.value.trim()
+                        c.monthNames = names
+                      })
+                    }
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
         <Button size="sm" variant="outline" onClick={() => setView({ kind: 'calendar' })}>
           <CalendarDays /> Preview the calendar

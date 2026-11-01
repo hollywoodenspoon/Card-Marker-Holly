@@ -936,3 +936,7 @@ Agreed with the owner in discussion; the plan is in the PR. Adventure Scuffle! i
 - Cut for now (told to the owner): the player-screen theme-token module. Colours stay where they were.
 
 - The Adventure Scuffle! template sets the Ace field to `Name_AS` and the Ace text to `{ace}`, which is how those cards mark an Ace. A new empty game still has no Ace field; it is set in Items → Card collection.
+
+- The player's calendar is a scrolling wall calendar: one card per month, one cell per week (the game has no days), this month highlighted, past weeks dimmed, and an event list for the tapped week. It opens on this month, and "Today" jumps back. It shows from the year before now up to the ending year, or two years ahead in a game that never ends. Past events show; future ones only when announced.
+- "First year shown" (`calendar.startYear`, default 1) is cosmetic: game year 1 is shown as that year, so the calendar moves through 2025, 2026… Rules, `once` events and "from year" still count game years from 1. While it is 1 the old "year N" wording stays, so old games look the same. The text tokens `{year}` follow it; `{month}` stays the month's number and the new `{monthname}` is its name.
+- Month names are still stored by month of the year (`calendar.monthNames`); the Calendar panel just lists them under their season. Empty names show "Month N".

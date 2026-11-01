@@ -183,7 +183,9 @@ unchanged; picture scenes live inside the game.
   expressions) and characters; `portraitLayers` picks what to draw.
 - `model/economy.ts`: items, shops, boosters and rarities, the money and Ace settings, `isAce`.
 - `model/calendar.ts`: activities, calendar events and their rules, date maths, which events
-  are on a week (`eventsOn`, seeded random picks) and what the player knows (`upcoming`).
+  are on a week (`eventsOn`, seeded random picks) and what the player knows (`upcoming`),
+  `monthsBetween` (the weeks laid out as months for the player's calendar), the cosmetic
+  `startYear` (`shownYear`) and `monthNames`.
 - `portraits/`: `recolor.ts` (ramp and hue shift on pixels) and `render.ts` (layers drawn
   on a canvas, cached as object URLs; `usePortrait`).
 - `economy/`: `booster.ts` (seeded opening) and `collection.ts` (items as counts, normal

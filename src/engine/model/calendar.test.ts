@@ -6,7 +6,11 @@ import {
   eventsOn,
   isOn,
   known,
+  monthsBetween,
+  monthsOfSeason,
   newCalendarEvent,
+  shownYear,
+  sizes,
   upcoming,
   whenLabel,
   type Calendar,
@@ -118,5 +122,52 @@ describe('calendar events', () => {
   it('describes rules in words', () => {
     expect(whenLabel(c, nationals)).toBe('3rd week of every season (Summer, Winter)')
     expect(whenLabel(c, finalExam)).toBe('1 a season, at random on Nationals (Winter)')
+  })
+})
+
+describe('calendar months and the shown year', () => {
+  const cal = (o: Partial<Calendar> = {}): Calendar => ({ ...defaultCalendar(), ...o })
+
+  it('shows "year N" until a start year is set, then the real year', () => {
+    expect(dateLabel(cal(), 0)).toBe('Week 1 of Spring, year 1')
+    const c = cal({ startYear: 2025 })
+    expect(dateLabel(c, 0)).toBe('Week 1 of Spring, 2025')
+    expect(dateLabel(c, sizes(c).year)).toBe('Week 1 of Spring, 2026')
+    expect(shownYear(c, 3)).toBe(2027)
+  })
+
+  it('lists the months of a season', () => {
+    expect(monthsOfSeason(cal(), 1)).toEqual([1, 2, 3])
+    expect(monthsOfSeason(cal(), 2)).toEqual([4, 5, 6])
+  })
+
+  it('lays years out as months of weeks, hiding what is not announced yet', () => {
+    const c = cal({
+      events: [
+        { ...newCalendarEvent('Open'), mode: 'auto', when: { kind: 'once', year: 1, week: 2 } },
+        {
+          ...newCalendarEvent('Secret'),
+          mode: 'auto',
+          announce: 1,
+          when: { kind: 'once', year: 1, week: 30 },
+        },
+        { ...newCalendarEvent('Daily'), when: { kind: 'weekly' } },
+      ],
+    })
+    const months = monthsBetween(c, 0, 1, 1, 1)
+    expect(months).toHaveLength(12)
+    expect(months[0].weeks).toHaveLength(4)
+    expect(months[0].weeks[1].events.map((e) => e.name)).toEqual(['Open'])
+    // week 30 of the year is in month 8, and is two months away from week 0: not known yet
+    expect(
+      months.flatMap((m) => m.weeks).some((x) => x.events.some((e) => e.name === 'Secret')),
+    ).toBe(false)
+    // once the player is on week 28 it shows
+    const later = monthsBetween(c, 28, 1, 1, 1).flatMap((m) => m.weeks)
+    expect(later.some((x) => x.events.some((e) => e.name === 'Secret'))).toBe(true)
+    // nothing weekly is listed
+    expect(
+      months.flatMap((m) => m.weeks).some((x) => x.events.some((e) => e.name === 'Daily')),
+    ).toBe(false)
   })
 })

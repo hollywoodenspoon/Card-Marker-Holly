@@ -9,7 +9,9 @@ import { ConditionEditor, StepsEditor } from '../../events/EventsEditor'
 import {
   dateOf,
   eventsOn,
+  monthName,
   seasonName,
+  shownYear,
   sizes,
   type Activity,
   type CalendarEvent,
@@ -336,7 +338,9 @@ export function CalendarPreview() {
   return (
     <div className="h-full overflow-y-auto p-4" data-testid="calendar-preview">
       <div className="mb-3 flex flex-wrap items-center gap-2">
-        <Labelled label="Year">
+        <Labelled
+          label={`Year${shownYear(cal, year) !== year ? ` (${shownYear(cal, year)})` : ''}`}
+        >
           <Input
             type="number"
             min={1}
@@ -365,10 +369,13 @@ export function CalendarPreview() {
                   <li
                     key={x.w}
                     className={cn(
-                      'flex gap-2 rounded px-1 py-0.5 text-xs',
+                      'flex flex-wrap gap-x-2 rounded px-1 py-0.5 text-xs',
                       x.d.week === 1 && 'border-t',
                     )}
                   >
+                    {x.d.week === 1 && (
+                      <span className="w-full font-medium">{monthName(cal, x.d.month)}</span>
+                    )}
                     <span className="w-6 shrink-0 text-muted-foreground tabular-nums">
                       {x.d.weekOfSeason}
                     </span>
