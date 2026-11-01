@@ -85,12 +85,9 @@ These are general engine tools; Adventure Scuffle! only fills them with data.
 - The player picks **one activity a week**. The calendar shows upcoming events, and some prize tournaments appear only a week or a month ahead.
 - The starting card pool is 60 cards, with more released each season.
 
-## Owner's artifacts (on claude.ai, not in the repo; open by link)
+## The owner's design docs
 
-- [Hearthside Engine: the plan](https://claude.ai/artifact/XWXm8CSvwHBDNRcoMuWd4i)
-- [Game editor: feature set](https://claude.ai/artifact/CgpeWAVsQQHaCL6DyNgw2c)
-- [Adventure Scuffle: game roadmap](https://claude.ai/artifact/JK9phT49rY1d2oK4riPSDp)
-- [Adventure Scuffle: 216-card design](https://claude.ai/artifact/5RABFS9wYg643nJhekYD62)
+These are copied into the repo in `docs/design/` (see its README): the engine plan, the game editor feature set, the Adventure Scuffle roadmap, the new sets design, the card lore and the icon styles. Read those rather than the claude.ai links. The links are listed there in case a newer version is needed.
 
 ## Working with the owner
 
