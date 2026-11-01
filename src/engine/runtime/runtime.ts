@@ -27,6 +27,7 @@ import { leagueCards } from './leagueCards'
 import { fromSnapshot, takeSnapshot, type Snapshot } from './snapshot'
 import { closeScreen, get, idle, pushLog, set, useRuntime } from './state'
 import { fillText } from './text'
+import { resumeTournament } from './tournament'
 import { makeWorld } from './world'
 
 export { useRuntime, closeScreen }
@@ -204,7 +205,7 @@ export function startRuntime(game: GameDoc, from?: string) {
 
 /** Makes the league's world when the game has one and this playthrough has none yet. */
 async function prepareWorld(game: GameDoc, id: number) {
-  if (get().world) return
+  if (get().world) return resumeAfterLoad(game, id)
   const league = game.league
   if (!league.enabled) {
     // No league: the world still keeps shop stock and what the player has seen.
@@ -223,6 +224,15 @@ async function prepareWorld(game: GameDoc, id: number) {
   } finally {
     if (id === run) set({ status: null })
   }
+}
+
+/** A saved game may have been in a tournament: carry on with it (a finished one is dropped). */
+async function resumeAfterLoad(game: GameDoc, id: number) {
+  const w = get().world
+  if (!w?.active) return
+  if (w.active.phase === 'done' || !game.league.enabled) return void set({ world: { ...w, active: null } })
+  await cardsReady(game)
+  if (id === run) await resumeTournament(context(id))
 }
 
 export function stopRuntime() {
@@ -363,19 +373,28 @@ async function playCards(game: GameDoc, a: Args, live: () => boolean) {
     return context(run).showMessage('A card game needs two decks with cards in them.')
   const name = (id: unknown) => game.decks.find((d) => d.id === id)?.name ?? 'Deck'
   const bot = a.bot === 'none' ? null : ((a.bot as 'easy' | 'normal' | 'hard') ?? 'normal')
+  const result = await playMatchGame(
+    game,
+    [mine, theirs],
+    [`You (${name(a.deckA)})`, bot ? `${name(a.deckB)} (bot)` : name(a.deckB)],
+    bot,
+  )
+  if (!live()) return
+  if (a.won) set({ vars: { ...get().vars, [String(a.won)]: result.winner === 0 } })
+}
+
+/** One card game on Play's table; resolves when the player returns (seat 0 is the player). */
+export async function playMatchGame(
+  game: GameDoc,
+  decks: [string[], string[]],
+  names: [string, string],
+  bot: 'easy' | 'normal' | 'hard' | null,
+): Promise<{ winner: number | null; finished: boolean }> {
   const result = await new Promise<{ winner: number | null; finished: boolean }>((done) => {
-    requestMatch({
-      gameId: game.id,
-      gameName: game.name,
-      decks: [mine, theirs],
-      names: [`You (${name(a.deckA)})`, bot ? `${name(a.deckB)} (bot)` : name(a.deckB)],
-      bot,
-      done,
-    })
+    requestMatch({ gameId: game.id, gameName: game.name, decks, names, bot, done })
     set({ away: true })
     useWorkspace.getState().playGame(game.id)
   })
-  if (!live()) return
   set({ away: false })
-  if (a.won) set({ vars: { ...get().vars, [String(a.won)]: result.winner === 0 } })
+  return result
 }

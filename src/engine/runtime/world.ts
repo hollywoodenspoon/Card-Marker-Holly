@@ -26,6 +26,7 @@ import type { GameEvent } from '../model/events'
 import type { GameDoc } from '../model/game'
 import { autoEvents, autosave, cardsReady, randomInt, showMessage } from './runtime'
 import { closeScreen, get, set, showScreen, type ActivityOption } from './state'
+import { canEnter, runTournament } from './tournament'
 
 const game = (): GameDoc => {
   const g = get().game
@@ -329,6 +330,13 @@ export function makeWorld(
       closeScreen()
       set({ ended: text || 'The end.', message: null, choice: null, speaker: null })
     },
+    runTournament: (tournament, deck, placeVar) =>
+      live() ? runTournament(ctx, { tournament, deck, placeVar }) : Promise.resolve(),
+    canEnter,
+    points: (track) => get().world?.points[track] ?? 0,
+    rating: () => get().world?.rating ?? 0,
+    runRelease: async () => undefined,
+    updateBans: async () => undefined,
   }
   return world
 }

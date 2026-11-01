@@ -5,6 +5,8 @@ import { CharacterView } from './CharacterView'
 import { TextView } from '../rules/TextView'
 import { PortraitView } from './PortraitView'
 import { ShopView } from './ShopView'
+import { LeagueView } from './LeagueView'
+import { TournamentView } from './TournamentView'
 
 /** The centre for characters, shops, boosters and the calendar. */
 export function WorldView() {
@@ -35,6 +37,12 @@ export function WorldView() {
     case 'calEvent': {
       const e = game.calendar.events.find((x) => x.id === id)
       return e ? <CalEventView key={e.id} event={e} /> : gone
+    }
+    case 'league':
+      return <LeagueView />
+    case 'tournament': {
+      const t = game.league.tournaments.find((x) => x.id === id)
+      return t ? <TournamentView key={t.id} tournament={t} /> : gone
     }
     case 'calendar':
       return <CalendarPreview />

@@ -23,6 +23,9 @@ export type FieldKind =
   | 'shop'
   | 'booster'
   | 'calEvent'
+  | 'tournament'
+  | 'release'
+  | 'track'
   | 'text'
   | 'longText'
   | 'int'
@@ -53,6 +56,16 @@ export interface World {
   week: () => number
   isOnThisWeek: (eventId: string) => boolean
   endGame: (text: string) => Promise<void>
+  /** Enters the player in a league tournament and plays it to the end (the place goes to the number). */
+  runTournament: (tournament: string, deck: string, placeVar: string) => Promise<void>
+  /** Whether the player could enter that tournament now (points, invite). */
+  canEnter: (tournament: string) => boolean
+  /** The player's points on a track, and their rating. */
+  points: (track: string) => number
+  rating: () => number
+  /** Draws and puts out a release; updates the ban list. */
+  runRelease: (release: string) => Promise<void>
+  updateBans: (lift: boolean) => Promise<void>
 }
 
 export interface FieldDef {

@@ -23,6 +23,7 @@ export type GamePanel =
   | 'items'
   | 'shops'
   | 'calendar'
+  | 'league'
   | 'rules'
   | 'map'
 
@@ -31,10 +32,19 @@ export type GameView =
   | { kind: 'scene'; id: string }
   | { kind: 'deck'; id: string }
   | {
-      kind: 'portrait' | 'character' | 'shop' | 'booster' | 'activity' | 'calEvent'
+      kind:
+        | 'portrait'
+        | 'character'
+        | 'shop'
+        | 'booster'
+        | 'activity'
+        | 'calEvent'
+        | 'tournament'
+        | 'release'
       id: string
     }
   | { kind: 'calendar' }
+  | { kind: 'league' }
   | { kind: 'text' }
   | { kind: 'none' }
 

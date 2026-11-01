@@ -50,6 +50,8 @@ export interface ActiveTournament {
   phase: 'play' | 'spectate' | 'done'
   /** A variable (number) that gets the player's place when it ends. */
   placeVar?: string
+  /** The match the player is in: its games won by the player and the opponent so far. */
+  current?: { matchId: string; score: [number, number] } | null
 }
 
 export interface PendingBan {

@@ -26,6 +26,7 @@ import {
   Coins,
   Store,
   Users,
+  Trophy,
 } from '@/ui/icons'
 import { Button, IconButton } from '@/ui/components/ui/button'
 import {
@@ -77,6 +78,7 @@ import { VariablesPanel } from './panels/game/VariablesPanel'
 import { CharactersPanel } from './panels/world/CharactersPanel'
 import { ItemsPanel } from './panels/world/ItemsPanel'
 import { ShopsPanel } from './panels/world/ShopsPanel'
+import { LeaguePanel } from './panels/world/LeaguePanel'
 import { CalendarPanel } from './panels/world/CalendarPanel'
 import { SettingsPanel } from './panels/rules/SettingsPanel'
 import { WorldView } from './panels/world/WorldView'
@@ -106,6 +108,7 @@ const RAIL: { id: Panel; label: string; icon: typeof Layers }[] = [
   { id: 'items', label: 'Items', icon: Coins },
   { id: 'shops', label: 'Shops', icon: Store },
   { id: 'calendar', label: 'Calendar', icon: CalendarDays },
+  { id: 'league', label: 'League', icon: Trophy },
   { id: 'rules', label: 'Rules', icon: SlidersHorizontal },
   { id: 'map', label: 'Map tools', icon: MapIcon },
 ]
@@ -332,6 +335,7 @@ function LeftPanel() {
         {shown === 'items' && <ItemsPanel />}
         {shown === 'shops' && <ShopsPanel />}
         {shown === 'calendar' && <CalendarPanel />}
+        {shown === 'league' && <LeaguePanel />}
         {shown === 'rules' && <SettingsPanel />}
         {shown === 'map' && <ToolPanel />}
       </div>

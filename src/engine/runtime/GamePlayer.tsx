@@ -17,6 +17,7 @@ import { DeckScreen } from './player/DeckScreen'
 import { BagScreen, LogScreen, SavesScreen } from './player/MenuScreens'
 import { BoosterReveal } from './player/BoosterReveal'
 import { Panel, PlayerButton } from './player/Panel'
+import { TournamentScreen } from './player/TournamentScreen'
 import { ShopScreen } from './player/ShopScreen'
 import { ActivityScreen, CalendarScreen } from './player/WeekScreens'
 import {
@@ -166,6 +167,7 @@ export function GamePlayer() {
           <ActivityScreen options={screen.options} forced={screen.forced} />
         )}
         {screen?.kind === 'calendar' && <CalendarScreen onClose={() => closeScreen()} />}
+        {screen?.kind === 'tournament' && <TournamentScreen />}
         {menu === 'calendar' && <CalendarScreen onClose={() => setMenu(null)} />}
         {menu === 'bag' && <BagScreen onClose={() => setMenu(null)} />}
         {menu === 'log' && <LogScreen onClose={() => setMenu(null)} />}
