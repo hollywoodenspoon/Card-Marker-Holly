@@ -101,8 +101,13 @@ export function GamePlayer() {
       data-testid="game-player"
     >
       <div className="pt-safe pl-safe pr-safe flex shrink-0 items-center gap-1 bg-black/80 px-2 py-1">
-        <PlayerButton className="bg-transparent" disabled={!canBack} onClick={backScene}>
-          <ArrowLeft className="size-4" /> Back
+        <PlayerButton
+          className="bg-transparent"
+          aria-label="Back"
+          disabled={!canBack}
+          onClick={backScene}
+        >
+          <ArrowLeft className="size-4" /> <span className="hidden sm:inline">Back</span>
         </PlayerButton>
         <span className="min-w-0 flex-1 truncate text-center text-sm text-white/70">
           {game.name}
@@ -112,8 +117,13 @@ export function GamePlayer() {
         {usesBag && menuButton('bag', 'Bag', Backpack)}
         {menuButton('log', 'Log', ScrollText)}
         {menuButton('saves', 'Save and load', Save)}
-        <PlayerButton className="bg-transparent" onClick={stopRuntime} data-testid="player-exit">
-          <X className="size-4" /> Exit
+        <PlayerButton
+          className="bg-transparent"
+          aria-label="Exit"
+          onClick={stopRuntime}
+          data-testid="player-exit"
+        >
+          <X className="size-4" /> <span className="hidden sm:inline">Exit</span>
         </PlayerButton>
       </div>
       <div className="relative min-h-0 flex-1">

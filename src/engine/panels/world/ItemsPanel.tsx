@@ -29,7 +29,8 @@ function useEconomy() {
 
 function MoneySection() {
   const [e, edit] = useEconomy()
-  const numbers = useGame((s) => s.game.variables.filter((v) => v.kind === 'number'))
+  const variables = useGame((s) => s.game.variables)
+  const numbers = useMemo(() => variables.filter((v) => v.kind === 'number'), [variables])
   const commit = useGame((s) => s.commit)
   return (
     <Section title="Money">

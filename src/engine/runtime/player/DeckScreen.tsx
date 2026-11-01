@@ -6,10 +6,12 @@ import { setDeckCard } from '../world'
 import { CardFace } from './CardFace'
 import { Panel, PlayerButton } from './Panel'
 
+const NONE: Record<string, number> = {}
+
 /** "Edit my deck": the player's own cards, with − / + for the deck. */
 export function DeckScreen({ deckId }: { deckId: string }) {
   const name = useRuntime((s) => s.game?.decks.find((d) => d.id === deckId)?.name ?? 'Deck')
-  const deck = useRuntime((s) => s.decks[deckId] ?? {})
+  const deck = useRuntime((s) => s.decks[deckId]) ?? NONE
   const collection = useRuntime((s) => s.collection)
   const cards = useGameCards((s) => s.merged?.pack.info.cards)
   const [query, setQuery] = useState('')
@@ -22,7 +24,6 @@ export function DeckScreen({ deckId }: { deckId: string }) {
       title={`${name} · ${deckSize({ counts: deck })} cards`}
       wide
       onClose={() => closeScreen()}
-      closeLabel="Done"
       testId="player-deck"
       footer={
         <>
