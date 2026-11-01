@@ -142,17 +142,11 @@ export interface Pending {
 export type RevealCount = 1 | 2 | 3
 
 /**
- * Reveal size (a rules option under test). classic: an opening pair each, then
- * one at a time. pairs: pairs throughout. triples: each field in two groups of
- * 3 (the second is whatever is left).
+ * Reveal size. pairs is the rule (Rulebook v2.6): pairs throughout. classic (an
+ * opening pair each, then one at a time) and triples (two groups of 3) are
+ * retired, kept only so games saved under them still replay.
  */
 export type RevealRule = 'classic' | 'pairs' | 'triples'
-export const REVEAL_RULES: RevealRule[] = ['classic', 'pairs', 'triples']
-export const REVEAL_LABELS: Record<RevealRule, string> = {
-  classic: 'Classic: a pair, then one at a time',
-  pairs: 'Pairs throughout (test rule)',
-  triples: 'Triples: two groups of 3 (test rule)',
-}
 
 export type Phase = 'setup' | 'skirmish' | 'combat' | 'regroup' | 'over'
 
@@ -190,7 +184,7 @@ export interface AsState {
   log: AsLogEntry[]
   /** Rock-paper-scissors throws so far (only in a game that opens with it). */
   rps?: [Hand | null, Hand | null]
-  /** The reveal size rule; unset means classic. */
+  /** The reveal size rule (pairs for every game since Rulebook v2.6). */
   reveal?: RevealRule
   /** Fixed when combat starts: who stacks in each attack, and every card's values. */
   combat?: CombatLock | null

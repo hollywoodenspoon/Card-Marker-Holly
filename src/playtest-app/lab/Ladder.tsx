@@ -9,12 +9,11 @@ import {
   rateText,
   runLadder,
   type LadderOptions,
+  REVEAL_NAMES,
 } from '@/adventure/lab/ladder'
-import { REVEAL_LABELS, REVEAL_RULES, type RevealRule } from '@/adventure/state'
 import { saveSim, type LadderSimRow } from '@/playtest/library'
 import { toast } from '@/ui/components/feedback'
 import { Button } from '@/ui/components/ui/button'
-import { Label, NativeSelect } from '@/ui/components/ui/input'
 import { LADDER_MS, ladderExec } from './labClient'
 
 /**
@@ -46,7 +45,6 @@ export function LadderSetup({
 }) {
   const [entrants, setEntrants] = useState<string[]>(DEFAULT_ENTRANTS)
   const [games, setGames] = useState(100)
-  const [reveal, setReveal] = useState<RevealRule>('classic')
   const [done, setDone] = useState<number | null>(null)
   const [startedAt, setStartedAt] = useState(0)
   const [tick, setTick] = useState(0)
@@ -68,7 +66,7 @@ export function LadderSetup({
     setStartedAt(now)
     setTick(now)
     setDone(0)
-    const options: LadderOptions = { entrants, games, seed, reveal }
+    const options: LadderOptions = { entrants, games, seed, reveal: 'pairs' }
     try {
       const result = await runLadder(
         { packName, cards, premades },
@@ -191,21 +189,6 @@ export function LadderSetup({
             ))}
           </div>
         </div>
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="ladder-reveal">Reveal size</Label>
-          <NativeSelect
-            id="ladder-reveal"
-            value={reveal}
-            onChange={(e) => setReveal(e.target.value as RevealRule)}
-            data-testid="ladder-reveal"
-          >
-            {REVEAL_RULES.map((r) => (
-              <option key={r} value={r}>
-                {REVEAL_LABELS[r]}
-              </option>
-            ))}
-          </NativeSelect>
-        </div>
       </div>
       <p className="text-xs text-muted-foreground">
         {pairs} pairings · {total.toLocaleString()} games · about {duration(estimate)} on {threads}{' '}
@@ -228,8 +211,7 @@ export function LadderResults({ row }: { row: LadderSimRow }) {
       <section className="rounded-xl border bg-panel p-3 text-sm">
         <p>
           {total.toLocaleString()} games{r.stopped ? ' (stopped early)' : ''}, {r.options.games} per
-          pairing, {REVEAL_LABELS[r.options.reveal ?? 'classic'].toLowerCase()}, seed{' '}
-          {r.options.seed}.
+          pairing, {REVEAL_NAMES[r.options.reveal ?? 'classic']}, seed {r.options.seed}.
         </p>
         <p className="text-muted-foreground">
           Rules checker: {r.checked} games, {r.problems.length} problems. Ratings: Easy at 1000; 100

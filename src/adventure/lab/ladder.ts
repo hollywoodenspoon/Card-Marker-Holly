@@ -328,8 +328,8 @@ export function rateText(w: number, n: number): string {
 }
 
 export const REVEAL_NAMES: Record<RevealRule, string> = {
-  classic: 'classic reveals',
-  pairs: 'pairs throughout',
+  classic: 'one card at a time (before Rulebook v2.6)',
+  pairs: 'pairs',
   triples: 'triples',
 }
 

@@ -62,8 +62,19 @@ export interface NewGame {
   opening?: 'coin' | 'rps'
   /** A fixed starting initiative (a tournament's later games: who went second before). */
   initiative?: Seat
-  /** The reveal size rule (default classic). */
+  /**
+   * The reveal size rule: pairs (the rule since Rulebook v2.6). 'classic' and
+   * 'triples' only replay games saved before then; see `savedGame`.
+   */
   reveal?: RevealRule
+}
+
+/**
+ * A game saved before Rulebook v2.6 has no reveal rule and was played under
+ * Classic (one card at a time). Tag it so it replays the way it was played.
+ */
+export function savedGame<T extends { reveal?: RevealRule }>(g: T): T {
+  return g.reveal ? g : { ...g, reveal: 'classic' }
 }
 
 type D = Draft<AsState>
@@ -110,7 +121,7 @@ export function createGame({
     seed: s,
     winner: null,
     log: [],
-    ...(reveal && reveal !== 'classic' ? { reveal } : {}),
+    reveal: reveal ?? 'pairs',
   }
   return produce(state, (d) => {
     log(d, `New game: ${names[0]} against ${names[1]}.`)
@@ -723,10 +734,10 @@ function nextReveal(d: D) {
   const init = d.initiative
   const can = (seat: Seat) => revealOptions(d, seat, 1).length > 0
   const { reveals, last } = d.skirmish
-  const rule = d.reveal ?? 'classic'
+  const rule = d.reveal ?? 'pairs'
   const opening: RevealCount = rule === 'triples' ? 3 : 2
   const later: RevealCount = rule === 'classic' ? 1 : opening
-  // Opening reveals, initiative player first; then alternating (one at a time in classic).
+  // Opening reveals, initiative player first; then alternating (one at a time in old classic games).
   if (reveals < 2) {
     const seat = reveals === 0 ? init : other(init)
     if (can(seat)) return void (d.step = { k: 'reveal', seat, count: opening })

@@ -1,6 +1,6 @@
 import { VERSION_LABEL } from '@/app/appInfo'
 import type { BotLevel } from '@/adventure/bot'
-import { apply, createGame, type Move, type NewGame } from '@/adventure/engine'
+import { apply, createGame, savedGame, type Move, type NewGame } from '@/adventure/engine'
 import type { ReplayRow } from '@/playtest/library'
 import { downloadBlob } from '@/ui/actions/download'
 
@@ -84,6 +84,7 @@ export function readReplayFile(
     throw new Error('This replay file is damaged.')
   return {
     ...r,
+    game: savedGame(r.game),
     id: `import-${data.exportedAt ?? 0}-${r.game.seed}`,
     packId,
   }

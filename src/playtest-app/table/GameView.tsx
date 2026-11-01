@@ -203,6 +203,7 @@ export function GameView({
         seed: g.seed,
         first: firstInitiative(g, moves),
         ...(g.initiative !== undefined ? { initiative: g.initiative } : { opening: g.opening }),
+        reveal: pt.game?.reveal,
         winner: w.seat,
         moves,
         points: [rules.players[0].points, rules.players[1].points],
@@ -424,7 +425,7 @@ export function GameView({
                         finishMatch({
                           winner: null,
                           finished: false,
-                          paused: { seed: game.seed, moves },
+                          paused: { seed: game.seed, moves, reveal: game.reveal },
                         })
                         usePlaytest.getState().end()
                         useWorkspace.getState().go('engine')

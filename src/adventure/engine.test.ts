@@ -95,8 +95,16 @@ describe('setup', () => {
 })
 
 describe('the Skirmish', () => {
-  it('reveals 2 adjacent cards each, then 1 at a time next to revealed ones, alternating', () => {
-    let s = placeInOrder(newGame())
+  it('replays old Classic games: 2 adjacent cards each, then 1 at a time next to revealed ones', () => {
+    let s = placeInOrder(
+      createGame({
+        cards: basicCards(),
+        decks: basicDecks(),
+        names: ['Ann', 'Bo'],
+        seed: 7,
+        reveal: 'classic',
+      }),
+    )
     const init = s.initiative
     const opp = other(init)
     // Not adjacent: 0 and 2.
@@ -118,15 +126,10 @@ describe('the Skirmish', () => {
     expect(s.skirmish.reveals).toBe(10)
   })
 
-  it('reveals in pairs throughout under the pairs rule', () => {
+  it('reveals in pairs throughout (the rule since v2.6, and the default)', () => {
+    expect(newGame().reveal).toBe('pairs')
     let s = placeInOrder(
-      createGame({
-        cards: basicCards(),
-        decks: basicDecks(),
-        names: ['A', 'B'],
-        seed: 7,
-        reveal: 'pairs',
-      }),
+      createGame({ cards: basicCards(), decks: basicDecks(), names: ['A', 'B'], seed: 7 }),
     )
     const init = s.initiative
     // The opening pair touches.
@@ -466,7 +469,14 @@ describe('saved scripted games', () => {
   for (const file of files)
     it(`replays ${file}`, () => {
       const fx = JSON.parse(readFileSync(`${FIXTURES}/${file}`, 'utf8')) as GameFixture
-      let s = createGame({ cards: basicCards(), decks: fx.decks, names: fx.names, seed: fx.seed })
+      let s = createGame({
+        cards: basicCards(),
+        decks: fx.decks,
+        names: fx.names,
+        seed: fx.seed,
+        // Saved before Rulebook v2.6, under the one-at-a-time rule.
+        reveal: 'classic',
+      })
       for (const m of fx.moves) s = must(s, m)
       expect(s.winner?.seat).toBe(fx.expect.winner)
       expect([s.players[0].points, s.players[1].points]).toEqual(fx.expect.points)
