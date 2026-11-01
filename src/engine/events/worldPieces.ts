@@ -22,6 +22,19 @@ const OPS = [
   { value: '<', label: 'less than' },
 ]
 
+/** Which copies cards are given as. */
+const COPIES = {
+  key: 'which',
+  label: 'Copies',
+  kind: 'select' as const,
+  options: [
+    { value: 'card', label: 'normal' },
+    { value: 'foil', label: 'foil' },
+  ],
+  default: 'card',
+}
+const copies = (a: Args): Owned => (a.which === 'foil' ? 'foil' : 'card')
+
 const GIVE_TAKE = [
   { value: 'give', label: 'give' },
   { value: 'take', label: 'take' },
@@ -193,7 +206,8 @@ const worldPieces: PieceDef[] = [
       },
       { key: 'name', label: 'Name (to remember it)', kind: 'text', default: '' },
     ],
-    run: (ctx, a) => ctx.world?.showHint(String(a.text ?? ''), a.once !== 'always', String(a.name ?? '')),
+    run: (ctx, a) =>
+      ctx.world?.showHint(String(a.text ?? ''), a.once !== 'always', String(a.name ?? '')),
   },
   {
     kind: 'effect',
@@ -278,10 +292,10 @@ const worldPieces: PieceDef[] = [
     id: 'cards.giveSet',
     label: 'Give several chosen cards',
     group: 'Cards',
-    sentence: 'give the player all of these cards: {cards}',
-    fields: [{ key: 'cards', label: 'Cards', kind: 'cardList' }],
+    sentence: 'give the player all of these {which} cards: {cards}',
+    fields: [COPIES, { key: 'cards', label: 'Cards', kind: 'cardList' }],
     run: (ctx, a) => {
-      for (const c of parseCardList(a.cards)) ctx.world?.give('card', c.id, c.n)
+      for (const c of parseCardList(a.cards)) ctx.world?.give(copies(a), c.id, c.n)
     },
   },
   {
@@ -289,9 +303,10 @@ const worldPieces: PieceDef[] = [
     id: 'cards.giveRandom',
     label: 'Give random cards from a list',
     group: 'Cards',
-    sentence: 'give the player {count} cards picked at random from {cards}',
+    sentence: 'give the player {count} {which} cards picked at random from {cards}',
     fields: [
       { key: 'count', label: 'How many cards', kind: 'int', default: 1 },
+      COPIES,
       { key: 'cards', label: 'Cards', kind: 'cardList' },
     ],
     run: (ctx, a) => {
@@ -300,7 +315,30 @@ const worldPieces: PieceDef[] = [
       const n = Math.max(0, Math.floor(num(a.count, 1)))
       if (!hat.length) return
       for (let i = 0; i < n; i++)
-        ctx.world?.give('card', hat[Math.min(hat.length - 1, Math.floor(ctx.random() * hat.length))], 1)
+        ctx.world?.give(
+          copies(a),
+          hat[Math.min(hat.length - 1, Math.floor(ctx.random() * hat.length))],
+          1,
+        )
+    },
+  },
+  {
+    kind: 'effect',
+    id: 'cards.giveAny',
+    label: 'Give random cards from all cards',
+    group: 'Cards',
+    sentence: 'give the player {count} {which} cards picked at random from every card in the game',
+    fields: [{ key: 'count', label: 'How many cards', kind: 'int', default: 1 }, COPIES],
+    run: (ctx, a) => {
+      const all = ctx.world?.allCards() ?? []
+      const n = Math.max(0, Math.floor(num(a.count, 1)))
+      if (!all.length) return
+      for (let i = 0; i < n; i++)
+        ctx.world?.give(
+          copies(a),
+          all[Math.min(all.length - 1, Math.floor(ctx.random() * all.length))],
+          1,
+        )
     },
   },
   {
@@ -308,9 +346,10 @@ const worldPieces: PieceDef[] = [
     id: 'cards.choose',
     label: 'Let the player choose cards from a list',
     group: 'Cards',
-    sentence: 'let the player choose {count} of {cards} to keep',
+    sentence: 'let the player choose {count} {which} cards from {cards}',
     fields: [
       { key: 'count', label: 'How many cards', kind: 'int', default: 1 },
+      COPIES,
       { key: 'cards', label: 'Cards', kind: 'cardList' },
     ],
     run: async (ctx, a) => {
@@ -328,7 +367,7 @@ const worldPieces: PieceDef[] = [
                 left.map((id) => w.cardName(id)),
               )
         const [id] = left.splice(Math.max(0, pick), 1)
-        if (id) w.give('card', id, 1)
+        if (id) w.give(copies(a), id, 1)
       }
     },
   },

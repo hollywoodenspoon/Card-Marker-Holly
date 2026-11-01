@@ -301,6 +301,7 @@ export function makeWorld(
       const pack = await rollBooster(id, n)
       if (pack && live()) await wait(showScreen({ kind: 'booster', pack }))
     },
+    allCards: () => (useGameCards.getState().merged?.pack.info.cards ?? []).map((c) => c.id),
     cardName: (id) =>
       useGameCards.getState().merged?.pack.info.cards.find((c) => c.id === id)?.name ?? id,
     editDeck: async (picked) => {

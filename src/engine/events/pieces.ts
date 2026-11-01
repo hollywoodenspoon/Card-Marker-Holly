@@ -53,6 +53,8 @@ export interface World {
   /** Draws `count` cards by a booster's pool and chances, adds them and shows them. */
   giveFromBooster: (id: string, count: number) => Promise<void>
   cardName: (id: string) => string
+  /** Every card of the game, by id. */
+  allCards: () => string[]
   /** Blank or unknown deck: the first deck of the game, or the player's own. */
   editDeck: (deckId: string) => Promise<void>
   showCalendar: () => Promise<void>

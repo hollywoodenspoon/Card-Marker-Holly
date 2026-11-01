@@ -66,6 +66,7 @@ import { ToolPanel } from './panels/ToolPanel'
 import { ViewportLayout } from './scene/ViewportLayout'
 import { useView } from './store/viewStore'
 import { WorkspaceSwitch } from '@/ui/shell/WorkspaceSwitch'
+import { autoAce } from './cards/autoAce'
 import { loadGameCards, useGameCards } from './cards/gameCards'
 import { installDeckBridge, rememberGame } from './cards/deckBridge'
 import { registerAdventureScuffle } from './modules/adventureScuffle'
@@ -114,6 +115,8 @@ const RAIL: { id: Panel; label: string; icon: typeof Layers }[] = [
   { id: 'map', label: 'Map tools', icon: MapIcon },
 ]
 
+const aceChecked = new Set<string>()
+
 /** Keeps the game's merged cards loaded: on opening a game, changing its sources, or coming back from Cards. */
 function useGameCardsSync() {
   const id = useGame((s) => s.game.id)
@@ -122,6 +125,26 @@ function useGameCardsSync() {
     rememberGame(id)
     void loadGameCards(useGame.getState().game)
   }, [id, sources])
+  // Adventure Scuffle! cards with no Ace setting yet: fill it in, once per game per visit.
+  useEffect(
+    () =>
+      useGameCards.subscribe((s) => {
+        const game = useGame.getState().game
+        const cards = s.merged?.pack.info.cards ?? []
+        // No cards yet (no source added): check again when some arrive.
+        if (
+          s.status !== 'ready' ||
+          s.gameId !== game.id ||
+          !cards.length ||
+          aceChecked.has(game.id)
+        )
+          return
+        aceChecked.add(game.id)
+        const fill = autoAce(game.economy, cards)
+        if (fill) useGame.getState().commit((g) => void Object.assign(g.economy, fill))
+      }),
+    [],
+  )
   useEffect(
     () =>
       useWorkspace.subscribe((s, prev) => {

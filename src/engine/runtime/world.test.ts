@@ -229,6 +229,23 @@ describe('the player’s world', () => {
     stopRuntime()
   })
 
+  it('gives random cards from every card in the game, normal or foil', async () => {
+    const { g, scene } = demo()
+    const ev = newEvent({ piece: 'scene.start', args: {} })
+    ev.steps.push(
+      effect('cards.giveAny', { count: 6, which: 'card' }),
+      effect('cards.giveAny', { count: 2, which: 'foil' }),
+      effect('cards.giveSet', { which: 'foil', cards: 'a' }),
+    )
+    scene.events.push(ev)
+    startRuntime(g)
+    await tick()
+    const col = Object.values(st().collection)
+    expect(col.reduce((n, c) => n + c.normal, 0)).toBe(6)
+    expect(col.reduce((n, c) => n + c.foil, 0)).toBe(3)
+    stopRuntime()
+  })
+
   it('draws a number of cards by a booster’s pool and chances', async () => {
     const { g, scene } = demo()
     const pack = newBooster('Pack')
