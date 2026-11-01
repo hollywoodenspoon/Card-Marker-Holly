@@ -27,6 +27,7 @@ import type { GameDoc } from '../model/game'
 import { autoEvents, autosave, cardsReady, randomInt, showMessage } from './runtime'
 import { closeScreen, get, set, showScreen, type ActivityOption } from './state'
 import { runRelease, updateBans } from './releases'
+import { runWeekStep } from './weekStep'
 import { canEnter, runTournament } from './tournament'
 
 const game = (): GameDoc => {
@@ -309,7 +310,10 @@ export function makeWorld(
       if (live()) await world.nextWeek()
     },
     nextWeek: async () => {
-      const week = get().week + 1
+      const ending = get().week
+      await runWeekStep(ctx, ending)
+      if (!live()) return
+      const week = ending + 1
       set({ week })
       const g = game()
       if (g.settings.autosaveOnWeek) autosave()

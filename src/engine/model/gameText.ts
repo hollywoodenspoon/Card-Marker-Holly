@@ -18,6 +18,7 @@ export const TEXT_DEFS: TextDef[] = [
   { key: 'save.auto', group: 'Menus', label: 'Autosave slot', default: 'Autosave {n}' },
   { key: 'save.slot', group: 'Menus', label: 'Save slot', default: 'Slot {n}' },
   { key: 'dialogue.continue', group: 'Dialogue', label: 'Continue', default: 'Continue ▸' },
+  { key: 'world.step', group: 'Weeks', label: 'The world moves on', default: 'The week ends…' },
   { key: 'week.this', group: 'Weeks', label: 'This week', default: 'This week' },
   { key: 'week.locked', group: 'Weeks', label: 'Locked activity', default: 'Not possible this week.' },
   { key: 'shop.leave', group: 'Shops', label: 'Leave the shop', default: 'Leave the shop' },

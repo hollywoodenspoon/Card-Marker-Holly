@@ -237,6 +237,27 @@ describe('the player’s world', () => {
     stopRuntime()
   })
 
+  it('the world step runs at the week change: an announced ban comes into force', async () => {
+    const { g: g2, scene: s2 } = demo()
+    g2.league = { ...emptyLeague(), enabled: true }
+    const ev2 = newEvent({ piece: 'scene.start', args: {} })
+    ev2.steps.push(effect('message.show', { text: 'Wait' }), effect('week.next', {}))
+    s2.events.push(ev2)
+    startRuntime(g2)
+    await tick(8)
+    expect(st().message).toBe('Wait')
+    const w = st().world!
+    useRuntime.setState({ world: { ...w, pendingBan: { week: 1, add: ['c'], remove: [] } } })
+    answerRuntime()
+    await tick(12)
+    expect(st().world?.banned).toEqual(['c'])
+    expect(st().message).toBe('The ban list changed: Card c.')
+    answerRuntime()
+    await tick(8)
+    expect(st().week).toBe(1)
+    stopRuntime()
+  })
+
   it('saves and loads a slot', async () => {
     const { g, gold } = demo()
     startRuntime(g)
