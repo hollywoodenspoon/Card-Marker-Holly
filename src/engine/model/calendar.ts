@@ -222,7 +222,8 @@ function randomPicks(c: Calendar, e: CalendarEvent, w: number, seed: number): nu
   const period = Math.floor(Math.max(0, w) / len)
   const start = period * len
   const targets = c.events.filter(
-    (x) => x.id !== e.id && x.when.kind !== 'random' && (on === 'important' ? x.important : x.id === on),
+    (x) =>
+      x.id !== e.id && x.when.kind !== 'random' && (on === 'important' ? x.important : x.id === on),
   )
   const candidates: number[] = []
   for (let k = start; k < start + len; k++)
@@ -267,7 +268,8 @@ export function upcoming(
 
 /** A rule in words, for lists: "3rd week of every season (Summer, Winter)". */
 export function whenLabel(c: Calendar, e: CalendarEvent): string {
-  const nth = (n: number) => `${n}${n % 10 === 1 && n !== 11 ? 'st' : n % 10 === 2 && n !== 12 ? 'nd' : n % 10 === 3 && n !== 13 ? 'rd' : 'th'}`
+  const nth = (n: number) =>
+    `${n}${n % 10 === 1 && n !== 11 ? 'st' : n % 10 === 2 && n !== 12 ? 'nd' : n % 10 === 3 && n !== 13 ? 'rd' : 'th'}`
   const w = e.when
   let s: string
   if (w.kind === 'weekly') s = 'Every week'
@@ -276,7 +278,9 @@ export function whenLabel(c: Calendar, e: CalendarEvent): string {
   else if (w.kind === 'once') s = `Week ${w.week} of year ${w.year}`
   else {
     const target =
-      w.on === 'important' ? 'an important event' : (c.events.find((x) => x.id === w.on)?.name ?? '?')
+      w.on === 'important'
+        ? 'an important event'
+        : (c.events.find((x) => x.id === w.on)?.name ?? '?')
     s = `${w.count} a ${w.per}, at random on ${target}`
   }
   if (e.seasons.length) s += ` (${e.seasons.map((n) => seasonName(c, n)).join(', ')})`

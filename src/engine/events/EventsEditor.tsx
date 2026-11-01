@@ -13,7 +13,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@/ui/components/ui/dropdown'
-import { Input, NativeSelect } from '@/ui/components/ui/input'
+import { Input, NativeSelect, Textarea } from '@/ui/components/ui/input'
 import { askText } from '@/ui/components/feedback'
 import {
   ArrowDown,
@@ -40,12 +40,15 @@ import {
   type GameEvent,
   type Step,
 } from '../model/events'
+import { useGameCards } from '../cards/gameCards'
 import { useGame } from '../store/gameStore'
+import './worldPieces'
 import { defaultArgs, piece, piecesOf, type Attach, type FieldDef, type PieceDef } from './pieces'
 
 /** What pickers can choose from: the open game's things, by id and name. */
 function useChoices() {
   const game = useGame((s) => s.game)
+  const cards = useGameCards((s) => s.merged?.pack.info.cards)
   return useMemo(() => {
     const objects: { id: string; name: string }[] = []
     for (const s of game.scenes)
@@ -59,8 +62,18 @@ function useChoices() {
       deck: game.decks.map((d) => ({ id: d.id, name: d.name })),
       recipe: game.recipes.map((r) => ({ id: r.id, name: r.name })),
       object: objects,
+      character: game.characters.map((c) => ({ id: c.id, name: c.name })),
+      // Expressions by name: a character's template decides which pictures they swap.
+      expression: [...new Set(game.portraits.flatMap((t) => t.expressions.map((e) => e.name)))].map(
+        (n) => ({ id: n, name: n }),
+      ),
+      item: game.items.map((i) => ({ id: i.id, name: i.name })),
+      card: (cards ?? []).map((c) => ({ id: c.id, name: c.name })),
+      shop: game.shops.map((s) => ({ id: s.id, name: s.name })),
+      booster: game.boosters.map((b) => ({ id: b.id, name: b.name })),
+      calEvent: game.calendar.events.map((e) => ({ id: e.id, name: e.name })),
     }
-  }, [game])
+  }, [game, cards])
 }
 type Choices = ReturnType<typeof useChoices>
 
@@ -535,6 +548,16 @@ function FieldPicker({
   onChange: (v: Args[string]) => void
 }) {
   const cls = 'h-7 w-auto max-w-48 text-xs font-medium'
+  if (field.kind === 'longText')
+    return (
+      <Textarea
+        aria-label={field.label}
+        rows={2}
+        className="min-h-14 w-full min-w-48 basis-full text-xs"
+        value={String(value ?? '')}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    )
   if (field.kind === 'text')
     return (
       <Input

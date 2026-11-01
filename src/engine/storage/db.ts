@@ -6,10 +6,12 @@
  *   upgraded to the current MapDoc when read (see model/migrate.ts).
  * - v3: games (a GameDoc per row). Maps stay in their table; a game's map scenes
  *   point at them. Scene pictures are assets too.
+ * - v4: saves, the player's saved games (3 slots and an autosave per game).
  */
 import Dexie, { type EntityTable } from 'dexie'
 import type { GameDoc } from '../model/game'
 import type { MapDoc } from '../model/map'
+import type { SaveRow } from './saves'
 
 /** A stored map: the document plus when it was last written. */
 export type MapRow = MapDoc & { updatedAt: number }
@@ -40,6 +42,7 @@ export class EngineDB extends Dexie {
   settings!: EntityTable<SettingRow, 'key'>
   assets!: EntityTable<AssetRow, 'id'>
   games!: EntityTable<GameRow, 'id'>
+  saves!: EntityTable<SaveRow, 'id'>
 
   constructor(name = 'hearthside-engine') {
     super(name)
@@ -57,6 +60,13 @@ export class EngineDB extends Dexie {
       settings: 'key',
       assets: 'id, gameId',
       games: 'id, name, updatedAt',
+    })
+    this.version(4).stores({
+      maps: 'id, name, updatedAt',
+      settings: 'key',
+      assets: 'id, gameId',
+      games: 'id, name, updatedAt',
+      saves: 'id, gameId',
     })
   }
 }

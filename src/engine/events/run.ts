@@ -3,8 +3,15 @@
  * ones that wait: a message, a choice, a card game), and branches by their kind.
  * Unknown pieces are skipped, so a game made with a module still opens without it.
  */
-import type { Recipe, Step } from '../model/events'
+import type { Condition, Recipe, Step } from '../model/events'
 import { piece, type RunContext } from './pieces'
+import './worldPieces'
+
+/** Whether a condition holds (an unknown piece never does). */
+export function testCondition(c: Condition, ctx: RunContext): boolean {
+  const def = piece(c.piece)
+  return def?.kind === 'condition' ? def.test(ctx, c.args) : false
+}
 
 export async function runSteps(steps: Step[], ctx: RunContext): Promise<void> {
   for (const s of steps) {
@@ -13,9 +20,7 @@ export async function runSteps(steps: Step[], ctx: RunContext): Promise<void> {
       const def = piece(s.piece)
       if (def?.kind === 'effect') await def.run(ctx, s.args)
     } else if (s.kind === 'if') {
-      const def = piece(s.condition.piece)
-      const ok = def?.kind === 'condition' ? def.test(ctx, s.condition.args) : false
-      await runSteps(ok ? s.then : s.else, ctx)
+      await runSteps(testCondition(s.condition, ctx) ? s.then : s.else, ctx)
     } else if (s.kind === 'choice') {
       if (!s.options.length) continue
       const i = await ctx.choose(

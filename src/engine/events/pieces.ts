@@ -6,10 +6,54 @@
  * run against a RunContext (the runtime, or a test).
  */
 import type { Args } from '../model/events'
+import type { GameDoc } from '../model/game'
 
 /** What a setting picks from (the editor lists only what exists in the game). */
 export type FieldKind =
-  'scene' | 'flag' | 'number' | 'object' | 'deck' | 'recipe' | 'text' | 'int' | 'percent' | 'select'
+  | 'scene'
+  | 'flag'
+  | 'number'
+  | 'object'
+  | 'deck'
+  | 'recipe'
+  | 'character'
+  | 'expression'
+  | 'item'
+  | 'card'
+  | 'shop'
+  | 'booster'
+  | 'calEvent'
+  | 'text'
+  | 'longText'
+  | 'int'
+  | 'percent'
+  | 'select'
+
+/** Things the player owns: items, normal or foil copies of a card, or any copy. */
+export type Owned = 'item' | 'card' | 'foil' | 'anyCard'
+
+/**
+ * The player's world in a running game: dialogue, things owned, screens and
+ * weeks. Optional, so tests and tools can run steps without it (those pieces
+ * then do nothing).
+ */
+export interface World {
+  game: () => GameDoc
+  say: (character: string, expression: string, text: string) => Promise<void>
+  count: (kind: Owned, id: string) => number
+  /** A negative n takes (never below 0). */
+  give: (kind: Owned, id: string, n: number) => void
+  openShop: (id: string) => Promise<void>
+  openBooster: (id: string) => Promise<void>
+  editDeck: (deckId: string) => Promise<void>
+  showCalendar: () => Promise<void>
+  /** Shows this week's activities, runs the picked one, then moves to the next week. */
+  pickActivity: () => Promise<void>
+  nextWeek: () => Promise<void>
+  week: () => number
+  isOnThisWeek: (eventId: string) => boolean
+  endGame: (text: string) => Promise<void>
+}
 
 export interface FieldDef {
   key: string
@@ -40,6 +84,7 @@ export interface RunContext {
   call: (service: string, args: Args) => Promise<void>
   /** True once the run should stop (preview closed). */
   stopped: () => boolean
+  world?: World
 }
 
 interface Base {

@@ -36,7 +36,7 @@ export class GameStore {
     await this.db.games.put({ ...game, updatedAt: Date.now() })
   }
 
-  /** Deletes the game, its map scenes' maps and its own images. */
+  /** Deletes the game, its map scenes' maps, its own images and its saves. */
   async remove(id: string): Promise<void> {
     const game = await this.load(id)
     await this.db.transaction(
@@ -45,8 +45,10 @@ export class GameStore {
       this.db.maps,
       this.db.assets,
       this.db.settings,
+      this.db.saves,
       async () => {
         await this.db.games.delete(id)
+        await this.db.saves.where('gameId').equals(id).delete()
         for (const s of game?.scenes ?? []) if (s.kind === 'map') await this.db.maps.delete(s.mapId)
         await this.db.assets.where('gameId').equals(id).delete()
         if ((await this.getLastOpen()) === id) await this.db.settings.delete(LAST_OPEN)

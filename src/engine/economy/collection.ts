@@ -49,7 +49,11 @@ export function spare(col: Collection, decks: Record<string, number>[], id: stri
 }
 
 /** Takes copies, normal ones first, then foil. Returns how many foil copies went. */
-export function takeCards(col: Collection, id: string, n: number): { col: Collection; foil: number } {
+export function takeCards(
+  col: Collection,
+  id: string,
+  n: number,
+): { col: Collection; foil: number } {
   const c = col[id] ?? { normal: 0, foil: 0 }
   const fromNormal = Math.min(c.normal, n)
   const fromFoil = Math.min(c.foil, n - fromNormal)
