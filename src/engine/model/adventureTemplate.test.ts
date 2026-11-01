@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { useGameCards, type GameCardsState } from '../cards/gameCards'
 import { dateOf, eventsOn } from './calendar'
 import { adventureScuffleGame } from './adventureTemplate'
+import { isAce } from './economy'
 import { tidyGame } from './game'
 import { answerRuntime, closeScreen, startRuntime, stopRuntime, useRuntime } from '../runtime/runtime'
 
@@ -22,6 +23,12 @@ describe('the Adventure Scuffle! template', () => {
       if (e.lock) expect(ids.has(String(e.lock.args.tournament))).toBe(true)
     }
     expect(t.economy.money).toBe(t.variables[0]?.id)
+  })
+
+  it('knows which cards are Aces ({ace} in Name_AS)', () => {
+    const e = adventureScuffleGame().economy
+    expect(isAce({ Name_AS: 'Crimson Duelist {ace}' }, e)).toBe(true)
+    expect(isAce({ Name_AS: 'Crimson Duelist' }, e)).toBe(false)
   })
 
   it('has no bans in year one, and the start-of-game release in week one', () => {

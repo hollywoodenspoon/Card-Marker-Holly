@@ -934,3 +934,5 @@ Agreed with the owner in discussion; the plan is in the PR. Adventure Scuffle! i
 - The template starts the player with three free packs and Gold 30; every number there is editable. It has no card source, so the first step after creating it is adding one.
 - On phones the Panels sheet closes when the centre view changes.
 - Cut for now (told to the owner): the player-screen theme-token module. Colours stay where they were.
+
+- The Adventure Scuffle! template sets the Ace field to `Name_AS` and the Ace text to `{ace}`, which is how those cards mark an Ace. A new empty game still has no Ace field; it is set in Items → Card collection.
