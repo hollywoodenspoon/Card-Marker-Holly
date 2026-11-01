@@ -934,3 +934,19 @@ Agreed with the owner in discussion; the plan is in the PR. Adventure Scuffle! i
 - The template starts the player with three free packs and Gold 30; every number there is editable. It has no card source, so the first step after creating it is adding one.
 - On phones the Panels sheet closes when the centre view changes.
 - Cut for now (told to the owner): the player-screen theme-token module. Colours stay where they were.
+
+## Pairs rule, all cards in the engine, ladder cap, Auto Build (v0.8.5-beta)
+
+- **Pairs is the Skirmish rule** (Rulebook v2.6). Classic and Triples are gone from every picker. A game saved before v2.6 has no `reveal` field and was played under Classic, so `savedGame()` tags it when replays, saved games, paused Engine matches and imported replay files load; new games always store `'pairs'`.
+- **The cards and rulebook live in `game/adventure-scuffle/`** (`cards.csv`, `rulebook.md`, a changelog). Card, balance and rule changes go there in the same PR (`.claude/rules/adventure-scuffle.md`). Stats in ability text use the `{attack_as}`-style symbols so the reader reads them.
+- **Set codes:** TUF, TLC, TAC, TEC after TFQ, numbered deck by deck in the set plan's order, then bonus cards. Assumed: Wildcard Wanderer is TUF-34 and Doppelganger Thief TLC-37 (the doc only says "sets 2 to 4").
+- **New mechanics** read from the text (`effects/mechanics.ts`). Assumptions where the rulebook is open:
+  - "Rest N: Interpose" is offered to its owner as the stacks form (the initiative player first); conditional Interpose is checked live, so "Lost Previous Engagement: Interpose" can join the Second Engagement.
+  - Endure is offered at Regroup to the owner of each face-up active card with it; Frost Binder's target stays without a choice.
+  - "Can't be the Main Attacker" passes Main Attacker to the next attacker by Fate; if none can, the player plays no Engagement.
+  - A Rest weapon attaches from the rest zone as an extra in a response window (not using the response); Unassuming Mage's swap is the same kind of extra, once per window.
+  - A coin card flips once when its ability is used; its "Heads"/"Tails" clauses are one ability.
+  - "Rest N: +N FS" (Sellsword Blade) is offered as the card is revealed.
+  - Armiger Page: the Living Weapon "on your field" is a Living Weapon card sitting on the field as a normal card.
+- **Bot ladder:** Normal and Hard think at most 2 s a move in the ladder; the results show how often each hit the cap.
+- **Auto Build on the table:** built fresh at Start, from the whole pack, with the Decks screen's builder.
