@@ -19,6 +19,14 @@ export interface Slot {
   card: string | null
   faceUp: boolean
   state: CardState
+  /** Debuff tokens on the card (Fear): each lowers its Attack or Defense by 1. Cleared at Regroup. */
+  tokens?: { a: number; d: number }
+  /**
+   * A Living Weapon attached to the card, and whose it is (Living Weapon Doubt
+   * arms an opponent's card). It moves with the card and goes to its owner's
+   * rest zone when the card leaves the field.
+   */
+  weapon?: { card: string; owner: Seat }
 }
 
 export interface PlayerState {
@@ -61,6 +69,16 @@ export interface RoundFlags {
    * round: they can't be revealed again until Regroup.
    */
   sealed?: string[]
+  /** Cards that can't be the target of an opponent's ability this round (Armiger Warden). */
+  shielded?: string[]
+  /** Cards that can't be the Main Attacker this round (Aegis Chaplain, Living Weapon Doubt). */
+  noMain?: string[]
+  /** Cards that have Interpose this round (Aegis Wardwright, Living Weapon Remembrance). */
+  interpose?: string[]
+  /** Cards that stay on the field at Regroup (Frost Binder on an opponent's card; Endure). */
+  stay?: string[]
+  /** Response-window extras used, as "reveal number:card" (Unassuming Mage's swap). */
+  window?: string[]
 }
 
 export const newRound = (): RoundFlags => ({ attackUnbound: false, used: [], extra: [] })
@@ -128,6 +146,10 @@ export type After =
   | { k: 'nextReveal' }
   | { k: 'assign' }
   | { k: 'fsTurn'; seat: Seat }
+  /** Back to the same response window (a window extra doesn't use up the response). */
+  | { k: 'respond'; seat: Seat; final: boolean }
+  /** The next queued trigger (Interpose costs, Endure), then `then`. */
+  | { k: 'triggers'; then: 'combat' | 'regroup' }
 
 /** An ability being resolved: its answers so far, and what comes after it. */
 export interface Pending {
@@ -178,6 +200,8 @@ export interface AsState {
   pending: Pending | null
   /** Flip Abilities waiting to trigger (owner and card), from the last reveal. */
   flips: { owner: Seat; card: string }[]
+  /** Abilities waiting their turn as the stacks form (Rest N: Interpose) or at Regroup (Endure). */
+  triggers?: { owner: Seat; card: string; mode: 'onStack' | 'endure' }[]
   /** The random number generator's state. */
   seed: number
   winner: { seat: Seat; reason: string } | null

@@ -30,6 +30,10 @@ function lostOrDoubled(s: AsState, decks: NewGame['decks']): string[] {
     const p = s.players[seat]
     const held = [
       ...p.field.flatMap((f) => (f.card ? [f.card] : [])),
+      // Living Weapons attached on either field belong to their owner.
+      ...s.players.flatMap((q) =>
+        q.field.flatMap((f) => (f.weapon?.owner === seat ? [f.weapon.card] : [])),
+      ),
       ...p.support,
       ...p.rest,
       ...p.spent,

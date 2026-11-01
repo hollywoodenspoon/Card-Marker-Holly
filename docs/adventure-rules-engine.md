@@ -4,18 +4,18 @@ The Mutual Reveal rules as code, in `src/adventure/`. It is plain TypeScript wit
 
 ## Files
 
-| File         | What it holds                                                                                      |
-| ------------ | -------------------------------------------------------------------------------------------------- |
-| `cards.ts`   | `AsCard`: a card's values read from the pack's `_AS` fields, with `archetypes` from `Archetype_AS` |
-| `deck.ts`    | Free Company check: 12 different cards, at most 1 Ace                                              |
-| `board.ts`   | The 2 × 3 field: slot numbers, neighbours, mirrored positions, names                               |
-| `state.ts`   | `AsState`, the whole game as plain data                                                            |
-| `engine.ts`  | `createGame`, `legalMoves`, `apply`, `prompt`                                                      |
-| `stats.ts`   | Card values and Engagement totals                                                                  |
-| `observe.ts` | `observeAs`: the game as one player may know it                                                    |
-| `table.ts`   | `toTable`: draws a game on the Hearthside Table setup                                              |
-| `effects/`   | Card abilities: `reader.ts` (reads the text), `blocks.ts`, `helpers.ts` (keywords), `registry.ts`  |
-| `fixtures/`  | Test cards (basic and The First Quest), random games, saved scripted games (JSON)                  |
+| File         | What it holds                                                                                                                                                              |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cards.ts`   | `AsCard`: a card's values read from the pack's `_AS` fields, with `archetypes` from `Archetype_AS`                                                                         |
+| `deck.ts`    | Free Company check: 12 different cards, at most 1 Ace                                                                                                                      |
+| `board.ts`   | The 2 × 3 field: slot numbers, neighbours, mirrored positions, names                                                                                                       |
+| `state.ts`   | `AsState`, the whole game as plain data                                                                                                                                    |
+| `engine.ts`  | `createGame`, `legalMoves`, `apply`, `prompt`                                                                                                                              |
+| `stats.ts`   | Card values and Engagement totals                                                                                                                                          |
+| `observe.ts` | `observeAs`: the game as one player may know it                                                                                                                            |
+| `table.ts`   | `toTable`: draws a game on the Hearthside Table setup                                                                                                                      |
+| `effects/`   | Card abilities: `reader.ts` (reads the text), `blocks.ts`, `mechanics.ts` (tokens, Hire, coins, Interpose, Endure, Living Weapons), `helpers.ts` (keywords), `registry.ts` |
+| `fixtures/`  | Test cards (basic, The First Quest, and `allCards.ts`: every card from `game/adventure-scuffle/cards.csv`), random games, saved scripted games (JSON)                      |
 
 ## The field
 

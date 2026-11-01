@@ -1,6 +1,7 @@
 import { ArrowLeft, Copy, Dices, Download, FlaskConical, Play, Square, Trash2 } from '@/ui/icons'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { AsCard } from '@/adventure/cards'
+import { unreadParts } from '@/adventure/effects/registry'
 import type { CardRow, LabView, Suggestion } from '@/adventure/lab/analyze'
 import type { LabBot } from '@/adventure/lab/play'
 import { BOTS, labReport, SMALL_RUN } from '@/adventure/lab/report'
@@ -77,6 +78,8 @@ export function BalanceLab({
   onClose: () => void
 }) {
   const found = useMemo(() => prefixes(cards), [cards])
+  // Cards the rules engine can't read play with their stats only.
+  const unread = useMemo(() => cards.filter((c) => unreadParts(c).length), [cards])
   const [games, setGames] = useState(10000)
   const [bot, setBot] = useState<LabBot>('quick')
   const [seed, setSeed] = useState(() => randomSeed())
@@ -243,6 +246,30 @@ export function BalanceLab({
       </header>
       <div className="min-h-0 flex-1 overflow-auto p-3">
         <div className="mx-auto flex max-w-3xl flex-col gap-4">
+          {unread.length > 0 && (
+            <section
+              className="rounded-xl border border-amber-500/60 bg-amber-500/10 p-3 text-sm"
+              data-testid="lab-unread"
+              role="alert"
+            >
+              <p className="font-medium">
+                {unread.length} card{unread.length === 1 ? '' : 's'} the rules engine can't read
+              </p>
+              <p className="text-xs text-muted-foreground">
+                They play with their stats only (no ability), so their results aren't reliable.
+              </p>
+              <ul className="mt-1 list-disc pl-5 text-xs">
+                {unread.slice(0, 12).map((c) => (
+                  <li key={c.id}>
+                    {c.name}: “{unreadParts(c).join('” / “')}”
+                  </li>
+                ))}
+                {unread.length > 12 && (
+                  <li>…and {unread.length - 12} more (listed in the report).</li>
+                )}
+              </ul>
+            </section>
+          )}
           {open ? (
             open.kind === 'ladder' ? (
               <LadderResults row={open} />

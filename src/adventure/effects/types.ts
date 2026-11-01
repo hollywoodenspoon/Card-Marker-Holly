@@ -11,7 +11,13 @@ import type { AsState, Engagement, Seat } from '../state'
 export interface Ctx {
   owner: Seat
   card: string
-  mode: 'field' | 'support' | 'flip' | 'battle'
+  /**
+   * field, support, flip, battle: the card's ability, used the way its type says.
+   * window: an extra in a response window, besides the response (a Rest weapon
+   * attaching from the rest zone, Unassuming Mage's swap). onStack: paid when the
+   * stacks form (Rest 1: Interpose). endure: at Regroup, stay on the field.
+   */
+  mode: 'field' | 'support' | 'flip' | 'battle' | 'window' | 'onStack' | 'endure'
 }
 
 /** One answer to a choice. Board options name their seat and slot, so the table can highlight them. */
@@ -84,6 +90,16 @@ export interface CardRules {
   copies?: boolean
   /** Final Blow: +N Fighting Spirit when the Engagement ends, if this was the last card revealed. */
   finalBlow?: number
+  /** In a response window, besides the response (Rest weapons, Unassuming Mage). */
+  window?: Ability
+  /** Interpose while defending, when its condition holds. */
+  interpose?(s: AsState, seat: Seat, slot: number): boolean
+  /** "Rest N: Interpose": the owner may pay when the stacks form. */
+  onStack?: Ability
+  /** Endure: the owner may keep it on the field at Regroup. */
+  endure?: Ability
+  /** Cards of these archetypes on the owner's field can't be repositioned by an opponent (Warchief of the Horde). */
+  guards?: string[]
 }
 
 export type D = Draft<AsState>
