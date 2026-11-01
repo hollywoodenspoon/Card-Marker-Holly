@@ -85,6 +85,8 @@ export interface WorldState {
   stock: Record<string, number>
   seenHints: string[]
   active: ActiveTournament | null
+  /** How the last card game from Cause and Effect ended (none yet: undefined). */
+  lastGame?: 'won' | 'lost' | 'declined'
   /** The last week the world step ran for. */
   lastStep: number
   /** The week each tournament last ran. */

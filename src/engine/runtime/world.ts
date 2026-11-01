@@ -301,6 +301,7 @@ export function makeWorld(
       const pack = await rollBooster(id, n)
       if (pack && live()) await wait(showScreen({ kind: 'booster', pack }))
     },
+    lastGame: () => get().world?.lastGame ?? '',
     allCards: () => (useGameCards.getState().merged?.pack.info.cards ?? []).map((c) => c.id),
     cardName: (id) =>
       useGameCards.getState().merged?.pack.info.cards.find((c) => c.id === id)?.name ?? id,
@@ -341,7 +342,12 @@ export function makeWorld(
       if (g.settings.autosaveOnWeek) autosave()
       if (hasEnded(g.settings, sizes(g.calendar).year, week)) {
         closeScreen()
-        set({ ended: g.settings.ending.text || 'The end.', message: null, choice: null, speaker: null })
+        set({
+          ended: g.settings.ending.text || 'The end.',
+          message: null,
+          choice: null,
+          speaker: null,
+        })
         return
       }
       await runAll(weekStart(), ctx)
