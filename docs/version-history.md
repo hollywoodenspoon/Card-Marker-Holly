@@ -28,6 +28,6 @@ one: #61 was **0.8.1-beta**, then the Engine's three PRs took **0.8.2-beta**, **
 | #62 | Engine 1 of 3: games, Play and scenes                      | 0.8.2-beta    | 0.8.2-beta             | no       |
 | —   | Engine 2 of 3: characters, money, shops, weeks, saves     | 0.8.3-beta    | 0.8.3-beta             | no       |
 | #67 | Engine 3 of 3: league, tournaments, simulator, template   | 0.8.4-beta    | 0.8.4-beta             | no       |
-| —   | Template detects Aces                                     | 0.8.5-beta    | 0.8.5-beta             | no       |
+| —   | Template detects Aces                                     | 0.8.6-beta    | 0.8.6-beta             | no       |
 
 Earlier PRs (#1–#48) used the 0.1.0 alpha line and are unchanged.
