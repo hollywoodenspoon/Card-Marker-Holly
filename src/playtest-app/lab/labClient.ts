@@ -75,13 +75,14 @@ export function ladderExec(
  * Milliseconds per game on one thread with this bot on both sides (measured
  * in a container), for the estimate; a pairing costs about the average of its two.
  */
+// Measured on all 188 cards with the 2 s think cap (v0.8.5-beta).
 export const LADDER_MS: Record<string, number> = {
   quick: 25,
-  easy: 320,
-  normal: 10000,
-  'hard-100': 5000,
-  'hard-400': 20000,
-  'hard-1600': 80000,
+  easy: 300,
+  normal: 6000,
+  'hard-100': 2800,
+  'hard-400': 11000,
+  'hard-1600': 40000,
 }
 
 export const LADDER_FILE = 'hearthside-ladder'

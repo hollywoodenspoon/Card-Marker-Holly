@@ -10,6 +10,7 @@ import {
   runLadder,
   type LadderOptions,
   REVEAL_NAMES,
+  LADDER_THINK_MS,
 } from '@/adventure/lab/ladder'
 import { saveSim, type LadderSimRow } from '@/playtest/library'
 import { toast } from '@/ui/components/feedback'
@@ -170,6 +171,8 @@ export function LadderSetup({
         <p className="text-xs text-muted-foreground">
           Hard is MCTS; its number is the practice games per move (about{' '}
           {Math.round(LADDER_MS['hard-400'] / 1000)} s a game at 400). Quick is the lab's fast bot.
+          Normal and Hard think at most {LADDER_THINK_MS / 1000} s a move; the results show how
+          often they hit that.
         </p>
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
@@ -240,7 +243,17 @@ export function LadderResults({ row }: { row: LadderSimRow }) {
                     <td className="p-2 text-right font-semibold tabular-nums">{x.elo}</td>
                     <td className="p-2 text-right tabular-nums">{rateText(x.wins, x.games)}</td>
                     <td className="p-2 text-right tabular-nums">{x.games}</td>
-                    <td className="p-2 text-right tabular-nums">{x.msPerMove.toFixed(1)} ms</td>
+                    <td className="p-2 text-right tabular-nums">
+                      {x.msPerMove.toFixed(1)} ms
+                      {!!x.capped && (
+                        <span
+                          className="block text-xs text-muted-foreground"
+                          title="Moves where Hard ran out of thinking time"
+                        >
+                          {Math.round(100 * x.capped)}% at the cap
+                        </span>
+                      )}
+                    </td>
                   </tr>
                 )
               })}
