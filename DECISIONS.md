@@ -918,3 +918,19 @@ Agreed with the owner in discussion; the plan is in the PR. Adventure Scuffle! i
 - **The season simulator** runs the same weekly step many times without a player (presets: never enters, enters everything, enters what qualifies), reports who rose and fell, card use, ban flags, the rival's path and the money chart, and ships as an internal tool hidden by a developer-tools switch.
 - **Tutorial hints**: events on duel-moment causes (first Fighting Spirit, first Regroup…), wording in the game text list. There is no built-in tutorial; the owner can make none or build one. A hint pauses the duel with a box by default, once per save; both are settings per hint.
 - **Saves**: the number of save slots and autosave slots are settings (PR 2 had 3 and 1). A duel can be paused and saved mid-way (the save then holds the duel's state).
+
+### Engine PR 3 (v0.8.4-beta): assumptions made while building
+
+- Tournaments use the league's own generic bracket (`league/bracket.ts`), not `src/adventure/tournament/`. Double elimination: a loss in the loser group ends the run.
+- Resuming a tournament from a save loses the rest of the interrupted event's steps. An unfinished game of a match is repeated.
+- A paused match saves `pendingMatch` (seed and moves) and is replayed on load, so the score and the board come back. Pause is always available (no setting); it saves into the oldest autosave slot, or manual slot 1 when there are none, then stops the running game.
+- `duel.start` and `duel.end` hint causes were dropped; hints are an effect (`hint.show`). A hint is known by its name, or its text. "Only the first time" is remembered in `world.seenHints`. Tutorial off hides every hint.
+- The world step and the simulator run on the main thread and yield with `setTimeout` between frames (no worker pool).
+- NPC decks are random from the cards in circulation, not the module deck builder. Ratings update at the end of a tournament. Hand bans are always banned. `stockCap` was removed.
+- Duelist looks are generated lazily and deterministically from their id.
+- "Lift" in `ban.update` also lifts every current ban. News is shown before the week number goes up. The simulator does not track the player's deck, so bans only see NPC decks.
+- Release and ban timing comes from calendar events that use the pieces; there is no separate schedule. "No bans in year one" is `fromYear: 2` on the ban event.
+- Simulator presets live in the view's state and are not saved.
+- The template starts the player with three free packs and Gold 30; every number there is editable. It has no card source, so the first step after creating it is adding one.
+- On phones the Panels sheet closes when the centre view changes.
+- Cut for now (told to the owner): the player-screen theme-token module. Colours stay where they were.

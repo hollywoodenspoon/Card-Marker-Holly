@@ -153,6 +153,11 @@ export function EngineShell() {
   const isMap = scene?.kind === 'map'
   const gameName = useGame((s) => s.game.name)
   const shapeOpen = useShapeRequest((s) => !!s.req)
+  // On a phone the panels sheet covers the centre: picking something closes it.
+  useEffect(
+    () => useGame.subscribe((s, prev) => void (s.view !== prev.view && setLeftSheet(false))),
+    [],
+  )
 
   // Open last session's game (or make one from older maps) and start autosaving.
   useEffect(() => {
