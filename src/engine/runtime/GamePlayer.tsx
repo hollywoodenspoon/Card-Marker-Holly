@@ -1,24 +1,52 @@
-import { useEffect } from 'react'
-import { ArrowLeft, Loader2, Map as MapIcon, X } from '@/ui/icons'
-import { Button } from '@/ui/components/ui/button'
+import { useEffect, useState } from 'react'
+import {
+  ArrowLeft,
+  Backpack,
+  CalendarDays,
+  Loader2,
+  Map as MapIcon,
+  Save,
+  ScrollText,
+  X,
+} from '@/ui/icons'
 import { SceneView } from '../scenes/SceneView'
-import { answerRuntime, backScene, clickThing, stopRuntime, useRuntime } from './runtime'
+import { DialogueBox } from './player/DialogueBox'
+import { skipTyping } from './player/typing'
+import { DeckScreen } from './player/DeckScreen'
+import { BagScreen, LogScreen, SavesScreen } from './player/MenuScreens'
+import { BoosterReveal } from './player/BoosterReveal'
+import { Panel, PlayerButton } from './player/Panel'
+import { ShopScreen } from './player/ShopScreen'
+import { ActivityScreen, CalendarScreen } from './player/WeekScreens'
+import {
+  answerRuntime,
+  backScene,
+  clickThing,
+  closeScreen,
+  stopRuntime,
+  useRuntime,
+} from './runtime'
+
+type Menu = 'bag' | 'calendar' | 'log' | 'saves' | null
 
 /**
  * A game running, full screen over the Engine: the scene (areas invisible, glowing
- * as set), a message box, choices, and Back / Exit. Keys: Escape exits, Enter or
- * Space continues a message, 1–9 pick a choice.
+ * as set), the dialogue box with choices, the screens the steps open (shop,
+ * booster, deck, activities, calendar), and a menu: calendar, bag, log, save and
+ * load. Keys: Escape closes a menu or exits, Enter or Space continues the
+ * dialogue, 1–9 pick a choice.
  */
 export function GamePlayer() {
   const running = useRuntime((s) => s.running)
   const game = useRuntime((s) => s.game)
   const sceneId = useRuntime((s) => s.sceneId)
   const hidden = useRuntime((s) => s.hidden)
-  const message = useRuntime((s) => s.message)
-  const choice = useRuntime((s) => s.choice)
+  const screen = useRuntime((s) => s.screen)
   const status = useRuntime((s) => s.status)
   const away = useRuntime((s) => s.away)
+  const ended = useRuntime((s) => s.ended)
   const canBack = useRuntime((s) => s.trail.length > 0 && !s.busy)
+  const [menu, setMenu] = useState<Menu>(null)
 
   useEffect(() => {
     if (!running) return
@@ -27,12 +55,15 @@ export function GamePlayer() {
       if (e.key === 'Escape') {
         e.preventDefault()
         e.stopImmediatePropagation()
-        if (!st.message && !st.choice) stopRuntime()
+        if (menu) setMenu(null)
+        else if (st.screen?.kind === 'calendar') closeScreen()
+        else if (!st.message && !st.choice && !st.screen) stopRuntime()
         return
       }
-      if (st.message && (e.key === 'Enter' || e.key === ' ')) {
+      if (menu || st.screen) return
+      if (st.message !== null && (e.key === 'Enter' || e.key === ' ')) {
         e.preventDefault()
-        answerRuntime()
+        if (!skipTyping()) answerRuntime()
       } else if (st.choice && /^[1-9]$/.test(e.key)) {
         const i = Number(e.key) - 1
         if (i < st.choice.options.length) answerRuntime(i)
@@ -40,10 +71,28 @@ export function GamePlayer() {
     }
     window.addEventListener('keydown', onKey, true)
     return () => window.removeEventListener('keydown', onKey, true)
-  }, [running])
+  }, [running, menu])
 
   if (!running || !game) return null
   const scene = game.scenes.find((s) => s.id === sceneId) ?? null
+  const usesWeeks = game.calendar.activities.length > 0 || game.calendar.events.length > 0
+  const usesBag =
+    !!game.economy.money ||
+    game.items.length > 0 ||
+    game.boosters.length > 0 ||
+    game.shops.length > 0
+  const menuButton = (id: Exclude<Menu, null>, label: string, Icon: typeof Save) => (
+    <button
+      type="button"
+      aria-label={label}
+      title={label}
+      onClick={() => setMenu(menu === id ? null : id)}
+      className="grid size-11 place-items-center rounded-md text-white/80 hover:bg-white/10 hover:text-white md:size-9"
+      data-testid={`player-menu-${id}`}
+    >
+      <Icon className="size-5" />
+    </button>
+  )
   return (
     <div
       className="fixed inset-0 z-[300] flex flex-col bg-black text-white"
@@ -51,29 +100,21 @@ export function GamePlayer() {
       aria-label={`Playing ${game.name}`}
       data-testid="game-player"
     >
-      <div className="pt-safe pl-safe pr-safe flex shrink-0 items-center gap-2 bg-black/80 px-2 py-1.5">
-        <Button
-          size="sm"
-          variant="ghost"
-          className="text-white hover:bg-white/10"
-          disabled={!canBack}
-          onClick={backScene}
-        >
-          <ArrowLeft /> Back
-        </Button>
+      <div className="pt-safe pl-safe pr-safe flex shrink-0 items-center gap-1 bg-black/80 px-2 py-1">
+        <PlayerButton className="bg-transparent" disabled={!canBack} onClick={backScene}>
+          <ArrowLeft className="size-4" /> Back
+        </PlayerButton>
         <span className="min-w-0 flex-1 truncate text-center text-sm text-white/70">
           {game.name}
           {scene ? ` · ${scene.name}` : ''}
         </span>
-        <Button
-          size="sm"
-          variant="ghost"
-          className="text-white hover:bg-white/10"
-          onClick={stopRuntime}
-          data-testid="player-exit"
-        >
-          <X /> Exit
-        </Button>
+        {usesWeeks && menuButton('calendar', 'Calendar', CalendarDays)}
+        {usesBag && menuButton('bag', 'Bag', Backpack)}
+        {menuButton('log', 'Log', ScrollText)}
+        {menuButton('saves', 'Save and load', Save)}
+        <PlayerButton className="bg-transparent" onClick={stopRuntime} data-testid="player-exit">
+          <X className="size-4" /> Exit
+        </PlayerButton>
       </div>
       <div className="relative min-h-0 flex-1">
         {!scene ? (
@@ -103,34 +144,30 @@ export function GamePlayer() {
             <Loader2 className="size-4 animate-spin" /> {status}
           </div>
         )}
-        {message !== null && (
-          <button
-            type="button"
-            className="pb-safe absolute inset-x-3 bottom-3 rounded-xl border border-white/20 bg-black/80 p-4 text-left text-base leading-relaxed whitespace-pre-wrap shadow-2xl backdrop-blur sm:inset-x-[10%]"
-            onClick={() => answerRuntime()}
-            data-testid="player-message"
-          >
-            {message}
-            <span className="mt-2 block text-right text-xs text-white/60">Continue ▸</span>
-          </button>
+        <DialogueBox />
+        {screen?.kind === 'shop' && <ShopScreen shopId={screen.id} />}
+        {screen?.kind === 'booster' && (
+          <BoosterReveal pack={screen.pack} onDone={() => closeScreen()} />
         )}
-        {choice && (
-          <div
-            className="pb-safe absolute inset-x-3 bottom-3 flex flex-col gap-2 rounded-xl border border-white/20 bg-black/80 p-4 shadow-2xl backdrop-blur sm:inset-x-[10%]"
-            data-testid="player-choice"
-          >
-            {choice.prompt && <p className="text-base">{choice.prompt}</p>}
-            {choice.options.map((o, i) => (
-              <Button
-                key={i}
-                variant="secondary"
-                className="min-h-11 justify-start"
-                onClick={() => answerRuntime(i)}
-              >
-                <kbd className="text-xs opacity-60">{i + 1}</kbd> {o}
-              </Button>
-            ))}
-          </div>
+        {screen?.kind === 'deck' && <DeckScreen deckId={screen.deckId} />}
+        {screen?.kind === 'activity' && (
+          <ActivityScreen options={screen.options} forced={screen.forced} />
+        )}
+        {screen?.kind === 'calendar' && <CalendarScreen onClose={() => closeScreen()} />}
+        {menu === 'calendar' && <CalendarScreen onClose={() => setMenu(null)} />}
+        {menu === 'bag' && <BagScreen onClose={() => setMenu(null)} />}
+        {menu === 'log' && <LogScreen onClose={() => setMenu(null)} />}
+        {menu === 'saves' && <SavesScreen onClose={() => setMenu(null)} />}
+        {ended !== null && !menu && (
+          <Panel title="The end" testId="player-ended">
+            <p className="mb-4 text-base leading-relaxed whitespace-pre-wrap">{ended}</p>
+            <div className="flex flex-wrap gap-2">
+              <PlayerButton onClick={() => setMenu('saves')}>Load a save</PlayerButton>
+              <PlayerButton primary onClick={stopRuntime}>
+                Exit
+              </PlayerButton>
+            </div>
+          </Panel>
         )}
       </div>
     </div>
