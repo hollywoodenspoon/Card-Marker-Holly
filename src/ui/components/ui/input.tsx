@@ -31,6 +31,21 @@ export const NativeSelect = React.forwardRef<
 ))
 NativeSelect.displayName = 'NativeSelect'
 
+export const Textarea = React.forwardRef<
+  HTMLTextAreaElement,
+  React.TextareaHTMLAttributes<HTMLTextAreaElement>
+>(({ className, ...props }, ref) => (
+  <textarea
+    ref={ref}
+    className={cn(
+      'w-full min-w-0 rounded-md border border-input bg-panel p-2 text-base outline-none placeholder:text-muted-foreground focus-visible:border-accent md:text-sm',
+      className,
+    )}
+    {...props}
+  />
+))
+Textarea.displayName = 'Textarea'
+
 export function Label({ className, ...props }: React.LabelHTMLAttributes<HTMLLabelElement>) {
   return <label className={cn('text-xs font-medium text-muted-foreground', className)} {...props} />
 }

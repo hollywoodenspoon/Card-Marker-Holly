@@ -13,7 +13,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@/ui/components/ui/dropdown'
-import { Input, NativeSelect } from '@/ui/components/ui/input'
+import { Input, NativeSelect, Textarea } from '@/ui/components/ui/input'
 import { askText } from '@/ui/components/feedback'
 import {
   ArrowDown,
@@ -37,15 +37,19 @@ import {
   newEvent,
   randomStep,
   type Args,
+  type Condition,
   type GameEvent,
   type Step,
 } from '../model/events'
+import { useGameCards } from '../cards/gameCards'
 import { useGame } from '../store/gameStore'
+import './worldPieces'
 import { defaultArgs, piece, piecesOf, type Attach, type FieldDef, type PieceDef } from './pieces'
 
 /** What pickers can choose from: the open game's things, by id and name. */
 function useChoices() {
   const game = useGame((s) => s.game)
+  const cards = useGameCards((s) => s.merged?.pack.info.cards)
   return useMemo(() => {
     const objects: { id: string; name: string }[] = []
     for (const s of game.scenes)
@@ -59,8 +63,18 @@ function useChoices() {
       deck: game.decks.map((d) => ({ id: d.id, name: d.name })),
       recipe: game.recipes.map((r) => ({ id: r.id, name: r.name })),
       object: objects,
+      character: game.characters.map((c) => ({ id: c.id, name: c.name })),
+      // Expressions by name: a character's template decides which pictures they swap.
+      expression: [...new Set(game.portraits.flatMap((t) => t.expressions.map((e) => e.name)))].map(
+        (n) => ({ id: n, name: n }),
+      ),
+      item: game.items.map((i) => ({ id: i.id, name: i.name })),
+      card: (cards ?? []).map((c) => ({ id: c.id, name: c.name })),
+      shop: game.shops.map((s) => ({ id: s.id, name: s.name })),
+      booster: game.boosters.map((b) => ({ id: b.id, name: b.name })),
+      calEvent: game.calendar.events.map((e) => ({ id: e.id, name: e.name })),
     }
-  }, [game])
+  }, [game, cards])
 }
 type Choices = ReturnType<typeof useChoices>
 
@@ -191,6 +205,56 @@ function EventCard({
 }
 
 type EditSteps = (recipe: (steps: Step[]) => void) => void
+
+/** A list of steps on its own (an activity's, a calendar event's), without a cause. */
+export function StepsEditor({ steps, onChange }: { steps: Step[]; onChange: EditSteps }) {
+  const choices = useChoices()
+  return <StepList steps={steps} choices={choices} editSteps={onChange} depth={0} />
+}
+
+/** One condition, or none ("always"). */
+export function ConditionEditor({
+  condition,
+  onChange,
+  none = 'never',
+}: {
+  condition: Condition | null
+  onChange: (c: Condition | null) => void
+  /** What no condition means, in words. */
+  none?: string
+}) {
+  const choices = useChoices()
+  const conditions = piecesOf('condition')
+  const def = condition ? piece(condition.piece) : undefined
+  return (
+    <div className="flex flex-wrap items-center gap-1 text-sm">
+      <NativeSelect
+        aria-label="Condition"
+        className="h-8 w-auto text-xs"
+        value={condition?.piece ?? ''}
+        onChange={(e) => {
+          const d = piece(e.target.value)
+          onChange(d ? { piece: d.id, args: defaultArgs(d) } : null)
+        }}
+      >
+        <option value="">{none}</option>
+        {conditions.map((c) => (
+          <option key={c.id} value={c.id}>
+            {c.label}
+          </option>
+        ))}
+      </NativeSelect>
+      {condition && (
+        <Sentence
+          def={def}
+          args={condition.args}
+          choices={choices}
+          onArg={(k, v) => onChange({ ...condition, args: { ...condition.args, [k]: v } })}
+        />
+      )}
+    </div>
+  )
+}
 
 function StepList({
   steps,
@@ -535,6 +599,16 @@ function FieldPicker({
   onChange: (v: Args[string]) => void
 }) {
   const cls = 'h-7 w-auto max-w-48 text-xs font-medium'
+  if (field.kind === 'longText')
+    return (
+      <Textarea
+        aria-label={field.label}
+        rows={2}
+        className="min-h-14 w-full min-w-48 basis-full text-xs"
+        value={String(value ?? '')}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    )
   if (field.kind === 'text')
     return (
       <Input

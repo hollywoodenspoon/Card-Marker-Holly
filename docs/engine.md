@@ -173,3 +173,28 @@ unchanged; picture scenes live inside the game.
   `src/playtest/handoff.ts` carries "Start a card game" to the table and the result back.
 - The Vector Maker has a shape mode (`src/vector/shapeRequest.ts`). It opens a drawing over
   a reference picture, and Done returns the drawing instead of saving an asset.
+
+## Characters, money, shops, boosters, weeks and saves (PR 2 of 3, v0.8.3-beta)
+
+`GameDoc` gained `portraits`, `characters`, `economy`, `items`, `shops`, `boosters` and
+`calendar` (`tidyGame` fills them for older games). The Engine DB is v4: `saves`.
+
+- `model/characters.ts`: portrait templates (layers with options, recolour mode,
+  expressions) and characters; `portraitLayers` picks what to draw.
+- `model/economy.ts`: items, shops, boosters and rarities, the money and Ace settings, `isAce`.
+- `model/calendar.ts`: activities, calendar events and their rules, date maths, which events
+  are on a week (`eventsOn`, seeded random picks) and what the player knows (`upcoming`).
+- `portraits/`: `recolor.ts` (ramp and hue shift on pixels) and `render.ts` (layers drawn
+  on a canvas, cached as object URLs; `usePortrait`).
+- `economy/`: `booster.ts` (seeded opening) and `collection.ts` (items as counts, normal
+  and foil copies, spare copies, decks kept within what's owned).
+- `events/worldPieces.ts`: the new pieces (say, money, items, cards, boosters, shops,
+  Edit my deck, weeks, calendar, end the game). They act through `RunContext.world`.
+- `runtime/`: `state.ts` (the store and screens the steps wait for), `runtime.ts` (the
+  flow, saves), `world.ts` (the world for a run, and buy / sell / deck edits for the UI),
+  `text.ts` (variables in text), `snapshot.ts` (what a save holds). `player/` holds the
+  dialogue box, shop, booster reveal, deck, activities, calendar, bag, log and saves screens.
+- `storage/saves.ts`: 3 slots and the autosave per game.
+- `panels/world/`: the Characters, Items, Shops and Calendar rail panels and their centre
+  views (portrait template, character, shop, booster, activity, calendar event, calendar
+  preview).

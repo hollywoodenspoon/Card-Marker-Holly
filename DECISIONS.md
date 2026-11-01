@@ -867,3 +867,18 @@ Owner feedback after trying the editor (2026-10-29), checked against the engine 
   - Unknown pieces are skipped, so a game made with a module still opens without it.
 - **Playing:** "Play from this scene" skips the "When the game starts" steps (they may jump elsewhere). Variables and shown/hidden things live in memory until saves arrive (PR 2). Assumption: a map scene shows a note while playing, since walking around maps comes later.
 - **Start a card game** hands over to Play's table with the two decks; Back returns to the running game, and an optional flag is set when the player (seat 1) wins. With cards that aren't Adventure Scuffle!'s it opens a free table.
+
+## Characters, dialogue, money, shops, boosters, weeks and saves (PR 2 of 3, v0.8.3-beta)
+
+- **General tools; Adventure Scuffle! only fills them with data** (owner). Nothing in this PR is specific to the card game.
+- **Portraits:** every layer picture is drawn at the template's size (draw them on one canvas). The ramp maps lightness: 50 % grey is the chosen colour, black stays black, white stays white. The hue shift keeps each pixel's saturation and lightness. Assumption: an option with no picture for an expression uses its own picture, so only eyes and mouth need extra pictures.
+- **Say picks the expression by name** (Happy, Sad…), so one line works for characters on different templates.
+- **Variables in text:** `{Name}` of any variable (any case), flags as yes/no, and `{date}`, `{week}`, `{season}`, `{year}`. Unknown names stay as written.
+- **Ace** is a card field picked in Items plus the text in it that means Ace (Adventure Scuffle!: `Name_AS` holding `{ace}`). With no text, any value but blank, 0, no or false counts.
+- **Boosters:** a rarity is Ace or not plus foil or not, with a weight; when the pool has no card of the rolled kind, any card comes (keeping the foil). Assumption: a booster bought in a shop opens at once (no unopened packs in the bag).
+- **The collection** starts from a deck chosen in Items (normal copies). "Edit my deck" marks a deck as the player's: it stays within the cards owned, and shops never buy copies it uses.
+- **Shops** pay a fixed price per rarity for cards and a % of the price for items; 0 means they don't buy that.
+- **Weeks:** "Pick this week's activity" is an effect (put it in a hub scene's "scene starts"), so the owner decides where the week loop lives. After the picked activity, the next week starts: the "A new week starts" cause runs (the weekly tick), then the week's automatic calendar events.
+- **Calendar events** are activities (offered that week), forced (the only choice) or automatic. Random events pick among the weeks of a month, season or year where an important event (or a chosen one) falls; each playthrough rolls its own, the same all the way through, so they can be announced ahead. Exams: one random event on important events in seasons 1–3, and one on Nationals in season 4.
+- **End conditions** are calendar events with "End the game"; the ending screen offers Load a save or Exit.
+- **Saves:** 3 slots and an autosave (on every scene change, Back included), per game, in the Engine DB (v4 `saves`). Assumption: a save can't resume halfway through steps, so loading starts the saved scene again (its "scene starts" steps run). Saves use the game as it is now.

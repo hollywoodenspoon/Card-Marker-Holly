@@ -1,0 +1,233 @@
+{
+ "frame": {
+  "w": 64,
+  "h": 64
+ },
+ "baseline": 59,
+ "views": [
+  "front",
+  "front34",
+  "side",
+  "back34",
+  "back"
+ ],
+ "mirror": {
+  "front34": "front-right34",
+  "side": "right",
+  "back34": "back-right34"
+ },
+ "animations": {
+  "stand": {
+   "frames": 2,
+   "ms": [
+    500,
+    400
+   ],
+   "loop": true,
+   "views": {
+    "front": {
+     "tag": "stand-front",
+     "row": 0,
+     "hand": [
+      [
+       23,
+       41
+      ],
+      [
+       23,
+       42
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "front34": {
+     "tag": "stand-front34",
+     "row": 1,
+     "hand": [
+      [
+       24,
+       37
+      ],
+      [
+       24,
+       38
+      ]
+     ],
+     "weaponBehind": true
+    },
+    "side": {
+     "tag": "stand-side",
+     "row": 2,
+     "hand": [
+      [
+       34,
+       41
+      ],
+      [
+       34,
+       42
+      ]
+     ],
+     "weaponBehind": true
+    },
+    "back34": {
+     "tag": "stand-back34",
+     "row": 3,
+     "hand": [
+      [
+       42,
+       38
+      ],
+      [
+       42,
+       39
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "back": {
+     "tag": "stand-back",
+     "row": 4,
+     "hand": [
+      [
+       42,
+       41
+      ],
+      [
+       42,
+       42
+      ]
+     ],
+     "weaponBehind": false
+    }
+   }
+  },
+  "walk": {
+   "frames": 4,
+   "ms": [
+    170,
+    170,
+    170,
+    170
+   ],
+   "loop": true,
+   "views": {
+    "front": {
+     "tag": "walk-front",
+     "row": 5,
+     "hand": [
+      [
+       23,
+       41
+      ],
+      [
+       23,
+       40
+      ],
+      [
+       23,
+       41
+      ],
+      [
+       23,
+       40
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "front34": {
+     "tag": "walk-front34",
+     "row": 6,
+     "hand": [
+      [
+       24,
+       37
+      ],
+      [
+       24,
+       36
+      ],
+      [
+       24,
+       37
+      ],
+      [
+       24,
+       36
+      ]
+     ],
+     "weaponBehind": true
+    },
+    "side": {
+     "tag": "walk-side",
+     "row": 7,
+     "hand": [
+      [
+       34,
+       41
+      ],
+      [
+       34,
+       40
+      ],
+      [
+       34,
+       41
+      ],
+      [
+       34,
+       40
+      ]
+     ],
+     "weaponBehind": true
+    },
+    "back34": {
+     "tag": "walk-back34",
+     "row": 8,
+     "hand": [
+      [
+       42,
+       38
+      ],
+      [
+       42,
+       37
+      ],
+      [
+       42,
+       38
+      ],
+      [
+       42,
+       37
+      ]
+     ],
+     "weaponBehind": false
+    },
+    "back": {
+     "tag": "walk-back",
+     "row": 9,
+     "hand": [
+      [
+       42,
+       41
+      ],
+      [
+       42,
+       40
+      ],
+      [
+       42,
+       41
+      ],
+      [
+       42,
+       40
+      ]
+     ],
+     "weaponBehind": false
+    }
+   }
+  }
+ }
+}

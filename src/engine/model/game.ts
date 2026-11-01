@@ -6,6 +6,9 @@
  */
 import { newId } from '@/core/model/ids'
 import type { SubPath } from '@/vector/geometry'
+import { defaultCalendar, type Calendar } from './calendar'
+import type { Character, PortraitTemplate } from './characters'
+import { defaultEconomy, type Booster, type Economy, type Item, type Shop } from './economy'
 import type { GameEvent, Recipe } from './events'
 import type { CardSource } from './map'
 
@@ -138,6 +141,13 @@ export interface GameDoc {
   /** Game-wide events ("when the game starts…"). */
   events: GameEvent[]
   recipes: Recipe[]
+  portraits: PortraitTemplate[]
+  characters: Character[]
+  economy: Economy
+  items: Item[]
+  shops: Shop[]
+  boosters: Booster[]
+  calendar: Calendar
 }
 
 export const DEFAULT_ZONES = (): Zone[] => [
@@ -159,6 +169,13 @@ export function newGame(name = 'My game'): GameDoc {
     startScene: null,
     events: [],
     recipes: [],
+    portraits: [],
+    characters: [],
+    economy: defaultEconomy(),
+    items: [],
+    shops: [],
+    boosters: [],
+    calendar: defaultCalendar(),
   }
 }
 
@@ -248,5 +265,17 @@ export function tidyGame(raw: Partial<GameDoc> & { id: string }): GameDoc {
     startScene: typeof raw.startScene === 'string' ? raw.startScene : null,
     events: Array.isArray(raw.events) ? raw.events : [],
     recipes: Array.isArray(raw.recipes) ? raw.recipes : [],
+    portraits: Array.isArray(raw.portraits) ? raw.portraits : [],
+    characters: Array.isArray(raw.characters) ? raw.characters : [],
+    economy: { ...g.economy, ...(raw.economy ?? {}) },
+    items: Array.isArray(raw.items) ? raw.items : [],
+    shops: Array.isArray(raw.shops) ? raw.shops : [],
+    boosters: Array.isArray(raw.boosters) ? raw.boosters : [],
+    calendar: {
+      ...g.calendar,
+      ...(raw.calendar ?? {}),
+      activities: Array.isArray(raw.calendar?.activities) ? raw.calendar.activities : [],
+      events: Array.isArray(raw.calendar?.events) ? raw.calendar.events : [],
+    },
   }
 }
