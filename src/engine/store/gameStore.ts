@@ -45,6 +45,8 @@ export type GameView =
     }
   | { kind: 'calendar' }
   | { kind: 'league' }
+  | { kind: 'bans' }
+  | { kind: 'market' }
   | { kind: 'text' }
   | { kind: 'none' }
 

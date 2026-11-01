@@ -82,6 +82,35 @@ const leaguePieces: PieceDef[] = [
         String(a.placeVar ?? ''),
       ),
   },
+  {
+    kind: 'effect',
+    id: 'release.run',
+    label: 'Put out a card release',
+    group: 'League',
+    sentence: 'put out the release {release}',
+    fields: [{ key: 'release', label: 'Release', kind: 'release' }],
+    run: (ctx, a) => ctx.world?.runRelease(String(a.release ?? '')),
+  },
+  {
+    kind: 'effect',
+    id: 'ban.update',
+    label: 'Announce a ban list update',
+    group: 'League',
+    sentence: 'announce the next ban list update; current bans {lift}',
+    fields: [
+      {
+        key: 'lift',
+        label: 'Current bans',
+        kind: 'select',
+        options: [
+          { value: 'keep', label: 'stay' },
+          { value: 'lift', label: 'are lifted' },
+        ],
+        default: 'keep',
+      },
+    ],
+    run: (ctx, a) => ctx.world?.updateBans(a.lift === 'lift'),
+  },
 ]
 
 for (const p of leaguePieces) registerPiece(p)

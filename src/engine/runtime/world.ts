@@ -26,6 +26,7 @@ import type { GameEvent } from '../model/events'
 import type { GameDoc } from '../model/game'
 import { autoEvents, autosave, cardsReady, randomInt, showMessage } from './runtime'
 import { closeScreen, get, set, showScreen, type ActivityOption } from './state'
+import { runRelease, updateBans } from './releases'
 import { canEnter, runTournament } from './tournament'
 
 const game = (): GameDoc => {
@@ -335,8 +336,8 @@ export function makeWorld(
     canEnter,
     points: (track) => get().world?.points[track] ?? 0,
     rating: () => get().world?.rating ?? 0,
-    runRelease: async () => undefined,
-    updateBans: async () => undefined,
+    runRelease: (id) => runRelease(ctx, id),
+    updateBans: (lift) => updateBans(ctx, lift),
   }
   return world
 }

@@ -5,6 +5,7 @@ import { newActivity, newCalendarEvent } from '../model/calendar'
 import { newCharacter, newPortraitTemplate } from '../model/characters'
 import { newBooster, newItem, newShop } from '../model/economy'
 import { effect, newEvent } from '../model/events'
+import { emptyLeague, newRelease } from '../model/league'
 import { newDeck, newGame, newPictureScene, newVariable } from '../model/game'
 import {
   answerRuntime,
@@ -207,6 +208,32 @@ describe('the player’s world', () => {
     await tick()
     expect(st().ended).toBe('You won Worlds!')
     expect(st().message).toBeNull()
+    stopRuntime()
+  })
+
+  it('a release puts cards in circulation and a ban update is announced ahead', async () => {
+    const { g, scene } = demo()
+    const rel = newRelease('Set 1')
+    rel.fixed = ['a', 'b']
+    rel.random = 0
+    g.league = { ...emptyLeague(), enabled: true, releases: [rel] }
+    g.league.bans = { ...g.league.bans, enabled: true, announceWeeks: 3, handBanned: ['c'] }
+    const ev = newEvent({ piece: 'scene.start', args: {} })
+    ev.steps.push(
+      effect('release.run', { release: rel.id }),
+      effect('ban.update', { lift: 'keep' }),
+    )
+    scene.events.push(ev)
+    startRuntime(g)
+    await tick(8)
+    expect(st().message).toBe('2 new cards are out: Set 1.')
+    expect(st().world?.released).toEqual(['a', 'b'])
+    answerRuntime()
+    await tick(4)
+    expect(st().message).toBe('Ban list update in 3 weeks.')
+    expect(st().world?.pendingBan).toEqual({ week: st().week + 3, add: ['c'], remove: [] })
+    expect(st().world?.banned).toEqual([])
+    answerRuntime()
     stopRuntime()
   })
 

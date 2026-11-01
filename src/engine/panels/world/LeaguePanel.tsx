@@ -3,7 +3,7 @@ import { Section } from '@/ui/components/fields'
 import { Button } from '@/ui/components/ui/button'
 import { Label } from '@/ui/components/ui/input'
 import { Plus } from '@/ui/icons'
-import { adventureLeague, newTournament } from '../../model/league'
+import { adventureLeague, newRelease, newTournament } from '../../model/league'
 import { useGame } from '../../store/gameStore'
 import { ListRow } from './ListRow'
 
@@ -90,6 +90,53 @@ export function LeaguePanel() {
                 commit(
                   (g) =>
                     void (g.league.tournaments = g.league.tournaments.filter((x) => x.id !== t.id)),
+                )
+              }
+            />
+          ))}
+        </ul>
+      </Section>
+      <Section title="Cards">
+        <Button size="sm" variant="outline" onClick={() => setView({ kind: 'bans' })}>
+          Bans {league.bans.enabled ? '' : '(off)'}
+        </Button>
+        <Button size="sm" variant="outline" onClick={() => setView({ kind: 'market' })}>
+          Card market {league.market.enabled ? '' : '(off)'}
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => {
+            const r = newRelease(
+              `Release ${useGame.getState().game.league.releases.length + 1}`,
+            )
+            commit((g) => void g.league.releases.push(r))
+            setView({ kind: 'release', id: r.id })
+          }}
+        >
+          <Plus /> Release
+        </Button>
+        <ul className="flex flex-col gap-1" data-testid="releases">
+          {league.releases.map((r) => (
+            <ListRow
+              key={r.id}
+              name={r.name}
+              detail={`${r.fixed.length} fixed + ${r.random} random`}
+              active={isOpen('release', r.id)}
+              onOpen={() => setView({ kind: 'release', id: r.id })}
+              onDuplicate={() =>
+                commit(
+                  (g) =>
+                    void g.league.releases.push({
+                      ...structuredClone(r),
+                      id: newId(),
+                      name: `${r.name} copy`,
+                    }),
+                )
+              }
+              onDelete={() =>
+                commit(
+                  (g) => void (g.league.releases = g.league.releases.filter((x) => x.id !== r.id)),
                 )
               }
             />
