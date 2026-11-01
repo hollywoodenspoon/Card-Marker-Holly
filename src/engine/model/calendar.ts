@@ -75,6 +75,11 @@ export interface Calendar {
   weeksPerMonth: number
   monthsPerSeason: number
   seasonsPerYear: number
+  /**
+   * What year 1 of the game is called on screen (cosmetic: rules and saves still count
+   * game years from 1). Lets the calendar show 2025, 2026… as it moves.
+   */
+  startYear: number
   /** Names by index (months of the year, seasons of the year). Missing: "Month 3". */
   monthNames: string[]
   seasonNames: string[]
@@ -86,6 +91,7 @@ export const defaultCalendar = (): Calendar => ({
   weeksPerMonth: 4,
   monthsPerSeason: 3,
   seasonsPerYear: 4,
+  startYear: 1,
   monthNames: [],
   seasonNames: ['Spring', 'Summer', 'Autumn', 'Winter'],
   activities: [],
@@ -164,10 +170,24 @@ export function dateOf(c: Calendar, w: number): CalDate {
 export const seasonName = (c: Calendar, n: number) => c.seasonNames[n - 1]?.trim() || `Season ${n}`
 export const monthName = (c: Calendar, n: number) => c.monthNames[n - 1]?.trim() || `Month ${n}`
 
-/** "Week 2 of Spring, year 1". */
+/** The year shown for game year `n` (from 1): the start year plus the years gone by. */
+export const shownYear = (c: Calendar, n: number) =>
+  (Number.isFinite(c.startYear) ? Math.floor(c.startYear) : 1) + n - 1
+
+/** "Week 2 of Spring, 2025" (with the start year left at 1: "…, 1"). */
 export function dateLabel(c: Calendar, w: number): string {
   const d = dateOf(c, w)
-  return `Week ${d.weekOfSeason} of ${seasonName(c, d.season)}, year ${d.year}`
+  return `Week ${d.weekOfSeason} of ${seasonName(c, d.season)}, ${yearText(c, d.year)}`
+}
+
+/** "year 1" while the start year is 1, otherwise the year itself ("2025"). */
+export const yearText = (c: Calendar, n: number) =>
+  shownYear(c, 1) === 1 ? `year ${n}` : String(shownYear(c, n))
+
+/** The 1-based months of the year that belong to a season. */
+export function monthsOfSeason(c: Calendar, season: number): number[] {
+  const per = pos(c.monthsPerSeason)
+  return Array.from({ length: per }, (_, i) => (season - 1) * per + i + 1)
 }
 
 // ---------- which events are on which week ----------
@@ -263,6 +283,56 @@ export function upcoming(
   const out: { week: number; event: CalendarEvent }[] = []
   for (let w = now; w < now + weeks; w++)
     for (const e of eventsOn(c, w, seed)) if (known(e, w, now)) out.push({ week: w, event: e })
+  return out
+}
+
+// ---------- the calendar as months ----------
+
+export interface MonthWeek {
+  /** Game week (from 0) and the week of its month (from 1). */
+  w: number
+  week: number
+  /** The week's events, without the every-week ones; only the ones the player knows. */
+  events: CalendarEvent[]
+}
+
+export interface MonthView {
+  /** Game year (from 1), season and month of the year (both from 1). */
+  year: number
+  season: number
+  month: number
+  weeks: MonthWeek[]
+}
+
+/**
+ * The months from `fromYear` to `toYear` laid out week by week, like a wall calendar.
+ * Past weeks show what happened; future ones only what the player has heard of.
+ */
+export function monthsBetween(
+  c: Calendar,
+  now: number,
+  seed: number,
+  fromYear: number,
+  toYear: number,
+): MonthView[] {
+  const sz = sizes(c)
+  const monthsPerYear = sz.year / sz.month
+  const out: MonthView[] = []
+  for (let y = Math.max(1, fromYear); y <= toYear; y++) {
+    for (let m = 0; m < monthsPerYear; m++) {
+      const first = (y - 1) * sz.year + m * sz.month
+      const weeks: MonthWeek[] = []
+      for (let k = 0; k < sz.month; k++) {
+        const w = first + k
+        const events = eventsOn(c, w, seed).filter(
+          (e) => e.when.kind !== 'weekly' && (w < now || known(e, w, now)),
+        )
+        weeks.push({ w, week: k + 1, events })
+      }
+      const d = dateOf(c, first)
+      out.push({ year: y, season: d.season, month: d.month, weeks })
+    }
+  }
   return out
 }
 

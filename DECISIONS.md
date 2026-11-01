@@ -935,6 +935,17 @@ Agreed with the owner in discussion; the plan is in the PR. Adventure Scuffle! i
 - On phones the Panels sheet closes when the centre view changes.
 - Cut for now (told to the owner): the player-screen theme-token module. Colours stay where they were.
 
+- The Adventure Scuffle! template sets the Ace field to `Name_AS` and the Ace text to `{ace}`, which is how those cards mark an Ace. A new empty game still has no Ace field; it is set in Items → Card collection.
+
+- The player's calendar is a scrolling wall calendar: one card per month, one cell per week (the game has no days), this month highlighted, past weeks dimmed, and an event list for the tapped week. It opens on this month, and "Today" jumps back. It shows from the year before now up to the ending year, or two years ahead in a game that never ends. Past events show; future ones only when announced.
+- "First year shown" (`calendar.startYear`, default 1) is cosmetic: game year 1 is shown as that year, so the calendar moves through 2025, 2026… Rules, `once` events and "from year" still count game years from 1. While it is 1 the old "year N" wording stays, so old games look the same. The text tokens `{year}` follow it; `{month}` stays the month's number and the new `{monthname}` is its name.
+- Month names are still stored by month of the year (`calendar.monthNames`); the Calendar panel just lists them under their season. Empty names show "Month N".
+
+- Giving cards in Cause and Effect has five effects besides the single card: give several chosen cards, give N random cards from a list (a card with more copies is more likely), let the player choose N of a list (each pick leaves the list, so the cards differ; a one-card list is given without asking), give N random cards from every card in the game, and give N cards drawn by a booster's pool and chances (shown on the booster reveal). The list effects and the every-card effect have a normal or foil choice (default normal); the booster draw gives what the booster rolls.
+- Open a booster has a "how many boosters" setting, default 1; each pack gets its own reveal. Steps saved before it existed have no count and open one.
+- "Edit my deck" with no deck picked, or a picked deck that no longer exists, opens the player's own deck (`player-deck`, shown as "My deck") and creates it on the spot, so a game with no decks at all still works.
+- **Ace auto-fill:** when a game has neither an Ace field nor Ace text and its loaded cards are an Adventure Scuffle! pack with a `Name_AS` field, the Ace field becomes `Name_AS` and the text `{ace}` (editable in Items → Card collection). It runs once per game per session, after the cards load, and only when both are empty. Assumption: someone who deliberately clears both gets them filled again next session.
+
 ## Pairs rule, all cards in the engine, ladder cap, Auto Build (v0.8.5-beta)
 
 - **Pairs is the Skirmish rule** (Rulebook v2.6). Classic and Triples are gone from every picker. A game saved before v2.6 has no `reveal` field and was played under Classic, so `savedGame()` tags it when replays, saved games, paused Engine matches and imported replay files load; new games always store `'pairs'`.

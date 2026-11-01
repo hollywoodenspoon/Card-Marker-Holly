@@ -29,7 +29,8 @@ export function adventureScuffleGame(name = 'Adventure Scuffle!'): GameDoc {
   gold.initial = 30
   const place = newVariable('Place', 'number')
   g.variables.push(gold, place)
-  g.economy = { ...g.economy, money: gold.id, unit: 'gold' }
+  // Adventure Scuffle! cards mark an Ace as {ace} in their name (Name_AS).
+  g.economy = { ...g.economy, money: gold.id, unit: 'gold', aceField: 'Name_AS', aceText: '{ace}' }
 
   // The player's deck, a booster and a shop that sells it.
   const mine = newDeck('My deck')

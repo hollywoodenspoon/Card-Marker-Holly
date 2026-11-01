@@ -183,13 +183,24 @@ unchanged; picture scenes live inside the game.
   expressions) and characters; `portraitLayers` picks what to draw.
 - `model/economy.ts`: items, shops, boosters and rarities, the money and Ace settings, `isAce`.
 - `model/calendar.ts`: activities, calendar events and their rules, date maths, which events
-  are on a week (`eventsOn`, seeded random picks) and what the player knows (`upcoming`).
+  are on a week (`eventsOn`, seeded random picks) and what the player knows (`upcoming`),
+  `monthsBetween` (the weeks laid out as months for the player's calendar), the cosmetic
+  `startYear` (`shownYear`) and `monthNames`.
 - `portraits/`: `recolor.ts` (ramp and hue shift on pixels) and `render.ts` (layers drawn
   on a canvas, cached as object URLs; `usePortrait`).
 - `economy/`: `booster.ts` (seeded opening) and `collection.ts` (items as counts, normal
   and foil copies, spare copies, decks kept within what's owned).
 - `events/worldPieces.ts`: the new pieces (say, money, items, cards, boosters, shops,
   Edit my deck, weeks, calendar, end the game). They act through `RunContext.world`.
+  Giving cards: one card, several chosen cards, random cards from a list, "the player
+  chooses N of these", random cards from every card in the game (`cards.giveAny`, via
+  `World.allCards`), or cards drawn by a booster's pool and chances. The list and every-card
+  effects have a normal or foil choice. A list of cards in a
+  piece is one text setting (`id,id*3`, see `events/cardList.ts`) edited by `CardListPicker`.
+  Open a booster has a "how many". Edit my deck with no deck picked opens the player's own.
+- `cards/autoAce.ts`: fills the Ace field (`Name_AS`) and text (`{ace}`) when the loaded cards
+  are an Adventure Scuffle! pack and the game has neither; `EngineShell` runs it once per game
+  per session after the cards load.
 - `runtime/`: `state.ts` (the store and screens the steps wait for), `runtime.ts` (the
   flow, saves), `world.ts` (the world for a run, and buy / sell / deck edits for the UI),
   `text.ts` (variables in text), `snapshot.ts` (what a save holds). `player/` holds the

@@ -1,10 +1,18 @@
 /**
  * Variables in text: "You have {Gold} coins" shows the number variable Gold.
  * Names match any case. Flags show "yes" or "no". The date is there too:
- * {week}, {month}, {season}, {year} and {date}. Anything else in braces stays as
+ * {week}, {month} (its number), {monthname}, {season}, {year} (as set by the calendar's
+ * start year) and {date}. Anything else in braces stays as
  * written.
  */
-import { dateLabel, dateOf, seasonName, type Calendar } from '../model/calendar'
+import {
+  dateLabel,
+  dateOf,
+  monthName,
+  seasonName,
+  shownYear,
+  type Calendar,
+} from '../model/calendar'
 import type { VarDef } from '../model/game'
 
 export function fillText(
@@ -26,8 +34,9 @@ export function fillText(
     if (cal && d) {
       if (name === 'week') return String(d.weekOfSeason)
       if (name === 'month') return String(d.month)
+      if (name === 'monthname') return monthName(cal.calendar, d.month)
       if (name === 'season') return seasonName(cal.calendar, d.season)
-      if (name === 'year') return String(d.year)
+      if (name === 'year') return String(shownYear(cal.calendar, d.year))
       if (name === 'date') return dateLabel(cal.calendar, cal.week)
     }
     return m

@@ -43,6 +43,7 @@ import {
 } from '../model/events'
 import { useGameCards } from '../cards/gameCards'
 import { useGame } from '../store/gameStore'
+import { CardListPicker } from './CardListPicker'
 import { defaultArgs, piece, piecesOf, type Attach, type FieldDef, type PieceDef } from './pieces'
 
 /** What pickers can choose from: the open game's things, by id and name. */
@@ -647,16 +648,26 @@ function FieldPicker({
         ))}
       </NativeSelect>
     )
+  if (field.kind === 'cardList')
+    return (
+      <CardListPicker
+        label={field.label}
+        value={value}
+        cards={choices.card}
+        onChange={onChange}
+      />
+    )
   const list = choices[field.kind]
   return (
     <NativeSelect
       aria-label={field.label}
-      className={cn(cls, !value && 'text-danger')}
+      className={cn(cls, !value && !field.blank && 'text-danger')}
       value={String(value ?? '')}
       onChange={(e) => onChange(e.target.value || undefined)}
     >
       <option value="">
-        {list.length ? `Pick ${field.label.toLowerCase()}…` : `No ${field.label.toLowerCase()} yet`}
+        {field.blank ??
+          (list.length ? `Pick ${field.label.toLowerCase()}…` : `No ${field.label.toLowerCase()} yet`)}
       </option>
       {list.map((o) => (
         <option key={o.id} value={o.id}>

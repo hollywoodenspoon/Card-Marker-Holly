@@ -11,7 +11,7 @@ const NONE: Record<string, number> = {}
 
 /** "Edit my deck": the player's own cards, with − / + for the deck. */
 export function DeckScreen({ deckId }: { deckId: string }) {
-  const name = useRuntime((s) => s.game?.decks.find((d) => d.id === deckId)?.name ?? 'Deck')
+  const name = useRuntime((s) => s.game?.decks.find((d) => d.id === deckId)?.name ?? 'My deck')
   const deck = useRuntime((s) => s.decks[deckId]) ?? NONE
   const collection = useRuntime((s) => s.collection)
   const cards = useGameCards((s) => s.merged?.pack.info.cards)

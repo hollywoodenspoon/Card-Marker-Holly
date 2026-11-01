@@ -31,6 +31,9 @@ import { runRelease, updateBans } from './releases'
 import { runWeekStep } from './weekStep'
 import { canEnter, runTournament } from './tournament'
 
+/** The deck a player gets when the game has none of its own. */
+export const PLAYER_DECK = 'player-deck'
+
 const game = (): GameDoc => {
   const g = get().game
   if (!g) throw new Error('No game is running')
@@ -91,6 +94,11 @@ function keepDecksOwned(col: Collection) {
   const decks = { ...st.decks }
   for (const id of st.ownedDecks) if (decks[id]) decks[id] = clampDeck(decks[id], col)
   return decks
+}
+
+/** The deck "Edit my deck" opens: the one picked, else the player's own (made on the spot). */
+export function deckToEdit(g: GameDoc, picked: string): string {
+  return g.decks.find((d) => d.id === picked)?.id ?? PLAYER_DECK
 }
 
 /** Sets how many copies of a card a deck holds, within what the player owns. */
@@ -191,13 +199,15 @@ export function sell(shopId: string, kind: 'item' | 'card' | 'foil', id: string)
 
 // ---------- boosters ----------
 
-async function rollBooster(id: string) {
+/** Rolls a booster (or, with `size`, that many cards by the booster's chances) into the collection. */
+async function rollBooster(id: string, size?: number) {
   const g = game()
   const b = g.boosters.find((x) => x.id === id)
   if (!b) return null
   await cardsReady(g)
   const pool = poolCards(b.pool ? (get().decks[b.pool] ?? {}) : null)
-  const { cards } = roll(b, pool, randomInt())
+  const { cards } = roll(size === undefined ? b : { ...b, size }, pool, randomInt())
+  if (!cards.length) return null
   let col = get().collection
   for (const c of cards) col = addCards(col, c.id, c.foil, 1)
   set({ collection: col })
@@ -279,13 +289,24 @@ export function makeWorld(
       await cardsReady(game())
       await wait(showScreen({ kind: 'shop', id, pack: null }))
     },
-    openBooster: async (id) => {
-      const pack = await rollBooster(id)
+    openBooster: async (id, n) => {
+      for (let i = 0; i < n && live(); i++) {
+        const pack = await rollBooster(id)
+        if (!pack) return
+        if (live()) await wait(showScreen({ kind: 'booster', pack }))
+      }
+    },
+    giveFromBooster: async (id, n) => {
+      if (n <= 0) return
+      const pack = await rollBooster(id, n)
       if (pack && live()) await wait(showScreen({ kind: 'booster', pack }))
     },
-    editDeck: async (deckId) => {
-      if (!deckId) return
+    allCards: () => (useGameCards.getState().merged?.pack.info.cards ?? []).map((c) => c.id),
+    cardName: (id) =>
+      useGameCards.getState().merged?.pack.info.cards.find((c) => c.id === id)?.name ?? id,
+    editDeck: async (picked) => {
       await cardsReady(game())
+      const deckId = deckToEdit(game(), picked)
       const st = get()
       set({
         ownedDecks: st.ownedDecks.includes(deckId) ? st.ownedDecks : [...st.ownedDecks, deckId],
