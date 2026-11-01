@@ -43,11 +43,12 @@ The owner cuts printed sheets by hand. Optimize for: fast design workflow, reusa
 - Do not add features outside the spec (this file plus `.claude/rules/`) without asking.
 - If a requirement is ambiguous, pick the simplest option that matches the spec and note the assumption in `DECISIONS.md`.
 - Fix type errors and lint warnings as you go. Do not leave failing tests.
+- Card, balance and rule changes go into `game/adventure-scuffle/` in the same PR, not only as files sent to the owner (see `.claude/rules/adventure-scuffle.md`).
 
 ## Where things live
 
-- Spec by area (load when touching those paths): `.claude/rules/data-model.md` (card sizes, data model), `templates.md`, `editor.md`, `print.md`, `ui.md`
+- Spec by area (load when touching those paths): `.claude/rules/data-model.md` (card sizes, data model), `templates.md`, `editor.md`, `print.md`, `ui.md`, `adventure-scuffle.md`
 - PR procedure: `.claude/skills/ship-pr/SKILL.md`
 - Original folder layout: `docs/architecture.md`
 - Original build order and v1 definition of done: `docs/spec-history.md`
-- Decisions and assumptions: `DECISIONS.md` · Engine: `docs/engine.md` · Versions: `docs/version-history.md` · Owner's design docs: `docs/design/`
+- Decisions and assumptions: `DECISIONS.md` · Engine: `docs/engine.md` · Versions: `docs/version-history.md` · Owner's design docs: `docs/design/` · Cards and rulebook: `game/adventure-scuffle/`

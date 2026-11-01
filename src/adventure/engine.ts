@@ -2,7 +2,16 @@ import { current, produce, type Draft } from 'immer'
 import { nextInt, shuffle } from '@/playtest/rng'
 import type { AsCard } from './cards'
 import { adjacent, ADJACENT_PAIRS, neighbours, SLOTS, slotName } from './board'
-import { coin, isLocked, log, recordLog, refillPool, rest, withoutLog } from './effects/helpers'
+import {
+  coin,
+  dropWeapon,
+  isLocked,
+  log,
+  recordLog,
+  refillPool,
+  rest,
+  withoutLog,
+} from './effects/helpers'
 import { rulesOf } from './effects/registry'
 import type { Ability, Ctx, Option, PlanIO } from './effects/types'
 import { engagementSides, engagementTotals, fightingSpirit, finalBlow, lockCombat } from './stats'
@@ -41,7 +50,7 @@ export type Move =
   /** Fighting Spirit from Support, or from the rest zone when a Rest Ability allows it. */
   | { t: 'fs'; card: string; from?: 'rest' }
   /** Use a Field or Support Ability in a response. */
-  | { t: 'ability'; card: string }
+  | { t: 'ability'; card: string; window?: true }
   /** Answer a choice inside an ability. */
   | { t: 'choose'; id: string }
   /** Rock-paper-scissors for the initiative. */
@@ -62,8 +71,19 @@ export interface NewGame {
   opening?: 'coin' | 'rps'
   /** A fixed starting initiative (a tournament's later games: who went second before). */
   initiative?: Seat
-  /** The reveal size rule (default classic). */
+  /**
+   * The reveal size rule: pairs (the rule since Rulebook v2.6). 'classic' and
+   * 'triples' only replay games saved before then; see `savedGame`.
+   */
   reveal?: RevealRule
+}
+
+/**
+ * A game saved before Rulebook v2.6 has no reveal rule and was played under
+ * Classic (one card at a time). Tag it so it replays the way it was played.
+ */
+export function savedGame<T extends { reveal?: RevealRule }>(g: T): T {
+  return g.reveal ? g : { ...g, reveal: 'classic' }
 }
 
 type D = Draft<AsState>
@@ -110,7 +130,7 @@ export function createGame({
     seed: s,
     winner: null,
     log: [],
-    ...(reveal && reveal !== 'classic' ? { reveal } : {}),
+    reveal: reveal ?? 'pairs',
   }
   return produce(state, (d) => {
     log(d, `New game: ${names[0]} against ${names[1]}.`)
@@ -238,7 +258,27 @@ export function responseMoves(s: AsState, seat: Seat): Move[] {
     if (ab && usable(s, ab, { owner: seat, card, mode: 'support' }))
       out.push({ t: 'ability', card })
   }
+  out.push(...windowMoves(s, seat))
   return out
+}
+
+/**
+ * Extras in a response window, besides the response: a Rest weapon attaching
+ * from the rest zone, Unassuming Mage's swap. Using one keeps the window open.
+ */
+export function windowMoves(s: AsState, seat: Seat): Move[] {
+  if (s.phase !== 'skirmish') return []
+  const p = s.players[seat]
+  const cards = [
+    ...p.field.flatMap((f) => (f.card && f.faceUp ? [f.card] : [])),
+    ...p.rest.filter((c) => !isLocked(s, seat, c)),
+  ]
+  return cards.flatMap((card): Move[] => {
+    const ab = rulesOf(s, card)?.window
+    return ab && usable(s, ab, { owner: seat, card, mode: 'window' })
+      ? [{ t: 'ability', card, window: true }]
+      : []
+  })
 }
 
 /** Rest-zone cards a player may use for Fighting Spirit now. */
@@ -359,6 +399,18 @@ function continueAfter(d: D, after: After) {
       return assign(d)
     case 'fsTurn':
       return nextFsTurn(d, after.seat)
+    case 'respond':
+      d.step = { k: 'respond', seat: after.seat, final: after.final }
+      return
+    case 'triggers': {
+      while (d.triggers?.length) {
+        const t = d.triggers.shift()!
+        const ab = rulesOf(d, t.card)?.[t.mode]
+        const ctx: Ctx = { owner: t.owner, card: t.card, mode: t.mode }
+        if (ab && usable(d, ab, ctx)) return startEffect(d, ctx, after)
+      }
+      return after.then === 'combat' ? formStacks(d) : finishRegroup(d)
+    }
   }
 }
 
@@ -573,6 +625,15 @@ function play(d: D, m: Move) {
     }
     case 'ability': {
       if (st.k !== 'respond') return
+      if (m.window) {
+        const ab = rulesOf(d, m.card)?.window
+        log(d, `${p.name} uses ${cardName(d, m.card)}: ${ab?.name}.`)
+        return startEffect(
+          d,
+          { owner: seat, card: m.card, mode: 'window' },
+          { k: 'respond', seat, final: st.final },
+        )
+      }
       const onField = p.field.some((f) => f.card === m.card)
       const mode = onField ? 'field' : 'support'
       const ab = rulesOf(d, m.card)?.[mode]
@@ -723,10 +784,10 @@ function nextReveal(d: D) {
   const init = d.initiative
   const can = (seat: Seat) => revealOptions(d, seat, 1).length > 0
   const { reveals, last } = d.skirmish
-  const rule = d.reveal ?? 'classic'
+  const rule = d.reveal ?? 'pairs'
   const opening: RevealCount = rule === 'triples' ? 3 : 2
   const later: RevealCount = rule === 'classic' ? 1 : opening
-  // Opening reveals, initiative player first; then alternating (one at a time in classic).
+  // Opening reveals, initiative player first; then alternating (one at a time in old classic games).
   if (reveals < 2) {
     const seat = reveals === 0 ? init : other(init)
     if (can(seat)) return void (d.step = { k: 'reveal', seat, count: opening })
@@ -755,17 +816,31 @@ function assign(d: D) {
     ready.forEach((i, k) => (p.field[i].state = k < n ? 'attacking' : 'defending'))
     for (const i of extra) p.field[i].state = 'attacking'
     const attacking = [...ready.slice(0, n), ...extra].sort(byFate)
-    p.mainAttacker = attacking[0] ?? null
+    // A card that can't be the Main Attacker this round (Aegis Chaplain) passes it on.
+    const noMain = p.round.noMain ?? []
+    p.mainAttacker = attacking.find((i) => !noMain.includes(p.field[i].card!)) ?? null
     // Named in Fate order, so the Main Attacker comes first.
     const atk = attacking.map((i) => cardName(d, p.field[i].card))
     const def = ready.slice(n).map((i) => cardName(d, p.field[i].card))
     log(
       d,
-      `${p.name}: Main Attacker ${atk.length ? `${atk[0]} (${slotName(p.mainAttacker!)})` : 'none'}` +
-        `${atk.length > 1 ? `, attacking with ${atk.slice(1).join(', ')}` : ''}; defending: ${def.join(', ') || 'none'}.`,
+      `${p.name}: Main Attacker ${p.mainAttacker !== null ? `${cardName(d, p.field[p.mainAttacker].card)} (${slotName(p.mainAttacker)})` : 'none'}` +
+        `${atk.length > 1 || (atk.length && p.mainAttacker === null) ? `, attacking with ${atk.filter((x) => p.mainAttacker === null || x !== cardName(d, p.field[p.mainAttacker].card)).join(', ')}` : ''}; defending: ${def.join(', ') || 'none'}.`,
     )
   }
-  // The stacks form now, and every card's values lock for the round.
+  // Paid as the stacks form: "Rest N: Interpose" (initiative player first).
+  d.triggers = [d.initiative, other(d.initiative)].flatMap((seat) =>
+    d.players[seat].field.flatMap((f) =>
+      f.card && f.faceUp && f.state === 'defending' && rulesOf(d, f.card)?.onStack
+        ? [{ owner: seat, card: f.card, mode: 'onStack' as const }]
+        : [],
+    ),
+  )
+  continueAfter(d, { k: 'triggers', then: 'combat' })
+}
+
+/** The stacks form now, and every card's values lock for the round. */
+function formStacks(d: D) {
   d.combat = lockCombat(d)
   startCombat(d)
 }
@@ -870,14 +945,43 @@ function score(d: D, r: AsState['results'][number]) {
   nextEngagement(d)
 }
 
-/** Regroup: rest spent and unused Support, active field cards to Support, refill from the rest zone. */
+/**
+ * Regroup: debuff tokens go, Fighting Spirit, unused Support and attached
+ * Living Weapons rest, cards with Endure may stay, active field cards go to
+ * Support, then the field is refilled from the rest zone.
+ */
 function regroup(d: D) {
   d.phase = 'regroup'
   for (const seat of SEATS) {
     const p = d.players[seat]
+    p.field.forEach((f, i) => {
+      delete f.tokens
+      dropWeapon(d, seat, i)
+    })
     for (const c of [...p.spent, ...p.support]) rest(d, seat, c)
+  }
+  // Endure: the owner may keep the card on the field (initiative player first).
+  d.triggers = [d.initiative, other(d.initiative)].flatMap((seat) =>
+    d.players[seat].field.flatMap((f) =>
+      f.card && f.faceUp && f.state !== 'ready' && rulesOf(d, f.card)?.endure
+        ? [{ owner: seat, card: f.card, mode: 'endure' as const }]
+        : [],
+    ),
+  )
+  continueAfter(d, { k: 'triggers', then: 'regroup' })
+}
+
+function finishRegroup(d: D) {
+  for (const seat of SEATS) {
+    const p = d.players[seat]
+    const stay = p.round.stay ?? []
     p.field.forEach((f, i) => {
       if (!f.card || f.state === 'ready') return
+      if (stay.includes(f.card)) {
+        // It stays in place, face down and Ready, to be revealed again.
+        p.field[i] = { card: f.card, faceUp: false, state: 'ready' }
+        return
+      }
       p.support.push(f.card)
       p.field[i] = emptySlot()
     })

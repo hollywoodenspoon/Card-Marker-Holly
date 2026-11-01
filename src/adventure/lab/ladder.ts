@@ -72,6 +72,8 @@ export interface LadderGameResult {
   /** Milliseconds thinking and decisions made, per seat. */
   ms: [number, number]
   moves: [number, number]
+  /** Decisions that hit the think-time cap, per seat. */
+  capped?: [number, number]
 }
 
 export interface LadderSliceResult {
@@ -81,6 +83,12 @@ export interface LadderSliceResult {
 }
 
 const MAX_MOVES = 4000
+/**
+ * Normal and Hard think at most this long per decision. Without it a big position (or a
+ * slow machine) could hold a whole worker for minutes; the results say how
+ * often a bot hit it, since a capped bot plays a little weaker than its number.
+ */
+export const LADDER_THINK_MS = 2000
 /** Random legal decks added to the premades. */
 const RANDOM_DECKS = 6
 
@@ -140,17 +148,24 @@ export function playLadderSlice({
     const moves: Move[] = []
     const ms: [number, number] = [0, 0]
     const count: [number, number] = [0, 0]
+    const capped: [number, number] = [0, 0]
     const r = { seed: g.seed ^ 0x9e3779b9 }
     let problem: string | null = null
     for (let n = 0; n < MAX_MOVES && s.step.k !== 'over'; n++) {
       const seat = s.step.seat
       const who = entrants[g.e[seat]]
+      const searches = who.level === 'hard' || who.level === 'normal'
       const t = Date.now()
       const m =
         who.level === 'quick'
           ? quickMove(s, r)
-          : botMove(s, who.level, g.seed + n * 31, { iterations: who.iterations })
-      ms[seat] += Date.now() - t
+          : botMove(s, who.level, g.seed + n * 31, {
+              iterations: who.iterations,
+              ...(searches && { thinkMs: LADDER_THINK_MS }),
+            })
+      const took = Date.now() - t
+      ms[seat] += took
+      if (searches && took >= LADDER_THINK_MS) capped[seat]++
       count[seat]++
       const next = apply(s, m)
       if (next === s) {
@@ -168,7 +183,7 @@ export function playLadderSlice({
       for (const p of checkGame(game, moves).problems)
         out.problems.push(`${where}, move ${p.move + 1}: ${p.text}`)
     }
-    out.games.push({ e: g.e, winner: s.winner?.seat ?? null, ms, moves: count })
+    out.games.push({ e: g.e, winner: s.winner?.seat ?? null, ms, moves: count, capped })
   }
   return out
 }
@@ -181,6 +196,8 @@ export interface LadderRow {
   wins: number
   /** Average thinking time per decision (ms). */
   msPerMove: number
+  /** Share of decisions that hit the think-time cap (Normal and Hard). */
+  capped?: number
 }
 
 export interface LadderResult {
@@ -273,6 +290,7 @@ export function analyzeLadder(
   )
   const ms = new Array(n).fill(0)
   const moves = new Array(n).fill(0)
+  const capped = new Array(n).fill(0)
   let draws = 0
   for (const sl of slices)
     for (const g of sl.games) {
@@ -280,6 +298,7 @@ export function analyzeLadder(
       for (const seat of [0, 1] as const) {
         ms[g.e[seat]] += g.ms[seat]
         moves[g.e[seat]] += g.moves[seat]
+        capped[g.e[seat]] += g.capped?.[seat] ?? 0
       }
       matrix[a][b][1]++
       matrix[b][a][1]++
@@ -306,6 +325,9 @@ export function analyzeLadder(
     games: matrix[i].reduce((a, c) => a + c[1], 0),
     wins: matrix[i].reduce((a, c) => a + c[0], 0),
     msPerMove: moves[i] ? ms[i] / moves[i] : 0,
+    ...((e.level === 'hard' || e.level === 'normal') && {
+      capped: moves[i] ? capped[i] / moves[i] : 0,
+    }),
   }))
   return {
     packName: input.packName,
@@ -328,8 +350,8 @@ export function rateText(w: number, n: number): string {
 }
 
 export const REVEAL_NAMES: Record<RevealRule, string> = {
-  classic: 'classic reveals',
-  pairs: 'pairs throughout',
+  classic: 'one card at a time (before Rulebook v2.6)',
+  pairs: 'pairs',
   triples: 'triples',
 }
 
@@ -346,7 +368,10 @@ export function ladderReport(r: LadderResult): string {
     '|---|---:|---:|---:|---:|',
     ...order.map((i) => {
       const x = r.rows[i]
-      return `| ${x.name} | ${x.elo} | ${rateText(x.wins, x.games)} | ${x.games} | ${x.msPerMove.toFixed(1)} ms |`
+      const cap = x.capped
+        ? ` (${Math.round(100 * x.capped)}% at the ${LADDER_THINK_MS / 1000} s cap)`
+        : ''
+      return `| ${x.name} | ${x.elo} | ${rateText(x.wins, x.games)} | ${x.games} | ${x.msPerMove.toFixed(1)} ms${cap} |`
     }),
     '',
     'Win rate of the row bot against the column bot (±95% margin).',

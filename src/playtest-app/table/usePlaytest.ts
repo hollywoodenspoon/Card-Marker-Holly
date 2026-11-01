@@ -1,6 +1,14 @@
 import { create } from 'zustand'
 import type { BotLevel } from '@/adventure/bot'
-import { actor, apply, applyFrames, createGame, type Move, type NewGame } from '@/adventure/engine'
+import {
+  actor,
+  apply,
+  applyFrames,
+  createGame,
+  savedGame,
+  type Move,
+  type NewGame,
+} from '@/adventure/engine'
 import type { AsState } from '@/adventure/state'
 import { toTable } from '@/adventure/table'
 import { applyAction, type TableAction } from '@/playtest/actions'
@@ -243,7 +251,9 @@ export const usePlaytest = create<PlaytestStore>((set, get) => ({
       placing: false,
       ...NO_RULES,
     }),
-  startRules: (packId, setup, game, { hotseat, bots = NO_BOTS, moves = [] }) => {
+  startRules: (packId, setup, start, { hotseat, bots = NO_BOTS, moves = [] }) => {
+    // Kept with the moves, so a replay knows the rule it was played under.
+    const game: NewGame = { ...start, reveal: start.reveal ?? 'pairs' }
     // A paused game is played again from its start, move by move (it is deterministic).
     let rules = createGame(game)
     for (const group of moves) for (const m of group) rules = apply(rules, m)
@@ -273,14 +283,15 @@ export const usePlaytest = create<PlaytestStore>((set, get) => ({
     set({
       packId,
       setup,
-      state: rules ? toTable(setup, rules.state) : state,
+      state: rules ? toTable(setup, savedGame(rules.state)) : state,
       past,
       future: [],
       selected: null,
       placing: false,
       ...(rules
         ? {
-            rules: rules.state,
+            // A game saved before Rulebook v2.6 carries on under Classic.
+            rules: savedGame(rules.state),
             rulesPast: rules.past,
             rulesFuture: [],
             picks: [],
@@ -289,7 +300,7 @@ export const usePlaytest = create<PlaytestStore>((set, get) => ({
             bots: rules.bots ?? NO_BOTS,
             botPaused: false,
             playback: null,
-            game: rules.game ?? null,
+            game: rules.game ? savedGame(rules.game) : null,
             moves: rules.moves ?? [],
             movesFuture: [],
           }

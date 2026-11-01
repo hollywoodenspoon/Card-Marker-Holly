@@ -2,7 +2,17 @@ import type { AsCard } from '../cards'
 import { other, type AsState, type Engagement, type Seat } from '../state'
 import * as B from './blocks'
 import { mirrored, neighbours } from '../board'
-import { archInRest, archOnField, faceUp, inArchetype, isCenterSlot, restCount } from './helpers'
+import {
+  archInRest,
+  archOnField,
+  faceUp,
+  inArchetype,
+  isCenterSlot,
+  restCount,
+  slotOf,
+} from './helpers'
+import * as M from './mechanics'
+import { attackStack, defenseStack, tokensOn } from '../stats'
 import type { Ability, CardRules, Ctx, D } from './types'
 
 /**
@@ -37,6 +47,8 @@ interface Conds {
   cost: number
   /** Final Blow: the bonus waits for the end of the Engagement (Fighting Spirit only). */
   final: boolean
+  /** "Flip a coin…, Heads:" / "Tails:": the clause is one side of a coin. */
+  coin?: 'heads' | 'tails'
 }
 
 const all =
@@ -53,7 +65,17 @@ interface Build {
   fs: { test: Test; n: number }[]
   stat: ((q: Q, v: { a: number; d: number }) => { a: number; d: number })[]
   ability?: Ability
+  /** Where in the text the action's clause is (a second action runs in text order). */
+  abilityAt?: number
+  /** The action has a condition of its own. */
+  abilityIf?: boolean
+  /** Where the clause being read is. */
+  at: number
   keep?: (d: D, ctx: Ctx) => boolean
+  /** Fighting Spirit worked out from the board (Fear the Core). */
+  extraFs?: (s: AsState, seat: Seat) => number
+  /** The two sides of a coin, and the conditions for flipping it at all. */
+  coin?: { heads?: Ability; tails?: Ability; tests: Test[] }
 }
 
 const MODE: Record<string, Mode | null> = {
@@ -130,6 +152,64 @@ const CONDITIONS: [RegExp, (g: Record<string, string>) => Test][] = [
       return main !== null && isCenterSlot(main) === (g.pos === 'center')
     },
   ],
+  // A [word] card on a position next to this one (face up, never this card).
+  [
+    new RegExp(`^if an? ${W} card is next to this card$`),
+    (g) => (q) => {
+      const slot = q.slot ?? slotOf(q.s, q.seat, q.card)
+      const field = q.s.players[q.seat].field
+      return (
+        slot >= 0 &&
+        neighbours(slot).some((j) => {
+          const c = field[j].card
+          return !!c && field[j].faceUp && c !== q.card && inArchetype(q.s, c, g.w)
+        })
+      )
+    },
+  ],
+  [
+    new RegExp(`^if another ${W} card is on your field$`),
+    (g) => (q) => archOnField(q.s, q.seat, g.w, q.card),
+  ],
+  [
+    new RegExp(
+      `^if an? ${W} card is also on (?:the )?opponent's field$|^if (?:your )?opponent has an? ${W.replace('w>', 'v>')} card on their field$`,
+    ),
+    (g) => (q) => archOnField(q.s, other(q.seat), g.w ?? g.v, q.card),
+  ],
+  [
+    new RegExp(`^if (?<n>two|three|\\d+) or more ${W} cards are in your attack stack$`),
+    (g) => (q) => {
+      const n = ({ two: 2, three: 3 } as Record<string, number>)[g.n] ?? Number(g.n)
+      const field = q.s.players[q.seat].field
+      return (
+        attackStack(q.s, q.seat).filter((i) => {
+          const c = field[i].card
+          return !!c && inArchetype(q.s, c, g.w)
+        }).length >= n
+      )
+    },
+  ],
+  [
+    /^if your defense stack has (?<n>\d+) or more cards$/,
+    (g) => (q) => defenseStack(q.s, q.seat).length >= Number(g.n),
+  ],
+  // Terror N+: the opponent's field holds N or more debuff tokens.
+  [/^terror (?<n>\d+)\+$/, (g) => (q) => tokensOn(q.s, other(q.seat)) >= Number(g.n)],
+  // Riposte: the card revealed just before this one was a Battle card the opponent revealed.
+  [
+    /^riposte$/,
+    () => (q) => {
+      const last = q.e?.last
+      if (!q.e || !last || last.seat === q.seat) return false
+      const card = q.e.fs[last.seat][last.index]?.card
+      return !!card && q.s.cards[card]?.type === 'Battle'
+    },
+  ],
+  [
+    /^if a living weapon is attached to a card on your field$/,
+    () => (q) => M.weaponsOn(q.s, q.seat) > 0,
+  ],
   // First Blood: the first card revealed this Engagement. Ambush: the opponent has passed.
   [/^first blood$/, () => (q) => !!q.e && q.e.fs[0].length + q.e.fs[1].length === 0],
   [/^ambush$/, () => (q) => !!q.e && q.e.passed[other(q.seat)]],
@@ -150,7 +230,11 @@ const CONDITIONS: [RegExp, (g: Record<string, string>) => Test][] = [
 ]
 
 /** Keyword names before a colon whose rule the rest of the clause spells out. */
-const LABELS = [/^(?:field|fallen|echo) bond$/, /^(?:attack|defense) (?:override|surge|unbound)$/]
+const LABELS = [
+  /^(?:field|fallen|echo) bond$/,
+  /^(?:attack|defense) (?:override|surge|unbound)$/,
+  /^hire$/,
+]
 
 function readConds(text: string | undefined): Conds | null {
   const c: Conds = { tests: [], once: false, cost: 0, final: false }
@@ -159,6 +243,12 @@ function readConds(text: string | undefined): Conds | null {
     if (LABELS.some((re) => re.test(part))) continue
     if (part === 'once per round') {
       c.once = true
+      continue
+    }
+    // "Flip a coin[ when revealed], Heads:" marks the clause as one side of a coin.
+    if (/^flip a coin(?: when revealed)?$/.test(part)) continue
+    if (part === 'heads' || part === 'tails') {
+      c.coin = part
       continue
     }
     if (
@@ -191,8 +281,30 @@ interface Phrase {
   read(g: Record<string, string>, c: Conds, b: Build): boolean
 }
 
-/** Conditions that only make sense for an action ("Once per round", "Rest N"). */
-const actionOnly = (c: Conds) => c.once || c.cost > 0 || c.final
+/** Conditions that only make sense for an action ("Once per round", "Rest N", a coin side). */
+const actionOnly = (c: Conds) => c.once || c.cost > 0 || c.final || !!c.coin
+
+/** An ability with its clause's cost, once-per-round and conditions. */
+function wrap(ab: Ability, c: Conds): Ability {
+  let out = ab
+  if (c.cost) out = B.withCost(out, c.cost) as Ability
+  if (c.once) out = B.oncePerRound(out)
+  if (c.tests.length) {
+    const test = all(c)
+    out = B.when(out, (s, ctx) => test({ s, seat: ctx.owner, card: ctx.card, e: s.engagement }))
+  }
+  return out
+}
+
+/** One side of a coin ("Heads: …"): kept until the card is read, then flipped once. */
+function coinSide(c: Conds, ab: Ability, b: Build): boolean {
+  if (!c.coin || c.cost || c.once || c.final) return false
+  b.coin ??= { tests: [] }
+  if (b.coin[c.coin]) return false
+  b.coin[c.coin] = ab
+  b.coin.tests.push(...c.tests)
+  return true
+}
 
 /** A passive clause: no cost or once-per-round. */
 function passive(
@@ -227,18 +339,30 @@ function action(
   return {
     body,
     read(g, c, b) {
-      if (!b.mode || b.ability || c.final) return false
-      // A cost or once-per-round only for abilities a player chooses to use.
-      if (actionOnly(c) && b.mode !== 'field' && b.mode !== 'support') return false
-      let ab = make(g, b)
-      if (!ab) return false
-      if (c.cost) ab = B.withCost(ab, c.cost) as Ability
-      if (c.once) ab = B.oncePerRound(ab)
-      if (c.tests.length) {
-        const test = all(c)
-        ab = B.when(ab, (s, ctx) => test({ s, seat: ctx.owner, card: ctx.card, e: s.engagement }))
+      if (!b.mode || c.final) return false
+      if (c.coin) {
+        const ab = make(g, b)
+        return !!ab && coinSide(c, ab, b)
       }
-      b.ability = ab
+      // A second action with its own condition happens after the first (Raven Matriarch).
+      if (b.ability) {
+        // One of the two must have its own condition (otherwise it is one action).
+        if ((!c.tests.length && !b.abilityIf) || c.cost || c.once) return false
+        const ab = make(g, b)
+        if (!ab) return false
+        const next = wrap(ab, c)
+        b.ability = (
+          b.at < (b.abilityAt ?? 0) ? M.andThen(next, b.ability) : M.andThen(b.ability, next)
+        ) as Ability
+        return true
+      }
+      // A cost or once-per-round only for abilities a player chooses to use.
+      if ((c.cost || c.once) && b.mode !== 'field' && b.mode !== 'support') return false
+      const ab = make(g, b)
+      if (!ab) return false
+      b.ability = wrap(ab, c)
+      b.abilityAt = b.at
+      b.abilityIf = c.tests.length > 0
       return true
     },
   }
@@ -272,6 +396,17 @@ const may = <P>(g: Record<string, string>, ab: Ability<P>): Ability<P> =>
   g.may ? { ...ab, optional: true } : ab
 
 const PHRASES: Phrase[] = [
+  // Before the plain "+N FS", which would read only its start.
+  passive(
+    "\\+(?<n>\\d+) fs for every (?<per>\\d+) debuff tokens on the opponent's field \\(at most \\+(?<max>\\d+) fs\\)",
+    (g, c, b) => {
+      if (b.mode !== 'battle' || c.tests.length) return
+      const n = Number(g.n)
+      const per = Number(g.per)
+      const max = Number(g.max)
+      b.extraFs = (s, seat) => Math.min(max, n * Math.floor(tokensOn(s, other(seat)) / per))
+    },
+  ),
   // Fighting Spirit from the rest zone (Rest cards).
   passive(
     'flip a coin\\. heads: you may use this card for fighting spirit this engagement, and it gets \\+(?<n>\\d+) fs\\. tails: nothing happens(?:, and you may still reveal fighting spirit or pass)?',
@@ -303,7 +438,15 @@ const PHRASES: Phrase[] = [
   {
     body: '(?:an additional )?\\+(?<n>\\d+) fs',
     read(g, c, b) {
-      if (c.once || c.cost > 0 || b.mode !== 'battle') return false
+      if (b.mode !== 'battle') return false
+      if (c.coin) return coinSide(c, M.addFs(Number(g.n)) as Ability, b)
+      // "Rest N: +N FS": the owner may pay as the card is revealed (Sellsword Blade).
+      if (c.cost > 0 && !c.once && !c.final) {
+        if (b.ability) return false
+        b.ability = { ...wrap(M.addFs(Number(g.n)) as Ability, c), optional: true }
+        return true
+      }
+      if (c.once || c.cost > 0) return false
       if (c.final) {
         // Final Blow takes no other condition, and one bonus per card.
         if (c.tests.length || b.rules.finalBlow) return false
@@ -414,12 +557,149 @@ const PHRASES: Phrase[] = [
       return B.copyAbility as Ability
     },
   ),
+  // ---- Sets after The First Quest (Rulebook v2.6) ----
+  action(
+    "target (?:an? )?(?:(?<ace>an ace on the opponent's field)|(?<down>a face-down ready card on the opponent's field)|(?<mir>the opponent's ready card in this card's mirrored position)|(?<any>opponent's card))\\. it is turned to the ability-active position without resolving its ability",
+    (g) =>
+      M.lockWhere(g.ace ? 'ace' : g.down ? 'faceDownReady' : g.mir ? 'mirrored' : 'any') as Ability,
+  ),
+  action(
+    "place a debuff token on (?<n>\\d+) target cards on the opponent's field",
+    (g) => M.placeTokens(Number(g.n), null, 'any') as Ability,
+  ),
+  action(
+    "place a debuff token on the opponent's field card with the highest attack value, reducing its attack value",
+    () => M.placeTokens(1, 'a', 'highestAttack') as Ability,
+  ),
+  action(
+    "place a debuff token on a (?<def>defending )?card on the opponent's field(?:, reducing its (?<stat>attack|defense) value)?",
+    (g) =>
+      M.placeTokens(
+        1,
+        g.stat ? (g.stat === 'attack' ? 'a' : 'd') : null,
+        g.def ? 'defending' : 'any',
+      ) as Ability,
+  ),
+  action(
+    'swap (?:a|one) card in your support with a card in your rest zone',
+    () => M.hire(1) as Ability,
+  ),
+  action(
+    'swap up to (?<n>two|\\d+) cards in your support with cards in your rest zone',
+    (g) => M.hire(g.n === 'two' ? 2 : Number(g.n)) as Ability,
+  ),
+  action(
+    `swap this card's position with another ${W} card on your field`,
+    (g) => M.selfSwapWith(word(g.w)) as Ability,
+  ),
+  action(
+    `swap the positions of two ${W} cards on your field`,
+    (g) => M.swapTwoOwn(word(g.w)) as Ability,
+  ),
+  action(
+    `swap an? ${W} card on your field with a card from your support\\. the card placed on the field is ready`,
+    (g) => M.swapInFor(word(g.w)) as Ability,
+  ),
+  action(
+    "swap the positions of two face-down cards on the opponent's field",
+    () => M.swapTwoFaceDown as Ability,
+  ),
+  action(
+    "target a ready card on the opponent's field\\. (?:(?<main>it cannot be their main attacker this round)|(?<stay>at regroup, it stays on the field instead of going to support))",
+    (g) => M.markReady('opponent', g.main ? 'noMain' : 'stay') as Ability,
+  ),
+  action(
+    'target a ready card on your field\\. this round, it has interpose',
+    () => M.markReady('own', 'interpose') as Ability,
+  ),
+  action(
+    "target a ready card on your field with a living weapon attached\\. (?:(?<shield>this round, it cannot be the target of an opponent's ability)|(?<join>it is included in your attacking group this round, regardless of its fate number(?: rank)?))",
+    (g) =>
+      (g.shield
+        ? M.markReady('own', 'shielded', { weapon: true })
+        : M.hostJoinsAttackers) as Ability,
+  ),
+  action(
+    'rest up to (?<n>two|\\d+) living weapons from your support',
+    (g) => M.restWeapons(g.n === 'two' ? 2 : Number(g.n)) as Ability,
+  ),
+  action(
+    'target a living weapon on your field\\. put it in your rest zone, and put this card in its position\\. this card inherits the state of the card it replaced',
+    (_g, b) => (b.mode === 'support' ? (M.pageSwap as Ability) : null),
+  ),
+  action(
+    '(?<may>you may )?attach a living weapon from your (?<from>support|rest zone) to a ready card on your field',
+    (g) => may(g, M.attachFrom(g.from === 'support' ? 'support' : 'rest') as Ability),
+  ),
+  // Attach this card: a Support card uses it as its Support Ability, a Rest card in a response window.
+  {
+    body: "attach this card to (?:a (?<own>ready card on your field)|a face-up card on the opponent's field)(?:\\. (?:(?<interpose>that card has interpose)|(?<main>it cannot be their main attacker this round)))?",
+    read(g, c, b) {
+      if (c.final || c.coin) return false
+      const ab = M.attachSelf({
+        side: g.own ? 'own' : 'opponent',
+        then: g.interpose ? 'interpose' : g.main ? 'noMain' : undefined,
+      }) as Ability
+      if (b.mode === 'support' && !b.ability) return ((b.ability = wrap(ab, c)), true)
+      if (b.mode === null && !b.rules.window) return ((b.rules.window = wrap(ab, c)), true)
+      return false
+    },
+  },
+  // Unassuming Mage: an extra in each response window.
+  {
+    body: "in the skirmish, each time you get a response opportunity, you may first swap this card's position with another card on your field",
+    read(_g, c, b) {
+      if (actionOnly(c) || b.rules.window) return false
+      b.rules.window = M.oncePerWindow(wrap(B.selfSwap(false) as Ability, c))
+      return true
+    },
+  },
+  {
+    body: 'interpose',
+    read(_g, c, b) {
+      if (c.once || c.final || c.coin) return false
+      if (c.cost) {
+        if (b.rules.onStack) return false
+        b.rules.onStack = wrap(M.interposeSelf as Ability, c)
+        return true
+      }
+      const test = all(c)
+      b.rules.interpose = (s, seat, slot) =>
+        test({ s, seat, slot, card: s.players[seat].field[slot]?.card ?? '', e: s.engagement })
+      return true
+    },
+  },
+  {
+    body: 'endure',
+    read(_g, c, b) {
+      if (actionOnly(c) || b.rules.endure) return false
+      b.rules.endure = wrap(M.endureSelf as Ability, c)
+      return true
+    },
+  },
+  {
+    body: `${W} cards on your field cannot be repositioned by an opponent's ability`,
+    read(g, c, b) {
+      if (actionOnly(c) || c.tests.length) return false
+      b.rules.guards = [...(b.rules.guards ?? []), word(g.w)]
+      return true
+    },
+  },
+  // A coin side with no effect.
+  {
+    body: 'nothing happens',
+    read: (_g, c) => !!c.coin,
+  },
   // Support cards that stay in Support.
   keep('reveal this card', always),
   keep('this card (?:is not|does not need to be) rested after use(?: (?<tail>if [^.¦]+))?', always),
   keep(
     `if an? ${W} card is in your rest zone, this card does not need to be rested after use`,
     (g) => (d, ctx) => archInRest(d, ctx.owner, g.w, ctx.card),
+  ),
+  keep(
+    `if an? ${W} card is also on your field, this card does not need to be rested after use`,
+    (g) => (d, ctx) => archOnField(d, ctx.owner, g.w, ctx.card),
   ),
 ]
 
@@ -431,25 +711,35 @@ const CLAUSES = PHRASES.map((p) => ({
 
 /** Lower case, symbols as words, one space, curly quotes straight, no ability label. */
 export function normalize(text: string) {
-  return text
-    .toLowerCase()
-    .replace(/[‘’]/g, "'")
-    .replace(/\{fightingspirit_as\}/g, 'fs')
-    .replace(/\{attack_as\}/g, 'attack')
-    .replace(/\{defense_as\}/g, 'defense')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .replace(/^(?:flip|field|support|battle|rest|inherent) ability: /, '')
+  return (
+    text
+      .toLowerCase()
+      .replace(/[‘’]/g, "'")
+      .replace(/\{fightingspirit_as\}/g, 'fs')
+      .replace(/\{attack_as\}/g, 'attack')
+      .replace(/\{defense_as\}/g, 'defense')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .replace(/^(?:flip|field|support|battle|rest|inherent) ability: /, '')
+      // "Flip Ability, if …: …": the label goes, its conditions stay.
+      .replace(/^(?:flip|field|support|battle|rest|inherent) ability, /, '')
+      // "Flip a coin. Heads: …": one clause per coin side.
+      .replace(
+        /flip a coin\. (heads|tails):(?! you may use this card for fighting spirit)/g,
+        'flip a coin, $1:',
+      )
+  )
 }
 
 /** Read a card's rules from its type and printed ability. */
 export function readText(type: AsCard['type'], ability: string): Reading {
   let text = normalize(ability)
-  const b: Build = { mode: type ? (MODE[type] ?? null) : null, rules: {}, fs: [], stat: [] }
+  const b: Build = { mode: type ? (MODE[type] ?? null) : null, rules: {}, fs: [], stat: [], at: 0 }
   for (const { p, re } of CLAUSES)
     text = text.replace(re, (...args) => {
       const m = args[0] as string
       const g = (args.at(-1) ?? {}) as Record<string, string>
+      b.at = args.at(-3) as number
       const c = readConds(g.cond)
       return c && p.read(g, c, b) ? '¦' : m
     })
@@ -463,10 +753,22 @@ export function readText(type: AsCard['type'], ability: string): Reading {
 }
 
 function finish(b: Build) {
-  const { rules, fs, stat } = b
-  if (fs.length)
+  const { rules, fs, stat, extraFs } = b
+  if (fs.length || extraFs)
     rules.fs = (s, seat, e, v, card) =>
-      v + fs.reduce((n, x) => n + (x.test({ s, seat, card, e }) ? x.n : 0), 0)
+      v +
+      fs.reduce((n, x) => n + (x.test({ s, seat, card, e }) ? x.n : 0), 0) +
+      (extraFs?.(s, seat) ?? 0)
+  if (b.coin && b.mode) {
+    // The coin is flipped once, when the ability is used, for whichever side comes up.
+    const tests = b.coin.tests
+    let ab = M.coinFlip(b.coin.heads ?? null, b.coin.tails ?? null) as Ability
+    if (tests.length)
+      ab = B.when(ab, (s, ctx) =>
+        tests.every((t) => t({ s, seat: ctx.owner, card: ctx.card, e: s.engagement })),
+      )
+    if (!b.ability) b.ability = ab
+  }
   if (stat.length)
     rules.stat = (s, seat, slot, v) => {
       const q = { s, seat, slot, card: s.players[seat].field[slot].card ?? '', e: s.engagement }

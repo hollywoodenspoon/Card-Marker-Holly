@@ -1,4 +1,4 @@
-import { actor, apply, legalMoves, type Move } from '../engine'
+import { actor, apply, applyFast, legalMoves, type Move } from '../engine'
 import type { AsState, Seat } from '../state'
 import { determinize } from './determinize'
 import { mctsMove } from './mcts'
@@ -14,7 +14,7 @@ export interface BotOptions {
   playouts?: number
   /** Hard: iterations per decision (a ceiling when `thinkMs` is set). */
   iterations?: number
-  /** Hard: think for about this many milliseconds (play on the table). */
+  /** Normal and Hard: think for about this many milliseconds at most. */
   thinkMs?: number
 }
 
@@ -39,28 +39,35 @@ export function tricksMove(s: AsState, r: Rng): Move {
  * both sides, and keeps the move whose rounds go best. Abilities and choices
  * go by Easy's Tricks.
  */
-function searchMove(s: AsState, seat: Seat, r: Rng, playouts: number): Move {
+function searchMove(s: AsState, seat: Seat, r: Rng, playouts: number, thinkMs?: number): Move {
   const legal = legalMoves(s).filter((m) => m.t !== 'unplace')
   // Placing and revealing go by the rules of thumb, abilities and choices by the Tricks;
   // Search plays out Fighting Spirit and the First Engagement.
   if (legal.length === 1 || !['fs', 'first'].includes(s.step.k)) return tricksMove(s, r)
   const candidates = legal.length > 8 ? pickSome(legal, 8, r) : legal
   const per = Math.max(2, Math.floor(playouts / candidates.length))
-  let best = candidates[0]
-  let bestScore = -Infinity
-  for (const m of candidates) {
-    let total = 0
-    for (let i = 0; i < per; i++) {
+  const deadline = thinkMs ? Date.now() + thinkMs : Infinity
+  // One playout per candidate in turn, so a time limit cuts every candidate alike.
+  const total = candidates.map(() => 0)
+  let done = 0
+  for (let i = 0; i < per; i++) {
+    if (i > 0 && Date.now() > deadline) break
+    candidates.forEach((m, k) => {
       const guess = determinize(s, seat, roll(r, 2 ** 31))
       const next = apply(guess, m)
-      total += next === guess ? -100 : rollout(next, seat, r)
-    }
-    const score = total / per
+      total[k] += next === guess ? -100 : rollout(next, seat, r)
+    })
+    done++
+  }
+  let best = candidates[0]
+  let bestScore = -Infinity
+  candidates.forEach((m, k) => {
+    const score = total[k] / Math.max(1, done)
     if (score > bestScore) {
       bestScore = score
       best = m
     }
-  }
+  })
   return best
 }
 
@@ -79,8 +86,9 @@ function rollout(s: AsState, seat: Seat, r: Rng): number {
   const before = s.players[seat].points - s.players[seat === 0 ? 1 : 0].points
   const round = s.round
   let x = s
+  // Quick moves are legal by construction, so the playout skips the legality check and log.
   for (let n = 0; n < 300 && x.step.k !== 'over' && x.round === round; n++) {
-    const next = apply(x, quickMove(x, r))
+    const next = applyFast(x, quickMove(x, r))
     if (next === x) break
     x = next
   }
@@ -97,6 +105,6 @@ export function botMove(s: AsState, level: BotLevel, seed: number, opts: BotOpti
   if (seat === null) throw new Error('The game is over.')
   const r = { seed }
   if (level === 'hard') return mctsMove(s, seat, r, opts)
-  if (level === 'normal') return searchMove(s, seat, r, opts.playouts ?? 96)
+  if (level === 'normal') return searchMove(s, seat, r, opts.playouts ?? 96, opts.thinkMs)
   return tricksMove(s, r)
 }

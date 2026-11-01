@@ -130,7 +130,27 @@ export function touchable(
   const up = s.players[seat].field[slot].faceUp
   if (up && how.target && ctx.mode === 'field' && r?.fieldProof) return false
   if (up && how.move && r?.fixed) return false
+  // Armiger Warden: not the target of an opponent's ability this round.
+  if (how.target && s.players[seat].round.shielded?.includes(card)) return false
+  // Warchief of the Horde: its archetype's cards can't be repositioned by an opponent.
+  if (how.move && guarded(s, seat, card)) return false
   return true
+}
+
+/** Is a field card kept in place by a face-up card's guard (Warchief of the Horde)? */
+export function guarded(s: S, seat: Seat, card: string) {
+  if (!s.players[seat].field.some((f) => f.card === card && f.faceUp)) return false
+  return faceUp(s, seat).some((x) =>
+    (rulesOf(s, x.card)?.guards ?? []).some((w) => inArchetype(s, card, w)),
+  )
+}
+
+/** A Living Weapon falls off: it goes to its owner's rest zone. */
+export function dropWeapon(d: D, seat: Seat, slot: number) {
+  const f = d.players[seat].field[slot]
+  if (!f.weapon) return
+  d.players[f.weapon.owner].rest.push(f.weapon.card)
+  delete f.weapon
 }
 
 /** Cards that may pay a Rest cost: Support cards other than the ability's own, not one that can't. */
@@ -165,7 +185,11 @@ export function restCost(io: PlanIO, n: number): string[] {
 export function lift(d: D, seat: Seat, card: string) {
   const p = d.players[seat]
   const slot = p.field.findIndex((f) => f.card === card)
-  if (slot >= 0) p.field[slot] = { card: null, faceUp: false, state: 'ready' }
+  if (slot >= 0) {
+    // Its weapon falls off; its tokens go with it.
+    dropWeapon(d, seat, slot)
+    p.field[slot] = { card: null, faceUp: false, state: 'ready' }
+  }
   for (const list of [p.support, p.rest, p.spent]) {
     const i = list.indexOf(card)
     if (i >= 0) list.splice(i, 1)
@@ -227,6 +251,8 @@ export function swapIn(d: D, seat: Seat, slot: number, card: string, ready: bool
   const old = p.field[slot]
   const i = p.support.indexOf(card)
   if (i >= 0) p.support.splice(i, 1)
+  // The card leaving the field drops its weapon; its tokens go with it.
+  dropWeapon(d, seat, slot)
   p.field[slot] = { card, faceUp: old.faceUp, state: ready ? 'ready' : old.state }
   if (old.card) p.support.push(old.card)
 }

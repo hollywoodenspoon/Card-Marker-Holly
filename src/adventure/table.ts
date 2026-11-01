@@ -55,7 +55,15 @@ export function toTable(setup: GameSetup, s: AsState): TableState {
     // Locked rest-zone cards (Kobold Grave-Robber, Kobold Trapsetter) lie face down.
     const restCard = (c: string) => add(seat, c, !(p.locked ?? []).some((l) => l.card === c))
     zones[zoneKey('field', seat)] = {
-      slots: p.field.map((f) => (f.card ? [add(seat, f.card, f.faceUp, f.state)] : [])),
+      // An attached Living Weapon lies under its card, face up.
+      slots: p.field.map((f) =>
+        f.card
+          ? [
+              add(seat, f.card, f.faceUp, f.state),
+              ...(f.weapon ? [add(f.weapon.owner, f.weapon.card, true)] : []),
+            ]
+          : [],
+      ),
     }
     if (regroup) {
       // Regroup: the Support is set aside and the rest zone is held like a hand.

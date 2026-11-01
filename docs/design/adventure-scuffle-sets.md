@@ -2,6 +2,8 @@
 
 # Adventure Scuffle: new sets design
 
+> The current text of every card is in `game/adventure-scuffle/cards.csv`; this document is the design history.
+
 2026-10-23 · <span atom="mention" principal="u_NgiPJSc9rChaaEJD9JQ6yQ">@u_NgiPJSc9rChaaEJD9JQ6yQ</span>
 
 New sets for Adventure Scuffle. Each set is 3 premade decks of 12 plus 9 bonus cards (45 cards), like The First Quest. Each deck mixes families with generic cards; a new mechanic only where there is real design space.

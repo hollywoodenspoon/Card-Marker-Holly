@@ -1,6 +1,6 @@
 import Dexie, { type EntityTable } from 'dexie'
 import type { BotLevel } from '@/adventure/bot'
-import type { Move, NewGame } from '@/adventure/engine'
+import { savedGame, type Move, type NewGame } from '@/adventure/engine'
 import type { LadderResult } from '@/adventure/lab/ladder'
 import type { LabResult } from '@/adventure/lab/run'
 import type { AsState, Seat } from '@/adventure/state'
@@ -233,7 +233,8 @@ export const deleteDeck = async (id: string, db = playtestDb()) => {
 /** Replays of a pack, newest first. */
 export async function listReplays(packId: string, db = playtestDb()): Promise<ReplayRow[]> {
   const rows = await db.replays.where('packId').equals(packId).toArray()
-  return rows.sort((a, b) => b.savedAt - a.savedAt)
+  // Replays saved before Rulebook v2.6 replay under the rule they were played with.
+  return rows.map((r) => ({ ...r, game: savedGame(r.game) })).sort((a, b) => b.savedAt - a.savedAt)
 }
 
 /** Keep a replay, then drop the oldest unpinned ones beyond `REPLAYS_KEPT`. */
