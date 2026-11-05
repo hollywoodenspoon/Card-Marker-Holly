@@ -47,6 +47,7 @@ The owner cuts printed sheets by hand. Optimize for: fast design workflow, reusa
 
 ## Where things live
 
+- Each main folder has a short `CLAUDE.md` map of its files; when you add, move or rename files there, update its map in the same PR.
 - Spec by area (load when touching those paths): `.claude/rules/data-model.md` (card sizes, data model), `templates.md`, `editor.md`, `print.md`, `ui.md`, `adventure-scuffle.md`
 - PR procedure: `.claude/skills/ship-pr/SKILL.md`
 - Original folder layout: `docs/architecture.md`
