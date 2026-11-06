@@ -252,5 +252,7 @@ A pack whose cards have an `Ability_UW` field (`flag`, `bomb`, `support` or `nil
 - **Bot against bot:** pick it under Players, choose each bot's level (Easy or Normal) and watch. **Pause** stops it between moves.
 - **Replays:** every finished game is saved (the last 100). **Replays** on the start screen lists them: tap one to watch it with **Play**, **Back**, **Step** and the slider. Export saves it as a .json file.
 - **Simulation:** many bot games at full speed (100, 500 or 1000). It shows each bot's wins, draws, how often the first player wins, average turns and how games were won. A game still going after 400 moves is stopped and counted as a draw.
+- **Trial rule changes:** switches on the start screen and in Simulation, all off by default (off = the printed rulebook): one card each on the first turn, no push on the first turn, the second player's first cards not beside the center, hold the center for 3 opponent turns, and an instant win when you line up 3 of your own mechs in a row or column. Each replay shows which were on.
+- **Bots** never move their own card off the field, move the card holding the center, or break a line one flag from done, unless the move wins.
 
 Full rules: `game/urban-warfare/rulebook.md`.

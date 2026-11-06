@@ -4,6 +4,7 @@ import { Button, IconButton } from '@/ui/components/ui/button'
 import { downloadBlob } from '@/ui/actions/download'
 import { deleteUrbanReplay, listUrbanReplays } from '@/playtest/library'
 import { seatName, type UwReplay } from '@/urban/replay'
+import { rulesLabel } from '@/urban/state'
 
 /** Saved Urban Warfare matches: open one to watch it, export or delete it. */
 export function UrbanReplays({
@@ -48,7 +49,8 @@ export function UrbanReplays({
                 {seatName(r, 0)} vs {seatName(r, 1)}
               </span>
               <span className="block text-xs text-muted-foreground">
-                {result(r)} · {r.moves.length} moves · {new Date(r.savedAt).toLocaleString()}
+                {result(r)} · {r.moves.length} moves · {rulesLabel(r.start.rules)} ·{' '}
+                {new Date(r.savedAt).toLocaleString()}
               </span>
             </button>
             <IconButton
