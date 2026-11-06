@@ -44,3 +44,4 @@ Earlier PRs (#1–#48) used the 0.1.0 alpha line and are unchanged.
 | #78 | Urban Warfare rulebook v1.2: instant Battleline, hold 3 | 0.8.16-beta | 0.8.16-beta | no |
 | #79 | Card images rounded corners; print corner guides, bleed fix, rename and tab fixes | 0.8.17-beta | 0.8.17-beta | no |
 | — | Urban Warfare rulebook v1.3 (passing no longer ends the game), Battlelines and combined rulebooks | 0.8.18-beta | 0.8.18-beta | no |
+| — | Folded print rulebook (both modes), rulebook intro from the owner | 0.8.19-beta | 0.8.19-beta | no |

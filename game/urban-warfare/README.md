@@ -21,6 +21,7 @@ A pack whose cards have `Ability_UW` opens as Urban Warfare. Each player is deal
 
 ## Changelog
 
+- **2026-11-06, rulebook intro and print:** owner's lore and mode descriptions added to `game/rulebook.md` (no rule changes); folded A4 print rulebook in `game/rulebook-print/`.
 - **2026-11-06, Rulebook v1.3:** rulebook rewritten in plain language; passing no longer ends the game (Attrition only when both hands are empty). Wins named Battleline, Objective and Attrition Victory; one shared discard pile. Sim (1000 Normal bot games): first player won 45%, 3% draws (16 hit the move cap).
 - **2026-11-06, Rulebook v1.2:** Battleline wins at once on your own turn, and the Objective win needs the center held through 3 opponent turns (was 2). From the owner's simulation runs: first player wins went from 42% to 47%, with 1% draws.
 - **2026-11-06, Rulebook v1.1:** the push chain follows firepower (each card pushes the next; enemy cards need equal or higher firepower). Fighter-Bomber becomes an action card from the hand that removes any enemy card, with an explosion on the table.
