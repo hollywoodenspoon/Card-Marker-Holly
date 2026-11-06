@@ -8,6 +8,8 @@ import { useLayout } from '@/ui/shell/useLayout'
 import { HowToPlay } from './HowToPlay'
 import { Library } from './Library'
 import { GameView } from './table/GameView'
+import { UrbanView } from './urban/UrbanView'
+import { isUrbanPack } from '@/urban/cards'
 import { openPack, PackProvider, type OpenPack } from './table/packContext'
 import { usePlaytest } from './table/usePlaytest'
 import { useGameAutosave } from './useGameAutosave'
@@ -139,7 +141,11 @@ export function App() {
     <>
       {open ? (
         <PackProvider value={open}>
-          <GameView phone={phone} onBack={back} onHelp={() => setHelp(true)} />
+          {isUrbanPack(open.info.cards) ? (
+            <UrbanView phone={phone} onBack={back} onHelp={() => setHelp(true)} />
+          ) : (
+            <GameView phone={phone} onBack={back} onHelp={() => setHelp(true)} />
+          )}
         </PackProvider>
       ) : (
         <Library

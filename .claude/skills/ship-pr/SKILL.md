@@ -12,4 +12,5 @@ description: Finish a milestone or PR in Card Maker — commit, test the app you
    - Most PRs bump the last number (0.8.0-beta → 0.8.1-beta): fixes, updates to features already built, and features still under construction.
    - Only a major update bumps the middle one (→ 0.9.0-beta), and the owner decides what counts as major.
    - See DECISIONS.md.
-5. Start the PR title with the version, e.g. "v0.3.1-beta: …".
+5. If you added, moved or renamed files, update that folder's `CLAUDE.md` map.
+6. Start the PR title with the version, e.g. "v0.3.1-beta: …".
