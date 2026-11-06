@@ -24,7 +24,7 @@ body{font-family:InterR,sans-serif;color:var(--ink);-webkit-print-color-adjust:e
 .bgart{position:absolute;width:62mm;right:-12mm;bottom:-4mm;opacity:.09;filter:grayscale(1);pointer-events:none}
 .bgart.comic{left:0;top:0;right:auto;bottom:auto;width:100%;height:100%;object-fit:cover;opacity:.3;filter:none;-webkit-mask-image:linear-gradient(to bottom,transparent,#000 20%,#000 80%,transparent);mask-image:linear-gradient(to bottom,transparent,#000 20%,#000 80%,transparent)}
 .cover{overflow:visible}
-.cover .coverimg{position:absolute;left:-3mm;top:-3mm;width:60mm;height:88mm;object-fit:contain;object-position:50% 40%;background:#aa0000;padding:6mm 4mm 9mm;box-sizing:border-box}
+.cover .coverimg{position:absolute;left:-3mm;top:-3mm;width:60mm;height:88mm;object-fit:contain;object-position:50% 40%;background:#fff;padding:6mm 4mm 9mm;box-sizing:border-box}
 .no{position:absolute;right:3.8mm;bottom:2.2mm;font:700 9pt/1 Oswald;color:var(--red)}
 .mode{position:absolute;left:3.8mm;bottom:2.5mm;font:500 5.5pt/1 Oswald;letter-spacing:.12em;text-transform:uppercase;color:#888}
 .mode::before{content:"";display:inline-block;width:4mm;height:.35mm;background:var(--red);vertical-align:middle;margin-right:1.2mm}
@@ -69,17 +69,17 @@ td:first-child{font-weight:600;white-space:nowrap}tr:has(+tr td.what) td{border-
 .ex{border-left:.5mm solid var(--red);padding-left:1.6mm}
 .reg{position:absolute;top:145.5mm}
 .reg svg{overflow:visible}.reg circle,.reg line{fill:none;stroke:#000;stroke-width:.2}
-.redbg{position:absolute;inset:-3mm;background:#a80000}
+.redbg{position:absolute;inset:-3mm;background:#fff}
 .bc{position:absolute;inset:6mm 4mm;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4mm}
 .bc img{width:32mm}.bc img.vw{width:16mm;margin-top:3mm}
-.bcmode{font:500 6.5pt/1 Oswald;letter-spacing:.2em;text-transform:uppercase;color:#fff}
-.covertag{position:absolute;left:0;right:0;bottom:4.5mm;text-align:center;font:500 5.4pt/1 Oswald;letter-spacing:.18em;text-transform:uppercase;color:#fff}
+.bcmode{font:500 6.5pt/1 Oswald;letter-spacing:.2em;text-transform:uppercase;color:#aa0000}
+.covertag{position:absolute;left:0;right:0;bottom:4.5mm;text-align:center;font:500 5.4pt/1 Oswald;letter-spacing:.18em;text-transform:uppercase;color:#aa0000}
 .small{font-size:6pt;color:#555}.cont{font-weight:500;color:#999;font-size:6pt;letter-spacing:.1em}
 td.what{font-weight:400;white-space:normal;text-align:left!important;color:#333;padding-top:0}
-.ig{display:flex;align-items:center;justify-content:center;gap:1.2mm;margin-top:2mm;color:#fff;font:600 7pt/1 InterR}
+.ig{display:flex;align-items:center;justify-content:center;gap:1.2mm;margin-top:2mm;color:#aa0000;font:600 7pt/1 InterR}
 .note{position:absolute;top:7.5mm;width:4mm;writing-mode:vertical-rl;font:400 5pt/1 InterR;color:#777;white-space:nowrap}
 </style></head><body>
-<div class="page"><section class="panel cover" style="left:119mm;top:-0.5mm;transform:rotate(90deg);clip-path:inset(-3mm 0 0 -3mm)"><img class="coverimg" src="assets/card-back.png" alt=""></section><section class="panel" style="left:119mm;top:53.5mm;transform:rotate(90deg);clip-path:inset(-3mm 0 0 0)"><img class="bgart comic" src="assets/comic-page06.png" style="object-position:50% 50%;opacity:.15;object-fit:contain;-webkit-mask-image:none;mask-image:none" alt="">
+<div class="page"><section class="panel cover" style="left:119mm;top:-0.5mm;transform:rotate(90deg);clip-path:inset(-3mm 0 0 -3mm)"><img class="coverimg" src="assets/card-back-white.png" alt=""></section><section class="panel" style="left:119mm;top:53.5mm;transform:rotate(90deg);clip-path:inset(-3mm 0 0 0)"><img class="bgart comic" src="assets/comic-page06.png" style="object-position:50% 50%;opacity:.15;object-fit:contain;-webkit-mask-image:none;mask-image:none" alt="">
 <div class="body">
 <h1>Battleline:<br>Mech Wars</h1><div class="kicker">Urban Warfare Edition</div>
 <p>This is an era of civil war for the Republic of Ria, Warlord-Generals reign supreme fighting for territory and resources of the once great nation. From the fields of Rianth, shadowed by the worldblood spires to the ancient city of Rianz, Battleline Mechs march, bombs fall, and the nation bleeds.</p>
@@ -99,7 +99,7 @@ td.what{font-weight:400;white-space:normal;text-align:left!important;color:#333;
 <div class="mode">Battlelines</div><div class="body">
 <h2>Card types</h2><p>There are 4 card types:</p>
 <div class="ct"><img class="mini" style="width:8mm" src="assets/card-fighter-bomber.png" alt=""><p><b>Fighter Bomber</b> – When this card is placed on a battleline, the latest card on the opponent's battleline is turned face down. A face-down card generates 0 Firepower, has no type and has no effects. (Firepower added by a Logistics Mech still applies to it.)</p></div>
-<div class="ct"><img class="mini" style="width:8mm" src="assets/card-logistics.png" alt=""><p><b>Logistics Mech</b> – Generates 1 Firepower. When a card is placed after this card on the battleline, this card gives that card 2 additional Firepower.</p></div></div><div class="no">4</div></section><section class="panel rot cover" style="left:37mm;top:-0.5mm;transform:rotate(270deg);clip-path:inset(-3mm -3mm 0 0)"><div class="redbg"></div><div class="bc"><img src="assets/logo-game.png" alt=""><div class="bcmode"></div><img class="vw" src="assets/logo-village-wizard.png" alt=""><div class="ig"><svg viewBox="0 0 24 24" width="3.2mm" height="3.2mm" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r="1" fill="currentColor" stroke="none"/></svg><span>@village.wizard</span></div></div></section><section class="panel rot" style="left:37mm;top:53.5mm;transform:rotate(270deg);clip-path:inset(-3mm 0 0 0)"><img class="bgart" src="assets/mech-advanced.png" style="object-position:50% 50%" alt="">
+<div class="ct"><img class="mini" style="width:8mm" src="assets/card-logistics.png" alt=""><p><b>Logistics Mech</b> – Generates 1 Firepower. When a card is placed after this card on the battleline, this card gives that card 2 additional Firepower.</p></div></div><div class="no">4</div></section><section class="panel rot cover" style="left:37mm;top:-0.5mm;transform:rotate(270deg);clip-path:inset(-3mm -3mm 0 0)"><div class="redbg"></div><div class="bc"><img src="assets/logo-game-red.png" alt=""><div class="bcmode"></div><img class="vw" src="assets/logo-village-wizard-red.png" alt=""><div class="ig"><svg viewBox="0 0 24 24" width="3.2mm" height="3.2mm" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r="1" fill="currentColor" stroke="none"/></svg><span>@village.wizard</span></div></div></section><section class="panel rot" style="left:37mm;top:53.5mm;transform:rotate(270deg);clip-path:inset(-3mm 0 0 0)"><img class="bgart" src="assets/mech-advanced.png" style="object-position:50% 50%" alt="">
 <div class="mode">Battlelines</div><div class="body">
 <h2>Gameplay <span class="cont">continued</span></h2><ol start="6">
 <li>Players take turns playing one card at a time, attempting to match or exceed the opponent's total Firepower.</li>
@@ -136,7 +136,7 @@ td.what{font-weight:400;white-space:normal;text-align:left!important;color:#333;
 <h2>Next round</h2><ol start="9">
 <li>For the next round, the last 2 cards on both players' Battlelines remain on the field, keeping their face-up or face-down state, and determine who goes first (lower Firepower goes first; gameplay rule 5 applies). All other cards are reshuffled to form a new deck.</li>
 </ol>
-<div class="box"><p class="or">Remember</p><p>Win 3 rounds to win the game.</p></div></div><div class="no">9</div></section><section class="panel cover" style="left:37mm;top:161.5mm;transform:rotate(-90deg);clip-path:inset(-3mm 0 0 0)"><div class="redbg"></div><div class="bc"><img src="assets/logo-game.png" alt=""><div class="bcmode">Urban Warfare</div><img class="vw" src="assets/logo-village-wizard.png" alt=""></div></section><section class="panel" style="left:37mm;top:107.5mm;transform:rotate(-90deg);clip-path:inset(-3mm 0 0 0)"><img class="bgart comic" src="assets/comic-city.png" style="object-position:50% 50%" alt="">
+<div class="box"><p class="or">Remember</p><p>Win 3 rounds to win the game.</p></div></div><div class="no">9</div></section><section class="panel cover" style="left:37mm;top:161.5mm;transform:rotate(-90deg);clip-path:inset(-3mm 0 0 0)"><div class="redbg"></div><div class="bc"><img src="assets/logo-game-red.png" alt=""><div class="bcmode">Urban Warfare</div><img class="vw" src="assets/logo-village-wizard-red.png" alt=""></div></section><section class="panel" style="left:37mm;top:107.5mm;transform:rotate(-90deg);clip-path:inset(-3mm 0 0 0)"><img class="bgart comic" src="assets/comic-city.png" style="object-position:50% 50%" alt="">
 <div class="mode">Urban Warfare</div><div class="body">
 <h1 class="u">Urban Warfare</h1>
 <h2>What you need</h2><p>18 cards. Each player gets the same 9:</p>

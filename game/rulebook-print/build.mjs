@@ -25,7 +25,7 @@ const card = (name, { flip = false, down = false, w = 9 } = {}) =>
 // ---- panel content ----
 // Written as two strips (one per mode); dealt onto the map-fold sheet below.
 const IG = `<svg viewBox="0 0 24 24" width="3.2mm" height="3.2mm" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r="1" fill="currentColor" stroke="none"/></svg>`;
-const backCover = (mode, social = false) => ({ cls: 'cover', html: `<div class="redbg"></div><div class="bc"><img src="assets/logo-game.png" alt=""><div class="bcmode">${mode}</div><img class="vw" src="assets/logo-village-wizard.png" alt="">${social ? `<div class="ig">${IG}<span>@village.wizard</span></div>` : ''}</div>` });
+const backCover = (mode, social = false) => ({ cls: 'cover', html: `<div class="redbg"></div><div class="bc"><img src="assets/logo-game-red.png" alt=""><div class="bcmode">${mode}</div><img class="vw" src="assets/logo-village-wizard-red.png" alt="">${social ? `<div class="ig">${IG}<span>@village.wizard</span></div>` : ''}</div>` });
 const P = (bg, mode, html) => ({ bg, mode, html });
 const field = (cells) => `<div class="field">${cells.map((c, i) => `<div class="cell${i === 4 ? ' center' : ''}"><span class="zn">${i + 1}</span>${c ? card(c[0], { flip: c[1] === 2, w: 7.4 }) : ''}</div>`).join('')}</div>`;
 
@@ -33,7 +33,7 @@ const BL = 'Battlelines', UW = 'Urban Warfare';
 const strips = [
   {
     front: [
-      { cls: 'cover', html: `<img class="coverimg" src="assets/card-back.png" alt="">` },
+      { cls: 'cover', html: `<img class="coverimg" src="assets/card-back-white.png" alt="">` },
       P('comic-page06', '', `
 <h1>Battleline:<br>Mech Wars</h1><div class="kicker">Urban Warfare Edition</div>
 <p>This is an era of civil war for the Republic of Ria, Warlord-Generals reign supreme fighting for territory and resources of the once great nation. From the fields of Rianth, shadowed by the worldblood spires to the ancient city of Rianz, Battleline Mechs march, bombs fall, and the nation bleeds.</p>
@@ -243,7 +243,7 @@ body{font-family:InterR,sans-serif;color:var(--ink);-webkit-print-color-adjust:e
 .bgart{position:absolute;width:62mm;right:-12mm;bottom:-4mm;opacity:.09;filter:grayscale(1);pointer-events:none}
 .bgart.comic{left:0;top:0;right:auto;bottom:auto;width:100%;height:100%;object-fit:cover;opacity:.3;filter:none;-webkit-mask-image:linear-gradient(to bottom,transparent,#000 20%,#000 80%,transparent);mask-image:linear-gradient(to bottom,transparent,#000 20%,#000 80%,transparent)}
 .cover{overflow:visible}
-.cover .coverimg{position:absolute;left:-${BLEED}mm;top:-${BLEED}mm;width:${PANEL_W + 2 * BLEED}mm;height:${PANEL_H + 2 * BLEED}mm;object-fit:contain;object-position:50% 40%;background:#aa0000;padding:6mm 4mm 9mm;box-sizing:border-box}
+.cover .coverimg{position:absolute;left:-${BLEED}mm;top:-${BLEED}mm;width:${PANEL_W + 2 * BLEED}mm;height:${PANEL_H + 2 * BLEED}mm;object-fit:contain;object-position:50% 40%;background:#fff;padding:6mm 4mm 9mm;box-sizing:border-box}
 .no{position:absolute;right:3.8mm;bottom:2.2mm;font:700 9pt/1 Oswald;color:var(--red)}
 .mode{position:absolute;left:3.8mm;bottom:2.5mm;font:500 5.5pt/1 Oswald;letter-spacing:.12em;text-transform:uppercase;color:#888}
 .mode::before{content:"";display:inline-block;width:4mm;height:.35mm;background:var(--red);vertical-align:middle;margin-right:1.2mm}
@@ -288,14 +288,14 @@ td:first-child{font-weight:600;white-space:nowrap}tr:has(+tr td.what) td{border-
 .ex{border-left:.5mm solid var(--red);padding-left:1.6mm}
 .reg{position:absolute;top:${PAGE_H / 2 - 3}mm}
 .reg svg{overflow:visible}.reg circle,.reg line{fill:none;stroke:#000;stroke-width:.2}
-.redbg{position:absolute;inset:-3mm;background:#a80000}
+.redbg{position:absolute;inset:-3mm;background:#fff}
 .bc{position:absolute;inset:6mm 4mm;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4mm}
 .bc img{width:32mm}.bc img.vw{width:16mm;margin-top:3mm}
-.bcmode{font:500 6.5pt/1 Oswald;letter-spacing:.2em;text-transform:uppercase;color:#fff}
-.covertag{position:absolute;left:0;right:0;bottom:4.5mm;text-align:center;font:500 5.4pt/1 Oswald;letter-spacing:.18em;text-transform:uppercase;color:#fff}
+.bcmode{font:500 6.5pt/1 Oswald;letter-spacing:.2em;text-transform:uppercase;color:#aa0000}
+.covertag{position:absolute;left:0;right:0;bottom:4.5mm;text-align:center;font:500 5.4pt/1 Oswald;letter-spacing:.18em;text-transform:uppercase;color:#aa0000}
 .small{font-size:6pt;color:#555}.cont{font-weight:500;color:#999;font-size:6pt;letter-spacing:.1em}
 td.what{font-weight:400;white-space:normal;text-align:left!important;color:#333;padding-top:0}
-.ig{display:flex;align-items:center;justify-content:center;gap:1.2mm;margin-top:2mm;color:#fff;font:600 7pt/1 InterR}
+.ig{display:flex;align-items:center;justify-content:center;gap:1.2mm;margin-top:2mm;color:#aa0000;font:600 7pt/1 InterR}
 .note{position:absolute;top:${BOX_Y + 4}mm;width:4mm;writing-mode:vertical-rl;font:400 5pt/1 InterR;color:#777;white-space:nowrap}
 `;
 
