@@ -2,8 +2,6 @@
 
 _Urban Warfare game mode rules (the newer mode). For the original mode, see Battlelines._
 
-_A 1v1 game of shoving mechs around a city block. Rulebook v1.3._
-
 ## What you need
 18 cards. Each player gets the same 9:
 

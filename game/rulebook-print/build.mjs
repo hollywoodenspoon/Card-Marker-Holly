@@ -40,10 +40,9 @@ const strips = [
       P('mech-logistics', '', `
 <h2>Two ways to fight</h2>
 <p>In <b>Battlelines</b> you are commanding your army to form a battleline to match or exceed your opponent to push them back and eventually rout them.</p>
-<p>In <b>Urban Warfare</b> you are commanding a company trying to take the center of the city district you are assigned to capture. Move your forces in the city but be careful, enemies could be anywhere and push you out before you know it.</p>
-<p class="em small">This booklet: Battlelines. The second booklet: Urban Warfare.</p>`),
-      P('mech-fighter-bomber', BL, `
-<h1 class="u">Battlelines</h1><div class="kicker">The original game mode</div>
+<p>In <b>Urban Warfare</b> you are commanding a company trying to take the center of the city district you are assigned to capture. Move your forces in the city but be careful, enemies could be anywhere and push you out before you know it.</p>`),
+      P('comic-formation', BL, `
+<h1 class="u">Battlelines</h1>
 <div class="box"><h2>Objective</h2>
 <p>Win 3 rounds to win the game.</p>
 <p>To win a round, a player must have a total Firepower that the opponent cannot match or exceed on their turn.</p>
@@ -93,10 +92,9 @@ const strips = [
   },
   {
     front: [
-      { cls: 'cover', html: `<img class="coverimg" src="assets/card-back.png" alt="">` },
-      P('mech-logistics', UW, `
-<h1 class="u">Urban Warfare</h1><div class="kicker">Rulebook v1.3</div>
-<p class="em">A 1v1 game of shoving mechs around a city block.</p>
+      backCover(UW),
+      P('comic-city', UW, `
+<h1 class="u">Urban Warfare</h1>
 <h2>What you need</h2><p>18 cards. Each player gets the same 9:</p>
 <table><tr><th>Card</th><th>#</th><th>FP</th></tr>
 <tr><td>Battleline Mech</td><td>3</td><td>2</td></tr><tr><td colspan="3" class="what">Get three of these in a straight line to win.</td></tr>
@@ -118,7 +116,7 @@ ${field([['battleline', 2], null, ['logistics', 2], null, ['advanced', 1], ['bat
 <li>The second player places 2 cards.</li></ol>
 <p>On these first turns you must place; you can't move, bomb or pass.</p>
 <h2>Turn order</h2><p>After the first turns, players take turns one after the other: first player, second player, first player, and so on, until someone wins.</p>`),
-      P('mech-advanced', UW, `
+      P('comic-bomber', UW, `
 <h2>On your turn</h2><p>Do <b>one</b> of these:</p><ul class="dash">
 <li><b>Place</b> a card from your hand on any outside square (not the center).</li>
 <li><b>Move</b> one of your cards on the field one square up, down, left or right. You may move it off the field.</li>
@@ -126,7 +124,7 @@ ${field([['battleline', 2], null, ['logistics', 2], null, ['advanced', 1], ['bat
 <li><b>Pass.</b></li></ul>`),
     ],
     back: [
-      P('mech-fighter-bomber', UW, `
+      P('comic-spires', UW, `
 <h2>Pushing</h2><p>If you place or move a card onto a square that already has a card, you <b>push</b> it one square along.</p><ul class="dash">
 <li>A card placed on a side square pushes toward the center. On a corner, you pick which way.</li>
 <li>You can always push your own cards.</li>
@@ -152,7 +150,19 @@ ${field([['battleline', 2], null, ['logistics', 2], null, ['advanced', 1], ['bat
     ],
   },
 ];
-strips[1].back.push(backCover(UW));
+strips[1].back.push(backCover(''));
+
+// One rulebook: strip B is taped to the end of strip A (A's last front panel
+// edge to B's first). Reading order is then A front, B front, B back, A back,
+// so the content (written in order A front, A back, B front, B back) is
+// re-dealt into those slots. Numbers skip covers and run 1..n in reading order.
+{
+  const c = [strips[0].front, strips[0].back, strips[1].front, strips[1].back].flat();
+  strips[0].front = c.slice(0, 5); strips[1].front = c.slice(5, 10);
+  strips[1].back = c.slice(10, 15); strips[0].back = c.slice(15, 20);
+  let n = 0;
+  for (const p of [strips[0].front, strips[1].front, strips[1].back, strips[0].back].flat()) if (p.cls !== 'cover') p.no = ++n;
+}
 
 // ---- marks ----
 function marks() {
@@ -165,26 +175,26 @@ function marks() {
   return `<svg class="marks" viewBox="0 0 ${BOX_W} ${BOX_H}" width="${BOX_W}mm" height="${BOX_H}mm">${s.join('')}</svg>`;
 }
 
-function strip(panels, startNo) {
+function strip(panels) {
   return `<div class="trim">${panels.map((p, i) => {
-    const n = startNo + i, edge = i === 0 ? ' first' : i === PANELS - 1 ? ' last' : '';
+    const n = p.no, edge = i === 0 ? ' first' : i === PANELS - 1 ? ' last' : '';
     if (p.cls === 'cover') return `<section class="panel cover${edge}">${p.html}</section>`;
-    return `<section class="panel${edge}">${p.bg ? `<img class="bgart" src="assets/${p.bg}.png" alt="">` : ''}
+    return `<section class="panel${edge}">${p.bg ? `<img class="bgart${p.bg.startsWith('comic') ? ' comic' : ''}" src="assets/${p.bg}.png" alt="">` : ''}
 ${p.mode ? `<div class="mode">${p.mode}</div>` : ''}<div class="body">${p.html}</div><div class="no">${n}</div></section>`;
   }).join('')}</div>${marks()}`;
 }
 
-function page(side, startNo, isBack) {
+function page(side, isBack) {
   return `<div class="page">${STRIP_X.map((x, si) => {
     const panels = strips[si][side];
     const left = isBack ? PAGE_W - x - BOX_H : x;
     const style = isBack
       ? `left:${left}mm;top:${STRIP_Y + BOX_W}mm;transform:rotate(-90deg)`
       : `left:${left + BOX_H}mm;top:${STRIP_Y}mm;transform:rotate(90deg)`;
-    return `<div class="strip" style="${style}">${strip(panels, startNo)}</div>`;
+    return `<div class="strip" style="${style}">${strip(panels)}</div>`;
   }).join('')}
 <div class="reg"><svg viewBox="0 0 6 6" width="6mm" height="6mm"><circle cx="3" cy="3" r="1.6"/><line x1="0" y1="3" x2="6" y2="3"/><line x1="3" y1="0" x2="3" y2="6"/></svg></div>
-<div class="note">${isBack ? 'BACK' : 'FRONT'} · A4 · 100% / Actual size · flip on long edge</div></div>`;
+<div class="note">${isBack ? 'BACK' : 'FRONT'} · A4 · 100% / Actual size · flip on long edge · cut, then tape the right strip's top end to the left strip's bottom end, both sides</div></div>`;
 }
 
 const css = `
@@ -210,6 +220,7 @@ body{font-family:InterR,sans-serif;color:var(--ink);-webkit-print-color-adjust:e
 .panel::before{content:"";position:absolute;inset:-${BLEED}mm 0;background:#fff;z-index:-1}
 .panel.first::before{left:-${BLEED}mm}.panel.last::before{right:-${BLEED}mm}
 .bgart{position:absolute;width:62mm;right:-12mm;bottom:-4mm;opacity:.09;filter:grayscale(1);pointer-events:none}
+.bgart.comic{left:0;top:0;right:auto;bottom:auto;width:100%;height:100%;object-fit:cover;opacity:.08;-webkit-mask-image:linear-gradient(to bottom,transparent 15%,#000 55%,#000 85%,transparent);mask-image:linear-gradient(to bottom,transparent 15%,#000 55%,#000 85%,transparent)}
 .cover{overflow:visible}
 .cover .coverimg{position:absolute;left:-${BLEED}mm;top:-${BLEED}mm;width:${PANEL_W + BLEED}mm;height:${PANEL_H + 2 * BLEED}mm;object-fit:cover}
 .no{position:absolute;right:3.8mm;bottom:2.2mm;font:700 9pt/1 Oswald;color:var(--red)}
@@ -267,8 +278,8 @@ td.what{font-weight:400;white-space:normal;text-align:left!important;color:#333;
 `;
 
 const html = `<!doctype html><html><head><meta charset="utf-8"><title>Battleline: Mech Wars — accordion rulebook</title><style>${css}</style></head><body>
-${page('front', 1, false)}
-${page('back', 6, true)}
+${page('front', false)}
+${page('back', true)}
 </body></html>`;
 
 const htmlPath = join(here, 'rulebook-accordion.html');
