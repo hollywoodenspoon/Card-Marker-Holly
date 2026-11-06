@@ -243,7 +243,8 @@ A pack whose cards have an `Ability_UW` field (`flag`, `bomb`, `support` or `nil
 
 - Pick **You against the bot** (Easy or Normal) or **Two players, one device**, then **Start**.
 - **Place:** tap a hand card, then a green empty zone. On a zone with a card on it, tap a green arrow to push that way.
-- **Move or bomb:** tap your card on the field, then one of the arrows on its edges (a grey arrow moves it off the field), or Bomb below the field.
+- **Move:** tap your card on the field, then one of the arrows on its edges (a grey arrow moves it off the field).
+- **Bomb:** tap a Fighter-Bomber in your hand, then an enemy card (red outline). The card explodes.
 - **Buffs:** a card a Logistics Mech is buffing says Buffed, and its number shows the bonus, e.g. 3 +2 = 5.
 - **Every move is shown:** yours, the bot's and the other player's. A box above the field says each thing that happens, one at a time (at the Action speed, or tap **Next**). Cards slide when pushed, fly in from the hand, and fly off the field when pushed off. Then a banner says whose turn it is. The bot waits until this is done. Cards the last move changed keep a dashed outline.
 - **Pass** is under your hand (not on your first turn). **Undo** is at the top.

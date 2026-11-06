@@ -59,21 +59,45 @@ describe('placing and pushing', () => {
 
   it('a line is pushed through and the last card falls off', () => {
     const f = empty()
-    f[1] = piece('bomb', 1)
-    f[4] = piece('nil', 0)
-    f[7] = piece('nil', 1)
-    const s0 = mid(f, [['bomb'], ['nil']])
+    f[1] = piece('flag', 1) // 2
+    f[4] = piece('flag', 1) // 2
+    f[7] = piece('support', 0)
+    const s0 = mid(f, [['nil'], ['nil']])
     const s = apply(s0, { type: 'place', card: s0.hands[0][0].id, zone: 1, dir: 'down' })
-    expect(s.field[1]?.card.kind).toBe('bomb')
-    expect(s.field[4]?.card.kind).toBe('bomb')
-    expect(s.field[7]?.owner).toBe(0)
+    expect(s.field[1]?.card.kind).toBe('nil')
+    expect(s.field[4]?.owner).toBe(1)
+    expect(s.field[7]?.owner).toBe(1)
     expect(s.field.filter(Boolean)).toHaveLength(3)
+  })
+
+  it('each card in the chain must be able to push the enemy card in front of it', () => {
+    const f = empty()
+    f[1] = piece('support', 0) // own: pushed freely, then pushes with 1
+    f[4] = piece('flag', 1) // 2: too strong for the Logistics Mech
+    const s = mid(f, [['nil'], ['nil']])
+    expect(legalMoves(s).some((m) => m.type === 'place' && m.zone === 1)).toBe(false)
+    f[4] = piece('bomb', 1) // 0: fine
+    expect(legalMoves(mid(f)).some((m) => m.type === 'place' && m.zone === 1)).toBe(true)
+  })
+
+  it('an enemy card pushes the next enemy card freely', () => {
+    const f = empty()
+    f[1] = piece('flag', 1) // 2
+    f[4] = piece('nil', 1) // 3, same side as the flag
+    expect(legalMoves(mid(f)).some((m) => m.type === 'place' && m.zone === 1)).toBe(true)
+  })
+
+  it('a weak enemy card cannot push a strong card of yours behind it', () => {
+    const f = empty()
+    f[1] = piece('support', 1) // 1
+    f[4] = piece('nil', 0) // 3
+    expect(legalMoves(mid(f)).some((m) => m.type === 'place' && m.zone === 1)).toBe(false)
   })
 
   it('logistics counts only where the pusher stands before moving', () => {
     const f = empty()
-    f[3] = piece('bomb', 0)
-    f[0] = piece('support', 0) // adjacent to 3: bomb is 2
+    f[3] = piece('support', 0)
+    f[0] = piece('support', 0) // adjacent to 3: it is 3
     f[4] = piece('flag', 1) // 2
     const s = mid(f)
     expect(isLegal(s, { type: 'move', from: 3, dir: 'right' })).toBe(true)
@@ -88,12 +112,28 @@ describe('placing and pushing', () => {
     expect(s.field.every((p) => p === null)).toBe(true)
   })
 
-  it('bomb removes itself and an adjacent card', () => {
+  it('a Fighter-Bomber from the hand removes any enemy card', () => {
     const f = empty()
-    f[3] = piece('bomb', 0)
-    f[4] = piece('nil', 1)
-    const s = apply(mid(f), { type: 'bomb', from: 3, target: 4 })
-    expect(s.field.every((p) => p === null)).toBe(true)
+    f[8] = piece('nil', 1)
+    f[0] = piece('flag', 0)
+    const s0 = mid(f, [['bomb', 'nil'], ['nil']])
+    const bombs = legalMoves(s0).filter((m) => m.type === 'bomb')
+    expect(bombs.map((m) => m.type === 'bomb' && m.target)).toEqual([8])
+    expect(legalMoves(s0).some((m) => m.type === 'place' && s0.hands[0][0].id === m.card)).toBe(
+      false,
+    )
+    const s = apply(s0, { type: 'bomb', card: s0.hands[0][0].id, target: 8 })
+    expect(s.field[8]).toBeNull()
+    expect(s.hands[0].map((c) => c.kind)).toEqual(['nil'])
+    expect(s.discard[0].map((c) => c.kind)).toEqual(['bomb'])
+    expect(s.turn).toBe(1)
+  })
+
+  it('no bombing on the first turn', () => {
+    const f = empty()
+    f[8] = piece('nil', 1)
+    const s = { ...mid(f, [['bomb', 'nil'], ['nil']]), turnsTaken: [0, 1] as [number, number] }
+    expect(legalMoves(s).some((m) => m.type === 'bomb')).toBe(false)
   })
 })
 

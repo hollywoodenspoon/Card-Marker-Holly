@@ -70,7 +70,13 @@ export function UrbanView({
   const s = history[history.length - 1]
   const prev = history[history.length - 2]
 
-  useUrbanMotion(rootRef, history.length, shown?.dir ?? null, rush)
+  useUrbanMotion(
+    rootRef,
+    history.length,
+    shown?.dir ?? null,
+    rush,
+    !!shown?.lines[0]?.includes(' bombs '),
+  )
 
   const start = () => {
     const first = (Math.random() < 0.5 ? 0 : 1) as Seat
@@ -226,6 +232,7 @@ export function UrbanView({
 
   // Moves for the current pick.
   const sameCard = (m: UwMove, c: UwCard) => {
+    if (m.type === 'bomb') return c.kind === 'bomb'
     if (m.type !== 'place') return false
     const mc = s.hands[s.turn].find((x) => x.id === m.card)
     return !!mc && mc.kind === c.kind && mc.fp === c.fp
@@ -234,13 +241,16 @@ export function UrbanView({
     pick && 'hand' in pick
       ? legal
           .filter((m) => sameCard(m, pick.hand))
-          .map((m) => (m.type === 'place' ? { ...m, card: pick.hand.id } : m))
+          .map((m) => (m.type === 'place' || m.type === 'bomb' ? { ...m, card: pick.hand.id } : m))
       : pick && 'zone' in pick
-        ? legal.filter((m) => (m.type === 'move' || m.type === 'bomb') && m.from === pick.zone)
+        ? legal.filter((m) => m.type === 'move' && m.from === pick.zone)
         : []
-  // Empty zones a hand card can go to: tap the zone.
+  // Zones to tap: empty zones a hand card can go to, or enemy cards a Fighter-Bomber can hit.
   const zoneTargets = (z: number) =>
-    pickMoves.filter((m) => m.type === 'place' && m.zone === z && !m.dir)
+    pickMoves.filter(
+      (m) =>
+        (m.type === 'place' && m.zone === z && !m.dir) || (m.type === 'bomb' && m.target === z),
+    )
   // Arrows on a zone's edges: moves of the picked field card, or pushes of the picked hand card.
   const zoneArrows = (z: number): { dir: Dir; move: UwMove }[] =>
     pickMoves.flatMap((m) =>
@@ -257,11 +267,7 @@ export function UrbanView({
     if (t.length === 1) return play(t[0])
     if (zoneArrows(z).length > 0 && pick && 'hand' in pick) return // choose an arrow
     const p = s.field[z]
-    if (
-      p &&
-      p.owner === s.turn &&
-      legal.some((m) => (m.type === 'move' || m.type === 'bomb') && m.from === z)
-    )
+    if (p && p.owner === s.turn && legal.some((m) => m.type === 'move' && m.from === z))
       choose(pick && 'zone' in pick && pick.zone === z ? null : { zone: z }, at)
     else setPick(null)
   }
@@ -372,7 +378,10 @@ export function UrbanView({
                     className={cn(
                       'h-full w-full rounded-md border bg-panel',
                       z === CENTER && 'border-2 border-amber-500',
-                      target && 'outline outline-4 outline-green-500',
+                      target &&
+                        (p
+                          ? 'outline outline-4 outline-red-500'
+                          : 'outline outline-4 outline-green-500'),
                       fieldPick === z && 'outline outline-4 outline-amber-500',
                       !target &&
                         fieldPick !== z &&
@@ -444,17 +453,6 @@ export function UrbanView({
               'nobody'
             )}
           </p>
-          {fieldPick !== null && (
-            <div className="flex flex-wrap justify-center gap-2">
-              {pickMoves.map((m, i) =>
-                m.type === 'bomb' ? (
-                  <Button key={i} size="sm" variant="danger" onClick={() => play(m)}>
-                    Bomb{m.target !== undefined ? ` + zone ${m.target + 1}` : ' (alone)'}
-                  </Button>
-                ) : null,
-              )}
-            </div>
-          )}
         </div>
         <div className="flex w-full max-w-md flex-col gap-2">
           <h2 className={cn('text-sm font-semibold', SEAT_TEXT[viewer])}>

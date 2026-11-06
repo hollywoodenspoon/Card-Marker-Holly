@@ -56,11 +56,24 @@ export function strength(field: (Piece | null)[], z: number): number {
   return fp
 }
 
-/** Can a card of `owner` with firepower `fp` push into zone `to` in `dir`? */
-function canPush(field: (Piece | null)[], owner: Seat, fp: number, to: number): boolean {
-  const first = field[to]
-  if (!first || first.owner === owner) return true
-  return fp >= strength(field, to)
+/**
+ * Can a card of `owner` with firepower `fp` push the line starting at `to` in `dir`?
+ * Each card pushes the next one: a card of the same side goes freely, an enemy card
+ * needs the pushing card's firepower to be equal or higher (Logistics bonuses count).
+ */
+function canPush(field: (Piece | null)[], owner: Seat, fp: number, to: number, dir: Dir): boolean {
+  let z: number | null = to
+  let side = owner
+  let power = fp
+  while (z !== null && field[z]) {
+    const p: Piece = field[z]!
+    const s = strength(field, z)
+    if (p.owner !== side && power < s) return false
+    side = p.owner
+    power = s
+    z = step(z, dir)
+  }
+  return true
 }
 
 /** Shift the line starting at `to` one zone in `dir`; the last card may fall off. Returns removed pieces. */
@@ -115,6 +128,7 @@ export function createGame(hands: [UwCard[], UwCard[]], first: Seat): UwState {
     turnsTaken: [0, 0],
     placementsLeft: 1,
     passes: 0,
+    discard: [[], []],
     centerHold: null,
     winner: null,
     reason: null,
@@ -128,7 +142,16 @@ export function legalMoves(s: UwState): UwMove[] {
   const me = s.turn
   const moves: UwMove[] = []
   const seen = new Set<string>()
+  const firstTurn = s.turnsTaken[me] === 0
   for (const c of s.hands[me]) {
+    if (c.kind === 'bomb') {
+      // Fighter-Bomber: an action from the hand, never placed.
+      if (firstTurn || moves.some((m) => m.type === 'bomb')) continue
+      for (let z = 0; z < 9; z++)
+        if (s.field[z] && s.field[z]!.owner !== me)
+          moves.push({ type: 'bomb', card: c.id, target: z })
+      continue
+    }
     const key = `${c.kind}:${c.fp}`
     if (seen.has(key)) continue
     seen.add(key)
@@ -137,10 +160,10 @@ export function legalMoves(s: UwState): UwMove[] {
       if (!s.field[z]) moves.push({ type: 'place', card: c.id, zone: z })
       else
         for (const dir of placeDirs(z))
-          if (canPush(s.field, me, c.fp, z)) moves.push({ type: 'place', card: c.id, zone: z, dir })
+          if (canPush(s.field, me, c.fp, z, dir))
+            moves.push({ type: 'place', card: c.id, zone: z, dir })
     }
   }
-  const firstTurn = s.turnsTaken[me] === 0
   if (firstTurn) return moves
   for (let z = 0; z < 9; z++) {
     const p = s.field[z]
@@ -148,12 +171,8 @@ export function legalMoves(s: UwState): UwMove[] {
     const fp = strength(s.field, z)
     for (const dir of DIRS) {
       const to = step(z, dir)
-      if (to === null || canPush(s.field, me, fp, to)) moves.push({ type: 'move', from: z, dir })
-    }
-    if (p.card.kind === 'bomb') {
-      moves.push({ type: 'bomb', from: z })
-      for (const n of neighbours(z))
-        if (s.field[n]) moves.push({ type: 'bomb', from: z, target: n })
+      if (to === null || canPush(s.field, me, fp, to, dir))
+        moves.push({ type: 'move', from: z, dir })
     }
   }
   moves.push({ type: 'pass' })
@@ -173,6 +192,10 @@ export function isLegal(s: UwState, m: UwMove): boolean {
       return lc.kind === card.kind && lc.fp === card.fp
     })
   }
+  if (m.type === 'bomb') {
+    const card = s.hands[s.turn].find((c) => c.id === m.card)
+    return card?.kind === 'bomb' && legal.some((l) => l.type === 'bomb' && l.target === m.target)
+  }
   return legal.some((l) => JSON.stringify(l) === JSON.stringify(m))
 }
 
@@ -182,6 +205,7 @@ function clone(s: UwState): UwState {
     field: s.field.slice(),
     hands: [s.hands[0].slice(), s.hands[1].slice()],
     turnsTaken: [s.turnsTaken[0], s.turnsTaken[1]],
+    discard: [s.discard[0].slice(), s.discard[1].slice()],
     centerHold: s.centerHold ? { ...s.centerHold } : null,
     log: s.log.slice(),
   }
@@ -220,15 +244,14 @@ export function apply(prev: UwState, m: UwMove): UwState {
     }
     s.passes = 0
   } else if (m.type === 'bomb') {
-    const bomber = s.field[m.from]!
-    s.field[m.from] = null
-    let text = `${who}'s ${bomber.card.name} bombs`
-    if (m.target !== undefined) {
-      const t = s.field[m.target]!
-      s.field[m.target] = null
-      text += `, removing P${t.owner + 1}'s ${t.card.name}`
-    }
-    s.log.push(`${text}.`)
+    const i = s.hands[me].findIndex((c) => c.id === m.card)
+    const [bomber] = s.hands[me].splice(i, 1)
+    s.discard[me].push(bomber)
+    const t = s.field[m.target]!
+    s.field[m.target] = null
+    s.log.push(
+      `${who}'s ${bomber.name} bombs P${t.owner + 1}'s ${t.card.name} on ${zoneName(m.target)}.`,
+    )
     s.passes = 0
   } else {
     s.passes += 1

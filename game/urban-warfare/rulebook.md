@@ -1,6 +1,6 @@
 # Battleline: Mech Wars — Urban Warfare (1v1)
 
-**Rulebook v1.0.** *Urban Warfare is the second game mode of Battleline: Mech Wars (Urban Warfare Edition). The original mode is Battlelines.*
+**Rulebook v1.1.** *Urban Warfare is the second game mode of Battleline: Mech Wars (Urban Warfare Edition). The original mode is Battlelines.*
 
 ## Setup
 - 18 cards in total. Each player gets half of each type, so **9 cards**: 3 Battleline Mech, 2 Advanced Mech, 2 Logistics Mech and 2 Fighter-Bomber.
@@ -23,13 +23,13 @@
 | Battleline Mech | 6 | 2 | If you have 3 of these in a row (horizontal or vertical) when your opponent ends their turn, you win. |
 | Advanced Mech | 4 | 3 | None. |
 | Logistics Mech | 4 | 1 | +2 firepower to each adjacent card you own, while they stay adjacent. Several Logistics Mechs stack. |
-| Fighter-Bomber | 4 | 0 | Remove this card from the game, and you may also remove one adjacent card (any owner). |
+| Fighter-Bomber | 4 | — | An action card, never placed on the field. Play it from your hand to remove any one enemy card on the field, then it goes to your discard pile. |
 
 ## Your turn
 Take **one action**:
 1. **Place** a card from your hand.
 2. **Move** a card you own on the field one zone.
-3. **Bomb** with a Fighter-Bomber you own on the field. This is your action for the turn, so a Fighter-Bomber is placed on one turn and can bomb on a later turn.
+3. **Bomb:** play a Fighter-Bomber from your hand to remove any enemy card on the field (not on your first turn).
 4. **Pass** (not on your first turn).
 
 An action that can't legally happen is illegal; choose another.
@@ -49,10 +49,10 @@ An action that can't legally happen is illegal; choose another.
 - The pushing card's firepower is checked **where it stands before it moves**: a Logistics +2 counts only if the Logistics Mech is adjacent at that moment.
 - If the card directly in the way is **yours**, it is pushed with no firepower check.
 - If it's an **enemy** card, your pushing card's firepower must be **equal or higher** than that card's firepower (its Logistics bonuses count too).
-- Every card behind it in the line is pushed along **regardless of firepower**, yours and enemy cards alike.
+- **Push chain:** each card in the line pushes the card in front of it, with its own firepower where it stands. A card pushes a card of its own side freely; to push a card of the other side it needs **equal or higher** firepower. If any card in the line can't push the next, the whole push is illegal.
+- Example: your Advanced Mech (3) pushes an enemy Logistics Mech (1) that has your Advanced Mech (3) behind it. The Logistics Mech can't push 3, so the push is illegal.
 - Cards pushed off the field are removed from the game, your own included.
 - A push can run through the center and out the far side.
-- A Fighter-Bomber has 0 firepower, so on its own it can push only enemy cards with 0. Next to a Logistics Mech it pushes with 2.
 
 ## Winning
 1. **Battleline win:** you own 3 Battleline Mechs in a row (horizontal or vertical) when your opponent ends their turn. If both players have a line when a turn ends, the player whose turn did **not** just end wins.
@@ -64,3 +64,7 @@ An action that can't legally happen is illegal; choose another.
    - If still tied (nobody controls the center), the game is a draw.
 
 Removed cards are out of the game and count for nothing.
+
+## Changes since v1.0
+- **Push chain follows firepower:** each card in the line pushes the next one with its own firepower; pushing a card of the other side needs equal or higher firepower. Before, cards behind the first were pushed regardless of firepower.
+- **Fighter-Bomber is an action card:** played from the hand to remove any enemy card on the field, then discarded. It is never placed on the field. Before, it was placed and bombed itself plus an adjacent card on a later turn.
