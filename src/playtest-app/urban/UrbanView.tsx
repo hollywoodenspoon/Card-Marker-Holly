@@ -7,6 +7,7 @@ import { cardsFromPack, deal, missingKinds } from '@/urban/cards'
 import { apply, createGame, legalMoves, step, strength } from '@/urban/engine'
 import {
   CENTER,
+  HOLD_TURNS,
   KINDS,
   KIND_NAME,
   PER_PLAYER,
@@ -589,7 +590,7 @@ export function UrbanView({
             Center:{' '}
             {hold ? (
               <span className={SEAT_TEXT[hold.seat]}>
-                Player {hold.seat + 1}, {hold.oppTurns}/2 turns held
+                Player {hold.seat + 1}, {hold.oppTurns}/{HOLD_TURNS} turns held
               </span>
             ) : (
               'nobody'
