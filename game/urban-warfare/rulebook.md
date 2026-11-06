@@ -1,12 +1,23 @@
-# Battleline: Mech Wars — Urban Warfare (1v1)
+# Battleline: Mech Wars — Urban Warfare
 
-**Rulebook v1.2.** _Urban Warfare is the second game mode of Battleline: Mech Wars (Urban Warfare Edition). The original mode is Battlelines._
+_Urban Warfare game mode rules (the newer mode). For the original mode, see Battlelines._
 
-## Setup
+_A 1v1 game of shoving mechs around a city block. Rulebook v1.3._
 
-- 18 cards in total. Each player gets half of each type, so **9 cards**: 3 Battleline Mech, 2 Advanced Mech, 2 Logistics Mech and 2 Fighter-Bomber.
-- Your 9 cards are your **hand**. Hands are hidden, but both players know the full card list, so counting the other player's cards is allowed.
-- The **field** is a 3×3 grid; each tile is a **zone**. Two zones are **adjacent** if they touch horizontally or vertically (never diagonally).
+## What you need
+18 cards. Each player gets the same 9:
+
+| Card | How many | Firepower | What it does |
+|---|---|---|---|
+| Battleline Mech | 3 | 2 | Get three of these in a straight line to win. |
+| Advanced Mech | 2 | 3 | Your strongest pusher. |
+| Logistics Mech | 2 | 1 | Gives +2 firepower to each of your adjacent cards. |
+| Fighter-Bomber | 2 | — | Never goes on the field. Play it to destroy one enemy card. |
+
+**Firepower** is how hard a card pushes and how hard it is to push.
+
+## The field
+The field is 9 squares, 3 by 3. The middle square is the **center**.
 
 ```
 1 2 3
@@ -14,71 +25,59 @@
 7 8 9
 ```
 
-- Zone 5 is the **center**. You **control** a zone if a card you own is on it.
-- Decide randomly who goes first.
-- **First turns:** the first player must place 1 card. The second player's first turn is **2 placements**. Neither player may pass on their first turn.
+Two squares are **adjacent** if they touch on a side. Diagonals are not adjacent.
 
-## Cards
+## Starting
+1. Give each player their 9 cards. Keep your hand hidden.
+2. Pick who goes first at random.
+3. The first player places 1 card.
+4. The second player places 2 cards.
 
-| Card            | Copies | Firepower | Ability                                                                                                                                         |
-| --------------- | ------ | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| Battleline Mech | 6      | 2         | If you have 3 of these in a row (horizontal or vertical) when your opponent ends their turn, you win.                                           |
-| Advanced Mech   | 4      | 3         | None.                                                                                                                                           |
-| Logistics Mech  | 4      | 1         | +2 firepower to each adjacent card you own, while they stay adjacent. Several Logistics Mechs stack.                                            |
-| Fighter-Bomber  | 4      | —         | An action card, never placed on the field. Play it from your hand to remove any one enemy card on the field, then it goes to your discard pile. |
+On these first turns you must place; you can't move, bomb or pass.
 
-## Your turn
+## Turn order
+After the first turns, players take turns one after the other: first player, second player, first player, and so on, until someone wins.
 
-Take **one action**:
+## On your turn
+Do **one** of these:
 
-1. **Place** a card from your hand.
-2. **Move** a card you own on the field one zone.
-3. **Bomb:** play a Fighter-Bomber from your hand to remove any enemy card on the field (not on your first turn).
-4. **Pass** (not on your first turn).
+- **Place** a card from your hand on any outside square (not the center).
+- **Move** one of your cards on the field one square up, down, left or right. You may move it off the field.
+- **Bomb:** play a Fighter-Bomber and destroy any enemy card on the field.
+- **Pass.**
 
-An action that can't legally happen is illegal; choose another.
+## Pushing
+If you place or move a card onto a square that already has a card, you **push** it one square along.
 
-### Placing
+- A card placed on a side square pushes toward the center. On a corner, you pick which way.
+- You can always push your own cards.
+- To push an enemy card, your card needs **at least as much firepower** as it.
+- A push can shove a whole row. Each card has to be able to push the one in front of it, or the push isn't allowed.
+- Anything pushed off the edge is removed from the game, even your own cards.
 
-- Place only on **edge or corner zones**, never the center.
-- The card enters from outside the field. If the zone is empty, it goes there.
-- If the zone is occupied, the placed card **pushes** inward. On an edge zone it pushes toward the center. On a corner zone **you choose** which of the two inward directions.
-- While entering, the card is not on the field yet, so it pushes with its printed firepower (no Logistics bonus).
+Logistics bonus while pushing: it only counts if the Logistics Mech is already adjacent to your card before it moves. A card being placed from your hand has no bonus yet.
 
-### Moving
+_Example:_ your Advanced Mech (3) wants to push an enemy Logistics Mech (1), but your other Advanced Mech (3) is behind it. The Logistics Mech can't push a 3, so you can't make that push.
 
-- Move one zone, horizontally or vertically.
-- A card may move off the field; it is removed from the game.
-- If the destination is occupied, the moving card pushes.
+## Removed cards
+A card is **removed from the game** when it is pushed or moved off the field, destroyed by a Fighter-Bomber, or is a Fighter-Bomber that has been played. Put removed cards on the shared **discard pile**. They don't come back and score nothing.
 
-### Pushing
+## How to win
+There are three ways.
 
-- The pushing card's firepower is checked **where it stands before it moves**: a Logistics +2 counts only if the Logistics Mech is adjacent at that moment.
-- If the card directly in the way is **yours**, it is pushed with no firepower check.
-- If it's an **enemy** card, your pushing card's firepower must be **equal or higher** than that card's firepower (its Logistics bonuses count too).
-- **Push chain:** each card in the line pushes the card in front of it, with its own firepower where it stands. A card pushes a card of its own side freely; to push a card of the other side it needs **equal or higher** firepower. If any card in the line can't push the next, the whole push is illegal.
-- Example: your Advanced Mech (3) pushes an enemy Logistics Mech (1) that has your Advanced Mech (3) behind it. The Logistics Mech can't push 3, so the push is illegal.
-- Cards pushed off the field are removed from the game, your own included.
-- A push can run through the center and out the far side.
+**1. Battleline Victory.** Get three of your Battleline Mechs in a straight row or column. You win straight away.
+(If your opponent accidentally pushes your mechs into a line, you win at the end of their turn.)
 
-## Winning
+**2. Objective Victory.** Put one of your cards in the center and keep a card of yours there through your opponent's next 3 turns. You win when your next turn begins.
+If they take the center, or it ends up empty, start counting again.
 
-1. **Battleline win:** if you own 3 Battleline Mechs in a row (horizontal or vertical) at the end of your turn, or the moment you place the third one, you win **at once**. If your opponent's turn ends with a line of yours on the field (they pushed one into place), you win too. If both players have a line when a turn ends, the player whose turn it was wins.
-2. **Objective win:** a card you own takes the center, and you still control the center at the end of each of your opponent's next **3 turns**. You win **at the start of your next turn**.
-   - If the opponent takes the center, or it is left empty at the end of a turn, the count stops.
-   - Replacing your center card with another card of yours keeps the count going.
-3. **Attrition win:** the game ends when **both hands are empty** or when **both players pass in a row**. A player with an empty hand still takes turns (move, bomb or pass). Each player adds up the firepower of their cards on the field, including Logistics bonuses. The card on the center zone counts **double**. The higher total wins.
-   - If tied, the player controlling the center wins.
-   - If still tied (nobody controls the center), the game is a draw.
+**3. Attrition Victory.** When both players have no cards left in hand, the game ends and you score:
+- Add up the firepower of your cards on the field (with Logistics bonuses).
+- Your card in the center counts double.
+- Highest score wins. If it's a tie, whoever has the center wins. If nobody does, it's a draw.
 
-Removed cards are out of the game and count for nothing.
+If you run out of cards before your opponent, keep playing: move or pass until their hand is empty too.
 
-## Changes since v1.1
-
-- **Battleline wins at once:** completing your line on your own turn wins straight away. Before, the opponent got one turn to break it up.
-- **Hold the center for 3 turns:** the Objective win needs the center held through the opponent's next 3 turns, not 2. Simulation (1000 bot games each): the first player won 42% under v1.1 and 47% with both changes, with 1% draws.
-
-## Changes since v1.0
-
-- **Push chain follows firepower:** each card in the line pushes the next one with its own firepower; pushing a card of the other side needs equal or higher firepower. Before, cards behind the first were pushed regardless of firepower.
-- **Fighter-Bomber is an action card:** played from the hand to remove any enemy card on the field, then discarded. It is never placed on the field. Before, it was placed and bombed itself plus an adjacent card on a later turn.
+## Changes since v1.2
+- **Passing never ends the game.** The game ends by Attrition only when both hands are empty. Before, two passes in a row ended it.
+- Rulebook rewritten in plain language; the wins are named Battleline, Objective and Attrition Victory. Removed cards go on one shared discard pile.

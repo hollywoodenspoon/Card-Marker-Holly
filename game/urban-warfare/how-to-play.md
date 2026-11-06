@@ -5,7 +5,7 @@
 ## What you need
 
 - The 18 cards: 6 Battleline Mechs, 4 Advanced Mechs, 4 Logistics Mechs and 4 Fighter-Bombers.
-- Deal 9 to each player: 3 Battleline, 2 Advanced, 2 Logistics and 2 Fighter-Bomber. Keep your hand secret (counting cards is fine).
+- Deal 9 to each player: 3 Battleline, 2 Advanced, 2 Logistics and 2 Fighter-Bomber. Keep your hand secret.
 - Number the zones like this; zone 5 is the **center**. Zones that share a side are **adjacent**. Diagonals don't count.
 
 ```
@@ -41,9 +41,9 @@ Choose a player to go first at random. The first player places 1 card; the secon
 
 ## How to win
 
-1. **Battleline win:** line up 3 of your Battleline Mechs in a row or column on your turn and you win at once.
-2. **Objective win:** take the center and keep it through your opponent's next 3 turns. You win at the start of your next turn.
-3. **Attrition win:** when both hands are empty, or both pass in a row, add up your firepower on the field. Your center card counts **double**. Higher wins; a tie goes to the center holder; otherwise it's a draw.
+1. **Battleline Victory:** line up 3 of your Battleline Mechs in a row or column on your turn and you win at once.
+2. **Objective Victory:** take the center and keep it through your opponent's next 3 turns. You win at the start of your next turn.
+3. **Attrition Victory:** when both hands are empty, add up your firepower on the field. Your center card counts **double**. Higher wins; a tie goes to the center holder; otherwise it's a draw.
 
 ## Quick tips
 

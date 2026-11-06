@@ -27,7 +27,7 @@ export function UrbanReplays({
       ? 'Unfinished'
       : r.winner === 'draw'
         ? 'Draw'
-        : `${seatName(r, r.winner)} won (${r.reason === 'battleline' ? 'Battleline' : r.reason === 'objective' ? 'Objective' : 'Attrition'})`
+        : `${seatName(r, r.winner)} won (${r.reason === 'battleline' ? 'Battleline Victory' : r.reason === 'objective' ? 'Objective Victory' : 'Attrition Victory'})`
 
   return (
     <div className="mx-auto flex w-full max-w-md flex-col gap-2 overflow-auto p-4">
