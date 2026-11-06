@@ -11,19 +11,20 @@
 html,body{background:#fff}
 body{font-family:InterR,sans-serif;color:var(--ink);-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .page{position:relative;width:210mm;height:297mm;overflow:hidden;page-break-after:always}
-.strip{position:absolute;width:290mm;height:102mm;transform-origin:0 0}
+.strip{position:absolute;width:290mm;height:184mm;transform-origin:0 0}
 .marks{position:absolute;left:0;top:0;overflow:visible}
 .marks line{stroke:#000;stroke-width:.2}
 .marks line.fold{stroke-dasharray:.6 .8;stroke-width:.25}
-.trim{position:absolute;left:10mm;top:10mm;width:270mm;height:82mm;display:flex}
+.trim{position:absolute;left:10mm;top:10mm;width:270mm;height:164mm}
+.row{display:flex}
+.panel.rot{transform:rotate(180deg)}
 .panel{position:relative;width:54mm;height:82mm;flex:none;background:#fff}
 .panel .body{position:absolute;inset:4.2mm 3.8mm 5.4mm 3.8mm;overflow:hidden}
-.panel::before{content:"";position:absolute;inset:-3mm 0;background:#fff;z-index:-1}
-.panel.first::before{left:-3mm}.panel.last::before{right:-3mm}
+.panel::before{content:"";position:absolute;inset:-3mm;background:#fff;z-index:-1}
 .bgart{position:absolute;width:62mm;right:-12mm;bottom:-4mm;opacity:.09;filter:grayscale(1);pointer-events:none}
 .bgart.comic{left:0;top:0;right:auto;bottom:auto;width:100%;height:100%;object-fit:cover;opacity:.08;-webkit-mask-image:linear-gradient(to bottom,transparent 15%,#000 55%,#000 85%,transparent);mask-image:linear-gradient(to bottom,transparent 15%,#000 55%,#000 85%,transparent)}
 .cover{overflow:visible}
-.cover .coverimg{position:absolute;left:-3mm;top:-3mm;width:57mm;height:88mm;object-fit:cover}
+.cover .coverimg{position:absolute;left:-3mm;top:-3mm;width:60mm;height:88mm;object-fit:cover}
 .no{position:absolute;right:3.8mm;bottom:2.2mm;font:700 9pt/1 Oswald;color:var(--red)}
 .mode{position:absolute;left:3.8mm;bottom:2.5mm;font:500 5.5pt/1 Oswald;letter-spacing:.12em;text-transform:uppercase;color:#888}
 .mode::before{content:"";display:inline-block;width:4mm;height:.35mm;background:var(--red);vertical-align:middle;margin-right:1.2mm}
@@ -66,7 +67,7 @@ td:first-child{font-weight:600;white-space:nowrap}tr:has(+tr td.what) td{border-
 .cell.center .zn{color:var(--red)}
 .cap{font-size:6pt;line-height:1.3;font-style:italic;color:#444;text-align:center;margin-top:.4mm}
 .ex{border-left:.5mm solid var(--red);padding-left:1.6mm}
-.reg{position:absolute;left:102mm;top:145.5mm}
+.reg{position:absolute;top:145.5mm}
 .reg svg{overflow:visible}.reg circle,.reg line{fill:none;stroke:#000;stroke-width:.2}
 .redbg{position:absolute;inset:-3mm;background:#a80000}
 .bc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4mm}
@@ -75,34 +76,44 @@ td:first-child{font-weight:600;white-space:nowrap}tr:has(+tr td.what) td{border-
 .covertag{position:absolute;left:0;right:0;bottom:4.5mm;text-align:center;font:500 5.4pt/1 Oswald;letter-spacing:.18em;text-transform:uppercase;color:#fff}
 .small{font-size:6pt;color:#555}.cont{font-weight:500;color:#999;font-size:6pt;letter-spacing:.1em}
 td.what{font-weight:400;white-space:normal;text-align:left!important;color:#333;padding-top:0}
-.note{position:absolute;left:103mm;top:154.5mm;width:4mm;writing-mode:vertical-rl;font:400 5pt/1 InterR;color:#777;white-space:nowrap}
+.ig{display:flex;align-items:center;justify-content:center;gap:1.2mm;margin-top:2mm;color:#fff;font:600 7pt/1 InterR}
+.note{position:absolute;top:7.5mm;width:4mm;writing-mode:vertical-rl;font:400 5pt/1 InterR;color:#777;white-space:nowrap}
 </style></head><body>
-<div class="page"><div class="strip" style="left:105mm;top:3.5mm;transform:rotate(90deg)"><div class="trim"><section class="panel cover first"><img class="coverimg" src="assets/card-back.png" alt=""></section><section class="panel"><img class="bgart" src="assets/mech-pair.png" alt="">
+<div class="page"><div class="strip" style="left:197mm;top:3.5mm;transform:rotate(90deg)"><div class="trim"><div class="row"><section class="panel cover" style="clip-path:inset(-3mm 0 0 -3mm)"><img class="coverimg" src="assets/card-back.png" alt=""></section><section class="panel" style="clip-path:inset(-3mm 0 0 0)"><img class="bgart" src="assets/mech-pair.png" alt="">
 <div class="body">
 <h1>Battleline:<br>Mech Wars</h1><div class="kicker">Urban Warfare Edition</div>
 <p>This is an era of civil war for the Republic of Ria, Warlord-Generals reign supreme fighting for territory and resources of the once great nation. From the fields of Rianth, shadowed by the worldblood spires to the ancient city of Rianz, Battleline Mechs march, bombs fall, and the nation bleeds.</p>
 <p class="em">Become a Warlord-General in this time of strife, control the battlefield and reign supreme.</p>
-<p>Battleline: Mech Wars is a 2 player card game with 2 distinct game modes. Battlelines and Urban Warfare.</p></div><div class="no">1</div></section><section class="panel"><img class="bgart" src="assets/mech-logistics.png" alt="">
+<p>Battleline: Mech Wars is a 2 player card game with 2 distinct game modes. Battlelines and Urban Warfare.</p></div><div class="no">1</div></section><section class="panel" style="clip-path:inset(-3mm 0 0 0)"><img class="bgart" src="assets/mech-logistics.png" alt="">
 <div class="body">
 <h2>Two ways to fight</h2>
 <p>In <b>Battlelines</b> you are commanding your army to form a battleline to match or exceed your opponent to push them back and eventually rout them.</p>
-<p>In <b>Urban Warfare</b> you are commanding a company trying to take the center of the city district you are assigned to capture. Move your forces in the city but be careful, enemies could be anywhere and push you out before you know it.</p></div><div class="no">2</div></section><section class="panel"><img class="bgart comic" src="assets/comic-formation.png" alt="">
+<p>In <b>Urban Warfare</b> you are commanding a company trying to take the center of the city district you are assigned to capture. Move your forces in the city but be careful, enemies could be anywhere and push you out before you know it.</p></div><div class="no">2</div></section><section class="panel" style="clip-path:inset(-3mm 0 0 0)"><img class="bgart comic" src="assets/comic-formation.png" alt="">
 <div class="mode">Battlelines</div><div class="body">
 <h1 class="u">Battlelines</h1>
 <div class="box"><h2>Objective</h2>
 <p>Win 3 rounds to win the game.</p>
 <p>To win a round, a player must have a total Firepower that the opponent cannot match or exceed on their turn.</p>
 <p class="or">Or</p>
-<p>A player has 3 copies of the Battleline Mech on their battleline at the end of their opponent's turn.</p></div></div><div class="no">3</div></section><section class="panel last"><img class="bgart" src="assets/mech-battleline.png" alt="">
+<p>A player has 3 copies of the Battleline Mech on their battleline at the end of their opponent's turn.</p></div></div><div class="no">3</div></section><section class="panel" style="clip-path:inset(-3mm -3mm 0 0)"><img class="bgart" src="assets/mech-battleline.png" alt="">
 <div class="mode">Battlelines</div><div class="body">
 <h2>Card types</h2><p>There are 4 card types:</p>
 <div class="ct"><img class="mini" style="width:8mm" src="assets/card-fighter-bomber.png" alt=""><p><b>Fighter Bomber</b> – When this card is placed on a battleline, the latest card on the opponent's battleline is turned face down. A face-down card generates 0 Firepower, has no type and has no effects. (Firepower added by a Logistics Mech still applies to it.)</p></div>
-<div class="ct"><img class="mini" style="width:8mm" src="assets/card-logistics.png" alt=""><p><b>Logistics Mech</b> – Generates 1 Firepower. When a card is placed after this card on the battleline, this card gives that card 2 additional Firepower.</p></div></div><div class="no">4</div></section></div><svg class="marks" viewBox="0 0 290 102" width="290mm" height="102mm"><line class="cut" x1="10" y1="0" x2="10" y2="6"/><line class="cut" x1="10" y1="96" x2="10" y2="102"/><line class="cut" x1="280" y1="0" x2="280" y2="6"/><line class="cut" x1="280" y1="96" x2="280" y2="102"/><line class="cut" x1="0" y1="10" x2="6" y2="10"/><line class="cut" x1="284" y1="10" x2="290" y2="10"/><line class="cut" x1="0" y1="92" x2="6" y2="92"/><line class="cut" x1="284" y1="92" x2="290" y2="92"/><line class="fold" x1="64" y1="0.5" x2="64" y2="6"/><line class="fold" x1="64" y1="96" x2="64" y2="101.5"/><line class="fold" x1="118" y1="0.5" x2="118" y2="6"/><line class="fold" x1="118" y1="96" x2="118" y2="101.5"/><line class="fold" x1="172" y1="0.5" x2="172" y2="6"/><line class="fold" x1="172" y1="96" x2="172" y2="101.5"/><line class="fold" x1="226" y1="0.5" x2="226" y2="6"/><line class="fold" x1="226" y1="96" x2="226" y2="101.5"/></svg></div><div class="strip" style="left:207mm;top:3.5mm;transform:rotate(90deg)"><div class="trim"><section class="panel first"><img class="bgart" src="assets/mech-advanced.png" alt="">
+<div class="ct"><img class="mini" style="width:8mm" src="assets/card-logistics.png" alt=""><p><b>Logistics Mech</b> – Generates 1 Firepower. When a card is placed after this card on the battleline, this card gives that card 2 additional Firepower.</p></div></div><div class="no">4</div></section></div><div class="row"><section class="panel rot cover" style="clip-path:inset(-3mm -3mm 0 0)"><div class="redbg"></div><div class="bc"><img src="assets/logo-game.png" alt=""><div class="bcmode"></div><img class="vw" src="assets/logo-village-wizard.png" alt=""><div class="ig"><svg viewBox="0 0 24 24" width="3.2mm" height="3.2mm" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r="1" fill="currentColor" stroke="none"/></svg><span>@village.wizard</span></div></div></section><section class="panel rot" style="clip-path:inset(-3mm 0 0 0)"><img class="bgart" src="assets/mech-advanced.png" alt="">
 <div class="mode">Battlelines</div><div class="body">
-<div class="ct"><img class="mini" style="width:8mm" src="assets/card-battleline.png" alt=""><p><b>Battleline Mech</b> – Generates 2 Firepower. When a player has 3 of this card on their battleline at the end of their opponent's turn, that player wins the round.</p></div>
-<div class="ct"><img class="mini" style="width:8mm" src="assets/card-advanced.png" alt=""><p><b>Advanced Mech</b> – Generates 3 Firepower.</p></div>
-<h2>Parts of a card</h2>
-<div class="parts"><img class="mini" style="width:17mm" src="assets/card-battleline.png" alt=""><ul><li><i>←</i> Firepower</li><li><i>←</i> Card Illustration</li><li><i>←</i> Card Effect Symbol</li></ul></div></div><div class="no">5</div></section><section class="panel"><img class="bgart" src="assets/mech-pair.png" alt="">
+<h2>Gameplay <span class="cont">continued</span></h2><ol start="6">
+<li>Players take turns playing one card at a time, attempting to match or exceed the opponent's total Firepower.</li>
+<li>Players must always play a card during their turn, even if they cannot match or exceed the opponent's total Firepower, and must draw a card from the deck after playing. If the deck is empty, no card is drawn.</li>
+<li>This process repeats until one player cannot match or exceed their opponent's Firepower, or a player has 3 copies of the Battleline Mech at the end of their opponent's turn. The player who won gains a point. This also ends the round.</li>
+</ol></div><div class="no">8</div></section><section class="panel rot" style="clip-path:inset(-3mm 0 0 0)"><img class="bgart" src="assets/mech-logistics.png" alt="">
+<div class="mode">Battlelines</div><div class="body">
+<h2>Gameplay</h2><ol>
+<li>Shuffle all the cards together to form a deck.</li>
+<li>Each player draws 3 cards from the deck.</li>
+<li>Then both players draw another card from the deck and place it on their Battleline.</li>
+<li>The player with the lower Firepower goes first. If the Firepower is the same, the players decide randomly who goes first.</li>
+<li>A Fighter Bomber that is the first card on a battleline is treated as having a Firepower value of 1.</li>
+</ol></div><div class="no">7</div></section><section class="panel rot" style="clip-path:inset(-3mm 0 0 0)"><img class="bgart" src="assets/mech-pair.png" alt="">
 <div class="mode">Battlelines</div><div class="body">
 <h2>Battleline layout</h2>
 <div class="bl">
@@ -112,52 +123,20 @@ td.what{font-weight:400;white-space:normal;text-align:left!important;color:#333;
   <div class="row"><img class="mini" style="width:8.4mm" src="assets/card-advanced.png" alt=""><img class="mini" style="width:8.4mm" src="assets/card-fighter-bomber.png" alt=""><img class="mini" style="width:8.4mm" src="assets/card-battleline.png" alt=""></div>
   <div class="lab">Player 1 Battleline</div>
 </div>
-<p class="cap">Player 2 sits across the table, so their cards face them (upside down to you). Player 2's last card was turned face down by a Fighter Bomber.</p></div><div class="no">6</div></section><section class="panel"><img class="bgart" src="assets/mech-logistics.png" alt="">
+<p class="cap">Player 2 sits across the table, so their cards face them (upside down to you). Player 2's last card was turned face down by a Fighter Bomber.</p></div><div class="no">6</div></section><section class="panel rot" style="clip-path:inset(-3mm 0 0 -3mm)"><img class="bgart" src="assets/mech-advanced.png" alt="">
 <div class="mode">Battlelines</div><div class="body">
-<h2>Gameplay</h2><ol>
-<li>Shuffle all the cards together to form a deck.</li>
-<li>Each player draws 3 cards from the deck.</li>
-<li>Then both players draw another card from the deck and place it on their Battleline.</li>
-<li>The player with the lower Firepower goes first. If the Firepower is the same, the players decide randomly who goes first.</li>
-<li>A Fighter Bomber that is the first card on a battleline is treated as having a Firepower value of 1.</li>
-</ol></div><div class="no">7</div></section><section class="panel"><img class="bgart" src="assets/mech-advanced.png" alt="">
-<div class="mode">Battlelines</div><div class="body">
-<h2>Gameplay <span class="cont">continued</span></h2><ol start="6">
-<li>Players take turns playing one card at a time, attempting to match or exceed the opponent's total Firepower.</li>
-<li>Players must always play a card during their turn, even if they cannot match or exceed the opponent's total Firepower, and must draw a card from the deck after playing. If the deck is empty, no card is drawn.</li>
-<li>This process repeats until one player cannot match or exceed their opponent's Firepower, or a player has 3 copies of the Battleline Mech at the end of their opponent's turn. The player who won gains a point. This also ends the round.</li>
-</ol></div><div class="no">8</div></section><section class="panel last"><img class="bgart" src="assets/mech-battleline.png" alt="">
+<div class="ct"><img class="mini" style="width:8mm" src="assets/card-battleline.png" alt=""><p><b>Battleline Mech</b> – Generates 2 Firepower. When a player has 3 of this card on their battleline at the end of their opponent's turn, that player wins the round.</p></div>
+<div class="ct"><img class="mini" style="width:8mm" src="assets/card-advanced.png" alt=""><p><b>Advanced Mech</b> – Generates 3 Firepower.</p></div>
+<h2>Parts of a card</h2>
+<div class="parts"><img class="mini" style="width:17mm" src="assets/card-battleline.png" alt=""><ul><li><i>←</i> Firepower</li><li><i>←</i> Card Illustration</li><li><i>←</i> Card Effect Symbol</li></ul></div></div><div class="no">5</div></section></div></div><svg class="marks" viewBox="0 0 290 184" width="290mm" height="184mm"><line class="cut" x1="10" y1="0" x2="10" y2="6"/><line class="cut" x1="10" y1="178" x2="10" y2="184"/><line class="cut" x1="280" y1="0" x2="280" y2="6"/><line class="cut" x1="280" y1="178" x2="280" y2="184"/><line class="cut" x1="0" y1="10" x2="6" y2="10"/><line class="cut" x1="284" y1="10" x2="290" y2="10"/><line class="cut" x1="0" y1="174" x2="6" y2="174"/><line class="cut" x1="284" y1="174" x2="290" y2="174"/><line class="fold" x1="64" y1="0.5" x2="64" y2="6"/><line class="fold" x1="64" y1="178" x2="64" y2="183.5"/><line class="fold" x1="118" y1="0.5" x2="118" y2="6"/><line class="fold" x1="118" y1="178" x2="118" y2="183.5"/><line class="fold" x1="172" y1="0.5" x2="172" y2="6"/><line class="fold" x1="172" y1="178" x2="172" y2="183.5"/><line class="fold" x1="226" y1="0.5" x2="226" y2="6"/><line class="fold" x1="226" y1="178" x2="226" y2="183.5"/><line class="fold" x1="0.5" y1="92" x2="6" y2="92"/><line class="fold" x1="284" y1="92" x2="289.5" y2="92"/></svg></div>
+<div class="reg" style="left:3mm"><svg viewBox="0 0 6 6" width="6mm" height="6mm"><circle cx="3" cy="3" r="1.6"/><line x1="0" y1="3" x2="6" y2="3"/><line x1="3" y1="0" x2="3" y2="6"/></svg></div>
+<div class="note" style="left:203mm">OUTSIDE · cut on corner marks · fold in half (print outside), then zig-zag · A4 100% · flip on long edge</div></div>
+<div class="page"><div class="strip" style="left:13mm;top:293.5mm;transform:rotate(-90deg)"><div class="trim"><div class="row"><section class="panel" style="clip-path:inset(-3mm 0 0 -3mm)"><img class="bgart" src="assets/mech-battleline.png" alt="">
 <div class="mode">Battlelines</div><div class="body">
 <h2>Next round</h2><ol start="9">
 <li>For the next round, the last 2 cards on both players' Battlelines remain on the field, keeping their face-up or face-down state, and determine who goes first (lower Firepower goes first; gameplay rule 5 applies). All other cards are reshuffled to form a new deck.</li>
 </ol>
-<div class="box"><p class="or">Remember</p><p>Win 3 rounds to win the game.</p></div></div><div class="no">9</div></section></div><svg class="marks" viewBox="0 0 290 102" width="290mm" height="102mm"><line class="cut" x1="10" y1="0" x2="10" y2="6"/><line class="cut" x1="10" y1="96" x2="10" y2="102"/><line class="cut" x1="280" y1="0" x2="280" y2="6"/><line class="cut" x1="280" y1="96" x2="280" y2="102"/><line class="cut" x1="0" y1="10" x2="6" y2="10"/><line class="cut" x1="284" y1="10" x2="290" y2="10"/><line class="cut" x1="0" y1="92" x2="6" y2="92"/><line class="cut" x1="284" y1="92" x2="290" y2="92"/><line class="fold" x1="64" y1="0.5" x2="64" y2="6"/><line class="fold" x1="64" y1="96" x2="64" y2="101.5"/><line class="fold" x1="118" y1="0.5" x2="118" y2="6"/><line class="fold" x1="118" y1="96" x2="118" y2="101.5"/><line class="fold" x1="172" y1="0.5" x2="172" y2="6"/><line class="fold" x1="172" y1="96" x2="172" y2="101.5"/><line class="fold" x1="226" y1="0.5" x2="226" y2="6"/><line class="fold" x1="226" y1="96" x2="226" y2="101.5"/></svg></div>
-<div class="reg"><svg viewBox="0 0 6 6" width="6mm" height="6mm"><circle cx="3" cy="3" r="1.6"/><line x1="0" y1="3" x2="6" y2="3"/><line x1="3" y1="0" x2="3" y2="6"/></svg></div>
-<div class="note">FRONT · A4 · 100% / Actual size · flip on long edge · cut, then tape the right strip's top end to the left strip's bottom end, both sides</div></div>
-<div class="page"><div class="strip" style="left:105mm;top:293.5mm;transform:rotate(-90deg)"><div class="trim"><section class="panel first"><img class="bgart comic" src="assets/comic-spires.png" alt="">
-<div class="mode">Urban Warfare</div><div class="body">
-<h2>Pushing</h2><p>If you place or move a card onto a square that already has a card, you <b>push</b> it one square along.</p><ul class="dash">
-<li>A card placed on a side square pushes toward the center. On a corner, you pick which way.</li>
-<li>You can always push your own cards.</li>
-<li>To push an enemy card, your card needs <b>at least as much firepower</b> as it.</li>
-<li>A push can shove a whole row. Each card has to be able to push the one in front of it, or the push isn't allowed.</li>
-<li>Anything pushed off the edge is removed from the game, even your own cards.</li></ul></div><div class="no">14</div></section><section class="panel"><img class="bgart" src="assets/mech-logistics.png" alt="">
-<div class="mode">Urban Warfare</div><div class="body">
-<h2>Pushing <span class="cont">continued</span></h2>
-<p>Logistics bonus while pushing: it only counts if the Logistics Mech is already adjacent to your card before it moves. A card being placed from your hand has no bonus yet.</p>
-<p class="ex"><i>Example:</i> your Advanced Mech (3) wants to push an enemy Logistics Mech (1), but your other Advanced Mech (3) is behind it. The Logistics Mech can't push a 3, so you can't make that push.</p>
-<h2>Removed cards</h2><p>A card is <b>removed from the game</b> when it is pushed or moved off the field, destroyed by a Fighter-Bomber, or is a Fighter-Bomber that has been played. Put removed cards on the shared <b>discard pile</b>. They don't come back and score nothing.</p></div><div class="no">15</div></section><section class="panel"><img class="bgart" src="assets/mech-battleline.png" alt="">
-<div class="mode">Urban Warfare</div><div class="body">
-<div class="box"><h2>How to win</h2><p>There are three ways.</p>
-<p><b>1. Battleline Victory.</b> Get three of your Battleline Mechs in a straight row or column. You win straight away.<br>(If your opponent accidentally pushes your mechs into a line, you win at the end of their turn.)</p>
-<p><b>2. Objective Victory.</b> Put one of your cards in the center and keep a card of yours there through your opponent's next 3 turns. You win when your next turn begins.<br>If they take the center, or it ends up empty, start counting again.</p></div></div><div class="no">16</div></section><section class="panel"><img class="bgart" src="assets/mech-pair.png" alt="">
-<div class="mode">Urban Warfare</div><div class="body">
-<div class="box"><h2>How to win <span class="cont">continued</span></h2>
-<p><b>3. Attrition Victory.</b> When both players have no cards left in hand, the game ends and you score:</p><ul class="dash">
-<li>Add up the firepower of your cards on the field (with Logistics bonuses).</li>
-<li>Your card in the center counts double.</li>
-<li>Highest score wins. If it's a tie, whoever has the center wins. If nobody does, it's a draw.</li></ul>
-<p>If you run out of cards before your opponent, keep playing: move or pass until their hand is empty too.</p></div></div><div class="no">17</div></section><section class="panel cover last"><div class="redbg"></div><div class="bc"><img src="assets/logo-game.png" alt=""><div class="bcmode"></div><img class="vw" src="assets/logo-village-wizard.png" alt=""></div></section></div><svg class="marks" viewBox="0 0 290 102" width="290mm" height="102mm"><line class="cut" x1="10" y1="0" x2="10" y2="6"/><line class="cut" x1="10" y1="96" x2="10" y2="102"/><line class="cut" x1="280" y1="0" x2="280" y2="6"/><line class="cut" x1="280" y1="96" x2="280" y2="102"/><line class="cut" x1="0" y1="10" x2="6" y2="10"/><line class="cut" x1="284" y1="10" x2="290" y2="10"/><line class="cut" x1="0" y1="92" x2="6" y2="92"/><line class="cut" x1="284" y1="92" x2="290" y2="92"/><line class="fold" x1="64" y1="0.5" x2="64" y2="6"/><line class="fold" x1="64" y1="96" x2="64" y2="101.5"/><line class="fold" x1="118" y1="0.5" x2="118" y2="6"/><line class="fold" x1="118" y1="96" x2="118" y2="101.5"/><line class="fold" x1="172" y1="0.5" x2="172" y2="6"/><line class="fold" x1="172" y1="96" x2="172" y2="101.5"/><line class="fold" x1="226" y1="0.5" x2="226" y2="6"/><line class="fold" x1="226" y1="96" x2="226" y2="101.5"/></svg></div><div class="strip" style="left:3mm;top:293.5mm;transform:rotate(-90deg)"><div class="trim"><section class="panel cover first"><div class="redbg"></div><div class="bc"><img src="assets/logo-game.png" alt=""><div class="bcmode">Urban Warfare</div><img class="vw" src="assets/logo-village-wizard.png" alt=""></div></section><section class="panel"><img class="bgart comic" src="assets/comic-city.png" alt="">
+<div class="box"><p class="or">Remember</p><p>Win 3 rounds to win the game.</p></div></div><div class="no">9</div></section><section class="panel cover" style="clip-path:inset(-3mm 0 0 0)"><div class="redbg"></div><div class="bc"><img src="assets/logo-game.png" alt=""><div class="bcmode">Urban Warfare</div><img class="vw" src="assets/logo-village-wizard.png" alt=""></div></section><section class="panel" style="clip-path:inset(-3mm 0 0 0)"><img class="bgart comic" src="assets/comic-city.png" alt="">
 <div class="mode">Urban Warfare</div><div class="body">
 <h1 class="u">Urban Warfare</h1>
 <h2>What you need</h2><p>18 cards. Each player gets the same 9:</p>
@@ -166,13 +145,13 @@ td.what{font-weight:400;white-space:normal;text-align:left!important;color:#333;
 <tr><td>Advanced Mech</td><td>2</td><td>3</td></tr><tr><td colspan="3" class="what">Your strongest pusher.</td></tr>
 <tr><td>Logistics Mech</td><td>2</td><td>1</td></tr><tr><td colspan="3" class="what">Gives +2 firepower to each of your adjacent cards.</td></tr>
 <tr><td>Fighter-Bomber</td><td>2</td><td>—</td></tr><tr><td colspan="3" class="what">Never goes on the field. Play it to destroy one enemy card.</td></tr></table>
-<p><b>Firepower</b> (FP) is how hard a card pushes and how hard it is to push.</p></div><div class="no">10</div></section><section class="panel"><img class="bgart" src="assets/mech-pair.png" alt="">
+<p><b>Firepower</b> (FP) is how hard a card pushes and how hard it is to push.</p></div><div class="no">10</div></section><section class="panel" style="clip-path:inset(-3mm 0 0 0)"><img class="bgart" src="assets/mech-pair.png" alt="">
 <div class="mode">Urban Warfare</div><div class="body">
 <h2>The field</h2>
 <p>The field is 9 squares, 3 by 3. The middle square is the <b>center</b>. Two squares are <b>adjacent</b> if they touch on a side. Diagonals are not adjacent.</p>
 <div class="sample"><div class="lab">Player 2</div>
 <div class="field"><div class="cell"><span class="zn">1</span><img class="mini flip" style="width:7.4mm" src="assets/card-battleline.png" alt=""></div><div class="cell"><span class="zn">2</span></div><div class="cell"><span class="zn">3</span><img class="mini flip" style="width:7.4mm" src="assets/card-logistics.png" alt=""></div><div class="cell"><span class="zn">4</span></div><div class="cell center"><span class="zn">5</span><img class="mini" style="width:7.4mm" src="assets/card-advanced.png" alt=""></div><div class="cell"><span class="zn">6</span><img class="mini flip" style="width:7.4mm" src="assets/card-battleline.png" alt=""></div><div class="cell"><span class="zn">7</span><img class="mini" style="width:7.4mm" src="assets/card-battleline.png" alt=""></div><div class="cell"><span class="zn">8</span><img class="mini" style="width:7.4mm" src="assets/card-logistics.png" alt=""></div><div class="cell"><span class="zn">9</span></div></div>
-<div class="lab">Player 1</div><div class="cap">Mid-game. Player 2's cards face them (upside down to you).</div></div></div><div class="no">11</div></section><section class="panel"><img class="bgart" src="assets/mech-battleline.png" alt="">
+<div class="lab">Player 1</div><div class="cap">Mid-game. Player 2's cards face them (upside down to you).</div></div></div><div class="no">11</div></section><section class="panel" style="clip-path:inset(-3mm -3mm 0 0)"><img class="bgart" src="assets/mech-battleline.png" alt="">
 <div class="mode">Urban Warfare</div><div class="body">
 <h2>Starting</h2><ol>
 <li>Give each player their 9 cards. Keep your hand hidden.</li>
@@ -180,13 +159,36 @@ td.what{font-weight:400;white-space:normal;text-align:left!important;color:#333;
 <li>The first player places 1 card.</li>
 <li>The second player places 2 cards.</li></ol>
 <p>On these first turns you must place; you can't move, bomb or pass.</p>
-<h2>Turn order</h2><p>After the first turns, players take turns one after the other: first player, second player, first player, and so on, until someone wins.</p></div><div class="no">12</div></section><section class="panel last"><img class="bgart comic" src="assets/comic-bomber.png" alt="">
+<h2>Turn order</h2><p>After the first turns, players take turns one after the other: first player, second player, first player, and so on, until someone wins.</p></div><div class="no">12</div></section></div><div class="row"><section class="panel" style="clip-path:inset(0 0 -3mm -3mm)"><img class="bgart comic" src="assets/comic-bomber.png" alt="">
 <div class="mode">Urban Warfare</div><div class="body">
 <h2>On your turn</h2><p>Do <b>one</b> of these:</p><ul class="dash">
 <li><b>Place</b> a card from your hand on any outside square (not the center).</li>
 <li><b>Move</b> one of your cards on the field one square up, down, left or right. You may move it off the field.</li>
 <li><b>Bomb:</b> play a Fighter-Bomber and destroy any enemy card on the field.</li>
-<li><b>Pass.</b></li></ul></div><div class="no">13</div></section></div><svg class="marks" viewBox="0 0 290 102" width="290mm" height="102mm"><line class="cut" x1="10" y1="0" x2="10" y2="6"/><line class="cut" x1="10" y1="96" x2="10" y2="102"/><line class="cut" x1="280" y1="0" x2="280" y2="6"/><line class="cut" x1="280" y1="96" x2="280" y2="102"/><line class="cut" x1="0" y1="10" x2="6" y2="10"/><line class="cut" x1="284" y1="10" x2="290" y2="10"/><line class="cut" x1="0" y1="92" x2="6" y2="92"/><line class="cut" x1="284" y1="92" x2="290" y2="92"/><line class="fold" x1="64" y1="0.5" x2="64" y2="6"/><line class="fold" x1="64" y1="96" x2="64" y2="101.5"/><line class="fold" x1="118" y1="0.5" x2="118" y2="6"/><line class="fold" x1="118" y1="96" x2="118" y2="101.5"/><line class="fold" x1="172" y1="0.5" x2="172" y2="6"/><line class="fold" x1="172" y1="96" x2="172" y2="101.5"/><line class="fold" x1="226" y1="0.5" x2="226" y2="6"/><line class="fold" x1="226" y1="96" x2="226" y2="101.5"/></svg></div>
-<div class="reg"><svg viewBox="0 0 6 6" width="6mm" height="6mm"><circle cx="3" cy="3" r="1.6"/><line x1="0" y1="3" x2="6" y2="3"/><line x1="3" y1="0" x2="3" y2="6"/></svg></div>
-<div class="note">BACK · A4 · 100% / Actual size · flip on long edge · cut, then tape the right strip's top end to the left strip's bottom end, both sides</div></div>
+<li><b>Pass.</b></li></ul></div><div class="no">13</div></section><section class="panel" style="clip-path:inset(0 0 -3mm 0)"><img class="bgart comic" src="assets/comic-spires.png" alt="">
+<div class="mode">Urban Warfare</div><div class="body">
+<h2>Pushing</h2><p>If you place or move a card onto a square that already has a card, you <b>push</b> it one square along.</p><ul class="dash">
+<li>A card placed on a side square pushes toward the center. On a corner, you pick which way.</li>
+<li>You can always push your own cards.</li>
+<li>To push an enemy card, your card needs <b>at least as much firepower</b> as it.</li>
+<li>A push can shove a whole row. Each card has to be able to push the one in front of it, or the push isn't allowed.</li>
+<li>Anything pushed off the edge is removed from the game, even your own cards.</li></ul></div><div class="no">14</div></section><section class="panel" style="clip-path:inset(0 0 -3mm 0)"><img class="bgart" src="assets/mech-logistics.png" alt="">
+<div class="mode">Urban Warfare</div><div class="body">
+<h2>Pushing <span class="cont">continued</span></h2>
+<p>Logistics bonus while pushing: it only counts if the Logistics Mech is already adjacent to your card before it moves. A card being placed from your hand has no bonus yet.</p>
+<p class="ex"><i>Example:</i> your Advanced Mech (3) wants to push an enemy Logistics Mech (1), but your other Advanced Mech (3) is behind it. The Logistics Mech can't push a 3, so you can't make that push.</p>
+<h2>Removed cards</h2><p>A card is <b>removed from the game</b> when it is pushed or moved off the field, destroyed by a Fighter-Bomber, or is a Fighter-Bomber that has been played. Put removed cards on the shared <b>discard pile</b>. They don't come back and score nothing.</p></div><div class="no">15</div></section><section class="panel" style="clip-path:inset(0 0 -3mm 0)"><img class="bgart" src="assets/mech-battleline.png" alt="">
+<div class="mode">Urban Warfare</div><div class="body">
+<div class="box"><h2>How to win</h2><p>There are three ways.</p>
+<p><b>1. Battleline Victory.</b> Get three of your Battleline Mechs in a straight row or column. You win straight away.<br>(If your opponent accidentally pushes your mechs into a line, you win at the end of their turn.)</p>
+<p><b>2. Objective Victory.</b> Put one of your cards in the center and keep a card of yours there through your opponent's next 3 turns. You win when your next turn begins.<br>If they take the center, or it ends up empty, start counting again.</p></div></div><div class="no">16</div></section><section class="panel" style="clip-path:inset(0 -3mm -3mm 0)"><img class="bgart" src="assets/mech-pair.png" alt="">
+<div class="mode">Urban Warfare</div><div class="body">
+<div class="box"><h2>How to win <span class="cont">continued</span></h2>
+<p><b>3. Attrition Victory.</b> When both players have no cards left in hand, the game ends and you score:</p><ul class="dash">
+<li>Add up the firepower of your cards on the field (with Logistics bonuses).</li>
+<li>Your card in the center counts double.</li>
+<li>Highest score wins. If it's a tie, whoever has the center wins. If nobody does, it's a draw.</li></ul>
+<p>If you run out of cards before your opponent, keep playing: move or pass until their hand is empty too.</p></div></div><div class="no">17</div></section></div></div><svg class="marks" viewBox="0 0 290 184" width="290mm" height="184mm"><line class="cut" x1="10" y1="0" x2="10" y2="6"/><line class="cut" x1="10" y1="178" x2="10" y2="184"/><line class="cut" x1="280" y1="0" x2="280" y2="6"/><line class="cut" x1="280" y1="178" x2="280" y2="184"/><line class="cut" x1="0" y1="10" x2="6" y2="10"/><line class="cut" x1="284" y1="10" x2="290" y2="10"/><line class="cut" x1="0" y1="174" x2="6" y2="174"/><line class="cut" x1="284" y1="174" x2="290" y2="174"/><line class="fold" x1="64" y1="0.5" x2="64" y2="6"/><line class="fold" x1="64" y1="178" x2="64" y2="183.5"/><line class="fold" x1="118" y1="0.5" x2="118" y2="6"/><line class="fold" x1="118" y1="178" x2="118" y2="183.5"/><line class="fold" x1="172" y1="0.5" x2="172" y2="6"/><line class="fold" x1="172" y1="178" x2="172" y2="183.5"/><line class="fold" x1="226" y1="0.5" x2="226" y2="6"/><line class="fold" x1="226" y1="178" x2="226" y2="183.5"/><line class="fold" x1="0.5" y1="92" x2="6" y2="92"/><line class="fold" x1="284" y1="92" x2="289.5" y2="92"/></svg></div>
+<div class="reg" style="left:201mm"><svg viewBox="0 0 6 6" width="6mm" height="6mm"><circle cx="3" cy="3" r="1.6"/><line x1="0" y1="3" x2="6" y2="3"/><line x1="3" y1="0" x2="3" y2="6"/></svg></div>
+<div class="note" style="left:5mm">INSIDE · A4 100% · flip on long edge</div></div>
 </body></html>

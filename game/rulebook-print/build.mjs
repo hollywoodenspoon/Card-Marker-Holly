@@ -14,16 +14,18 @@ const PANEL_W = 54, PANEL_H = 82, PANELS = 5;
 const TRIM_W = PANEL_W * PANELS; // 270
 const BLEED = 3, MARK = 7; // marks sit in the 7 mm outside the bleed
 const OFF = BLEED + MARK; // trim offset inside the strip box
-const BOX_W = TRIM_W + 2 * OFF, BOX_H = PANEL_H + 2 * OFF; // 290 x 102
+const TRIM_H = PANEL_H * 2; // 164: two rows, folded in half along the middle
+const BOX_W = TRIM_W + 2 * OFF, BOX_H = TRIM_H + 2 * OFF; // 290 x 184
 const PAGE_W = 210, PAGE_H = 297; // A4 portrait; strips run down the page
-const STRIP_X = [3, 105], STRIP_Y = 3.5;
+const BOX_X = (PAGE_W - BOX_H) / 2, BOX_Y = (PAGE_H - BOX_W) / 2;
 
 const card = (name, { flip = false, down = false, w = 9 } = {}) =>
   `<img class="mini${flip ? ' flip' : ''}" style="width:${w}mm" src="assets/${down ? 'card-back' : 'card-' + name}.png" alt="">`;
 
 // ---- panel content ----
-// Two strips, one per mode. Each strip: front panels 1-5, back panels 6-10.
-const backCover = (mode) => ({ cls: 'cover', html: `<div class="redbg"></div><div class="bc"><img src="assets/logo-game.png" alt=""><div class="bcmode">${mode}</div><img class="vw" src="assets/logo-village-wizard.png" alt=""></div>` });
+// Written as two strips (one per mode); dealt onto the map-fold sheet below.
+const IG = `<svg viewBox="0 0 24 24" width="3.2mm" height="3.2mm" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r="1" fill="currentColor" stroke="none"/></svg>`;
+const backCover = (mode, social = false) => ({ cls: 'cover', html: `<div class="redbg"></div><div class="bc"><img src="assets/logo-game.png" alt=""><div class="bcmode">${mode}</div><img class="vw" src="assets/logo-village-wizard.png" alt="">${social ? `<div class="ig">${IG}<span>@village.wizard</span></div>` : ''}</div>` });
 const P = (bg, mode, html) => ({ bg, mode, html });
 const field = (cells) => `<div class="field">${cells.map((c, i) => `<div class="cell${i === 4 ? ' center' : ''}"><span class="zn">${i + 1}</span>${c ? card(c[0], { flip: c[1] === 2, w: 7.4 }) : ''}</div>`).join('')}</div>`;
 
@@ -150,51 +152,67 @@ ${field([['battleline', 2], null, ['logistics', 2], null, ['advanced', 1], ['bat
     ],
   },
 ];
-strips[1].back.push(backCover(''));
+strips[1].back.push(backCover('', true));
 
-// One rulebook: strip B is taped to the end of strip A (A's last front panel
-// edge to B's first). Reading order is then A front, B front, B back, A back,
-// so the content (written in order A front, A back, B front, B back) is
-// re-dealt into those slots. Numbers skip covers and run 1..n in reading order.
+// Map fold: one 270 x 164 mm sheet, folded in half along the long middle
+// (printed front outside), then zig-zag into 54 x 82 mm panels.
+// Outside (front of sheet): top row T1..T5 reads first (T1 = cover); turn the
+// folded book over and the bottom row reads B5..B1 (B1 = back cover). The bottom
+// row is printed upside down so it is upright after the fold.
+// Inside (back of sheet): unfold fully, read the top row then the bottom row.
+// On the back, panel i of a row sits behind front panel 4-i of the same row.
+const sheet = {};
 {
   const c = [strips[0].front, strips[0].back, strips[1].front, strips[1].back].flat();
-  strips[0].front = c.slice(0, 5); strips[1].front = c.slice(5, 10);
-  strips[1].back = c.slice(10, 15); strips[0].back = c.slice(15, 20);
+  const cover = c[0], back = c[19], body = c.slice(1, 19); // 18: 9 Battlelines, divider, 8 Urban Warfare
+  const outside = body.slice(0, 8), inside = body.slice(8);
+  sheet.front = [[cover, ...outside.slice(0, 4)], [back, ...outside.slice(4).reverse()]];
+  sheet.back = [inside.slice(0, 5), inside.slice(5)];
+  const order = [...sheet.front[0], ...[...sheet.front[1]].reverse(), ...sheet.back.flat()];
   let n = 0;
-  for (const p of [strips[0].front, strips[1].front, strips[1].back, strips[0].back].flat()) if (p.cls !== 'cover') p.no = ++n;
+  for (const p of order) if (p.cls !== 'cover') p.no = ++n;
 }
 
 // ---- marks ----
 function marks() {
   const s = [];
   const L = (x1, y1, x2, y2, cls = 'cut') => s.push(`<line class="${cls}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`);
-  const x0 = OFF, x1 = OFF + TRIM_W, y0 = OFF, y1 = OFF + PANEL_H;
+  const x0 = OFF, x1 = OFF + TRIM_W, y0 = OFF, y1 = OFF + TRIM_H, ym = OFF + PANEL_H;
   for (const x of [x0, x1]) { L(x, 0, x, MARK - 1); L(x, BOX_H - MARK + 1, x, BOX_H); }
   for (const y of [y0, y1]) { L(0, y, MARK - 1, y); L(BOX_W - MARK + 1, y, BOX_W, y); }
   for (let k = 1; k < PANELS; k++) { const x = x0 + k * PANEL_W; L(x, 0.5, x, MARK - 1, 'fold'); L(x, BOX_H - MARK + 1, x, BOX_H - 0.5, 'fold'); }
+  L(0.5, ym, MARK - 1, ym, 'fold'); L(BOX_W - MARK + 1, ym, BOX_W - 0.5, ym, 'fold');
   return `<svg class="marks" viewBox="0 0 ${BOX_W} ${BOX_H}" width="${BOX_W}mm" height="${BOX_H}mm">${s.join('')}</svg>`;
 }
 
-function strip(panels) {
-  return `<div class="trim">${panels.map((p, i) => {
-    const n = p.no, edge = i === 0 ? ' first' : i === PANELS - 1 ? ' last' : '';
-    if (p.cls === 'cover') return `<section class="panel cover${edge}">${p.html}</section>`;
-    return `<section class="panel${edge}">${p.bg ? `<img class="bgart${p.bg.startsWith('comic') ? ' comic' : ''}" src="assets/${p.bg}.png" alt="">` : ''}
-${p.mode ? `<div class="mode">${p.mode}</div>` : ''}<div class="body">${p.html}</div><div class="no">${n}</div></section>`;
-  }).join('')}</div>${marks()}`;
+// Bleed only on the sheet's outer edges: clip each panel's 3 mm overspill.
+function clip(row, col, rot) {
+  let t = row === 0, b = row === 1, l = col === 0, r = col === PANELS - 1;
+  if (rot) [t, b, l, r] = [b, t, r, l];
+  const e = (on) => (on ? `-${BLEED}mm` : '0');
+  return `clip-path:inset(${e(t)} ${e(r)} ${e(b)} ${e(l)})`;
 }
 
-function page(side, isBack) {
-  return `<div class="page">${STRIP_X.map((x, si) => {
-    const panels = strips[si][side];
-    const left = isBack ? PAGE_W - x - BOX_H : x;
-    const style = isBack
-      ? `left:${left}mm;top:${STRIP_Y + BOX_W}mm;transform:rotate(-90deg)`
-      : `left:${left + BOX_H}mm;top:${STRIP_Y}mm;transform:rotate(90deg)`;
-    return `<div class="strip" style="${style}">${strip(panels)}</div>`;
-  }).join('')}
-<div class="reg"><svg viewBox="0 0 6 6" width="6mm" height="6mm"><circle cx="3" cy="3" r="1.6"/><line x1="0" y1="3" x2="6" y2="3"/><line x1="3" y1="0" x2="3" y2="6"/></svg></div>
-<div class="note">${isBack ? 'BACK' : 'FRONT'} · A4 · 100% / Actual size · flip on long edge · cut, then tape the right strip's top end to the left strip's bottom end, both sides</div></div>`;
+function panel(p, row, col, rot) {
+  const st = `style="${clip(row, col, rot)}"`, cls = `panel${rot ? ' rot' : ''}`;
+  if (p.cls === 'cover') return `<section class="${cls} cover" ${st}>${p.html}</section>`;
+  return `<section class="${cls}" ${st}>${p.bg ? `<img class="bgart${p.bg.startsWith('comic') ? ' comic' : ''}" src="assets/${p.bg}.png" alt="">` : ''}
+${p.mode ? `<div class="mode">${p.mode}</div>` : ''}<div class="body">${p.html}</div><div class="no">${p.no}</div></section>`;
+}
+
+function page(isBack) {
+  const rows = isBack ? sheet.back : sheet.front;
+  const grid = rows.map((row, r) => `<div class="row">${row.map((p, c) => panel(p, r, c, !isBack && r === 1)).join('')}</div>`).join('');
+  const style = isBack
+    ? `left:${BOX_X}mm;top:${BOX_Y + BOX_W}mm;transform:rotate(-90deg)`
+    : `left:${BOX_X + BOX_H}mm;top:${BOX_Y}mm;transform:rotate(90deg)`;
+  const regX = isBack ? PAGE_W - 6 : 6;
+  const note = isBack
+    ? 'INSIDE'
+    : 'OUTSIDE · cut on corner marks · fold in half (print outside), then zig-zag';
+  return `<div class="page"><div class="strip" style="${style}"><div class="trim">${grid}</div>${marks()}</div>
+<div class="reg" style="left:${regX - 3}mm"><svg viewBox="0 0 6 6" width="6mm" height="6mm"><circle cx="3" cy="3" r="1.6"/><line x1="0" y1="3" x2="6" y2="3"/><line x1="3" y1="0" x2="3" y2="6"/></svg></div>
+<div class="note" style="left:${isBack ? 5 : PAGE_W - 7}mm">${note} · A4 100% · flip on long edge</div></div>`;
 }
 
 const css = `
@@ -214,15 +232,16 @@ body{font-family:InterR,sans-serif;color:var(--ink);-webkit-print-color-adjust:e
 .marks{position:absolute;left:0;top:0;overflow:visible}
 .marks line{stroke:#000;stroke-width:.2}
 .marks line.fold{stroke-dasharray:.6 .8;stroke-width:.25}
-.trim{position:absolute;left:${OFF}mm;top:${OFF}mm;width:${TRIM_W}mm;height:${PANEL_H}mm;display:flex}
+.trim{position:absolute;left:${OFF}mm;top:${OFF}mm;width:${TRIM_W}mm;height:${TRIM_H}mm}
+.row{display:flex}
+.panel.rot{transform:rotate(180deg)}
 .panel{position:relative;width:${PANEL_W}mm;height:${PANEL_H}mm;flex:none;background:#fff}
 .panel .body{position:absolute;inset:4.2mm 3.8mm 5.4mm 3.8mm;overflow:hidden}
-.panel::before{content:"";position:absolute;inset:-${BLEED}mm 0;background:#fff;z-index:-1}
-.panel.first::before{left:-${BLEED}mm}.panel.last::before{right:-${BLEED}mm}
+.panel::before{content:"";position:absolute;inset:-${BLEED}mm;background:#fff;z-index:-1}
 .bgart{position:absolute;width:62mm;right:-12mm;bottom:-4mm;opacity:.09;filter:grayscale(1);pointer-events:none}
 .bgart.comic{left:0;top:0;right:auto;bottom:auto;width:100%;height:100%;object-fit:cover;opacity:.08;-webkit-mask-image:linear-gradient(to bottom,transparent 15%,#000 55%,#000 85%,transparent);mask-image:linear-gradient(to bottom,transparent 15%,#000 55%,#000 85%,transparent)}
 .cover{overflow:visible}
-.cover .coverimg{position:absolute;left:-${BLEED}mm;top:-${BLEED}mm;width:${PANEL_W + BLEED}mm;height:${PANEL_H + 2 * BLEED}mm;object-fit:cover}
+.cover .coverimg{position:absolute;left:-${BLEED}mm;top:-${BLEED}mm;width:${PANEL_W + 2 * BLEED}mm;height:${PANEL_H + 2 * BLEED}mm;object-fit:cover}
 .no{position:absolute;right:3.8mm;bottom:2.2mm;font:700 9pt/1 Oswald;color:var(--red)}
 .mode{position:absolute;left:3.8mm;bottom:2.5mm;font:500 5.5pt/1 Oswald;letter-spacing:.12em;text-transform:uppercase;color:#888}
 .mode::before{content:"";display:inline-block;width:4mm;height:.35mm;background:var(--red);vertical-align:middle;margin-right:1.2mm}
@@ -265,7 +284,7 @@ td:first-child{font-weight:600;white-space:nowrap}tr:has(+tr td.what) td{border-
 .cell.center .zn{color:var(--red)}
 .cap{font-size:6pt;line-height:1.3;font-style:italic;color:#444;text-align:center;margin-top:.4mm}
 .ex{border-left:.5mm solid var(--red);padding-left:1.6mm}
-.reg{position:absolute;left:${PAGE_W / 2 - 3}mm;top:${PAGE_H / 2 - 3}mm}
+.reg{position:absolute;top:${PAGE_H / 2 - 3}mm}
 .reg svg{overflow:visible}.reg circle,.reg line{fill:none;stroke:#000;stroke-width:.2}
 .redbg{position:absolute;inset:-3mm;background:#a80000}
 .bc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4mm}
@@ -274,12 +293,13 @@ td:first-child{font-weight:600;white-space:nowrap}tr:has(+tr td.what) td{border-
 .covertag{position:absolute;left:0;right:0;bottom:4.5mm;text-align:center;font:500 5.4pt/1 Oswald;letter-spacing:.18em;text-transform:uppercase;color:#fff}
 .small{font-size:6pt;color:#555}.cont{font-weight:500;color:#999;font-size:6pt;letter-spacing:.1em}
 td.what{font-weight:400;white-space:normal;text-align:left!important;color:#333;padding-top:0}
-.note{position:absolute;left:${PAGE_W / 2 - 2}mm;top:${PAGE_H / 2 + 6}mm;width:4mm;writing-mode:vertical-rl;font:400 5pt/1 InterR;color:#777;white-space:nowrap}
+.ig{display:flex;align-items:center;justify-content:center;gap:1.2mm;margin-top:2mm;color:#fff;font:600 7pt/1 InterR}
+.note{position:absolute;top:${BOX_Y + 4}mm;width:4mm;writing-mode:vertical-rl;font:400 5pt/1 InterR;color:#777;white-space:nowrap}
 `;
 
 const html = `<!doctype html><html><head><meta charset="utf-8"><title>Battleline: Mech Wars — accordion rulebook</title><style>${css}</style></head><body>
-${page('front', false)}
-${page('back', true)}
+${page(false)}
+${page(true)}
 </body></html>`;
 
 const htmlPath = join(here, 'rulebook-accordion.html');

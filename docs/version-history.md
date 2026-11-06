@@ -46,3 +46,4 @@ Earlier PRs (#1–#48) used the 0.1.0 alpha line and are unchanged.
 | — | Urban Warfare rulebook v1.3 (passing no longer ends the game), Battlelines and combined rulebooks | 0.8.18-beta | 0.8.18-beta | no |
 | — | Folded print rulebook (both modes), rulebook intro from the owner | 0.8.19-beta | 0.8.19-beta | no |
 | — | Folded rulebook as one book (two strips taped), comic backgrounds, tagline removed | 0.8.20-beta | 0.8.20-beta | no |
+| — | Rulebook as a map fold (one sheet, no tape), new cut, bleed and fold marks; Instagram on the back cover | 0.8.21-beta | 0.8.21-beta | no |
