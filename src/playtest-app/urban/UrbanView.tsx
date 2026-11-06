@@ -417,7 +417,7 @@ export function UrbanView({
     s.winner !== null
       ? s.winner === 'draw'
         ? 'Draw.'
-        : `Player ${s.winner + 1} wins (${s.reason === 'battleline' ? 'Battleline' : s.reason === 'objective' ? 'Objective' : 'Attrition'}).`
+        : `Player ${s.winner + 1} wins (${s.reason === 'battleline' ? 'Battleline Victory' : s.reason === 'objective' ? 'Objective Victory' : 'Attrition Victory'}).`
       : shown
         ? `${who(mover)} ${who(mover) === 'You' ? 'play' : 'plays'}…`
         : turnBanner

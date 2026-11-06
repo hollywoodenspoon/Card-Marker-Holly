@@ -2,7 +2,6 @@ import type Konva from 'konva'
 import { useEffect, useMemo, useRef } from 'react'
 import { Group, Image as KImage, Layer, Line, Rect, Stage } from 'react-konva'
 import { assetResolver } from '@/assets/assetResolver'
-import { CornerGuide } from '@/core/render/Overlays'
 import { StaticNodes } from '@/core/render/StaticCard'
 import { pageSheet, type PrintJob } from '@/print/job'
 import { backCells, mirrorLine, sheetLines, type Line as L } from '@/print/layout'
@@ -53,12 +52,12 @@ export function SheetPreview({
   const corner = g?.enabled ? g.radiusMm : 0
 
   const lines = useMemo(() => {
-    const { marks, guides } = sheetLines(sheet, settings)
+    const { marks, guides } = sheetLines(sheet, { ...settings, cornerMm: corner })
     if (side === 'front') return { marks, guides }
     const m = (l: L) => mirrorLine(l, sheet, settings.flip, offset)
     return { marks: marks.map(m), guides: guides.map(m) }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sheet, settings, side])
+  }, [sheet, settings, side, corner])
 
   const layer = useRef<Konva.Layer>(null)
   const overlay = useRef<HTMLCanvasElement>(null)
@@ -107,9 +106,6 @@ export function SheetPreview({
                       print
                     />
                   </Group>
-                  {corner > 0 && (
-                    <CornerGuide x={c.trim.x} y={c.trim.y} w={c.trim.w} h={c.trim.h} r={corner} />
-                  )}
                   {band && at && (
                     <Group
                       clipFunc={(ctx) => {

@@ -13,6 +13,7 @@ import {
   mirrorRect,
   paginate,
   sheetLines,
+  cornerDots,
   trimLines,
   type Line,
   type Rect,
@@ -343,5 +344,31 @@ describe('bleed marks', () => {
   it('add dotted guide lines at the bleed edges', () => {
     const g = sheetLines(s, { ...all, guideLines: true }).guides
     expect(g.length).toBeGreaterThan(guideLines(s).length)
+  })
+})
+
+describe('corner guide on the sheet', () => {
+  it('replaces the guide lines with dotted corner arcs on each card', () => {
+    const s = computeSheet({ ...base, card: { w: 54, h: 86 } })
+    const o = {
+      cutMarks: true,
+      bleedMarks: true,
+      guideLines: true,
+      markLengthMm: 4,
+      markOffsetMm: 1,
+      markToEdge: false,
+    }
+    const g = sheetLines(s, { ...o, cornerMm: 3 }).guides
+    expect(g).toEqual(cornerDots(s, 3))
+    expect(g.length).toBeGreaterThan(0)
+    // every dot lies within the corner squares of some card
+    for (const l of g) {
+      const ok = s.cells.some(({ trim: t }) => {
+        const nx = Math.min(l.x1 - t.x, t.x + t.w - l.x1)
+        const ny = Math.min(l.y1 - t.y, t.y + t.h - l.y1)
+        return nx > -1e-6 && ny > -1e-6 && nx <= 3 + 1e-6 && ny <= 3 + 1e-6
+      })
+      expect(ok).toBe(true)
+    }
   })
 })

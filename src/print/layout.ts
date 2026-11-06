@@ -236,6 +236,8 @@ export function sheetLines(
     markLengthMm: number
     markOffsetMm: number
     markToEdge: boolean
+    /** Corner cutter radius (mm): guides become dotted corner arcs only. */
+    cornerMm?: number
   },
 ): { guides: Line[]; marks: Line[] } {
   const bleed = o.bleedMarks && sheet.cells.some((c) => c.cell.w - c.trim.w > EPS)
@@ -246,6 +248,11 @@ export function sheetLines(
       toEdge: o.markToEdge,
       edge,
     })
+  if (o.cornerMm && o.cornerMm > 0)
+    return {
+      guides: o.guideLines ? cornerDots(sheet, o.cornerMm) : [],
+      marks: [...(o.cutMarks ? mark('trim') : []), ...(bleed ? dotted(mark('bleed')) : [])],
+    }
   return {
     guides: [
       ...(o.guideLines ? guideLines(sheet) : []),
@@ -319,5 +326,38 @@ export function paginate(count: number, perSheet: number): number[][] {
   const out: number[][] = []
   for (let i = 0; i < count; i += perSheet)
     out.push(Array.from({ length: Math.min(perSheet, count - i) }, (_, k) => i + k))
+  return out
+}
+
+/**
+ * Dotted quarter-arcs on each card's rounded corners (radius `r` mm, clamped to
+ * half the card), for cutting the corners by hand. No lines along the sides.
+ */
+export function cornerDots(sheet: Sheet, r: number, dot = DOT_MM, gap = DOT_GAP_MM): Line[] {
+  const out: Line[] = []
+  for (const { trim: t } of sheet.cells) {
+    const rr = Math.min(r, t.w / 2, t.h / 2)
+    if (rr <= EPS) continue
+    // centre and start angle of each corner's quarter circle (y down)
+    const corners = [
+      { cx: t.x + rr, cy: t.y + rr, a0: Math.PI },
+      { cx: t.x + t.w - rr, cy: t.y + rr, a0: -Math.PI / 2 },
+      { cx: t.x + t.w - rr, cy: t.y + t.h - rr, a0: 0 },
+      { cx: t.x + rr, cy: t.y + t.h - rr, a0: Math.PI / 2 },
+    ]
+    const len = (Math.PI / 2) * rr
+    for (const c of corners) {
+      for (let s = 0; s < len - EPS; s += dot + gap) {
+        const e = Math.min(len, s + dot)
+        const p = (d: number) => {
+          const a = c.a0 + d / rr
+          return { x: c.cx + rr * Math.cos(a), y: c.cy + rr * Math.sin(a) }
+        }
+        const A = p(s)
+        const B = p(e)
+        out.push({ x1: A.x, y1: A.y, x2: B.x, y2: B.y })
+      }
+    }
+  }
   return out
 }

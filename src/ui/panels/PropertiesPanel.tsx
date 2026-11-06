@@ -162,8 +162,8 @@ function DocumentProperties() {
           />
         )}
         <p className="text-xs text-muted-foreground">
-          Shades the corners your corner cutter will remove, in the editor and print preview. It is
-          never printed.
+          Shades the corners your corner cutter will remove. With guide lines on, print shows dotted
+          arcs at the corners only.
         </p>
       </Section>
       <Section title="Card numbers" foldable>

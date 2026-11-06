@@ -157,7 +157,11 @@ export async function exportCardsPdf(
   // Marks, guides, mirrored cells and bleed bands for each size group.
   const layouts = job.groups.map((g) => {
     const { sheet } = g
-    const { marks, guides } = sheetLines(sheet, settings)
+    const cg = job.project.cornerGuide
+    const { marks, guides } = sheetLines(sheet, {
+      ...settings,
+      cornerMm: cg?.enabled ? cg.radiusMm : 0,
+    })
     const mirrored = (lines: Line[]) => lines.map((l) => mirrorLine(l, sheet, settings.flip, off))
     return {
       sheet,

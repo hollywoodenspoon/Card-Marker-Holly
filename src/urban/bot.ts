@@ -107,9 +107,7 @@ export function normalMove(s: UwState, depth = 2, rand = Math.random): UwMove {
   let best: UwMove[] = []
   let bestV = -Infinity
   const all = legalMoves(s)
-  const sane = all.filter(
-    (m) => !isBlunder(s, m) || apply(s, m).winner === seat,
-  )
+  const sane = all.filter((m) => !isBlunder(s, m) || apply(s, m).winner === seat)
   for (const m of sane.length ? sane : all) {
     const n = apply(s, m)
     const d = n.turn === seat && n.winner === null ? depth : depth - 1

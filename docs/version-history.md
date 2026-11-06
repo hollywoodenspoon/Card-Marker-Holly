@@ -42,3 +42,5 @@ Earlier PRs (#1–#48) used the 0.1.0 alpha line and are unchanged.
 | — | Pairs rule, all 188 cards in the engine, Auto Build | 0.8.5-beta | 0.8.5-beta | no |
 | #77 | Urban Warfare trial rule switches and smarter bots | 0.8.15-beta | 0.8.15-beta | no |
 | #78 | Urban Warfare rulebook v1.2: instant Battleline, hold 3 | 0.8.16-beta | 0.8.16-beta | no |
+| #79 | Card images rounded corners; print corner guides, bleed fix, rename and tab fixes | 0.8.17-beta | 0.8.17-beta | no |
+| — | Urban Warfare rulebook v1.3 (passing no longer ends the game), Battlelines and combined rulebooks | 0.8.18-beta | 0.8.18-beta | no |

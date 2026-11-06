@@ -202,12 +202,17 @@ describe('winning', () => {
     expect(s.reason).toBe('objective')
   })
 
-  it('attrition: two passes; center doubles; tie goes to the center', () => {
+  it('passing never ends the game while cards are in hand', () => {
+    let s = mid(empty())
+    for (let i = 0; i < 6; i++) s = apply(s, { type: 'pass' })
+    expect(s.winner).toBe(null)
+  })
+
+  it('attrition only on empty hands; center doubles; tie goes to the center', () => {
     const f = empty()
     f[4] = piece('support', 0) // 1 x2 = 2
     f[0] = piece('flag', 1) // 2
-    let s = mid(f)
-    s = apply(s, { type: 'pass' })
+    let s = mid(f, [[], []])
     s = apply(s, { type: 'pass' })
     expect(s.winner).toBe(0)
     expect(s.reason).toBe('attrition')
@@ -243,11 +248,12 @@ describe('bots', () => {
     kind: k,
     fp: FP[k],
   }))
-  it('random games finish with legal moves', () => {
+  it('random games play only legal moves', () => {
+    // Passing no longer ends the game, so a random game may run past the cap.
     for (let g = 0; g < 200; g++) {
       let s = createGame(deal(pool), (g % 2) as Seat)
       for (let i = 0; i < 500 && s.winner === null; i++) s = apply(s, easyMove(s))
-      expect(s.winner).not.toBe(null)
+      expect(s.winner !== null || legalMoves(s).length > 0).toBe(true)
     }
   })
   it('normal bot beats easy most games', () => {

@@ -60,6 +60,8 @@ export async function renderCardImage(
     dpi: number
     /** White behind the card (for JPEG, which has no transparency). */
     opaque: boolean
+    /** Cut the corners round, leaving them transparent (mm radius). */
+    cornerMm?: number
   },
   res: ReturnType<typeof createPrintResources>,
   bands: BleedBands | null,
@@ -91,6 +93,15 @@ export async function renderCardImage(
     bleedFramePath(ctx, { x: 0, y: 0, w: width, h: height }, trim)
     ctx.clip()
     ctx.drawImage(await bands.canvas(nodes), p.x, p.y, p.w, p.h)
+    ctx.restore()
+  }
+  if (o.cornerMm && o.cornerMm > 0) {
+    const r = Math.min((o.cornerMm * o.dpi) / 25.4, W / 2, H / 2)
+    ctx.save()
+    ctx.globalCompositeOperation = 'destination-in'
+    ctx.beginPath()
+    ctx.roundRect(B, B, W, H, r)
+    ctx.fill()
     ctx.restore()
   }
   return canvas
@@ -175,6 +186,8 @@ export async function exportCardImages(
         withBleed: f0.withBleed,
         dpi: options.dpi,
         opaque: f0.format === 'jpg',
+        // Transparent round corners: trimmed PNG/WebP only (JPG has no transparency).
+        cornerMm: !f0.withBleed && f0.format !== 'jpg' ? options.cornerMm : 0,
       },
       res,
       bands,

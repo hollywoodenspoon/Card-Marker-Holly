@@ -18,6 +18,8 @@ export interface ImageExportOptions {
   bleeds: boolean[]
   formats: ImageFormat[]
   dpi: number
+  /** Round the corners of trimmed PNG/WebP images (mm radius; 0 or missing = square). */
+  cornerMm?: number
 }
 
 export interface ImageFile {

@@ -121,11 +121,7 @@ export function scores(field: (Piece | null)[]): [number, number] {
   return out
 }
 
-export function createGame(
-  hands: [UwCard[], UwCard[]],
-  first: Seat,
-  rules: UwRules = {},
-): UwState {
+export function createGame(hands: [UwCard[], UwCard[]], first: Seat, rules: UwRules = {}): UwState {
   return {
     rules,
     field: Array(9).fill(null),
@@ -290,7 +286,7 @@ function endTurn(s: UwState) {
     s.centerHold = { seat: c.owner, oppTurns: 0 }
   else if (s.centerHold.seat !== me) s.centerHold.oppTurns += 1
   // 3. Attrition.
-  if ((s.hands[0].length === 0 && s.hands[1].length === 0) || s.passes >= 2) {
+  if (s.hands[0].length === 0 && s.hands[1].length === 0) {
     const [a, b] = scores(s.field)
     s.log.push(`Attrition: P1 ${a}, P2 ${b}.`)
     if (a !== b) return win(s, a > b ? 0 : 1, 'attrition')
@@ -312,9 +308,9 @@ function win(s: UwState, seat: Seat, reason: 'battleline' | 'objective' | 'attri
   s.reason = reason
   const why =
     reason === 'battleline'
-      ? `${KIND_NAME.flag}s in a row`
+      ? `Battleline Victory: ${KIND_NAME.flag}s in a row`
       : reason === 'objective'
-        ? 'held the center'
-        : 'more firepower'
+        ? 'Objective Victory: held the center'
+        : 'Attrition Victory: more firepower'
   s.log.push(`Player ${seat + 1} wins (${why}).`)
 }

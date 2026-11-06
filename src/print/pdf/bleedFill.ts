@@ -60,6 +60,9 @@ export async function renderBleedBand(
   card.width = W
   card.height = H
   const cctx = card.getContext('2d')!
+  // Paper white under the card: transparent edges would stretch into black bleed.
+  cctx.fillStyle = '#ffffff'
+  cctx.fillRect(0, 0, W, H)
   cctx.scale(W / o.card.w, H / o.card.h)
   const box = { x: 0, y: 0, w: o.card.w, h: o.card.h }
   await renderCard(new CanvasTarget(cctx), nodes, box, box, res)
@@ -68,6 +71,8 @@ export async function renderBleedBand(
   band.width = W + 2 * B
   band.height = H + 2 * B
   const ctx = band.getContext('2d')!
+  ctx.fillStyle = '#ffffff'
+  ctx.fillRect(0, 0, band.width, band.height)
   ctx.drawImage(card, B, B)
   for (const r of bleedRegions(W, H, B, o.mode)) {
     ctx.save()

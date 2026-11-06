@@ -18,12 +18,13 @@ import { useUi } from '@/ui/uiStore'
 const DPIS = [150, 300, 600]
 
 /** Options kept for the session, so a second export starts where the last one left off. */
-let last: ImageExportOptions & { all: boolean } = {
+let last: ImageExportOptions & { all: boolean; round: boolean } = {
   all: false,
   sides: ['front'],
   bleeds: [false],
   formats: ['png'],
   dpi: 300,
+  round: false,
 }
 
 /** Export one card or all cards as PNG / JPG / WebP, trimmed and/or with bleed. */
@@ -65,6 +66,7 @@ function ExportForm({ cardId, onDone }: { cardId: string | null; onDone: () => v
     ? cardSizeOf(project, doc.templates, chosen[0])
     : { w: project.defaultSize.widthMm, h: project.defaultSize.heightMm }
   const count = chosen.length * o.sides.length * o.bleeds.length * o.formats.length
+  const cornerMm = project.cornerGuide?.radiusMm ?? 3
   const px = (withBleed: boolean) => imagePx(size, project.bleedMm, withBleed, o.dpi)
 
   const run = async () => {
@@ -88,6 +90,7 @@ function ExportForm({ cardId, onDone }: { cardId: string | null; onDone: () => v
           bleeds: [false, true].filter((b) => o.bleeds.includes(b)),
           formats: IMAGE_FORMATS.map((f) => f.id).filter((f) => o.formats.includes(f)),
           dpi: o.dpi,
+          cornerMm: o.round ? cornerMm : 0,
         },
         (d, t) => setBusy(`Image ${d} of ${t}…`),
       )
@@ -143,6 +146,14 @@ function ExportForm({ cardId, onDone }: { cardId: string | null; onDone: () => v
           disabled={project.bleedMm <= 0}
           checked={project.bleedMm > 0 && o.bleeds.includes(true)}
           onChange={(on) => update({ bleeds: toggle(o.bleeds, true, on) })}
+        />
+      </Group>
+      <Group label="Corners">
+        <Check
+          label={`Rounded (${cornerMm} mm)`}
+          hint="transparent corners · PNG and WebP without bleed"
+          checked={o.round}
+          onChange={(on) => update({ round: on })}
         />
       </Group>
       <Group label="Formats">
