@@ -34,7 +34,7 @@ const strips = [
   {
     front: [
       { cls: 'cover', html: `<img class="coverimg" src="assets/card-back.png" alt="">` },
-      P('mech-pair', '', `
+      P('comic-page06', '', `
 <h1>Battleline:<br>Mech Wars</h1><div class="kicker">Urban Warfare Edition</div>
 <p>This is an era of civil war for the Republic of Ria, Warlord-Generals reign supreme fighting for territory and resources of the once great nation. From the fields of Rianth, shadowed by the worldblood spires to the ancient city of Rianz, Battleline Mechs march, bombs fall, and the nation bleeds.</p>
 <p class="em">Become a Warlord-General in this time of strife, control the battlefield and reign supreme.</p>
@@ -43,7 +43,7 @@ const strips = [
 <h2>Two ways to fight</h2>
 <p>In <b>Battlelines</b> you are commanding your army to form a battleline to match or exceed your opponent to push them back and eventually rout them.</p>
 <p>In <b>Urban Warfare</b> you are commanding a company trying to take the center of the city district you are assigned to capture. Move your forces in the city but be careful, enemies could be anywhere and push you out before you know it.</p>`),
-      P('comic-formation', BL, `
+      P('mech-battleline', BL, `
 <h1 class="u">Battlelines</h1>
 <div class="box"><h2>Objective</h2>
 <p>Win 3 rounds to win the game.</p>
@@ -200,7 +200,7 @@ function panel(p, row, col, rot, isBack) {
   const ang = (isBack ? -90 : 90) + (rot ? 180 : 0);
   const st = `style="left:${px - PANEL_W / 2}mm;top:${py - PANEL_H / 2}mm;transform:rotate(${ang}deg);${clip(row, col, rot)}"`, cls = `panel${rot ? ' rot' : ''}`;
   if (p.cls === 'cover') return `<section class="${cls} cover" ${st}>${p.html}</section>`;
-  return `<section class="${cls}" ${st}>${p.bg ? `<img class="bgart${p.bg.startsWith('comic') ? ' comic' : ''}" src="assets/${p.bg}.png" style="object-position:${({'comic-formation':'50% 100%;object-fit:contain;-webkit-mask-image:none;mask-image:none','comic-bomber':'38% 50%'})[p.bg]||'50% 50%'}" alt="">` : ''}
+  return `<section class="${cls}" ${st}>${p.bg ? `<img class="bgart${p.bg.startsWith('comic') ? ' comic' : ''}" src="assets/${p.bg}.png" style="object-position:${({'comic-page06':'50% 50%;object-fit:contain;-webkit-mask-image:none;mask-image:none','comic-bomber':'38% 50%'})[p.bg]||'50% 50%'}" alt="">` : ''}
 ${p.mode ? `<div class="mode">${p.mode}</div>` : ''}<div class="body">${p.html}</div><div class="no">${p.no}</div></section>`;
 }
 
