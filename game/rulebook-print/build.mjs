@@ -95,7 +95,7 @@ const strips = [
   {
     front: [
       backCover(UW),
-      P('comic-city', UW, `
+      P('comic-spires', UW, `
 <h1 class="u">Urban Warfare</h1>
 <h2>What you need</h2><p>18 cards. Each player gets the same 9:</p>
 <table><tr><th>Card</th><th>#</th><th>FP</th></tr>
@@ -126,7 +126,7 @@ ${field([['battleline', 2], null, ['logistics', 2], null, ['advanced', 1], ['bat
 <li><b>Pass.</b></li></ul>`),
     ],
     back: [
-      P('comic-spires', UW, `
+      P('comic-city', UW, `
 <h2>Pushing</h2><p>If you place or move a card onto a square that already has a card, you <b>push</b> it one square along.</p><ul class="dash">
 <li>A card placed on a side square pushes toward the center. On a corner, you pick which way.</li>
 <li>You can always push your own cards.</li>
@@ -200,7 +200,7 @@ function panel(p, row, col, rot, isBack) {
   const ang = (isBack ? -90 : 90) + (rot ? 180 : 0);
   const st = `style="left:${px - PANEL_W / 2}mm;top:${py - PANEL_H / 2}mm;transform:rotate(${ang}deg);${clip(row, col, rot)}"`, cls = `panel${rot ? ' rot' : ''}`;
   if (p.cls === 'cover') return `<section class="${cls} cover" ${st}>${p.html}</section>`;
-  return `<section class="${cls}" ${st}>${p.bg ? `<img class="bgart${p.bg.startsWith('comic') ? ' comic' : ''}" src="assets/${p.bg}.png" alt="">` : ''}
+  return `<section class="${cls}" ${st}>${p.bg ? `<img class="bgart${p.bg.startsWith('comic') ? ' comic' : ''}" src="assets/${p.bg}.png" style="object-position:${({'comic-formation':'50% 50%','comic-bomber':'18% 50%'})[p.bg]||'50% 50%'}" alt="">` : ''}
 ${p.mode ? `<div class="mode">${p.mode}</div>` : ''}<div class="body">${p.html}</div><div class="no">${p.no}</div></section>`;
 }
 
@@ -241,7 +241,7 @@ body{font-family:InterR,sans-serif;color:var(--ink);-webkit-print-color-adjust:e
 .panel .body{position:absolute;inset:4.2mm 3.8mm 5.4mm 3.8mm;overflow:hidden}
 .panel::before{content:"";position:absolute;inset:-${BLEED}mm;background:#fff;z-index:-1}
 .bgart{position:absolute;width:62mm;right:-12mm;bottom:-4mm;opacity:.09;filter:grayscale(1);pointer-events:none}
-.bgart.comic{left:0;top:0;right:auto;bottom:auto;width:100%;height:100%;object-fit:cover;opacity:.3;filter:none;-webkit-mask-image:linear-gradient(to bottom,transparent 15%,#000 55%,#000 85%,transparent);mask-image:linear-gradient(to bottom,transparent 15%,#000 55%,#000 85%,transparent)}
+.bgart.comic{left:0;top:0;right:auto;bottom:auto;width:100%;height:100%;object-fit:cover;opacity:.3;filter:none;-webkit-mask-image:linear-gradient(to bottom,transparent,#000 20%,#000 80%,transparent);mask-image:linear-gradient(to bottom,transparent,#000 20%,#000 80%,transparent)}
 .cover{overflow:visible}
 .cover .coverimg{position:absolute;left:-${BLEED}mm;top:-${BLEED}mm;width:${PANEL_W + 2 * BLEED}mm;height:${PANEL_H + 2 * BLEED}mm;object-fit:cover}
 .no{position:absolute;right:3.8mm;bottom:2.2mm;font:700 9pt/1 Oswald;color:var(--red)}
