@@ -249,5 +249,8 @@ A pack whose cards have an `Ability_UW` field (`flag`, `bomb`, `support` or `nil
 - **Every move is shown:** yours, the bot's and the other player's. A box above the field says each thing that happens, one at a time (at the Action speed, or tap **Next**). Cards slide when pushed, fly in from the hand, and fly off the field when pushed off. Then a banner says whose turn it is. The bot waits until this is done. Cards the last move changed keep a dashed outline.
 - **Pass** is under your hand (not on your first turn). **Undo** is at the top.
 - The number on each card is its firepower now, with Logistics bonuses. The center line shows who holds the center and for how many turns.
+- **Bot against bot:** pick it under Players, choose each bot's level (Easy or Normal) and watch. **Pause** stops it between moves.
+- **Replays:** every finished game is saved (the last 100). **Replays** on the start screen lists them: tap one to watch it with **Play**, **Back**, **Step** and the slider. Export saves it as a .json file.
+- **Simulation:** many bot games at full speed (100, 500 or 1000). It shows each bot's wins, draws, how often the first player wins, average turns and how games were won. A game still going after 400 moves is stopped and counted as a draw.
 
 Full rules: `game/urban-warfare/rulebook.md`.
