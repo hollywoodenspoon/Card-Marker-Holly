@@ -182,7 +182,7 @@ function marks() {
   for (const y of [y0, y1]) { L(0, y, MARK - 1, y); L(BOX_W - MARK + 1, y, BOX_W, y); }
   for (let k = 1; k < PANELS; k++) { const x = x0 + k * PANEL_W; L(x, 0.5, x, MARK - 1, 'fold'); L(x, BOX_H - MARK + 1, x, BOX_H - 0.5, 'fold'); }
   L(0.5, ym, MARK - 1, ym, 'fold'); L(BOX_W - MARK + 1, ym, BOX_W - 0.5, ym, 'fold');
-  return `<svg class="marks" viewBox="0 0 ${BOX_W} ${BOX_H}" width="${BOX_W}mm" height="${BOX_H}mm">${s.join('')}</svg>`;
+  return s.join('');
 }
 
 // Bleed only on the sheet's outer edges: clip each panel's 3 mm overspill.
@@ -193,8 +193,12 @@ function clip(row, col, rot) {
   return `clip-path:inset(${e(t)} ${e(r)} ${e(b)} ${e(l)})`;
 }
 
-function panel(p, row, col, rot) {
-  const st = `style="${clip(row, col, rot)}"`, cls = `panel${rot ? ' rot' : ''}`;
+function panel(p, row, col, rot, isBack) {
+  // Each panel is placed on the page on its own (no rotated strip): a wide rotated box makes Chrome shrink the PDF.
+  const cx = OFF + col * PANEL_W + PANEL_W / 2, cy = OFF + row * PANEL_H + PANEL_H / 2;
+  const px = isBack ? BOX_X + cy : BOX_X + BOX_H - cy, py = isBack ? BOX_Y + BOX_W - cx : BOX_Y + cx;
+  const ang = (isBack ? -90 : 90) + (rot ? 180 : 0);
+  const st = `style="left:${px - PANEL_W / 2}mm;top:${py - PANEL_H / 2}mm;transform:rotate(${ang}deg);${clip(row, col, rot)}"`, cls = `panel${rot ? ' rot' : ''}`;
   if (p.cls === 'cover') return `<section class="${cls} cover" ${st}>${p.html}</section>`;
   return `<section class="${cls}" ${st}>${p.bg ? `<img class="bgart${p.bg.startsWith('comic') ? ' comic' : ''}" src="assets/${p.bg}.png" alt="">` : ''}
 ${p.mode ? `<div class="mode">${p.mode}</div>` : ''}<div class="body">${p.html}</div><div class="no">${p.no}</div></section>`;
@@ -202,15 +206,13 @@ ${p.mode ? `<div class="mode">${p.mode}</div>` : ''}<div class="body">${p.html}<
 
 function page(isBack) {
   const rows = isBack ? sheet.back : sheet.front;
-  const grid = rows.map((row, r) => `<div class="row">${row.map((p, c) => panel(p, r, c, !isBack && r === 1)).join('')}</div>`).join('');
-  const style = isBack
-    ? `left:${BOX_X}mm;top:${BOX_Y + BOX_W}mm;transform:rotate(-90deg)`
-    : `left:${BOX_X + BOX_H}mm;top:${BOX_Y}mm;transform:rotate(90deg)`;
+  const panels = rows.map((row, r) => row.map((p, c) => panel(p, r, c, !isBack && r === 1, isBack)).join('')).join('');
+  const g = isBack ? `translate(${BOX_X} ${BOX_Y + BOX_W}) rotate(-90)` : `translate(${BOX_X + BOX_H} ${BOX_Y}) rotate(90)`;
   const regX = isBack ? PAGE_W - 6 : 6;
   const note = isBack
     ? 'INSIDE'
     : 'OUTSIDE · cut on corner marks · fold in half (print outside), then zig-zag';
-  return `<div class="page"><div class="strip" style="${style}"><div class="trim">${grid}</div>${marks()}</div>
+  return `<div class="page">${panels}<svg class="marks" viewBox="0 0 ${PAGE_W} ${PAGE_H}" width="${PAGE_W}mm" height="${PAGE_H}mm"><g transform="${g}">${marks()}</g></svg>
 <div class="reg" style="left:${regX - 3}mm"><svg viewBox="0 0 6 6" width="6mm" height="6mm"><circle cx="3" cy="3" r="1.6"/><line x1="0" y1="3" x2="6" y2="3"/><line x1="3" y1="0" x2="3" y2="6"/></svg></div>
 <div class="note" style="left:${isBack ? 5 : PAGE_W - 7}mm">${note} · A4 100% · flip on long edge</div></div>`;
 }
@@ -225,7 +227,8 @@ const css = `
 @page{size:${PAGE_W}mm ${PAGE_H}mm;margin:0}
 *{box-sizing:border-box;margin:0;padding:0}
 :root{--red:#a80000;--ink:#1a1a1a}
-html,body{background:#fff}
+html,body{background:#fff;margin:0;width:${PAGE_W}mm;overflow:hidden}
+.slot{position:absolute;left:${BOX_X}mm;top:${BOX_Y}mm;width:${BOX_H}mm;height:${BOX_W}mm;overflow:visible}
 body{font-family:InterR,sans-serif;color:var(--ink);-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .page{position:relative;width:${PAGE_W}mm;height:${PAGE_H}mm;overflow:hidden;page-break-after:always}
 .strip{position:absolute;width:${BOX_W}mm;height:${BOX_H}mm;transform-origin:0 0}
@@ -234,8 +237,7 @@ body{font-family:InterR,sans-serif;color:var(--ink);-webkit-print-color-adjust:e
 .marks line.fold{stroke-dasharray:.6 .8;stroke-width:.25}
 .trim{position:absolute;left:${OFF}mm;top:${OFF}mm;width:${TRIM_W}mm;height:${TRIM_H}mm}
 .row{display:flex}
-.panel.rot{transform:rotate(180deg)}
-.panel{position:relative;width:${PANEL_W}mm;height:${PANEL_H}mm;flex:none;background:#fff}
+.panel{position:absolute;width:${PANEL_W}mm;height:${PANEL_H}mm;flex:none;background:#fff}
 .panel .body{position:absolute;inset:4.2mm 3.8mm 5.4mm 3.8mm;overflow:hidden}
 .panel::before{content:"";position:absolute;inset:-${BLEED}mm;background:#fff;z-index:-1}
 .bgart{position:absolute;width:62mm;right:-12mm;bottom:-4mm;opacity:.09;filter:grayscale(1);pointer-events:none}

@@ -47,3 +47,4 @@ Earlier PRs (#1–#48) used the 0.1.0 alpha line and are unchanged.
 | — | Folded print rulebook (both modes), rulebook intro from the owner | 0.8.19-beta | 0.8.19-beta | no |
 | — | Folded rulebook as one book (two strips taped), comic backgrounds, tagline removed | 0.8.20-beta | 0.8.20-beta | no |
 | — | Rulebook as a map fold (one sheet, no tape), new cut, bleed and fold marks; Instagram on the back cover | 0.8.21-beta | 0.8.21-beta | no |
+| — | Rulebook PDF prints full size (was shrunk to ~66%), centred on A4, front and back line up on a long-edge flip | 0.8.22-beta | 0.8.22-beta | no |
