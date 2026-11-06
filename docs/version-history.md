@@ -31,6 +31,7 @@ one: #61 was **0.8.1-beta**, then the Engine's three PRs took **0.8.2-beta**, **
 | #68 | Template Aces; calendar; give-cards effects; own deck        | 0.8.6-beta    | 0.8.6-beta             | no       |
 | #70 | Card game step: own deck, league opponent, optional flag     | 0.8.7-beta    | 0.8.7-beta             | no       |
 | — | Folder maps: a short CLAUDE.md in each main folder | 0.8.8-beta | 0.8.8-beta | no |
+| — | Urban Warfare: rules in `game/urban-warfare/`, engine `src/urban/`, playable at the Table | 0.8.9-beta | 0.8.9-beta | no |
 
 Earlier PRs (#1–#48) used the 0.1.0 alpha line and are unchanged.
 | — | Pairs rule, all 188 cards in the engine, Auto Build | 0.8.5-beta | 0.8.5-beta | no |

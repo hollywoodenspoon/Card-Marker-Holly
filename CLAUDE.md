@@ -43,7 +43,7 @@ The owner cuts printed sheets by hand. Optimize for: fast design workflow, reusa
 - Do not add features outside the spec (this file plus `.claude/rules/`) without asking.
 - If a requirement is ambiguous, pick the simplest option that matches the spec and note the assumption in `DECISIONS.md`.
 - Fix type errors and lint warnings as you go. Do not leave failing tests.
-- Card, balance and rule changes go into `game/adventure-scuffle/` in the same PR, not only as files sent to the owner (see `.claude/rules/adventure-scuffle.md`).
+- Card, balance and rule changes go into `game/<game>/` (Adventure Scuffle, Urban Warfare) in the same PR, not only as files sent to the owner (see `.claude/rules/adventure-scuffle.md`).
 
 ## Where things live
 

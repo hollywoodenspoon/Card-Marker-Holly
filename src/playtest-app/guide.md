@@ -236,3 +236,15 @@ If a phone keeps showing an old version, open `chrome://serviceworker-internals`
 ## What's next
 
 For whole-pack balance testing, use the **Balance lab**. `npm run as:sim` (in the project folder) still plays bot games between given decks without a screen and writes a report of win rates per deck and per card.
+
+## Urban Warfare
+
+A pack whose cards have an `Ability_UW` field (`flag`, `bomb`, `support` or `nil`) and `Firepower_UW` (0–3) opens the Urban Warfare table. One card of each kind is enough: copies are dealt.
+
+- Pick **You against the bot** (Easy or Normal) or **Two players, one device**, then **Start**.
+- **Place:** tap a hand card, then a green zone. At a corner with a card on it, pick which way to push.
+- **Move or bomb:** tap your card on the field, then a green zone, or a button below the field (off the field, or Bomb).
+- **Pass** is under your hand (not on your first turn). **Undo** is at the top.
+- The number on each card is its firepower now, with Logistics bonuses. The center line shows who holds the center and for how many turns.
+
+Full rules: `game/urban-warfare/rulebook.md`.
