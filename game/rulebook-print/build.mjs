@@ -200,7 +200,7 @@ function panel(p, row, col, rot, isBack) {
   const ang = (isBack ? -90 : 90) + (rot ? 180 : 0);
   const st = `style="left:${px - PANEL_W / 2}mm;top:${py - PANEL_H / 2}mm;transform:rotate(${ang}deg);${clip(row, col, rot)}"`, cls = `panel${rot ? ' rot' : ''}`;
   if (p.cls === 'cover') return `<section class="${cls} cover" ${st}>${p.html}</section>`;
-  return `<section class="${cls}" ${st}>${p.bg ? `<img class="bgart${p.bg.startsWith('comic') ? ' comic' : ''}" src="assets/${p.bg}.png" style="object-position:${({'comic-page06':'50% 50%;object-fit:contain;-webkit-mask-image:none;mask-image:none','comic-bomber':'38% 50%'})[p.bg]||'50% 50%'}" alt="">` : ''}
+  return `<section class="${cls}" ${st}>${p.bg ? `<img class="bgart${p.bg.startsWith('comic') ? ' comic' : ''}" src="assets/${p.bg}.png" style="object-position:${({'comic-page06':'50% 50%;opacity:.15;object-fit:contain;-webkit-mask-image:none;mask-image:none','comic-bomber':'38% 50%'})[p.bg]||'50% 50%'}" alt="">` : ''}
 ${p.mode ? `<div class="mode">${p.mode}</div>` : ''}<div class="body">${p.html}</div><div class="no">${p.no}</div></section>`;
 }
 
