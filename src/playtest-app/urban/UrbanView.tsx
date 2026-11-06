@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowLeft, CircleHelp, Undo2 } from '@/ui/icons'
 import { Button, IconButton } from '@/ui/components/ui/button'
 import { cn } from '@/lib/cn'
@@ -24,14 +24,16 @@ type Mode = 'hotseat' | UwLevel
 type Pick = { hand: UwCard } | { zone: number } | null
 
 const ARROW: Record<Dir, string> = { up: '↑', down: '↓', left: '←', right: '→' }
-/** Arrow buttons sit on the zone's edge, half outside it. */
+/** Arrow buttons sit just inside the zone's edge, so they never cover a neighbour. */
 const ARROW_POS: Record<Dir, string> = {
-  up: 'left-1/2 top-0 -translate-x-1/2 -translate-y-1/2',
-  down: 'left-1/2 bottom-0 -translate-x-1/2 translate-y-1/2',
-  left: 'left-0 top-1/2 -translate-x-1/2 -translate-y-1/2',
-  right: 'right-0 top-1/2 translate-x-1/2 -translate-y-1/2',
+  up: 'left-1/2 top-1 -translate-x-1/2',
+  down: 'left-1/2 bottom-1 -translate-x-1/2',
+  left: 'left-1 top-1/2 -translate-y-1/2',
+  right: 'right-1 top-1/2 -translate-y-1/2',
 }
-const SEAT_RING =['ring-sky-500', 'ring-rose-500']
+/** Taps on arrows this soon after they appear are ignored (a double tap must not play a move). */
+const ARROW_GUARD_MS = 350
+const SEAT_RING = ['ring-sky-500', 'ring-rose-500']
 const SEAT_TEXT = ['text-sky-600 dark:text-sky-400', 'text-rose-600 dark:text-rose-400']
 
 export function UrbanView({
@@ -50,7 +52,13 @@ export function UrbanView({
   const [history, setHistory] = useState<UwState[]>([])
   const [pick, setPick] = useState<Pick>(null)
   const [handoff, setHandoff] = useState(false)
+  const pickedAt = useRef(0)
+  const choose = (p: Pick, at: number) => {
+    setPick(p)
+    pickedAt.current = at
+  }
   const s = history[history.length - 1]
+  const prev = history[history.length - 2]
 
   const start = () => {
     const first = (Math.random() < 0.5 ? 0 : 1) as Seat
@@ -170,13 +178,13 @@ export function UrbanView({
   const zoneArrows = (z: number): { dir: Dir; move: UwMove }[] =>
     pickMoves.flatMap((m) =>
       m.type === 'move' && m.from === z
-        ? [{ dir: m.dir, move: m }]
+        ? [{ dir: m.dir, move: m as UwMove }]
         : m.type === 'place' && m.zone === z && m.dir
-          ? [{ dir: m.dir, move: m }]
+          ? [{ dir: m.dir, move: m as UwMove }]
           : [],
     )
 
-  const tapZone = (z: number) => {
+  const tapZone = (z: number, at: number) => {
     if (handoff) return
     const t = zoneTargets(z)
     if (t.length === 1) return play(t[0])
@@ -187,7 +195,7 @@ export function UrbanView({
       p.owner === s.turn &&
       legal.some((m) => (m.type === 'move' || m.type === 'bomb') && m.from === z)
     )
-      setPick(pick && 'zone' in pick && pick.zone === z ? null : { zone: z })
+      choose(pick && 'zone' in pick && pick.zone === z ? null : { zone: z }, at)
     else setPick(null)
   }
 
@@ -203,6 +211,8 @@ export function UrbanView({
         : `Player ${s.turn + 1}: ${s.placementsLeft === 2 ? 'place 2 cards' : s.turnsTaken[s.turn] === 0 ? 'place a card' : 'place, move, bomb or pass'}.`
 
   const hold = s.centerHold
+  // Zones the last move changed, so a bot move never looks like a jump.
+  const changed = (z: number) => !!prev && prev.field[z] !== s.field[z]
   const cell = phone ? 'w-[22vw] max-w-28' : 'w-32'
 
   return (
@@ -218,6 +228,11 @@ export function UrbanView({
           >
             {banner}
           </div>
+          {s.log.length > 1 && (
+            <p className="text-center text-xs text-muted-foreground">
+              Last: {s.log[s.log.length - 1]}
+            </p>
+          )}
           <OppCounts s={s} seat={opp} />
           <div className="grid grid-cols-3 gap-1.5 p-5">
             {s.field.map((p, z) => {
@@ -228,12 +243,16 @@ export function UrbanView({
                   <button
                     type="button"
                     aria-label={`Zone ${z + 1}${p ? `: player ${p.owner + 1}'s ${p.card.name}` : ''}`}
-                    onPointerUp={() => tapZone(z)}
+                    onClick={(e) => tapZone(z, e.timeStamp)}
                     className={cn(
                       'h-full w-full rounded-md border bg-panel',
                       z === CENTER && 'border-2 border-amber-500',
                       target && 'outline outline-4 outline-green-500',
                       fieldPick === z && 'outline outline-4 outline-amber-500',
+                      !target &&
+                        fieldPick !== z &&
+                        changed(z) &&
+                        'outline-dashed outline-2 outline-offset-2 outline-amber-500',
                     )}
                   >
                     {p && (
@@ -268,9 +287,11 @@ export function UrbanView({
                       key={dir}
                       type="button"
                       aria-label={`${move.type === 'move' ? 'Move' : 'Place and push'} ${dir}${move.type === 'move' && step(z, dir) === null ? ' off the field' : ''}`}
-                      onPointerUp={() => play(move)}
+                      onClick={(e) => {
+                        if (e.timeStamp - pickedAt.current > ARROW_GUARD_MS) play(move)
+                      }}
                       className={cn(
-                        'absolute z-10 flex size-9 items-center justify-center rounded-full bg-green-600 text-xl font-bold text-white shadow-lg ring-2 ring-white',
+                        'absolute z-10 flex size-8 items-center justify-center rounded-full bg-green-600 text-xl font-bold text-white shadow-lg ring-2 ring-white',
                         ARROW_POS[dir],
                         move.type === 'move' && step(z, dir) === null && 'bg-zinc-600',
                       )}
@@ -321,7 +342,7 @@ export function UrbanView({
                     type="button"
                     disabled={!usable}
                     aria-label={c.name}
-                    onPointerUp={() => setPick(picked ? null : { hand: c })}
+                    onClick={(e) => choose(picked ? null : { hand: c }, e.timeStamp)}
                     className={cn(
                       'w-16 rounded-md disabled:opacity-50',
                       picked && 'outline outline-2 outline-amber-500',

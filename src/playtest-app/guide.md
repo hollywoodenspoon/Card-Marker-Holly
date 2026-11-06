@@ -245,6 +245,7 @@ A pack whose cards have an `Ability_UW` field (`flag`, `bomb`, `support` or `nil
 - **Place:** tap a hand card, then a green empty zone. On a zone with a card on it, tap a green arrow to push that way.
 - **Move or bomb:** tap your card on the field, then one of the arrows on its edges (a grey arrow moves it off the field), or Bomb below the field.
 - **Buffs:** a card a Logistics Mech is buffing says Buffed, and its number shows the bonus, e.g. 3 +2 = 5.
+- **Last move:** cards the last move changed have a dashed outline, and the line under the banner says what happened.
 - **Pass** is under your hand (not on your first turn). **Undo** is at the top.
 - The number on each card is its firepower now, with Logistics bonuses. The center line shows who holds the center and for how many turns.
 
