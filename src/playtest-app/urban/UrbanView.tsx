@@ -52,6 +52,10 @@ export function UrbanView({
   const [history, setHistory] = useState<UwState[]>([])
   const [pick, setPick] = useState<Pick>(null)
   const [handoff, setHandoff] = useState(false)
+  /** The last move is being shown; nothing else happens until the player taps OK. */
+  const [showing, setShowing] = useState(false)
+  /** Show the field as it was before the last move. */
+  const [peek, setPeek] = useState(false)
   const pickedAt = useRef(0)
   const choose = (p: Pick, at: number) => {
     setPick(p)
@@ -64,6 +68,7 @@ export function UrbanView({
     const first = (Math.random() < 0.5 ? 0 : 1) as Seat
     setHistory([createGame(deal(read.cards), first)])
     setPick(null)
+    setShowing(false)
     setHandoff(mode === 'hotseat')
   }
 
@@ -75,21 +80,31 @@ export function UrbanView({
     const n = apply(s, m)
     setHistory((h) => [...h, n])
     setPick(null)
-    if (mode === 'hotseat' && n.winner === null && n.turn !== s.turn) setHandoff(true)
+    setShowing(true)
+  }
+
+  // After the shown move: the bot may play, or the next player takes the device.
+  const done = () => {
+    setShowing(false)
+    setPeek(false)
+    if (mode === 'hotseat' && s && s.winner === null && prev && prev.turn !== s.turn)
+      setHandoff(true)
   }
 
   // The bot's turn.
   useEffect(() => {
-    if (!s || s.winner !== null || botSeat === null || s.turn !== botSeat) return
-    const t = setTimeout(
-      () => setHistory((h) => [...h, apply(s, botMove(s, mode as UwLevel))]),
-      500,
-    )
+    if (!s || showing || s.winner !== null || botSeat === null || s.turn !== botSeat) return
+    const t = setTimeout(() => {
+      setHistory((h) => [...h, apply(s, botMove(s, mode as UwLevel))])
+      setShowing(true)
+    }, 1200)
     return () => clearTimeout(t)
-  }, [s, botSeat, mode])
+  }, [s, botSeat, mode, showing])
 
   const undo = () => {
     setPick(null)
+    setShowing(false)
+    setPeek(false)
     setHistory((h) => {
       if (h.length <= 1) return h
       let i = h.length - 2
@@ -153,7 +168,15 @@ export function UrbanView({
       </div>
     )
 
-  const legal = s.winner === null && s.turn !== botSeat ? legalMoves(s) : []
+  const legal = s.winner === null && s.turn !== botSeat && !showing ? legalMoves(s) : []
+  // What the last move did, in words, and the cards it pushed off the field.
+  const said = showing && prev ? s.log.slice(prev.log.length) : []
+  const mover = prev ? prev.turn : s.turn
+  const moverName =
+    botSeat !== null ? (mover === botSeat ? 'The bot' : 'You') : `Player ${mover + 1}`
+  const onField = new Set(s.field.flatMap((p) => (p ? [p.card.id] : [])))
+  const lost = showing && prev ? prev.field.filter((p) => p && !onField.has(p.card.id)) : []
+  const field = peek && prev ? prev.field : s.field
   const myHand = s.hands[viewer]
   const opp = (1 - viewer) as Seat
 
@@ -212,7 +235,7 @@ export function UrbanView({
 
   const hold = s.centerHold
   // Zones the last move changed, so a bot move never looks like a jump.
-  const changed = (z: number) => !!prev && prev.field[z] !== s.field[z]
+  const changed = (z: number) => showing && !!prev && prev.field[z] !== s.field[z]
   const cell = phone ? 'w-[22vw] max-w-28' : 'w-32'
 
   return (
@@ -228,16 +251,60 @@ export function UrbanView({
           >
             {banner}
           </div>
-          {s.log.length > 1 && (
-            <p className="text-center text-xs text-muted-foreground">
-              Last: {s.log[s.log.length - 1]}
-            </p>
+          {showing && said.length > 0 && (
+            <div
+              className="flex w-full max-w-md flex-col gap-2 rounded-xl border-2 border-amber-500 bg-panel p-3 shadow-lg"
+              role="status"
+              aria-live="polite"
+              data-testid="uw-shown-move"
+            >
+              <p className={cn('text-sm font-semibold', SEAT_TEXT[mover])}>{moverName}:</p>
+              <ul className="flex flex-col gap-1 text-base leading-snug">
+                {said.map((l, i) => (
+                  <li key={i}>{l}</li>
+                ))}
+              </ul>
+              {lost.length > 0 && (
+                <div className="flex flex-wrap items-center gap-2 text-sm text-danger">
+                  Off the field:
+                  {lost.map((p) => (
+                    <CardFace
+                      key={p!.card.id}
+                      card={p!.card}
+                      className={cn('aspect-[63/88] w-12 rounded-md ring-4', SEAT_RING[p!.owner])}
+                    />
+                  ))}
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground">
+                Zones with a dashed outline changed.
+              </p>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onPointerDown={() => setPeek(true)}
+                  onPointerUp={() => setPeek(false)}
+                  onPointerLeave={() => setPeek(false)}
+                  onClick={(e) => e.detail === 0 && setPeek((v) => !v)}
+                >
+                  {peek ? 'Showing before…' : 'Hold to see before'}
+                </Button>
+                <Button size="sm" className="flex-1" autoFocus onClick={done} data-testid="uw-ok">
+                  {s.winner !== null
+                    ? 'OK'
+                    : botSeat !== null && s.turn === botSeat
+                      ? "OK, bot's turn"
+                      : 'OK, next turn'}
+                </Button>
+              </div>
+            </div>
           )}
           <OppCounts s={s} seat={opp} />
           <div className="grid grid-cols-3 gap-1.5 p-5">
-            {s.field.map((p, z) => {
+            {field.map((p, z) => {
               const target = zoneTargets(z).length > 0
-              const bonus = p ? strength(s.field, z) - p.card.fp : 0
+              const bonus = p ? strength(field, z) - p.card.fp : 0
               return (
                 <div key={z} className={cn('relative aspect-[63/88]', cell)}>
                   <button

@@ -5,7 +5,7 @@ import { askBot } from './botClient'
 import { SPEED_MS, usePlaytest, type Speed } from './usePlaytest'
 
 /** A short gap before the bot's next move, after its last one has been shown (ms). */
-export const BOT_DELAY: Record<Speed, number> = { slow: 400, normal: 200, fast: 60, rush: 0 }
+export const BOT_DELAY: Record<Speed, number> = { slow: 600, normal: 400, fast: 100, rush: 0 }
 
 /**
  * Plays the bot's moves while a bot seat is to act: waits until the last move
