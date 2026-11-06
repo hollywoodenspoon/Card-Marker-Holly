@@ -4,7 +4,7 @@ import { Button, IconButton } from '@/ui/components/ui/button'
 import { cn } from '@/lib/cn'
 import { botMove, type UwLevel } from '@/urban/bot'
 import { cardsFromPack, deal, missingKinds } from '@/urban/cards'
-import { apply, createGame, legalMoves, placeDirs, step, strength } from '@/urban/engine'
+import { apply, createGame, legalMoves, step, strength } from '@/urban/engine'
 import {
   CENTER,
   KINDS,
@@ -24,7 +24,14 @@ type Mode = 'hotseat' | UwLevel
 type Pick = { hand: UwCard } | { zone: number } | null
 
 const ARROW: Record<Dir, string> = { up: '↑', down: '↓', left: '←', right: '→' }
-const SEAT_RING = ['ring-sky-500', 'ring-rose-500']
+/** Arrow buttons sit on the zone's edge, half outside it. */
+const ARROW_POS: Record<Dir, string> = {
+  up: 'left-1/2 top-0 -translate-x-1/2 -translate-y-1/2',
+  down: 'left-1/2 bottom-0 -translate-x-1/2 translate-y-1/2',
+  left: 'left-0 top-1/2 -translate-x-1/2 -translate-y-1/2',
+  right: 'right-0 top-1/2 translate-x-1/2 -translate-y-1/2',
+}
+const SEAT_RING =['ring-sky-500', 'ring-rose-500']
 const SEAT_TEXT = ['text-sky-600 dark:text-sky-400', 'text-rose-600 dark:text-rose-400']
 
 export function UrbanView({
@@ -156,17 +163,24 @@ export function UrbanView({
       : pick && 'zone' in pick
         ? legal.filter((m) => (m.type === 'move' || m.type === 'bomb') && m.from === pick.zone)
         : []
+  // Empty zones a hand card can go to: tap the zone.
   const zoneTargets = (z: number) =>
-    pickMoves.filter(
-      (m) =>
-        (m.type === 'place' && m.zone === z) || (m.type === 'move' && step(m.from, m.dir) === z),
+    pickMoves.filter((m) => m.type === 'place' && m.zone === z && !m.dir)
+  // Arrows on a zone's edges: moves of the picked field card, or pushes of the picked hand card.
+  const zoneArrows = (z: number): { dir: Dir; move: UwMove }[] =>
+    pickMoves.flatMap((m) =>
+      m.type === 'move' && m.from === z
+        ? [{ dir: m.dir, move: m }]
+        : m.type === 'place' && m.zone === z && m.dir
+          ? [{ dir: m.dir, move: m }]
+          : [],
     )
 
   const tapZone = (z: number) => {
     if (handoff) return
     const t = zoneTargets(z)
     if (t.length === 1) return play(t[0])
-    if (t.length > 1) return // corner: choose a direction below
+    if (zoneArrows(z).length > 0 && pick && 'hand' in pick) return // choose an arrow
     const p = s.field[z]
     if (
       p &&
@@ -177,10 +191,6 @@ export function UrbanView({
     else setPick(null)
   }
 
-  const cornerChoice =
-    pick && 'hand' in pick
-      ? pickMoves.filter((m) => m.type === 'place' && m.dir && placeDirs(m.zone).length > 1)
-      : []
   const fieldPick = pick && 'zone' in pick ? pick.zone : null
 
   const banner =
@@ -209,40 +219,66 @@ export function UrbanView({
             {banner}
           </div>
           <OppCounts s={s} seat={opp} />
-          <div className="grid grid-cols-3 gap-1.5">
+          <div className="grid grid-cols-3 gap-1.5 p-5">
             {s.field.map((p, z) => {
               const target = zoneTargets(z).length > 0
+              const bonus = p ? strength(s.field, z) - p.card.fp : 0
               return (
-                <button
-                  key={z}
-                  type="button"
-                  aria-label={`Zone ${z + 1}${p ? `: player ${p.owner + 1}'s ${p.card.name}` : ''}`}
-                  onPointerUp={() => tapZone(z)}
-                  className={cn(
-                    'relative aspect-[63/88] rounded-md border bg-panel',
-                    cell,
-                    z === CENTER && 'border-2 border-amber-500',
-                    target && 'outline outline-2 outline-green-500',
-                    fieldPick === z && 'outline outline-2 outline-amber-500',
-                  )}
-                >
-                  {p && (
-                    <>
-                      <CardFace
-                        card={p.card}
-                        className={cn('h-full w-full rounded-md ring-4', SEAT_RING[p.owner])}
-                      />
-                      <span className="absolute bottom-1 right-1 rounded bg-black/70 px-1.5 text-xs font-bold text-white">
-                        {strength(s.field, z)}
+                <div key={z} className={cn('relative aspect-[63/88]', cell)}>
+                  <button
+                    type="button"
+                    aria-label={`Zone ${z + 1}${p ? `: player ${p.owner + 1}'s ${p.card.name}` : ''}`}
+                    onPointerUp={() => tapZone(z)}
+                    className={cn(
+                      'h-full w-full rounded-md border bg-panel',
+                      z === CENTER && 'border-2 border-amber-500',
+                      target && 'outline outline-4 outline-green-500',
+                      fieldPick === z && 'outline outline-4 outline-amber-500',
+                    )}
+                  >
+                    {p && (
+                      <>
+                        <CardFace
+                          card={p.card}
+                          className={cn('h-full w-full rounded-md ring-4', SEAT_RING[p.owner])}
+                        />
+                        <span
+                          className={cn(
+                            'absolute bottom-1 right-1 rounded px-1.5 text-xs font-bold text-white',
+                            bonus > 0 ? 'bg-green-700' : 'bg-black/70',
+                          )}
+                        >
+                          {bonus > 0 ? `${p.card.fp} +${bonus} = ${p.card.fp + bonus}` : p.card.fp}
+                        </span>
+                        {bonus > 0 && (
+                          <span className="absolute left-1 top-1 rounded bg-green-700 px-1.5 text-[10px] font-bold text-white">
+                            Buffed
+                          </span>
+                        )}
+                      </>
+                    )}
+                    {!p && (
+                      <span className="text-xs text-muted-foreground">
+                        {z === CENTER ? 'Center' : z + 1}
                       </span>
-                    </>
-                  )}
-                  {!p && (
-                    <span className="text-xs text-muted-foreground">
-                      {z === CENTER ? 'Center' : z + 1}
-                    </span>
-                  )}
-                </button>
+                    )}
+                  </button>
+                  {zoneArrows(z).map(({ dir, move }) => (
+                    <button
+                      key={dir}
+                      type="button"
+                      aria-label={`${move.type === 'move' ? 'Move' : 'Place and push'} ${dir}${move.type === 'move' && step(z, dir) === null ? ' off the field' : ''}`}
+                      onPointerUp={() => play(move)}
+                      className={cn(
+                        'absolute z-10 flex size-9 items-center justify-center rounded-full bg-green-600 text-xl font-bold text-white shadow-lg ring-2 ring-white',
+                        ARROW_POS[dir],
+                        move.type === 'move' && step(z, dir) === null && 'bg-zinc-600',
+                      )}
+                    >
+                      {ARROW[dir]}
+                    </button>
+                  ))}
+                </div>
               )
             })}
           </div>
@@ -256,24 +292,10 @@ export function UrbanView({
               'nobody'
             )}
           </p>
-          {cornerChoice.length > 0 && (
-            <div className="flex flex-wrap justify-center gap-2">
-              {cornerChoice.map((m, i) => (
-                <Button key={i} size="sm" variant="outline" onClick={() => play(m)}>
-                  Zone {m.type === 'place' && m.zone + 1}: push{' '}
-                  {m.type === 'place' && m.dir && ARROW[m.dir]}
-                </Button>
-              ))}
-            </div>
-          )}
           {fieldPick !== null && (
             <div className="flex flex-wrap justify-center gap-2">
               {pickMoves.map((m, i) =>
-                m.type === 'move' && step(m.from, m.dir) === null ? (
-                  <Button key={i} size="sm" variant="outline" onClick={() => play(m)}>
-                    {ARROW[m.dir]} Off the field
-                  </Button>
-                ) : m.type === 'bomb' ? (
+                m.type === 'bomb' ? (
                   <Button key={i} size="sm" variant="danger" onClick={() => play(m)}>
                     Bomb{m.target !== undefined ? ` + zone ${m.target + 1}` : ' (alone)'}
                   </Button>
