@@ -15,6 +15,7 @@ Besides the PDF, you can save cards as picture files: to share them online, send
 - **Cards**: the card you have open, or **All cards**. This choice appears when a card is open.
 - **Sides**: **Front**, **Back**, or both.
 - **Size**: **Without bleed** (just the finished card), **With 3 mm bleed** (your project's bleed), or both. The pixel size of each is shown next to it.
+- **Corners**: **Rounded** cuts the corners round with a transparent background, using the radius of the **Corner rounding** guide (3 mm if you haven't set one). It applies to PNG and WebP images without bleed; JPG and bleed images stay square.
 - **Formats**: **PNG** and **WebP** keep transparency, **JPG** has a white background. You can tick more than one.
 - **Resolution**: **150 dpi**, **300 dpi** or **600 dpi**. 300 dpi is good for printing; 150 dpi is enough for screens.
 
