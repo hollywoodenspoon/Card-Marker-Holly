@@ -1,4 +1,5 @@
 import { ChevronDown, CircleHelp, FolderPlus, PenTool, Sheet, Upload } from '@/ui/icons'
+import { modeForTab } from './editMode'
 import { useEditor } from '@/core/editor/editorStore'
 import { openHelp } from '@/help/openHelp'
 import { cn } from '@/lib/cn'
@@ -56,7 +57,10 @@ export function LeftPanel({
             type="button"
             // Picking a tab only shows it: what your edits change is set by the
             // Card / Template switch (or Edit template), never by browsing.
-            onClick={() => onTab(p.id)}
+            onClick={() => {
+              onTab(p.id)
+              modeForTab(p.id)
+            }}
             aria-pressed={shown === p.id}
             className={cn(
               railButton,

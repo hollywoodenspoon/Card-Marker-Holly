@@ -285,7 +285,8 @@ const CardRow = memo(function CardRow({
         onClick={onPick}
         onDoubleClick={() => setRenaming(true)}
         className={cn(
-          'flex min-w-0 flex-1 items-center gap-2 text-left',
+          'flex items-center gap-2 text-left',
+          renaming ? 'shrink-0' : 'min-w-0 flex-1',
           small ? 'min-h-8 pointer-coarse:min-h-11' : 'min-h-11',
         )}
       >
@@ -302,6 +303,7 @@ const CardRow = memo(function CardRow({
       {renaming && (
         <Input
           autoFocus
+          className="min-w-0 flex-1"
           defaultValue={card.name}
           aria-label="Card name"
           onBlur={(e) => {

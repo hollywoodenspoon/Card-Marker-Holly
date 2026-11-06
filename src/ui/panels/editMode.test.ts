@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { openDoc, setView, useEditor } from '@/core/editor/editorStore'
 import { createProject } from '@/core/model/factories'
 import { useUi } from '@/ui/uiStore'
-import { followModeWithTabs, setEditMode } from './editMode'
+import { followModeWithTabs, modeForTab, setEditMode } from './editMode'
 
 let frontId: string
 
@@ -40,5 +40,12 @@ describe('tabs follow the editing mode', () => {
     setView({ mode: 'template', templateId: frontId })
     expect(useUi.getState().leftTab).toBe('decks')
     stop()
+  })
+
+  it('picking the Templates or Cards tab switches the mode', () => {
+    modeForTab('templates')
+    expect(useEditor.getState().view.mode).toBe('template')
+    modeForTab('cards')
+    expect(useEditor.getState().view.mode).toBe('card')
   })
 })

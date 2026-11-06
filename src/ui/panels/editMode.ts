@@ -45,3 +45,9 @@ export function followModeWithTabs(): () => void {
     if (s.view.mode === 'card' && ui.leftTab === 'templates') ui.setLeftTab('cards')
   })
 }
+
+/** A left-pane tab was picked: Cards and Templates also switch the mode. */
+export function modeForTab(id: string) {
+  if (id === 'templates') setEditMode('template')
+  if (id === 'cards') setEditMode('card')
+}
