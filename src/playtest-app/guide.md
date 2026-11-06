@@ -53,7 +53,7 @@ With **two players, one device**, a screen asks you to pass the device whenever 
 ### Following the game
 
 - **One action at a time:** after every move, the table shows what happened step by step. A box at the top names the action and shows the cards it is about. Cards light up for what just happened to them (revealed, used, attacking, defending, Fighting Spirit, moved). Cards that swap places get a double-headed arrow, and a card that moves gets a one-way arrow. Choices wait until the step-by-step view is over.
-- **Action speed** (in the bar) sets how long each action stays on screen: Slow, Normal or Fast. **Rush** plays without pauses. **Skip** jumps to the end of the move. On a phone, tap the action box to open the whole log.
+- **Action speed** (in the bar) sets how long each action stays on screen: Slow, Normal or Fast. **Rush** plays without pauses. Each action stays up longer than before, so you can read it. **Next** shows the next action now, **Skip** jumps to the end of the move. On a phone, tap the action box to open the whole log.
 - **Card values:** every card you can see shows its Attack (A, red, left edge), Defense (D, green, right edge) and Fighting Spirit (FS, amber, top edge), where the card prints them. On the field these are the values as they count now; a value raised by an ability has a white outline. On a computer, rest the mouse on any card to see it large beside the pointer.
 - **Card preview:** tap any card you can see to read it in a small window, with its current A, D and FS and its ability. The tap still does what it would (a reveal, for example). The window's arrows enlarge the card; × closes it.
 - **The combat stage:** during an Engagement, its cards gather in the middle of the table. As on the table, Active cards lie sideways: the attackers that count are turned with their swords showing, the Main Attacker in front (with its cube) and the others behind it. The defenders that count are turned the other way, shields showing. Fighting Spirit cards stand upright in front of their side's stack, each with the value it added. The totals sit between the stacks, and a change pops up as +N beside them. Your Support stays in reach along the bottom of the stage (tap a card to read it). **Hide stage** shows the field underneath.
@@ -245,7 +245,7 @@ A pack whose cards have an `Ability_UW` field (`flag`, `bomb`, `support` or `nil
 - **Place:** tap a hand card, then a green empty zone. On a zone with a card on it, tap a green arrow to push that way.
 - **Move or bomb:** tap your card on the field, then one of the arrows on its edges (a grey arrow moves it off the field), or Bomb below the field.
 - **Buffs:** a card a Logistics Mech is buffing says Buffed, and its number shows the bonus, e.g. 3 +2 = 5.
-- **Last move:** cards the last move changed have a dashed outline, and the line under the banner says what happened.
+- **Every move is shown:** yours, the bot's and the other player's. A box above the field says each thing that happens, one at a time (at the Action speed, or tap **Next**). Cards slide when pushed, fly in from the hand, and fly off the field when pushed off. Then a banner says whose turn it is. The bot waits until this is done. Cards the last move changed keep a dashed outline.
 - **Pass** is under your hand (not on your first turn). **Undo** is at the top.
 - The number on each card is its firepower now, with Logistics bonuses. The center line shows who holds the center and for how many turns.
 
