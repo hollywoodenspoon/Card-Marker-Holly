@@ -179,7 +179,7 @@ function marks() {
   const L = (x1, y1, x2, y2, cls = 'cut') => s.push(`<line class="${cls}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`);
   const x0 = OFF, x1 = OFF + TRIM_W, y0 = OFF, y1 = OFF + TRIM_H, ym = OFF + PANEL_H;
   // Cut lines run to the paper edge (the page clips them) but stop short of the trim.
-  for (const x of [x0, x1]) { L(x, -30, x, y0 - 1); L(x, y1 + 1, x, BOX_H + 30); }
+  for (const x of [x0, x1]) { L(x, -30, x, y0 - 1); L(x, y0, x, y1, 'cutfaint'); L(x, y1 + 1, x, BOX_H + 30); }
   for (const y of [y0, y1]) { L(-30, y, x0 - 1, y); L(x1 + 1, y, BOX_W + 30, y); }
   // Faint fold guides across the sheet.
   for (let k = 1; k < PANELS; k++) { const x = x0 + k * PANEL_W; L(x, y0, x, y1, 'guide'); }
@@ -238,6 +238,7 @@ body{font-family:InterR,sans-serif;color:var(--ink);-webkit-print-color-adjust:e
 .strip{position:absolute;width:${BOX_W}mm;height:${BOX_H}mm;transform-origin:0 0}
 .marks{position:absolute;left:0;top:0;overflow:visible}
 .marks line{stroke:#000;stroke-width:.2}
+.marks line.cutfaint{stroke:#bbb;stroke-width:.15}
 .marks line.guide{stroke:#bbb;stroke-width:.15;stroke-dasharray:1.2 1.2}
 .marks line.fold{stroke-dasharray:.6 .8;stroke-width:.25}
 .trim{position:absolute;left:${OFF}mm;top:${OFF}mm;width:${TRIM_W}mm;height:${TRIM_H}mm}
