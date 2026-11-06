@@ -16,13 +16,18 @@ import {
   type UwMove,
   type UwState,
 } from '@/urban/state'
+import { saveUrbanReplay } from '@/playtest/library'
+import type { UwReplay } from '@/urban/replay'
 import { usePack } from '../table/packContext'
+import { UrbanReplays } from './UrbanReplays'
+import { UrbanSim } from './UrbanSim'
 import { SPEED_MS, usePlaytest } from '../table/usePlaytest'
 import { useUrbanMotion } from './useUrbanMotion'
 
 /** Urban Warfare at the Table: hot-seat or against a bot. Rules run in `src/urban/`. */
 
-type Mode = 'hotseat' | UwLevel
+type Mode = 'hotseat' | UwLevel | 'bots'
+type Screen = 'table' | 'replays' | 'sim'
 type Pick = { hand: UwCard } | { zone: number } | null
 type Shown = { from: UwState; to: UwState; lines: string[]; i: number; dir: Dir | null }
 
@@ -52,7 +57,16 @@ export function UrbanView({
   const read = useMemo(() => cardsFromPack(pack.info.cards), [pack])
   const missing = missingKinds(read.cards)
   const [mode, setMode] = useState<Mode>('normal')
+  const [botLevels, setBotLevels] = useState<[UwLevel, UwLevel]>(['normal', 'normal'])
+  const [screen, setScreen] = useState<Screen>('table')
   const [history, setHistory] = useState<UwState[]>([])
+  /** Moves between the states in `history` (one fewer), for the replay. */
+  const [moves, setMoves] = useState<UwMove[]>([])
+  /** A replay being watched: no input, play/pause/step instead. */
+  const [watch, setWatch] = useState<{ r: UwReplay; playing: boolean } | null>(null)
+  const [paused, setPaused] = useState(false)
+  /** The last change was a replay jump: no card motion. */
+  const [jumped, setJumped] = useState(false)
   const [pick, setPick] = useState<Pick>(null)
   const [handoff, setHandoff] = useState(false)
   /** The move being shown, one log line at a time; nothing else happens until it ends. */
@@ -74,15 +88,18 @@ export function UrbanView({
     rootRef,
     history.length,
     shown?.dir ?? null,
-    rush,
+    rush || jumped,
     !!shown?.lines[0]?.includes(' bombs '),
   )
 
   const start = () => {
     const first = (Math.random() < 0.5 ? 0 : 1) as Seat
     setHistory([createGame(deal(read.cards), first)])
+    setMoves([])
+    setWatch(null)
+    setPaused(false)
     setTurnBanner(
-      mode === 'hotseat'
+      mode === 'hotseat' || mode === 'bots'
         ? `Player ${first + 1} goes first`
         : first === 0
           ? 'You go first'
@@ -94,8 +111,17 @@ export function UrbanView({
     setHandoff(mode === 'hotseat')
   }
 
-  const botSeat: Seat | null = mode === 'hotseat' ? null : 1
-  const viewer: Seat = !s ? 0 : botSeat === null ? s.turn : 0
+  const bots: [UwLevel | null, UwLevel | null] = watch
+    ? watch.r.bots
+    : mode === 'hotseat'
+      ? [null, null]
+      : mode === 'bots'
+        ? botLevels
+        : [null, mode]
+  const allBots = !!watch || (bots[0] !== null && bots[1] !== null)
+  /** The seat a bot plays against a person, else null. */
+  const botSeat: Seat | null = allBots ? null : bots[1] !== null ? 1 : null
+  const viewer: Seat = !s ? 0 : allBots ? 0 : botSeat === null ? s.turn : 0
 
   const play = (m: UwMove) => {
     if (!s) return
@@ -105,14 +131,36 @@ export function UrbanView({
 
   const played = (from: UwState, m: UwMove) => {
     const n = apply(from, m)
+    setJumped(false)
     setHistory((h) => [...h, n])
+    if (!watch) {
+      const all = [...moves, m]
+      setMoves(all)
+      if (n.winner !== null) keep(history[0], all, n)
+    }
     const lines = n.log.slice(from.log.length)
     if (rush) return finish(from, n)
     setShown({ from, to: n, lines, i: 0, dir: 'dir' in m && m.dir ? m.dir : null })
   }
 
+  const keep = (start: UwState, all: UwMove[], end: UwState) =>
+    void saveUrbanReplay({
+      packId: pack.info.projectId,
+      bots,
+      winner: end.winner,
+      reason: end.reason,
+      start,
+      moves: all,
+    })
+
   const who = (seat: Seat) =>
-    botSeat !== null ? (seat === botSeat ? 'The bot' : 'You') : `Player ${seat + 1}`
+    allBots
+      ? `Bot ${seat + 1}`
+      : botSeat !== null
+        ? seat === botSeat
+          ? 'The bot'
+          : 'You'
+        : `Player ${seat + 1}`
 
   // The move has been shown: say whose turn it is, then the next player may act.
   const finish = (from: UwState, to: UwState) => {
@@ -121,7 +169,7 @@ export function UrbanView({
     if (to.turn === from.turn) return
     const name = who(to.turn)
     setTurnBanner(name === 'You' ? 'Your turn' : `${name}'s turn`)
-    if (mode === 'hotseat') setHandoff(true)
+    if (mode === 'hotseat' && !watch) setHandoff(true)
   }
 
   const next = () => {
@@ -143,13 +191,41 @@ export function UrbanView({
     return () => clearTimeout(t)
   }, [turnBanner])
 
-  // The bot's turn.
+  // The bot's turn, or the replay's next move.
   useEffect(() => {
-    if (!s || shown || turnBanner || s.winner !== null || botSeat === null || s.turn !== botSeat)
-      return
-    const t = setTimeout(() => played(s, botMove(s, mode as UwLevel)), rush ? 0 : 900)
+    if (!s || shown || turnBanner || s.winner !== null || paused) return
+    if (watch) {
+      const m = watch.r.moves[history.length - 1]
+      if (!watch.playing || !m) return
+      const t = setTimeout(() => played(s, m), rush ? 0 : 600)
+      return () => clearTimeout(t)
+    }
+    const level = bots[s.turn]
+    if (!level) return
+    const t = setTimeout(() => played(s, botMove(s, level)), rush ? 0 : 900)
     return () => clearTimeout(t)
   })
+
+  /** Replay: one move forward or back, or jump to move `i`. */
+  const seek = (i: number) => {
+    if (!watch) return
+    let h = [watch.r.start]
+    for (const m of watch.r.moves.slice(0, i)) h = [...h, apply(h[h.length - 1], m)]
+    setShown(null)
+    setTurnBanner(null)
+    setJumped(true)
+    setHistory(h)
+  }
+  const openReplay = (r: UwReplay) => {
+    setWatch({ r, playing: false })
+    setHistory([r.start])
+    setMoves([])
+    setShown(null)
+    setTurnBanner(null)
+    setHandoff(false)
+    setPick(null)
+    setScreen('table')
+  }
 
   const undo = () => {
     setPick(null)
@@ -170,7 +246,7 @@ export function UrbanView({
         <ArrowLeft />
       </IconButton>
       <h1 className="flex-1 truncate text-sm font-semibold">Urban Warfare · {pack.info.name}</h1>
-      {s && (
+      {s && !watch && (
         <IconButton label="Undo" onClick={undo} disabled={history.length <= 1}>
           <Undo2 />
         </IconButton>
@@ -180,6 +256,25 @@ export function UrbanView({
       </IconButton>
     </div>
   )
+
+  if (screen === 'replays')
+    return (
+      <div className="flex h-full flex-col bg-canvas">
+        {header}
+        <UrbanReplays
+          packId={pack.info.projectId}
+          onOpen={openReplay}
+          onClose={() => setScreen('table')}
+        />
+      </div>
+    )
+  if (screen === 'sim')
+    return (
+      <div className="flex h-full flex-col bg-canvas">
+        {header}
+        <UrbanSim cards={read.cards} onClose={() => setScreen('table')} />
+      </div>
+    )
 
   if (!s)
     return (
@@ -200,8 +295,29 @@ export function UrbanView({
               <option value="normal">You against the bot (Normal)</option>
               <option value="easy">You against the bot (Easy)</option>
               <option value="hotseat">Two players, one device</option>
+              <option value="bots">Bot against bot (watch)</option>
             </select>
           </label>
+          {mode === 'bots' && (
+            <div className="flex gap-2">
+              {([0, 1] as Seat[]).map((seat) => (
+                <label key={seat} className="flex flex-1 flex-col gap-1 text-sm">
+                  Bot {seat + 1}
+                  <select
+                    className="h-11 rounded-md border bg-panel px-2 md:h-9"
+                    value={botLevels[seat]}
+                    onChange={(e) => {
+                      const v = e.target.value as UwLevel
+                      setBotLevels((b) => (seat === 0 ? [v, b[1]] : [b[0], v]))
+                    }}
+                  >
+                    <option value="normal">Normal</option>
+                    <option value="easy">Easy</option>
+                  </select>
+                </label>
+              ))}
+            </div>
+          )}
           {read.issues.length > 0 && (
             <ul className="rounded-md border p-2 text-xs text-danger">
               {read.issues.map((i, k) => (
@@ -214,12 +330,25 @@ export function UrbanView({
           <Button onClick={start} disabled={missing.length > 0}>
             Start
           </Button>
+          <div className="flex gap-2">
+            <Button variant="secondary" className="flex-1" onClick={() => setScreen('replays')}>
+              Replays
+            </Button>
+            <Button
+              variant="secondary"
+              className="flex-1"
+              onClick={() => setScreen('sim')}
+              disabled={missing.length > 0}
+            >
+              Simulation
+            </Button>
+          </div>
         </div>
       </div>
     )
 
   const busy = !!shown || !!turnBanner
-  const legal = s.winner === null && s.turn !== botSeat && !busy ? legalMoves(s) : []
+  const legal = s.winner === null && !allBots && s.turn !== botSeat && !busy ? legalMoves(s) : []
   // The move being shown: who made it, and the cards it took off the field.
   const mover = shown ? shown.from.turn : s.turn
   const onField = new Set(s.field.flatMap((p) => (p ? [p.card.id] : [])))
@@ -280,12 +409,16 @@ export function UrbanView({
         ? 'Draw.'
         : `Player ${s.winner + 1} wins (${s.reason === 'battleline' ? 'Battleline' : s.reason === 'objective' ? 'Objective' : 'Attrition'}).`
       : shown
-        ? `${who(mover)} ${mover === botSeat || botSeat === null ? 'plays' : 'play'}…`
+        ? `${who(mover)} ${who(mover) === 'You' ? 'play' : 'plays'}…`
         : turnBanner
           ? turnBanner
-          : s.turn === botSeat
-            ? 'The bot is thinking…'
-            : `Player ${s.turn + 1}: ${s.placementsLeft === 2 ? 'place 2 cards' : s.turnsTaken[s.turn] === 0 ? 'place a card' : 'place, move, bomb or pass'}.`
+          : allBots
+            ? watch
+              ? `Replay, move ${history.length - 1} of ${watch.r.moves.length}`
+              : `Bot ${s.turn + 1} is thinking…`
+            : s.turn === botSeat
+              ? 'The bot is thinking…'
+              : `Player ${s.turn + 1}: ${s.placementsLeft === 2 ? 'place 2 cards' : s.turnsTaken[s.turn] === 0 ? 'place a card' : 'place, move, bomb or pass'}.`
 
   const hold = s.centerHold
   // Zones the last move changed, so a bot move never looks like a jump.
@@ -486,15 +619,60 @@ export function UrbanView({
               })}
             </div>
           )}
+          {watch && (
+            <div className="flex flex-col gap-2 rounded-md border bg-panel p-2">
+              <div className="flex items-center gap-2">
+                <Button size="sm" onClick={() => setWatch({ ...watch, playing: !watch.playing })}>
+                  {watch.playing ? 'Pause' : 'Play'}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => seek(history.length - 2)}
+                  disabled={history.length <= 1}
+                >
+                  Back
+                </Button>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => seek(history.length)}
+                  disabled={history.length > watch.r.moves.length}
+                >
+                  Step
+                </Button>
+              </div>
+              <input
+                type="range"
+                aria-label="Replay position"
+                min={0}
+                max={watch.r.moves.length}
+                value={history.length - 1}
+                onChange={(e) => seek(Number(e.target.value))}
+              />
+            </div>
+          )}
+          {allBots && !watch && s.winner === null && (
+            <Button size="sm" variant="secondary" onClick={() => setPaused(!paused)}>
+              {paused ? 'Resume' : 'Pause'}
+            </Button>
+          )}
           <div className="flex gap-2">
             {legal.some((m) => m.type === 'pass') && !handoff && (
               <Button variant="secondary" size="sm" onClick={() => play({ type: 'pass' })}>
                 Pass
               </Button>
             )}
-            {s.winner !== null && (
-              <Button size="sm" onClick={() => setHistory([])}>
-                New game
+            {(s.winner !== null || watch || allBots) && (
+              <Button
+                size="sm"
+                onClick={() => {
+                  setHistory([])
+                  setWatch(null)
+                  setShown(null)
+                }}
+              >
+                {watch ? 'Close replay' : 'New game'}
               </Button>
             )}
           </div>

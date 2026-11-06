@@ -1,4 +1,5 @@
 import Dexie, { type EntityTable } from 'dexie'
+import type { UwReplay } from '@/urban/replay'
 import type { BotLevel } from '@/adventure/bot'
 import { savedGame, type Move, type NewGame } from '@/adventure/engine'
 import type { LadderResult } from '@/adventure/lab/ladder'
@@ -165,6 +166,7 @@ export class PlaytestDB extends Dexie {
   cardValues!: EntityTable<CardValuesRow, 'key'>
   tournaments!: EntityTable<TournamentRow, 'id'>
   sims!: EntityTable<SimRow, 'id'>
+  urbanReplays!: EntityTable<UwReplay, 'id'>
 
   constructor(name = 'card-maker-playtest') {
     super(name)
@@ -174,6 +176,7 @@ export class PlaytestDB extends Dexie {
     this.version(4).stores({ cardValues: 'key, packId' })
     this.version(5).stores({ tournaments: 'id, packId, updatedAt' })
     this.version(6).stores({ sims: 'id, packId, savedAt' })
+    this.version(7).stores({ urbanReplays: 'id, packId, savedAt' })
   }
 }
 
@@ -255,6 +258,23 @@ export const pinReplay = (id: string, pinned: boolean, db = playtestDb()) =>
   db.replays.update(id, { pinned })
 
 export const deleteReplay = (id: string, db = playtestDb()) => db.replays.delete(id)
+
+/** Urban Warfare replays of a pack, newest first. */
+export async function listUrbanReplays(packId: string, db = playtestDb()): Promise<UwReplay[]> {
+  const rows = await db.urbanReplays.where('packId').equals(packId).toArray()
+  return rows.sort((a, b) => b.savedAt - a.savedAt)
+}
+
+/** Keep an Urban Warfare replay, then drop the oldest beyond `REPLAYS_KEPT`. */
+export async function saveUrbanReplay(game: Omit<UwReplay, 'id' | 'savedAt'>, db = playtestDb()) {
+  const savedAt = Date.now()
+  const row: UwReplay = { ...game, id: `uw-${savedAt}`, savedAt }
+  await db.urbanReplays.put(row)
+  const extra = (await listUrbanReplays(row.packId, db)).slice(REPLAYS_KEPT)
+  if (extra.length) await db.urbanReplays.bulkDelete(extra.map((r) => r.id))
+}
+
+export const deleteUrbanReplay = (id: string, db = playtestDb()) => db.urbanReplays.delete(id)
 
 /** Rush batches of a pack, newest first. */
 export async function listRush(packId: string, db = playtestDb()): Promise<RushRow[]> {

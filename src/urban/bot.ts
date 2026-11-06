@@ -92,5 +92,5 @@ export function normalMove(s: UwState, depth = 2, rand = Math.random): UwMove {
   return best[Math.floor(rand() * best.length)]
 }
 
-export const botMove = (s: UwState, level: UwLevel) =>
-  level === 'easy' ? easyMove(s) : normalMove(s)
+export const botMove = (s: UwState, level: UwLevel, rand = Math.random) =>
+  level === 'easy' ? easyMove(s, rand) : normalMove(s, 2, rand)
