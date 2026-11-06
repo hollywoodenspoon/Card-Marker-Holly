@@ -1,5 +1,6 @@
 import {
   CENTER,
+  HOLD_TURNS,
   KIND_NAME,
   other,
   type Dir,
@@ -240,7 +241,7 @@ export function apply(prev: UwState, m: UwMove): UwState {
     )
     s.passes = 0
     s.placementsLeft -= 1
-    if (s.rules?.instantLine && hasBattleline(s.field, me)) {
+    if (hasBattleline(s.field, me)) {
       win(s, me, 'battleline')
       return s
     }
@@ -271,7 +272,7 @@ export function apply(prev: UwState, m: UwMove): UwState {
     s.passes += 1
     s.log.push(`${who} passes.`)
   }
-  if (s.rules?.instantLine && hasBattleline(s.field, me)) win(s, me, 'battleline')
+  if (hasBattleline(s.field, me)) win(s, me, 'battleline')
   else endTurn(s)
   return s
 }
@@ -302,7 +303,7 @@ function endTurn(s: UwState) {
   // 4. Next turn; the objective win comes at its start.
   s.turn = opp
   s.placementsLeft = s.turnsTaken[opp] === 0 && opp !== s.first && !s.rules?.oneEach ? 2 : 1
-  if (s.centerHold && s.centerHold.seat === opp && s.centerHold.oppTurns >= (s.rules?.hold3 ? 3 : 2))
+  if (s.centerHold && s.centerHold.seat === opp && s.centerHold.oppTurns >= HOLD_TURNS)
     win(s, opp, 'objective')
 }
 

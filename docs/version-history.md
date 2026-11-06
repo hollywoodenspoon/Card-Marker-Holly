@@ -41,3 +41,4 @@ one: #61 was **0.8.1-beta**, then the Engine's three PRs took **0.8.2-beta**, **
 Earlier PRs (#1–#48) used the 0.1.0 alpha line and are unchanged.
 | — | Pairs rule, all 188 cards in the engine, Auto Build | 0.8.5-beta | 0.8.5-beta | no |
 | #77 | Urban Warfare trial rule switches and smarter bots | 0.8.15-beta | 0.8.15-beta | no |
+| #78 | Urban Warfare rulebook v1.2: instant Battleline, hold 3 | 0.8.16-beta | 0.8.16-beta | no |

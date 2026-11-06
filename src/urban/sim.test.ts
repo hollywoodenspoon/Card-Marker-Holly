@@ -66,8 +66,6 @@ describe('trial rules', () => {
       oneEach: true,
       noFirstPush: true,
       notBesideCenter: true,
-      hold3: true,
-      instantLine: true,
     }
     expect(simulate(pool, ['normal', 'easy'], 6, 2, all).games).toBe(6)
   })

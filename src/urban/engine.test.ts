@@ -174,20 +174,20 @@ describe('winning', () => {
     expect(s.reason).toBe('battleline')
   })
 
-  it('both lines: the player whose turn did not just end wins', () => {
+  it('both lines: the player on turn wins at once', () => {
     const f = empty()
     ;[0, 1, 2].forEach((z) => (f[z] = piece('flag', 0)))
     ;[6, 7, 8].forEach((z) => (f[z] = piece('flag', 1)))
     const s = apply(mid(f, [['nil'], ['nil']], 0), { type: 'pass' })
-    expect(s.winner).toBe(1)
+    expect(s.winner).toBe(0)
   })
 
-  it('objective: hold the center through 2 opponent turns, win at your turn start', () => {
+  it('objective: hold the center through 3 opponent turns, win at your turn start', () => {
     const f = empty()
     f[3] = piece('nil', 0)
     let s = mid(f, [
-      ['nil', 'nil'],
-      ['nil', 'nil'],
+      ['nil', 'nil', 'nil'],
+      ['nil', 'nil', 'nil'],
     ])
     s = apply(s, { type: 'move', from: 3, dir: 'right' }) // takes center
     expect(s.centerHold).toEqual({ seat: 0, oppTurns: 0 })
@@ -195,6 +195,9 @@ describe('winning', () => {
     s = apply(s, { type: 'place', card: s.hands[0][0].id, zone: 8 })
     expect(s.winner).toBe(null)
     s = apply(s, { type: 'place', card: s.hands[1][0].id, zone: 2 })
+    s = apply(s, { type: 'place', card: s.hands[0][0].id, zone: 6 })
+    expect(s.winner).toBe(null)
+    s = apply(s, { type: 'place', card: s.hands[1][0].id, zone: 1 })
     expect(s.winner).toBe(0)
     expect(s.reason).toBe('objective')
   })

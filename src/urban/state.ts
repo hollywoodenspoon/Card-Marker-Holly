@@ -50,19 +50,16 @@ export interface UwRules {
   noFirstPush?: boolean
   /** The second player's first-turn cards may not go next to the center. */
   notBesideCenter?: boolean
-  /** Hold the center through 3 opponent turns instead of 2. */
-  hold3?: boolean
-  /** Three of your Battleline Mechs in a row win at once, on your own turn. */
-  instantLine?: boolean
 }
 
 export const RULE_NAMES: Record<keyof UwRules, string> = {
   oneEach: 'One card each on the first turn',
   noFirstPush: 'No pushing on your first turn',
   notBesideCenter: 'Second player’s first cards not next to the center',
-  hold3: 'Hold the center for 3 turns',
-  instantLine: 'Battleline wins at once on your turn',
 }
+
+/** Opponent turns the center must be held through for an Objective win. */
+export const HOLD_TURNS = 3
 
 export interface UwState {
   rules?: UwRules
