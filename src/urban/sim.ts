@@ -1,7 +1,7 @@
 import { botMove, type UwLevel } from './bot'
 import { deal, type UwPackCard } from './cards'
 import { apply, createGame } from './engine'
-import type { Seat, UwState } from './state'
+import type { Seat, UwRules, UwState } from './state'
 
 /** Moves after which a bot game is stopped and counted as a draw. */
 export const MOVE_CAP = 400
@@ -45,8 +45,9 @@ export function playOne(
   levels: [UwLevel, UwLevel],
   game: number,
   rand: () => number,
+  rules: UwRules = {},
 ): { end: UwState; capped: boolean } {
-  let s = createGame(deal(cards), (game % 2) as Seat)
+  let s = createGame(deal(cards), (game % 2) as Seat, rules)
   let i = 0
   for (; i < MOVE_CAP && s.winner === null; i++) s = apply(s, botMove(s, levels[s.turn], rand))
   return { end: s, capped: s.winner === null }
@@ -72,11 +73,12 @@ export function simulate(
   levels: [UwLevel, UwLevel],
   n: number,
   seed = 1,
+  rules: UwRules = {},
 ): SimTally {
   const t = emptyTally()
   const rand = rng(seed)
   for (let g = 0; g < n; g++) {
-    const { end, capped } = playOne(cards, levels, g, rand)
+    const { end, capped } = playOne(cards, levels, g, rand, rules)
     count(t, end, capped)
   }
   return t

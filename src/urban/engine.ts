@@ -7,6 +7,7 @@ import {
   type Seat,
   type UwCard,
   type UwMove,
+  type UwRules,
   type UwState,
 } from './state'
 
@@ -119,8 +120,13 @@ export function scores(field: (Piece | null)[]): [number, number] {
   return out
 }
 
-export function createGame(hands: [UwCard[], UwCard[]], first: Seat): UwState {
+export function createGame(
+  hands: [UwCard[], UwCard[]],
+  first: Seat,
+  rules: UwRules = {},
+): UwState {
   return {
+    rules,
     field: Array(9).fill(null),
     hands: [hands[0].slice(), hands[1].slice()],
     turn: first,
@@ -143,6 +149,9 @@ export function legalMoves(s: UwState): UwMove[] {
   const moves: UwMove[] = []
   const seen = new Set<string>()
   const firstTurn = s.turnsTaken[me] === 0
+  const r = s.rules ?? {}
+  const noPush = firstTurn && r.noFirstPush
+  const besideBan = firstTurn && me !== s.first && r.notBesideCenter
   for (const c of s.hands[me]) {
     if (c.kind === 'bomb') {
       // Fighter-Bomber: an action from the hand, never placed.
@@ -157,8 +166,9 @@ export function legalMoves(s: UwState): UwMove[] {
     seen.add(key)
     for (let z = 0; z < 9; z++) {
       if (z === CENTER) continue
+      if (besideBan && z % 2 === 1) continue
       if (!s.field[z]) moves.push({ type: 'place', card: c.id, zone: z })
-      else
+      else if (!noPush)
         for (const dir of placeDirs(z))
           if (canPush(s.field, me, c.fp, z, dir))
             moves.push({ type: 'place', card: c.id, zone: z, dir })
@@ -230,6 +240,10 @@ export function apply(prev: UwState, m: UwMove): UwState {
     )
     s.passes = 0
     s.placementsLeft -= 1
+    if (s.rules?.instantLine && hasBattleline(s.field, me)) {
+      win(s, me, 'battleline')
+      return s
+    }
     if (s.placementsLeft > 0) return s
   } else if (m.type === 'move') {
     const piece = s.field[m.from]!
@@ -257,7 +271,8 @@ export function apply(prev: UwState, m: UwMove): UwState {
     s.passes += 1
     s.log.push(`${who} passes.`)
   }
-  endTurn(s)
+  if (s.rules?.instantLine && hasBattleline(s.field, me)) win(s, me, 'battleline')
+  else endTurn(s)
   return s
 }
 
@@ -286,8 +301,8 @@ function endTurn(s: UwState) {
   }
   // 4. Next turn; the objective win comes at its start.
   s.turn = opp
-  s.placementsLeft = s.turnsTaken[opp] === 0 && opp !== s.first ? 2 : 1
-  if (s.centerHold && s.centerHold.seat === opp && s.centerHold.oppTurns >= 2)
+  s.placementsLeft = s.turnsTaken[opp] === 0 && opp !== s.first && !s.rules?.oneEach ? 2 : 1
+  if (s.centerHold && s.centerHold.seat === opp && s.centerHold.oppTurns >= (s.rules?.hold3 ? 3 : 2))
     win(s, opp, 'objective')
 }
 

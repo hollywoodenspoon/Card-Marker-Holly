@@ -14,6 +14,7 @@ import {
   type Seat,
   type UwCard,
   type UwMove,
+  type UwRules,
   type UwState,
 } from '@/urban/state'
 import { saveUrbanReplay } from '@/playtest/library'
@@ -21,6 +22,7 @@ import type { UwReplay } from '@/urban/replay'
 import { usePack } from '../table/packContext'
 import { UrbanReplays } from './UrbanReplays'
 import { UrbanSim } from './UrbanSim'
+import { UrbanRules } from './UrbanRules'
 import { SPEED_MS, usePlaytest } from '../table/usePlaytest'
 import { useUrbanMotion } from './useUrbanMotion'
 
@@ -58,6 +60,7 @@ export function UrbanView({
   const missing = missingKinds(read.cards)
   const [mode, setMode] = useState<Mode>('normal')
   const [botLevels, setBotLevels] = useState<[UwLevel, UwLevel]>(['normal', 'normal'])
+  const [rules, setRules] = useState<UwRules>({})
   const [screen, setScreen] = useState<Screen>('table')
   const [history, setHistory] = useState<UwState[]>([])
   /** Moves between the states in `history` (one fewer), for the replay. */
@@ -94,7 +97,7 @@ export function UrbanView({
 
   const start = () => {
     const first = (Math.random() < 0.5 ? 0 : 1) as Seat
-    setHistory([createGame(deal(read.cards), first)])
+    setHistory([createGame(deal(read.cards), first, rules)])
     setMoves([])
     setWatch(null)
     setPaused(false)
@@ -272,7 +275,12 @@ export function UrbanView({
     return (
       <div className="flex h-full flex-col bg-canvas">
         {header}
-        <UrbanSim cards={read.cards} onClose={() => setScreen('table')} />
+        <UrbanSim
+          cards={read.cards}
+          rules={rules}
+          onRules={setRules}
+          onClose={() => setScreen('table')}
+        />
       </div>
     )
 
@@ -318,6 +326,7 @@ export function UrbanView({
               ))}
             </div>
           )}
+          <UrbanRules rules={rules} onChange={setRules} />
           {read.issues.length > 0 && (
             <ul className="rounded-md border p-2 text-xs text-danger">
               {read.issues.map((i, k) => (

@@ -1,4 +1,4 @@
-import { apply, hasBattleline, legalMoves, scores } from './engine'
+import { apply, hasBattleline, legalMoves, scores, step } from './engine'
 import { CENTER, other, type Seat, type UwMove, type UwState } from './state'
 
 /**
@@ -76,11 +76,41 @@ function search(s: UwState, seat: Seat, depth: number, alpha: number, beta: numb
   return best
 }
 
+/** Lines a zone belongs to that hold 2+ of the seat's Battleline Mechs and nothing of the other's. */
+function inNearLine(s: UwState, z: number, seat: Seat): boolean {
+  return LINES.some((l) => {
+    if (!l.includes(z)) return false
+    let mine = 0
+    for (const q of l) {
+      const p = s.field[q]
+      if (p?.owner === seat && p.card.kind === 'flag') mine++
+      else if (p) return false
+    }
+    return mine >= 2
+  })
+}
+
+/**
+ * Moves a sensible player avoids unless they win at once: walking your own card off
+ * the field, leaving the center, or pulling a card out of a line one flag from done.
+ */
+export function isBlunder(s: UwState, m: UwMove): boolean {
+  if (m.type !== 'move') return false
+  const seat = s.turn
+  if (step(m.from, m.dir) === null) return true
+  if (m.from === CENTER) return true
+  return inNearLine(s, m.from, seat)
+}
+
 export function normalMove(s: UwState, depth = 2, rand = Math.random): UwMove {
   const seat = s.turn
   let best: UwMove[] = []
   let bestV = -Infinity
-  for (const m of legalMoves(s)) {
+  const all = legalMoves(s)
+  const sane = all.filter(
+    (m) => !isBlunder(s, m) || apply(s, m).winner === seat,
+  )
+  for (const m of sane.length ? sane : all) {
     const n = apply(s, m)
     const d = n.turn === seat && n.winner === null ? depth : depth - 1
     const v = search(n, seat, d, bestV - 1, Infinity)

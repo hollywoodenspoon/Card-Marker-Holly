@@ -2,16 +2,30 @@ import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/ui/components/ui/button'
 import type { UwLevel } from '@/urban/bot'
 import type { UwPackCard } from '@/urban/cards'
+import type { UwRules } from '@/urban/state'
+import { UrbanRules } from './UrbanRules'
+import { rulesLabel } from '@/urban/state'
 import { count, emptyTally, playOne, rng, type SimTally } from '@/urban/sim'
 
 const CHUNK = 5
 const pct = (a: number, b: number) => (b ? `${Math.round((a / b) * 100)}%` : '–')
 
 /** Many fast bot vs bot games, run in small chunks so the page stays responsive. */
-export function UrbanSim({ cards, onClose }: { cards: UwPackCard[]; onClose: () => void }) {
+export function UrbanSim({
+  cards,
+  rules,
+  onRules,
+  onClose,
+}: {
+  cards: UwPackCard[]
+  rules: UwRules
+  onRules: (r: UwRules) => void
+  onClose: () => void
+}) {
   const [levels, setLevels] = useState<[UwLevel, UwLevel]>(['normal', 'normal'])
   const [n, setN] = useState(100)
   const [tally, setTally] = useState<SimTally | null>(null)
+  const [ran, setRan] = useState<UwRules>({})
   const [running, setRunning] = useState(false)
   const stop = useRef(false)
   useEffect(
@@ -25,12 +39,13 @@ export function UrbanSim({ cards, onClose }: { cards: UwPackCard[]; onClose: () 
     const t = emptyTally()
     const rand = rng(Date.now())
     stop.current = false
+    setRan(rules)
     setRunning(true)
     let g = 0
     const tick = () => {
       if (stop.current) return setRunning(false)
       for (let k = 0; k < CHUNK && g < n; k++, g++) {
-        const { end, capped } = playOne(cards, levels, g, rand)
+        const { end, capped } = playOne(cards, levels, g, rand, rules)
         count(t, end, capped)
       }
       setTally({ ...t, wins: [...t.wins], by: { ...t.by } })
@@ -74,6 +89,7 @@ export function UrbanSim({ cards, onClose }: { cards: UwPackCard[]; onClose: () 
         {levelPick(0)}
         {levelPick(1)}
       </div>
+      <UrbanRules rules={rules} onChange={onRules} disabled={running} />
       <label className="flex flex-col gap-1 text-sm">
         Games
         <select
@@ -101,6 +117,7 @@ export function UrbanSim({ cards, onClose }: { cards: UwPackCard[]; onClose: () 
           <p className="font-medium">
             {t.games} of {n} games{running ? '…' : ''}
           </p>
+          <p className="text-xs text-muted-foreground">{rulesLabel(ran)}</p>
           <table className="mt-2 w-full text-left tabular-nums">
             <tbody>
               <tr>
