@@ -52,6 +52,8 @@ export interface UwState {
   placementsLeft: number
   /** Passes in a row. */
   passes: number
+  /** Used Fighter-Bombers, per seat. */
+  discard: [UwCard[], UwCard[]]
   centerHold: CenterHold | null
   winner: Seat | 'draw' | null
   reason: 'battleline' | 'objective' | 'attrition' | null
@@ -61,7 +63,7 @@ export interface UwState {
 export type UwMove =
   | { type: 'place'; card: string; zone: number; dir?: Dir }
   | { type: 'move'; from: number; dir: Dir }
-  | { type: 'bomb'; from: number; target?: number }
+  | { type: 'bomb'; card: string; target: number }
   | { type: 'pass' }
 
 export const CENTER = 4

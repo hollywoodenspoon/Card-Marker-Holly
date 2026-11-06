@@ -17,12 +17,14 @@ const OUT: Record<Dir, [number, number]> = {
  * old place; a new field card flies in from where it was (the hand, or the
  * other player's counts for a hidden hand); a field card that is gone is drawn
  * once more at its old place and flies off the field in the push direction.
+ * A card a Fighter-Bomber hits (`blast`) explodes instead.
  */
 export function useUrbanMotion(
   root: RefObject<HTMLElement | null>,
   key: unknown,
   dir: Dir | null,
   off: boolean,
+  blast = false,
 ) {
   const last = useRef(new Map<string, { rect: DOMRect; field: boolean; el: HTMLElement }>())
   useLayoutEffect(() => {
@@ -80,6 +82,10 @@ export function useUrbanMotion(
         pointerEvents: 'none',
       })
       document.body.appendChild(ghost)
+      if (blast) {
+        explode(ghost, p.rect)
+        continue
+      }
       const a = ghost.animate(
         [
           { transform: 'none', opacity: 1, filter: 'none' },
@@ -99,5 +105,96 @@ export function useUrbanMotion(
       )
       a.onfinish = a.oncancel = () => ghost.remove()
     }
-  }, [root, key, dir, off])
+  }, [root, key, dir, off, blast])
+}
+
+/** A Fighter-Bomber hit: flash, a burst ring and sparks, then the card shrinks away. */
+function explode(ghost: HTMLElement, r: DOMRect) {
+  const cx = r.left + r.width / 2
+  const cy = r.top + r.height / 2
+  const size = Math.max(r.width, r.height) * 1.6
+  const parts: HTMLElement[] = [ghost]
+  const add = (css: Partial<CSSStyleDeclaration>) => {
+    const el = document.createElement('div')
+    Object.assign(el.style, {
+      position: 'fixed',
+      pointerEvents: 'none',
+      zIndex: '401',
+      borderRadius: '9999px',
+      ...css,
+    })
+    document.body.appendChild(el)
+    parts.push(el)
+    return el
+  }
+  const delay = MOVE_MS * 0.3
+  const shake = ghost.animate(
+    [
+      { transform: 'none', filter: 'none', opacity: 1 },
+      { transform: 'translate(-4px, 2px)', filter: 'brightness(2.5)', opacity: 1, offset: 0.15 },
+      {
+        transform: 'translate(4px, -2px) scale(1.05)',
+        filter: 'brightness(2) sepia(1) hue-rotate(-30deg)',
+        opacity: 1,
+        offset: 0.3,
+      },
+      { transform: 'scale(0.4) rotate(8deg)', filter: 'grayscale(1) brightness(0.4)', opacity: 0 },
+    ],
+    { duration: MOVE_MS * 1.6, easing: 'ease-in', delay, fill: 'backwards' },
+  )
+  const flash = add({
+    left: `${cx - size / 2}px`,
+    top: `${cy - size / 2}px`,
+    width: `${size}px`,
+    height: `${size}px`,
+    background: 'radial-gradient(circle, #fff 0%, #fde047 25%, #f97316 50%, rgba(220,38,38,0) 70%)',
+    opacity: '0',
+  })
+  flash.animate(
+    [
+      { transform: 'scale(0.2)', opacity: 1 },
+      { transform: 'scale(1)', opacity: 0.9, offset: 0.4 },
+      { transform: 'scale(1.3)', opacity: 0 },
+    ],
+    { duration: MOVE_MS * 1.2, easing: 'ease-out', delay, fill: 'both' },
+  )
+  const ring = add({
+    left: `${cx - size / 2}px`,
+    top: `${cy - size / 2}px`,
+    width: `${size}px`,
+    height: `${size}px`,
+    border: '4px solid #f97316',
+    opacity: '0',
+  })
+  ring.animate(
+    [
+      { transform: 'scale(0.3)', opacity: 1 },
+      { transform: 'scale(1.5)', opacity: 0 },
+    ],
+    { duration: MOVE_MS * 1.1, easing: 'ease-out', delay, fill: 'both' },
+  )
+  for (let i = 0; i < 12; i++) {
+    const a = (i / 12) * Math.PI * 2
+    const d = size * (0.6 + (i % 3) * 0.15)
+    const spark = add({
+      left: `${cx - 4}px`,
+      top: `${cy - 4}px`,
+      width: '8px',
+      height: '8px',
+      background: i % 2 ? '#fde047' : '#f97316',
+      boxShadow: '0 0 8px #f97316',
+      opacity: '0',
+    })
+    spark.animate(
+      [
+        { transform: 'none', opacity: 1 },
+        {
+          transform: `translate(${Math.cos(a) * d}px, ${Math.sin(a) * d}px) scale(0.3)`,
+          opacity: 0,
+        },
+      ],
+      { duration: MOVE_MS * 1.2, easing: 'cubic-bezier(0.1, 0.7, 0.3, 1)', delay, fill: 'both' },
+    )
+  }
+  shake.onfinish = shake.oncancel = () => parts.forEach((el) => el.remove())
 }

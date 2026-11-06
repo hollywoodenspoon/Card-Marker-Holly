@@ -18,13 +18,13 @@
 - **Battleline Mech (2):** three in a row (horizontal or vertical) wins you the game.
 - **Advanced Mech (3):** the strongest card, no ability.
 - **Logistics Mech (1):** +2 firepower to every adjacent card you own.
-- **Fighter-Bomber (0):** blows itself up, and can take one adjacent card with it, yours or theirs.
+- **Fighter-Bomber:** never goes on the field. Play it from your hand to blow up any enemy card.
 
 ## Your turn
 Choose a player to go first at random. The first player places 1 card; the second player starts by placing **2 cards**. Nobody can pass on their first turn. After that, each turn do **one** of these:
 1. **Place** a card from your hand onto the edge of the field.
 2. **Move** one of your cards one step (it can step off the field, which removes it).
-3. **Bomb** with one of your Fighter-Bombers already on the field.
+3. **Bomb:** play a Fighter-Bomber from your hand at any enemy card.
 4. **Pass.**
 
 ## Placing and pushing
@@ -32,7 +32,7 @@ Choose a player to go first at random. The first player places 1 card; the secon
 - An empty zone: the card just goes there. An occupied zone: your card pushes the line inward. In a corner you choose the direction.
 - Pushing **your own** card always works. To push an **enemy** card you need **equal or more firepower** than it.
 - A moving card's strength is checked where it starts; a Logistics +2 counts only if it's adjacent before the move.
-- Cards behind are shoved along too, however strong. A card pushed off the field is gone for good, yours too.
+- In a line, each card pushes the next one. A card shoves its own side freely, but to shove the other side it needs equal or more firepower, or the push can't happen. A card pushed off the field is gone for good, yours too.
 
 ## How to win
 1. **Battleline win:** 3 Battleline Mechs in a row when your opponent ends their turn. They get one turn to break it up.
@@ -40,6 +40,6 @@ Choose a player to go first at random. The first player places 1 card; the secon
 3. **Attrition win:** when both hands are empty, or both pass in a row, add up your firepower on the field. Your center card counts **double**. Higher wins; a tie goes to the center holder; otherwise it's a draw.
 
 ## Quick tips
-- Hold the center with an Advanced Mech. Only another 3-firepower card (or a buffed one) or a Fighter-Bomber can shift it.
+- Hold the center with an Advanced Mech. Only another 3-firepower card (or a buffed one) can push it; a Fighter-Bomber can blow it up.
 - Keep Logistics Mechs next to your best cards.
 - Fighter-Bombers are your answer to a card you can't push.
