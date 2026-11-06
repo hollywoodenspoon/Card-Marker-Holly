@@ -65,12 +65,12 @@ const strips = [
 <h2>Battleline layout</h2>
 <div class="bl">
   <div class="lab">Player 2 Battleline</div>
-  <div class="row">${card('logistics', { flip: true, w: 8.4 })}${card('battleline', { flip: true, w: 8.4 })}${card('x', { flip: true, down: true, w: 8.4 })}</div>
-  <div class="deck">${card('x', { down: true, w: 8.4 })}<span>Deck</span></div>
-  <div class="row">${card('advanced', { w: 8.4 })}${card('fighter-bomber', { w: 8.4 })}${card('battleline', { w: 8.4 })}</div>
+  <div class="row">${['battleline', 'advanced', 'fighter-bomber', 'advanced'].map((n) => card(n, { flip: true, w: 10 })).join('')}</div>
+  <div class="deck">${card('x', { down: true, w: 10 })}<span>Deck</span></div>
+  <div class="row">${card('logistics', { w: 10 })}${card('battleline', { w: 10 })}${card('x', { down: true, w: 10 })}${card('battleline', { w: 10 })}</div>
   <div class="lab">Player 1 Battleline</div>
 </div>
-<p class="cap">Player 2 sits across the table, so their cards face them (upside down to you). Player 2's last card was turned face down by a Fighter Bomber.</p>`),
+<p class="cap">Player 2 sits across the table, so their cards face them (upside down to you). Each new card is laid overlapping the one before it. Player 2's Fighter Bomber turned one of Player 1's cards face down.</p>`),
       P('mech-logistics', BL, `
 <h2>Gameplay</h2><ol>
 <li>Shuffle all the cards together to form a deck.</li>
@@ -268,9 +268,9 @@ ul.dash li::before{content:"";position:absolute;left:0;top:1.05mm;width:1.2mm;he
 .ct{display:flex;gap:1.8mm;align-items:flex-start;margin-bottom:.6mm}.ct .mini{flex:none;margin-top:.4mm}
 .parts{display:flex;gap:2.2mm;align-items:center;margin-bottom:.6mm}.parts ul{list-style:none;display:flex;flex-direction:column;justify-content:space-between;height:19mm;font-weight:600}
 .parts li{font:500 6.3pt/1 Oswald;text-transform:uppercase;letter-spacing:.06em}.parts i{font-style:normal;color:var(--red);margin-right:1mm}
-.bl{display:grid;grid-template-columns:9mm auto;column-gap:2mm;justify-content:center;align-items:center}
+.bl{display:grid;grid-template-columns:10mm auto;column-gap:2mm;justify-content:center;align-items:center}
 .bl .lab{grid-column:2;font:500 5.3pt/1 Oswald;text-transform:uppercase;letter-spacing:.1em;color:#666;text-align:center;margin:.6mm 0}
-.bl .row{grid-column:2;display:flex;gap:1mm}
+.bl .row{grid-column:2;display:flex}.bl .row .mini+.mini{margin-left:-3.2mm}.bl .row .mini{box-shadow:0 0 0 .15mm #999,-.4mm 0 .6mm rgba(0,0,0,.25)}
 .bl .deck{grid-column:1;grid-row:2 / 5;display:flex;flex-direction:column;align-items:center;gap:.6mm;font:500 5.3pt/1 Oswald;text-transform:uppercase;color:#666}
 .bl .row:nth-of-type(2){grid-row:2}
 table{border-collapse:collapse;width:100%;margin:0 0 1.2mm}
