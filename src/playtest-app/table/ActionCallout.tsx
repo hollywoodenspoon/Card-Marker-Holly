@@ -1,4 +1,4 @@
-import { FastForward } from '@/ui/icons'
+import { ChevronRight, FastForward } from '@/ui/icons'
 import { useMemo } from 'react'
 import { SEATS } from '@/adventure/state'
 import { pieceId } from '@/adventure/table'
@@ -98,9 +98,20 @@ export function ActionCallout({
           {line.text}
         </button>
         {count && (
-          <span className="hidden shrink-0 text-xs text-muted-foreground tabular-nums sm:inline">
+          <span className="shrink-0 text-xs text-muted-foreground tabular-nums sm:inline">
             {count}
           </span>
+        )}
+        {playback && (
+          <Button
+            size="sm"
+            className="shrink-0"
+            autoFocus
+            onClick={() => usePlaytest.getState().nextFrame()}
+            data-testid="action-next"
+          >
+            {playback.i + 1 < playback.frames.length ? 'Next' : 'Done'} <ChevronRight />
+          </Button>
         )}
         {playback && (
           <Button

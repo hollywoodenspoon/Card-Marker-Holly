@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowLeft, CircleHelp, Undo2 } from '@/ui/icons'
+import { ArrowLeft, ChevronRight, CircleHelp, FastForward, Undo2 } from '@/ui/icons'
 import { Button, IconButton } from '@/ui/components/ui/button'
 import { cn } from '@/lib/cn'
 import { botMove, type UwLevel } from '@/urban/bot'
@@ -17,11 +17,14 @@ import {
   type UwState,
 } from '@/urban/state'
 import { usePack } from '../table/packContext'
+import { SPEED_MS, usePlaytest } from '../table/usePlaytest'
+import { useUrbanMotion } from './useUrbanMotion'
 
 /** Urban Warfare at the Table: hot-seat or against a bot. Rules run in `src/urban/`. */
 
 type Mode = 'hotseat' | UwLevel
 type Pick = { hand: UwCard } | { zone: number } | null
+type Shown = { from: UwState; to: UwState; lines: string[]; i: number; dir: Dir | null }
 
 const ARROW: Record<Dir, string> = { up: '↑', down: '↓', left: '←', right: '→' }
 /** Arrow buttons sit just inside the zone's edge, so they never cover a neighbour. */
@@ -52,6 +55,13 @@ export function UrbanView({
   const [history, setHistory] = useState<UwState[]>([])
   const [pick, setPick] = useState<Pick>(null)
   const [handoff, setHandoff] = useState(false)
+  /** The move being shown, one log line at a time; nothing else happens until it ends. */
+  const [shown, setShown] = useState<Shown | null>(null)
+  /** "Your turn" and the like, shown big between turns. */
+  const [turnBanner, setTurnBanner] = useState<string | null>(null)
+  const speed = usePlaytest((x) => x.speed)
+  const rush = speed === 'rush'
+  const rootRef = useRef<HTMLDivElement>(null)
   const pickedAt = useRef(0)
   const choose = (p: Pick, at: number) => {
     setPick(p)
@@ -60,10 +70,21 @@ export function UrbanView({
   const s = history[history.length - 1]
   const prev = history[history.length - 2]
 
+  useUrbanMotion(rootRef, history.length, shown?.dir ?? null, rush)
+
   const start = () => {
     const first = (Math.random() < 0.5 ? 0 : 1) as Seat
     setHistory([createGame(deal(read.cards), first)])
+    setTurnBanner(
+      mode === 'hotseat'
+        ? `Player ${first + 1} goes first`
+        : first === 0
+          ? 'You go first'
+          : 'The bot goes first',
+    )
     setPick(null)
+    setShown(null)
+    setTurnBanner(null)
     setHandoff(mode === 'hotseat')
   }
 
@@ -72,24 +93,62 @@ export function UrbanView({
 
   const play = (m: UwMove) => {
     if (!s) return
-    const n = apply(s, m)
-    setHistory((h) => [...h, n])
     setPick(null)
-    if (mode === 'hotseat' && n.winner === null && n.turn !== s.turn) setHandoff(true)
+    played(s, m)
   }
+
+  const played = (from: UwState, m: UwMove) => {
+    const n = apply(from, m)
+    setHistory((h) => [...h, n])
+    const lines = n.log.slice(from.log.length)
+    if (rush) return finish(from, n)
+    setShown({ from, to: n, lines, i: 0, dir: 'dir' in m && m.dir ? m.dir : null })
+  }
+
+  const who = (seat: Seat) =>
+    botSeat !== null ? (seat === botSeat ? 'The bot' : 'You') : `Player ${seat + 1}`
+
+  // The move has been shown: say whose turn it is, then the next player may act.
+  const finish = (from: UwState, to: UwState) => {
+    setShown(null)
+    if (to.winner !== null) return
+    if (to.turn === from.turn) return
+    const name = who(to.turn)
+    setTurnBanner(name === 'You' ? 'Your turn' : `${name}'s turn`)
+    if (mode === 'hotseat') setHandoff(true)
+  }
+
+  const next = () => {
+    if (!shown) return
+    if (shown.i + 1 < shown.lines.length) setShown({ ...shown, i: shown.i + 1 })
+    else finish(shown.from, shown.to)
+  }
+
+  // Each line stays up for the Action speed, or until Next.
+  useEffect(() => {
+    if (!shown) return
+    const t = setTimeout(next, SPEED_MS[speed] + (shown.i === 0 ? 500 : 0))
+    return () => clearTimeout(t)
+  })
+
+  useEffect(() => {
+    if (!turnBanner) return
+    const t = setTimeout(() => setTurnBanner(null), 1400)
+    return () => clearTimeout(t)
+  }, [turnBanner])
 
   // The bot's turn.
   useEffect(() => {
-    if (!s || s.winner !== null || botSeat === null || s.turn !== botSeat) return
-    const t = setTimeout(
-      () => setHistory((h) => [...h, apply(s, botMove(s, mode as UwLevel))]),
-      500,
-    )
+    if (!s || shown || turnBanner || s.winner !== null || botSeat === null || s.turn !== botSeat)
+      return
+    const t = setTimeout(() => played(s, botMove(s, mode as UwLevel)), rush ? 0 : 900)
     return () => clearTimeout(t)
-  }, [s, botSeat, mode])
+  })
 
   const undo = () => {
     setPick(null)
+    setShown(null)
+    setTurnBanner(null)
     setHistory((h) => {
       if (h.length <= 1) return h
       let i = h.length - 2
@@ -153,7 +212,15 @@ export function UrbanView({
       </div>
     )
 
-  const legal = s.winner === null && s.turn !== botSeat ? legalMoves(s) : []
+  const busy = !!shown || !!turnBanner
+  const legal = s.winner === null && s.turn !== botSeat && !busy ? legalMoves(s) : []
+  // The move being shown: who made it, and the cards it took off the field.
+  const mover = shown ? shown.from.turn : s.turn
+  const onField = new Set(s.field.flatMap((p) => (p ? [p.card.id] : [])))
+  const lost = shown ? shown.from.field.filter((p) => p && !onField.has(p.card.id)) : []
+  const line = shown?.lines[shown.i] ?? ''
+  const lineLost = /off the field|destroy|bomb/i.test(line) ? lost : []
+  const field = s.field
   const myHand = s.hands[viewer]
   const opp = (1 - viewer) as Seat
 
@@ -206,9 +273,13 @@ export function UrbanView({
       ? s.winner === 'draw'
         ? 'Draw.'
         : `Player ${s.winner + 1} wins (${s.reason === 'battleline' ? 'Battleline' : s.reason === 'objective' ? 'Objective' : 'Attrition'}).`
-      : s.turn === botSeat
-        ? 'The bot is thinking…'
-        : `Player ${s.turn + 1}: ${s.placementsLeft === 2 ? 'place 2 cards' : s.turnsTaken[s.turn] === 0 ? 'place a card' : 'place, move, bomb or pass'}.`
+      : shown
+        ? `${who(mover)} ${mover === botSeat || botSeat === null ? 'plays' : 'play'}…`
+        : turnBanner
+          ? turnBanner
+          : s.turn === botSeat
+            ? 'The bot is thinking…'
+            : `Player ${s.turn + 1}: ${s.placementsLeft === 2 ? 'place 2 cards' : s.turnsTaken[s.turn] === 0 ? 'place a card' : 'place, move, bomb or pass'}.`
 
   const hold = s.centerHold
   // Zones the last move changed, so a bot move never looks like a jump.
@@ -216,7 +287,7 @@ export function UrbanView({
   const cell = phone ? 'w-[22vw] max-w-28' : 'w-32'
 
   return (
-    <div className="flex h-full flex-col bg-canvas">
+    <div ref={rootRef} className="flex h-full flex-col bg-canvas">
       {header}
       <div className="flex flex-1 flex-col items-center gap-3 overflow-auto p-3 md:flex-row md:items-start md:justify-center">
         <div className="flex flex-col items-center gap-2">
@@ -228,16 +299,70 @@ export function UrbanView({
           >
             {banner}
           </div>
-          {s.log.length > 1 && (
-            <p className="text-center text-xs text-muted-foreground">
-              Last: {s.log[s.log.length - 1]}
-            </p>
-          )}
-          <OppCounts s={s} seat={opp} />
-          <div className="grid grid-cols-3 gap-1.5 p-5">
-            {s.field.map((p, z) => {
+          <div data-uw-from>
+            <OppCounts s={s} seat={opp} />
+          </div>
+          <div className="flex min-h-16 w-full items-center justify-center">
+            {shown && line && (
+              <div key={`${shown.i}-${line}`} className="flex justify-center">
+                <div
+                  className="pointer-events-auto flex max-w-[min(30rem,92vw)] items-center gap-2 rounded-xl border-2 border-amber-500 bg-panel/95 px-3 py-2 shadow-xl backdrop-blur [animation:hs-pop_200ms_ease-out]"
+                  role="status"
+                  aria-live="polite"
+                  data-testid="uw-callout"
+                >
+                  {lineLost.map((p) => (
+                    <CardFace
+                      key={p!.card.id}
+                      card={p!.card}
+                      className={cn(
+                        'aspect-[63/88] w-10 shrink-0 rounded ring-2',
+                        SEAT_RING[p!.owner],
+                      )}
+                    />
+                  ))}
+                  <div className="min-w-0">
+                    <p className={cn('text-xs font-semibold', SEAT_TEXT[mover])}>{who(mover)}</p>
+                    <p className="text-base leading-snug font-medium">{line}</p>
+                  </div>
+                  {shown.lines.length > 1 && (
+                    <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
+                      {shown.i + 1} of {shown.lines.length}
+                    </span>
+                  )}
+                  <Button size="sm" className="shrink-0" onClick={next} data-testid="uw-next">
+                    Next <ChevronRight />
+                  </Button>
+                  {shown.lines.length > 1 && (
+                    <IconButton
+                      label="Skip"
+                      onClick={() => finish(shown.from, shown.to)}
+                      data-testid="uw-skip"
+                    >
+                      <FastForward />
+                    </IconButton>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+          <div className="relative grid grid-cols-3 gap-1.5 p-5">
+            {turnBanner && (
+              <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center">
+                <div
+                  className={cn(
+                    'rounded-lg px-6 py-3 text-2xl font-bold text-white shadow-2xl [animation:hs-banner_1400ms_ease-in-out_forwards]',
+                    s.turn === 0 ? 'bg-sky-600' : 'bg-rose-600',
+                  )}
+                  data-testid="uw-turn-banner"
+                >
+                  {turnBanner}
+                </div>
+              </div>
+            )}
+            {field.map((p, z) => {
               const target = zoneTargets(z).length > 0
-              const bonus = p ? strength(s.field, z) - p.card.fp : 0
+              const bonus = p ? strength(field, z) - p.card.fp : 0
               return (
                 <div key={z} className={cn('relative aspect-[63/88]', cell)}>
                   <button
@@ -257,10 +382,16 @@ export function UrbanView({
                   >
                     {p && (
                       <>
-                        <CardFace
-                          card={p.card}
-                          className={cn('h-full w-full rounded-md ring-4', SEAT_RING[p.owner])}
-                        />
+                        <span
+                          className="absolute inset-0 block"
+                          data-uw-card={p.card.id}
+                          data-uw-field="1"
+                        >
+                          <CardFace
+                            card={p.card}
+                            className={cn('h-full w-full rounded-md ring-4', SEAT_RING[p.owner])}
+                          />
+                        </span>
                         <span
                           className={cn(
                             'absolute bottom-1 right-1 rounded px-1.5 text-xs font-bold text-white',
@@ -349,7 +480,9 @@ export function UrbanView({
                       usable && !picked && 'outline outline-1 outline-green-500',
                     )}
                   >
-                    <CardFace card={c} className="aspect-[63/88] w-full rounded-md" />
+                    <span className="block" data-uw-card={c.id}>
+                      <CardFace card={c} className="aspect-[63/88] w-full rounded-md" />
+                    </span>
                   </button>
                 )
               })}

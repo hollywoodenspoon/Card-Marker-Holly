@@ -24,7 +24,8 @@ const HISTORY = 500
 export type Bots = [BotLevel | null, BotLevel | null]
 /** How long each action stays on screen; Rush plays without pauses. */
 export type Speed = 'slow' | 'normal' | 'fast' | 'rush'
-export const SPEED_MS: Record<Speed, number> = { slow: 1800, normal: 1000, fast: 350, rush: 0 }
+/** How long each action stays on screen, so the player can read it. */
+export const SPEED_MS: Record<Speed, number> = { slow: 2600, normal: 1600, fast: 500, rush: 0 }
 const NO_BOTS: Bots = [null, null]
 const SPEED_KEY = 'hearthside-table-speed'
 const THINK_KEY = 'hearthside-table-hard-think'
