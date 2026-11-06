@@ -242,8 +242,9 @@ For whole-pack balance testing, use the **Balance lab**. `npm run as:sim` (in th
 A pack whose cards have an `Ability_UW` field (`flag`, `bomb`, `support` or `nil`) and `Firepower_UW` (0–3) opens the Urban Warfare table. One card of each kind is enough: copies are dealt.
 
 - Pick **You against the bot** (Easy or Normal) or **Two players, one device**, then **Start**.
-- **Place:** tap a hand card, then a green zone. At a corner with a card on it, pick which way to push.
-- **Move or bomb:** tap your card on the field, then a green zone, or a button below the field (off the field, or Bomb).
+- **Place:** tap a hand card, then a green empty zone. On a zone with a card on it, tap a green arrow to push that way.
+- **Move or bomb:** tap your card on the field, then one of the arrows on its edges (a grey arrow moves it off the field), or Bomb below the field.
+- **Buffs:** a card a Logistics Mech is buffing says Buffed, and its number shows the bonus, e.g. 3 +2 = 5.
 - **Pass** is under your hand (not on your first turn). **Undo** is at the top.
 - The number on each card is its firepower now, with Logistics bonuses. The center line shows who holds the center and for how many turns.
 
