@@ -241,7 +241,7 @@ body{font-family:InterR,sans-serif;color:var(--ink);-webkit-print-color-adjust:e
 .panel .body{position:absolute;inset:4.2mm 3.8mm 5.4mm 3.8mm;overflow:hidden}
 .panel::before{content:"";position:absolute;inset:-${BLEED}mm;background:#fff;z-index:-1}
 .bgart{position:absolute;width:62mm;right:-12mm;bottom:-4mm;opacity:.09;filter:grayscale(1);pointer-events:none}
-.bgart.comic{left:0;top:0;right:auto;bottom:auto;width:100%;height:100%;object-fit:cover;opacity:.08;-webkit-mask-image:linear-gradient(to bottom,transparent 15%,#000 55%,#000 85%,transparent);mask-image:linear-gradient(to bottom,transparent 15%,#000 55%,#000 85%,transparent)}
+.bgart.comic{left:0;top:0;right:auto;bottom:auto;width:100%;height:100%;object-fit:cover;opacity:.3;filter:none;-webkit-mask-image:linear-gradient(to bottom,transparent 15%,#000 55%,#000 85%,transparent);mask-image:linear-gradient(to bottom,transparent 15%,#000 55%,#000 85%,transparent)}
 .cover{overflow:visible}
 .cover .coverimg{position:absolute;left:-${BLEED}mm;top:-${BLEED}mm;width:${PANEL_W + 2 * BLEED}mm;height:${PANEL_H + 2 * BLEED}mm;object-fit:cover}
 .no{position:absolute;right:3.8mm;bottom:2.2mm;font:700 9pt/1 Oswald;color:var(--red)}
@@ -289,8 +289,8 @@ td:first-child{font-weight:600;white-space:nowrap}tr:has(+tr td.what) td{border-
 .reg{position:absolute;top:${PAGE_H / 2 - 3}mm}
 .reg svg{overflow:visible}.reg circle,.reg line{fill:none;stroke:#000;stroke-width:.2}
 .redbg{position:absolute;inset:-3mm;background:#a80000}
-.bc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4mm}
-.bc img{width:38mm}.bc img.vw{width:22mm;margin-top:14mm}
+.bc{position:absolute;inset:6mm 4mm;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4mm}
+.bc img{width:32mm}.bc img.vw{width:16mm;margin-top:3mm}
 .bcmode{font:500 6.5pt/1 Oswald;letter-spacing:.2em;text-transform:uppercase;color:#fff}
 .covertag{position:absolute;left:0;right:0;bottom:4.5mm;text-align:center;font:500 5.4pt/1 Oswald;letter-spacing:.18em;text-transform:uppercase;color:#fff}
 .small{font-size:6pt;color:#555}.cont{font-weight:500;color:#999;font-size:6pt;letter-spacing:.1em}
