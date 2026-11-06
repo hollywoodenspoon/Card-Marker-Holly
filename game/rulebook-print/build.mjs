@@ -95,7 +95,7 @@ const strips = [
   {
     front: [
       backCover(UW),
-      P('comic-spires', UW, `
+      P('comic-city', UW, `
 <h1 class="u">Urban Warfare</h1>
 <h2>What you need</h2><p>18 cards. Each player gets the same 9:</p>
 <table><tr><th>Card</th><th>#</th><th>FP</th></tr>
@@ -126,7 +126,7 @@ ${field([['battleline', 2], null, ['logistics', 2], null, ['advanced', 1], ['bat
 <li><b>Pass.</b></li></ul>`),
     ],
     back: [
-      P('comic-city', UW, `
+      P('mech-logistics', UW, `
 <h2>Pushing</h2><p>If you place or move a card onto a square that already has a card, you <b>push</b> it one square along.</p><ul class="dash">
 <li>A card placed on a side square pushes toward the center. On a corner, you pick which way.</li>
 <li>You can always push your own cards.</li>
@@ -200,7 +200,7 @@ function panel(p, row, col, rot, isBack) {
   const ang = (isBack ? -90 : 90) + (rot ? 180 : 0);
   const st = `style="left:${px - PANEL_W / 2}mm;top:${py - PANEL_H / 2}mm;transform:rotate(${ang}deg);${clip(row, col, rot)}"`, cls = `panel${rot ? ' rot' : ''}`;
   if (p.cls === 'cover') return `<section class="${cls} cover" ${st}>${p.html}</section>`;
-  return `<section class="${cls}" ${st}>${p.bg ? `<img class="bgart${p.bg.startsWith('comic') ? ' comic' : ''}" src="assets/${p.bg}.png" style="object-position:${({'comic-formation':'50% 50%','comic-bomber':'18% 50%'})[p.bg]||'50% 50%'}" alt="">` : ''}
+  return `<section class="${cls}" ${st}>${p.bg ? `<img class="bgart${p.bg.startsWith('comic') ? ' comic' : ''}" src="assets/${p.bg}.png" style="object-position:${({'comic-formation':'100% 100%','comic-bomber':'38% 50%'})[p.bg]||'50% 50%'}" alt="">` : ''}
 ${p.mode ? `<div class="mode">${p.mode}</div>` : ''}<div class="body">${p.html}</div><div class="no">${p.no}</div></section>`;
 }
 
