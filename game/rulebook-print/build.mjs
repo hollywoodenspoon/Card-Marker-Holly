@@ -157,16 +157,17 @@ strips[1].back.push(backCover('', true));
 // Map fold: one 270 x 164 mm sheet, folded in half along the long middle
 // (printed front outside), then zig-zag into 54 x 82 mm panels.
 // Outside (front of sheet): top row T1..T5 reads first (T1 = cover); turn the
-// folded book over and the bottom row reads B5..B1 (B1 = back cover). The bottom
+// folded book over and the bottom row reads B5..B1 (B1 = page 9). The bottom
 // row is printed upside down so it is upright after the fold.
-// Inside (back of sheet): unfold fully, read the top row then the bottom row.
+// Inside (back of sheet): unfold fully, read the top row then the bottom row;
+// the back cover is the last inside panel.
 // On the back, panel i of a row sits behind front panel 4-i of the same row.
 const sheet = {};
 {
   const c = [strips[0].front, strips[0].back, strips[1].front, strips[1].back].flat();
   const cover = c[0], back = c[19], body = c.slice(1, 19); // 18: 9 Battlelines, divider, 8 Urban Warfare
-  const outside = body.slice(0, 8), inside = body.slice(8);
-  sheet.front = [[cover, ...outside.slice(0, 4)], [back, ...outside.slice(4).reverse()]];
+  const outside = body.slice(0, 9), inside = [...body.slice(9), back];
+  sheet.front = [[cover, ...outside.slice(0, 4)], [outside[8], ...outside.slice(4, 8).reverse()]];
   sheet.back = [inside.slice(0, 5), inside.slice(5)];
   const order = [...sheet.front[0], ...[...sheet.front[1]].reverse(), ...sheet.back.flat()];
   let n = 0;
