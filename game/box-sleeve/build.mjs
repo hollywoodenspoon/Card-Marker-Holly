@@ -27,15 +27,19 @@ const YS = Array.from({ length: COPIES }, (_, i) => YTOP + i * (TRIM_H + GAP));
 let x = 0;
 const panels = PANELS.map(([kind, w]) => { const p = { kind, x, w }; x += w; return p; });
 
+const ICON_PLAYERS = `<svg viewBox="0 0 24 16" class="ic"><circle cx="7" cy="4" r="3.2"/><path d="M1 15c0-4 2.7-6 6-6s6 2 6 6z"/><circle cx="17" cy="4" r="3.2"/><path d="M11 15c0-4 2.7-6 6-6s6 2 6 6z"/></svg>`;
+const ICON_CLOCK = `<svg viewBox="0 0 16 16" class="ic"><circle cx="8" cy="8" r="6.6" fill="none" stroke-width="1.6"/><path d="M8 4v4.4l3 1.8" fill="none" stroke-width="1.6" stroke-linecap="round"/></svg>`;
 const sideHtml = `<div class="spine"><span>BATTLELINE: MECH WARS</span><img src="${A}/logo-village-wizard.png"></div>`;
 const content = {
   front: `<img class="flogo" src="${A}/logo-game.png"><img class="fvw" src="${A}/logo-village-wizard.png">`,
   side: sideHtml,
   back: `<img class="blogo" src="${A}/logo-game-red.png">
-    <p class="blurb">Mechs clash in the streets. Place your cards, push enemy mechs off the grid, and be the first to get three Battleline Mechs in a straight line.</p>
-    <img class="bmech" src="${A}/mech-pair.png">
-    <div class="info"><b>2 PLAYERS</b> · 18 CARDS · 2 GAME MODES</div>
-    <div class="vw"><img src="${A}/logo-village-wizard-red.png"><span>@village.wizard</span></div>`,
+    <p class="blurb">BATTLELINE: MECH WARS is a 2 player card game where the players are pitted against each other by building a battleline of mechs using cards available to them, using their wits to overpower their opponent with firepower to reign supreme on the battlefield.</p>
+    <p class="blurb uw"><b>Urban Warfare Edition</b> adds a new game mode: Urban Warfare.</p>
+    <div class="mid"><div class="contents"><b>Contents:</b><br>1x Rule Book<br>4x Advanced Mech Cards<br>6x Battleline Mech Cards<br>4x Fighter Bomber Cards<br>4x Logistics Mech Cards</div>
+      <div class="fan">${[1, 2, 3, 4].map((n) => `<img src="assets/fan-${n}.png">`).join('')}</div></div>
+    <div class="info"><span>${ICON_PLAYERS} 2</span><span>${ICON_CLOCK} 15 mins</span></div>
+    <div class="logos"><img class="kal" src="assets/logo-kalaro.png"><div class="vw"><img src="${A}/logo-village-wizard-red.png"><span>@village.wizard</span></div></div>`,
   glue: `<div class="gluelbl">GLUE</div>`,
 };
 
@@ -77,22 +81,31 @@ html,body{margin:0;width:${PAGE_W}mm;height:${PAGE_H}mm;overflow:hidden;backgrou
 .spine span{font-family:Oswald;font-weight:700;color:#fff;font-size:5.4mm;letter-spacing:.2mm}
 .spine img{height:7mm}
 .back .in{padding:6mm 5mm 4mm;box-sizing:border-box}
-.blogo{width:46mm}
-.blurb{font-size:2.6mm;line-height:1.4;text-align:center;margin:4mm 0 0;color:#111}
-.bmech{width:48mm;height:26mm!important;object-fit:cover;margin:auto 0}
-.info{font-family:Oswald;font-weight:700;color:var(--red);font-size:2.6mm;letter-spacing:.1mm;white-space:nowrap}
-.vw{display:flex;flex-direction:column;align-items:center;margin-top:3mm;font-size:2.3mm;color:var(--red)}
-.vw img{width:12mm;margin-bottom:.8mm}
+.blogo{width:40mm}
+.blurb{font-size:2.05mm;line-height:1.35;text-align:justify;margin:2.6mm 0 0;color:#111}
+.blurb.uw{margin-top:1.2mm;text-align:left;color:var(--red)}
+.mid{display:flex;align-items:center;justify-content:space-between;width:100%;margin-top:auto}
+.contents{font-size:2.05mm;line-height:1.4;color:#111}
+.fan{position:relative;width:20mm;height:16mm}
+.fan img{position:absolute;width:8.4mm;bottom:0;left:6mm;transform-origin:50% 120%;box-shadow:0 .2mm .5mm rgba(0,0,0,.35)}
+.fan img:nth-child(1){transform:rotate(-27deg)}.fan img:nth-child(2){transform:rotate(-9deg)}.fan img:nth-child(3){transform:rotate(9deg)}.fan img:nth-child(4){transform:rotate(27deg)}
+.info{display:flex;gap:5mm;width:100%;font-family:Oswald;font-weight:700;color:var(--red);font-size:2.8mm;margin-top:auto}
+.info span{display:flex;align-items:center;gap:1.2mm}
+.ic{height:3mm;fill:var(--red);stroke:var(--red)}
+.logos{display:flex;align-items:flex-end;justify-content:space-between;width:100%;margin-top:auto}
+.kal{width:11mm}
+.vw{display:flex;flex-direction:column;align-items:center;font-size:2.1mm;color:var(--red)}
+.vw img{width:12mm;margin-bottom:.6mm}
 .glue .in{border:.2mm dashed #999;box-sizing:border-box}
 .gluelbl{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-90deg);font-family:Oswald;font-weight:700;color:#999;font-size:3mm;letter-spacing:.5mm}
-svg{position:absolute;left:0;top:0}
+svg.marks{position:absolute;left:0;top:0}
 line{stroke:#000;stroke-width:.2}line.fold{stroke-dasharray:1 .8}
 .note{position:absolute;left:${X0}mm;top:${YS[COPIES - 1] + TRIM_H + 14}mm;width:${TRIM_W}mm;font-size:2.6mm;color:#444;line-height:1.5}
 `;
 
 const html = `<!doctype html><html><head><meta charset="utf-8"><title>Battleline: Mech Wars — box sleeve</title><style>${css}</style></head><body>
 ${YS.map((y) => panels.map(box(y)).join('\n')).join('\n')}
-<svg width="${PAGE_W}mm" height="${PAGE_H}mm" viewBox="0 0 ${PAGE_W} ${PAGE_H}">${marks.join('')}</svg>
+<svg class="marks" width="${PAGE_W}mm" height="${PAGE_H}mm" viewBox="0 0 ${PAGE_W} ${PAGE_H}">${marks.join('')}</svg>
 <div class="note">Two box sleeves for the 88 × 60 × 18 mm tin. Print at 100% (actual size) on 80–120 gsm paper. Cut on the solid corner marks, fold on the dashed marks, glue the flap under the left side panel, then slide the tin in. Panels: side ${SIDE} · front ${FACE} · side ${SIDE} · back ${FACE} · glue ${GLUE} mm, height ${LEN} mm.</div>
 </body></html>`;
 const htmlPath = join(here, 'sleeve.html');
