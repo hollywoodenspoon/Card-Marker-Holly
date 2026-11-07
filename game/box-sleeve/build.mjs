@@ -42,7 +42,7 @@ const content = {
     <div class="mid"><div class="contents"><b>Contents:</b><br>1x Rule Book<br>4x Advanced Mech Cards<br>6x Battleline Mech Cards<br>4x Fighter Bomber Cards<br>4x Logistics Mech Cards</div>
       <div class="fan">${CARDS.map((c) => `<img src="${A}/card-${c}.png">`).join('')}</div></div>
     <div class="info"><span>${ICON_PLAYERS} 2</span><span>${ICON_CLOCK} 15 mins</span></div>
-    <div class="logos"><img class="kal" src="assets/logo-kalaro.png"><div class="vw"><img src="${A}/logo-village-wizard-red.png"><span>@village.wizard</span></div></div>`,
+    <div class="logos"><img class="kal" src="assets/logo-kalaro.png"><div class="vw"><img src="assets/logo-vw-hat.png"><span>@village.wizard</span></div></div>`,
   glue: `<div class="gluelbl">GLUE</div>`,
 };
 
@@ -94,7 +94,7 @@ html,body{margin:0;width:${PAGE_W}mm;height:${PAGE_H}mm;overflow:hidden;backgrou
 .info span{display:flex;align-items:center;gap:1.2mm}
 .ic{height:3mm;fill:var(--red);stroke:var(--red)}
 .logos{display:flex;align-items:flex-end;justify-content:space-between;width:100%;margin-top:auto}
-.kal{width:11mm}
+.kal{width:7.5mm}
 .vw{display:flex;flex-direction:column;align-items:center;font-size:2.1mm;color:var(--red)}
 .vw img{width:12mm;margin-bottom:.6mm}
 .glue .in{border:.2mm dashed #999;box-sizing:border-box}
