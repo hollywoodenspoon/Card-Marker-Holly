@@ -55,18 +55,19 @@ const box = (Y0) => (p, i) => {
 
 // marks: cut ticks at the 4 corners, fold ticks top and bottom at each inner edge
 const line = (x1, y1, x2, y2, cls = '') => `<line class="${cls}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`;
-const L = 6, G = BLEED + 1; // tick length, gap from trim
+const G = BLEED + 1; // gap from trim; marks run from there to the paper edge (or the middle of the gap between copies)
 const marks = [];
-for (const Y0 of YS) {
-for (const cx of [X0, X0 + TRIM_W]) for (const cy of [Y0, Y0 + TRIM_H]) {
-  const sy = cy === Y0 ? -1 : 1, sx = cx === X0 ? -1 : 1;
-  marks.push(line(cx, cy + sy * G, cx, cy + sy * (G + L)), line(cx + sx * G, cy, cx + sx * (G + L), cy));
-}
-for (const p of panels.slice(1)) {
-  const fx = X0 + p.x;
-  marks.push(line(fx, Y0 - G, fx, Y0 - G - L, 'fold'), line(fx, Y0 + TRIM_H + G, fx, Y0 + TRIM_H + G + L, 'fold'));
-}
-}
+YS.forEach((Y0, i) => {
+  const yUp = i === 0 ? 0 : Y0 - GAP / 2, yDown = i === COPIES - 1 ? PAGE_H : Y0 + TRIM_H + GAP / 2;
+  for (const cx of [X0, X0 + TRIM_W]) for (const cy of [Y0, Y0 + TRIM_H]) {
+    const top = cy === Y0, left = cx === X0;
+    marks.push(line(cx, top ? cy - G : cy + G, cx, top ? yUp : yDown), line(left ? cx - G : cx + G, cy, left ? 0 : PAGE_W, cy));
+  }
+  for (const p of panels.slice(1)) {
+    const fx = X0 + p.x;
+    marks.push(line(fx, Y0 - G, fx, yUp, 'fold'), line(fx, Y0 + TRIM_H + G, fx, yDown, 'fold'));
+  }
+});
 
 const css = `
 @font-face{font-family:Oswald;font-weight:700;src:url(${A}/fonts/oswald-latin-700-normal.woff2)}
@@ -101,7 +102,7 @@ html,body{margin:0;width:${PAGE_W}mm;height:${PAGE_H}mm;overflow:hidden;backgrou
 .gluelbl{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-90deg);font-family:Oswald;font-weight:700;color:#999;font-size:3mm;letter-spacing:.5mm}
 svg.marks{position:absolute;left:0;top:0}
 line{stroke:#000;stroke-width:.2}line.fold{stroke-dasharray:1 .8}
-.note{position:absolute;left:${X0}mm;top:${YS[COPIES - 1] + TRIM_H + 14}mm;width:${TRIM_W}mm;font-size:2.6mm;color:#444;line-height:1.5}
+.note{position:absolute;left:${X0}mm;top:${YS[COPIES - 1] + TRIM_H + 14}mm;width:${TRIM_W}mm;font-size:2.6mm;color:#444;line-height:1.5;background:#fff;z-index:1;padding:1mm 0}
 `;
 
 const html = `<!doctype html><html><head><meta charset="utf-8"><title>Battleline: Mech Wars — box sleeve</title><style>${css}</style></head><body>
