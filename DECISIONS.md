@@ -970,3 +970,4 @@ Agreed with the owner in discussion; the plan is in the PR. Adventure Scuffle! i
 
 - Online rulebook PDF (0.8.24-beta): one panel per page at panel size (54 × 82 mm), in reading order, no print marks or bleed, so the design matches the printed rulebook exactly.
 - Tin box sleeve (0.8.25-beta): wraps the 88 × 60 × 18 mm tin around its long sides (side, front, side, back, 10 mm glue flap), open at both 60 mm ends like the Songbirds sleeve; 0.5 mm clearance per fold for 80–120 gsm paper (panels 19/61/19/61 mm, 89 mm tall). Front uses the red card back style; back info line says only 2 players, 18 cards, 2 game modes (no age or play time on record).
+- Box sleeve prints two per A4 page (24 mm gap between them for the marks) to save paper.

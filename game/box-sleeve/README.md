@@ -1,6 +1,6 @@
 # Box sleeve
 
-Printable paper sleeve for the 88 × 60 × 18 mm tin (one A4 page, with bleed, cut and fold marks).
+Printable paper sleeve for the 88 × 60 × 18 mm tin (two per A4 page, with bleed, cut and fold marks).
 
 - Build: `node game/box-sleeve/build.mjs` (needs Playwright Chromium). Writes `sleeve.html` and `sleeve.pdf`.
 - Print at 100% on 80–120 gsm paper, cut, fold on the dashed marks, glue the flap, slide the tin in.

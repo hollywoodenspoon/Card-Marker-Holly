@@ -19,7 +19,10 @@ const PANELS = [
 ];
 const TRIM_W = PANELS.reduce((s, p) => s + p[1], 0), TRIM_H = LEN; // 170 x 89
 const BLEED = 3, PAGE_W = 210, PAGE_H = 297;
-const X0 = (PAGE_W - TRIM_W) / 2, Y0 = (PAGE_H - TRIM_H) / 2;
+// two sleeves per page to save paper; GAP leaves room for both sets of marks between them
+const COPIES = 2, GAP = 24;
+const X0 = (PAGE_W - TRIM_W) / 2, YTOP = (PAGE_H - COPIES * TRIM_H - (COPIES - 1) * GAP) / 2;
+const YS = Array.from({ length: COPIES }, (_, i) => YTOP + i * (TRIM_H + GAP));
 
 let x = 0;
 const panels = PANELS.map(([kind, w]) => { const p = { kind, x, w }; x += w; return p; });
@@ -37,7 +40,7 @@ const content = {
 };
 
 // panel boxes: first and last get the outer bleed; glue flap is white
-const box = (p, i) => {
+const box = (Y0) => (p, i) => {
   const l = i === 0 ? -BLEED : 0, r = i === panels.length - 1 ? BLEED : 0;
   return `<div class="p ${p.kind}" style="left:${X0 + p.x + l}mm;top:${Y0 - BLEED}mm;width:${p.w - l + r}mm;height:${TRIM_H + 2 * BLEED}mm">
     <div class="in" style="left:${-l}mm;top:${BLEED}mm;width:${p.w}mm;height:${TRIM_H}mm">${content[p.kind]}</div></div>`;
@@ -47,6 +50,7 @@ const box = (p, i) => {
 const line = (x1, y1, x2, y2, cls = '') => `<line class="${cls}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`;
 const L = 6, G = BLEED + 1; // tick length, gap from trim
 const marks = [];
+for (const Y0 of YS) {
 for (const cx of [X0, X0 + TRIM_W]) for (const cy of [Y0, Y0 + TRIM_H]) {
   const sy = cy === Y0 ? -1 : 1, sx = cx === X0 ? -1 : 1;
   marks.push(line(cx, cy + sy * G, cx, cy + sy * (G + L)), line(cx + sx * G, cy, cx + sx * (G + L), cy));
@@ -54,6 +58,7 @@ for (const cx of [X0, X0 + TRIM_W]) for (const cy of [Y0, Y0 + TRIM_H]) {
 for (const p of panels.slice(1)) {
   const fx = X0 + p.x;
   marks.push(line(fx, Y0 - G, fx, Y0 - G - L, 'fold'), line(fx, Y0 + TRIM_H + G, fx, Y0 + TRIM_H + G + L, 'fold'));
+}
 }
 
 const css = `
@@ -82,13 +87,13 @@ html,body{margin:0;width:${PAGE_W}mm;height:${PAGE_H}mm;overflow:hidden;backgrou
 .gluelbl{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-90deg);font-family:Oswald;font-weight:700;color:#999;font-size:3mm;letter-spacing:.5mm}
 svg{position:absolute;left:0;top:0}
 line{stroke:#000;stroke-width:.2}line.fold{stroke-dasharray:1 .8}
-.note{position:absolute;left:${X0}mm;top:${Y0 + TRIM_H + 18}mm;width:${TRIM_W}mm;font-size:2.6mm;color:#444;line-height:1.5}
+.note{position:absolute;left:${X0}mm;top:${YS[COPIES - 1] + TRIM_H + 14}mm;width:${TRIM_W}mm;font-size:2.6mm;color:#444;line-height:1.5}
 `;
 
 const html = `<!doctype html><html><head><meta charset="utf-8"><title>Battleline: Mech Wars — box sleeve</title><style>${css}</style></head><body>
-${panels.map(box).join('\n')}
+${YS.map((y) => panels.map(box(y)).join('\n')).join('\n')}
 <svg width="${PAGE_W}mm" height="${PAGE_H}mm" viewBox="0 0 ${PAGE_W} ${PAGE_H}">${marks.join('')}</svg>
-<div class="note">Box sleeve for the 88 × 60 × 18 mm tin. Print at 100% (actual size) on 80–120 gsm paper. Cut on the solid corner marks, fold on the dashed marks, glue the flap under the left side panel, then slide the tin in. Panels: side ${SIDE} · front ${FACE} · side ${SIDE} · back ${FACE} · glue ${GLUE} mm, height ${LEN} mm.</div>
+<div class="note">Two box sleeves for the 88 × 60 × 18 mm tin. Print at 100% (actual size) on 80–120 gsm paper. Cut on the solid corner marks, fold on the dashed marks, glue the flap under the left side panel, then slide the tin in. Panels: side ${SIDE} · front ${FACE} · side ${SIDE} · back ${FACE} · glue ${GLUE} mm, height ${LEN} mm.</div>
 </body></html>`;
 const htmlPath = join(here, 'sleeve.html');
 writeFileSync(htmlPath, html);
