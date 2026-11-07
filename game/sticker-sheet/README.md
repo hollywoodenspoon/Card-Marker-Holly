@@ -7,3 +7,7 @@
 - `assets/`: the art, with the white background removed.
 
 Rebuild from the repo root with `node game/sticker-sheet/build.mjs`.
+
+## Logo stickers
+
+`logo-stickers.pdf` has 20 Urban Warfare Edition logos in the game's red, each 86 x 23.8 mm (almost a card's 88 mm height), with the same faint corner ticks. Rebuild with `node game/sticker-sheet/build-logo.mjs`.
