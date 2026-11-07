@@ -15,7 +15,7 @@ const A = '../rulebook-print/assets';
 const CLEAR = 0.5; // per fold, for 80-120 gsm paper
 const FACE = 60 + 2 * CLEAR, SIDE = 18 + 2 * CLEAR, GLUE = 10, LEN = 88 + 1; // 61, 19, 10, 89
 const PANELS = [
-  ['side', SIDE], ['front', FACE], ['side', SIDE], ['back', FACE], ['glue', GLUE],
+  ['sideL', SIDE], ['front', FACE], ['sideR', SIDE], ['back', FACE], ['glue', GLUE],
 ];
 const TRIM_W = PANELS.reduce((s, p) => s + p[1], 0), TRIM_H = LEN; // 170 x 89
 const BLEED = 3, PAGE_W = 210, PAGE_H = 297;
@@ -29,15 +29,18 @@ const panels = PANELS.map(([kind, w]) => { const p = { kind, x, w }; x += w; ret
 
 const ICON_PLAYERS = `<svg viewBox="0 0 24 16" class="ic"><circle cx="7" cy="4" r="3.2"/><path d="M1 15c0-4 2.7-6 6-6s6 2 6 6z"/><circle cx="17" cy="4" r="3.2"/><path d="M11 15c0-4 2.7-6 6-6s6 2 6 6z"/></svg>`;
 const ICON_CLOCK = `<svg viewBox="0 0 16 16" class="ic"><circle cx="8" cy="8" r="6.6" fill="none" stroke-width="1.6"/><path d="M8 4v4.4l3 1.8" fill="none" stroke-width="1.6" stroke-linecap="round"/></svg>`;
-const sideHtml = `<div class="spine"><span>BATTLELINE: MECH WARS</span><img src="${A}/logo-village-wizard.png"></div>`;
+// as in the owner's Cover2: rotated white logo, small Village Wizard logo at the bottom
+const spine = (deg) => `<img class="slogo" style="transform:translate(-50%,-50%) rotate(${deg}deg)" src="${A}/logo-game.png"><img class="svw" src="${A}/logo-village-wizard.png">`;
+const CARDS = ['logistics', 'advanced', 'fighter-bomber', 'battleline'];
 const content = {
-  front: `<img class="flogo" src="${A}/logo-game.png"><img class="fvw" src="${A}/logo-village-wizard.png">`,
-  side: sideHtml,
+  front: `<img class="flogo" src="${A}/logo-game.png">`,
+  sideL: spine(90),
+  sideR: spine(-90),
   back: `<img class="blogo" src="${A}/logo-game-red.png">
     <p class="blurb">BATTLELINE: MECH WARS is a 2 player card game where the players are pitted against each other by building a battleline of mechs using cards available to them, using their wits to overpower their opponent with firepower to reign supreme on the battlefield.</p>
     <p class="blurb uw"><b>Urban Warfare Edition</b> adds a new game mode: Urban Warfare.</p>
     <div class="mid"><div class="contents"><b>Contents:</b><br>1x Rule Book<br>4x Advanced Mech Cards<br>6x Battleline Mech Cards<br>4x Fighter Bomber Cards<br>4x Logistics Mech Cards</div>
-      <div class="fan">${[1, 2, 3, 4].map((n) => `<img src="assets/fan-${n}.png">`).join('')}</div></div>
+      <div class="fan">${CARDS.map((c) => `<img src="${A}/card-${c}.png">`).join('')}</div></div>
     <div class="info"><span>${ICON_PLAYERS} 2</span><span>${ICON_CLOCK} 15 mins</span></div>
     <div class="logos"><img class="kal" src="assets/logo-kalaro.png"><div class="vw"><img src="${A}/logo-village-wizard-red.png"><span>@village.wizard</span></div></div>`,
   glue: `<div class="gluelbl">GLUE</div>`,
@@ -73,13 +76,11 @@ const css = `
 :root{--red:#aa0000}
 html,body{margin:0;width:${PAGE_W}mm;height:${PAGE_H}mm;overflow:hidden;background:#fff;font-family:InterR}
 .p{position:absolute;overflow:hidden}.in img{flex:none;height:auto}.in{position:absolute}
-.front,.side{background:var(--red)}
+.front,.sideL,.sideR{background:var(--red)}
 .front .in,.back .in{display:flex;flex-direction:column;align-items:center}
-.flogo{width:52mm;margin-top:36mm}
-.fvw{width:14mm;margin-top:auto;margin-bottom:5mm}
-.spine{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-90deg);display:flex;align-items:center;gap:6mm;white-space:nowrap}
-.spine span{font-family:Oswald;font-weight:700;color:#fff;font-size:5.4mm;letter-spacing:.2mm}
-.spine img{height:7mm}
+.flogo{width:50mm;margin-top:auto;margin-bottom:14mm}
+.slogo{position:absolute;left:50%;top:40%;width:56mm}
+.svw{position:absolute;left:50%;bottom:4mm;width:9mm;transform:translateX(-50%)}
 .back .in{padding:6mm 5mm 4mm;box-sizing:border-box}
 .blogo{width:40mm}
 .blurb{font-size:2.05mm;line-height:1.35;text-align:justify;margin:2.6mm 0 0;color:#111}

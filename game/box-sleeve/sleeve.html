@@ -6,13 +6,11 @@
 :root{--red:#aa0000}
 html,body{margin:0;width:210mm;height:297mm;overflow:hidden;background:#fff;font-family:InterR}
 .p{position:absolute;overflow:hidden}.in img{flex:none;height:auto}.in{position:absolute}
-.front,.side{background:var(--red)}
+.front,.sideL,.sideR{background:var(--red)}
 .front .in,.back .in{display:flex;flex-direction:column;align-items:center}
-.flogo{width:52mm;margin-top:36mm}
-.fvw{width:14mm;margin-top:auto;margin-bottom:5mm}
-.spine{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-90deg);display:flex;align-items:center;gap:6mm;white-space:nowrap}
-.spine span{font-family:Oswald;font-weight:700;color:#fff;font-size:5.4mm;letter-spacing:.2mm}
-.spine img{height:7mm}
+.flogo{width:50mm;margin-top:auto;margin-bottom:14mm}
+.slogo{position:absolute;left:50%;top:40%;width:56mm}
+.svw{position:absolute;left:50%;bottom:4mm;width:9mm;transform:translateX(-50%)}
 .back .in{padding:6mm 5mm 4mm;box-sizing:border-box}
 .blogo{width:40mm}
 .blurb{font-size:2.05mm;line-height:1.35;text-align:justify;margin:2.6mm 0 0;color:#111}
@@ -35,34 +33,34 @@ svg.marks{position:absolute;left:0;top:0}
 line{stroke:#000;stroke-width:.2}line.fold{stroke-dasharray:1 .8}
 .note{position:absolute;left:20mm;top:263.5mm;width:170mm;font-size:2.6mm;color:#444;line-height:1.5}
 </style></head><body>
-<div class="p side" style="left:17mm;top:44.5mm;width:22mm;height:95mm">
-    <div class="in" style="left:3mm;top:3mm;width:19mm;height:89mm"><div class="spine"><span>BATTLELINE: MECH WARS</span><img src="../rulebook-print/assets/logo-village-wizard.png"></div></div></div>
+<div class="p sideL" style="left:17mm;top:44.5mm;width:22mm;height:95mm">
+    <div class="in" style="left:3mm;top:3mm;width:19mm;height:89mm"><img class="slogo" style="transform:translate(-50%,-50%) rotate(90deg)" src="../rulebook-print/assets/logo-game.png"><img class="svw" src="../rulebook-print/assets/logo-village-wizard.png"></div></div>
 <div class="p front" style="left:39mm;top:44.5mm;width:61mm;height:95mm">
-    <div class="in" style="left:0mm;top:3mm;width:61mm;height:89mm"><img class="flogo" src="../rulebook-print/assets/logo-game.png"><img class="fvw" src="../rulebook-print/assets/logo-village-wizard.png"></div></div>
-<div class="p side" style="left:100mm;top:44.5mm;width:19mm;height:95mm">
-    <div class="in" style="left:0mm;top:3mm;width:19mm;height:89mm"><div class="spine"><span>BATTLELINE: MECH WARS</span><img src="../rulebook-print/assets/logo-village-wizard.png"></div></div></div>
+    <div class="in" style="left:0mm;top:3mm;width:61mm;height:89mm"><img class="flogo" src="../rulebook-print/assets/logo-game.png"></div></div>
+<div class="p sideR" style="left:100mm;top:44.5mm;width:19mm;height:95mm">
+    <div class="in" style="left:0mm;top:3mm;width:19mm;height:89mm"><img class="slogo" style="transform:translate(-50%,-50%) rotate(-90deg)" src="../rulebook-print/assets/logo-game.png"><img class="svw" src="../rulebook-print/assets/logo-village-wizard.png"></div></div>
 <div class="p back" style="left:119mm;top:44.5mm;width:61mm;height:95mm">
     <div class="in" style="left:0mm;top:3mm;width:61mm;height:89mm"><img class="blogo" src="../rulebook-print/assets/logo-game-red.png">
     <p class="blurb">BATTLELINE: MECH WARS is a 2 player card game where the players are pitted against each other by building a battleline of mechs using cards available to them, using their wits to overpower their opponent with firepower to reign supreme on the battlefield.</p>
     <p class="blurb uw"><b>Urban Warfare Edition</b> adds a new game mode: Urban Warfare.</p>
     <div class="mid"><div class="contents"><b>Contents:</b><br>1x Rule Book<br>4x Advanced Mech Cards<br>6x Battleline Mech Cards<br>4x Fighter Bomber Cards<br>4x Logistics Mech Cards</div>
-      <div class="fan"><img src="assets/fan-1.png"><img src="assets/fan-2.png"><img src="assets/fan-3.png"><img src="assets/fan-4.png"></div></div>
+      <div class="fan"><img src="../rulebook-print/assets/card-logistics.png"><img src="../rulebook-print/assets/card-advanced.png"><img src="../rulebook-print/assets/card-fighter-bomber.png"><img src="../rulebook-print/assets/card-battleline.png"></div></div>
     <div class="info"><span><svg viewBox="0 0 24 16" class="ic"><circle cx="7" cy="4" r="3.2"/><path d="M1 15c0-4 2.7-6 6-6s6 2 6 6z"/><circle cx="17" cy="4" r="3.2"/><path d="M11 15c0-4 2.7-6 6-6s6 2 6 6z"/></svg> 2</span><span><svg viewBox="0 0 16 16" class="ic"><circle cx="8" cy="8" r="6.6" fill="none" stroke-width="1.6"/><path d="M8 4v4.4l3 1.8" fill="none" stroke-width="1.6" stroke-linecap="round"/></svg> 15 mins</span></div>
     <div class="logos"><img class="kal" src="assets/logo-kalaro.png"><div class="vw"><img src="../rulebook-print/assets/logo-village-wizard-red.png"><span>@village.wizard</span></div></div></div></div>
 <div class="p glue" style="left:180mm;top:44.5mm;width:13mm;height:95mm">
     <div class="in" style="left:0mm;top:3mm;width:10mm;height:89mm"><div class="gluelbl">GLUE</div></div></div>
-<div class="p side" style="left:17mm;top:157.5mm;width:22mm;height:95mm">
-    <div class="in" style="left:3mm;top:3mm;width:19mm;height:89mm"><div class="spine"><span>BATTLELINE: MECH WARS</span><img src="../rulebook-print/assets/logo-village-wizard.png"></div></div></div>
+<div class="p sideL" style="left:17mm;top:157.5mm;width:22mm;height:95mm">
+    <div class="in" style="left:3mm;top:3mm;width:19mm;height:89mm"><img class="slogo" style="transform:translate(-50%,-50%) rotate(90deg)" src="../rulebook-print/assets/logo-game.png"><img class="svw" src="../rulebook-print/assets/logo-village-wizard.png"></div></div>
 <div class="p front" style="left:39mm;top:157.5mm;width:61mm;height:95mm">
-    <div class="in" style="left:0mm;top:3mm;width:61mm;height:89mm"><img class="flogo" src="../rulebook-print/assets/logo-game.png"><img class="fvw" src="../rulebook-print/assets/logo-village-wizard.png"></div></div>
-<div class="p side" style="left:100mm;top:157.5mm;width:19mm;height:95mm">
-    <div class="in" style="left:0mm;top:3mm;width:19mm;height:89mm"><div class="spine"><span>BATTLELINE: MECH WARS</span><img src="../rulebook-print/assets/logo-village-wizard.png"></div></div></div>
+    <div class="in" style="left:0mm;top:3mm;width:61mm;height:89mm"><img class="flogo" src="../rulebook-print/assets/logo-game.png"></div></div>
+<div class="p sideR" style="left:100mm;top:157.5mm;width:19mm;height:95mm">
+    <div class="in" style="left:0mm;top:3mm;width:19mm;height:89mm"><img class="slogo" style="transform:translate(-50%,-50%) rotate(-90deg)" src="../rulebook-print/assets/logo-game.png"><img class="svw" src="../rulebook-print/assets/logo-village-wizard.png"></div></div>
 <div class="p back" style="left:119mm;top:157.5mm;width:61mm;height:95mm">
     <div class="in" style="left:0mm;top:3mm;width:61mm;height:89mm"><img class="blogo" src="../rulebook-print/assets/logo-game-red.png">
     <p class="blurb">BATTLELINE: MECH WARS is a 2 player card game where the players are pitted against each other by building a battleline of mechs using cards available to them, using their wits to overpower their opponent with firepower to reign supreme on the battlefield.</p>
     <p class="blurb uw"><b>Urban Warfare Edition</b> adds a new game mode: Urban Warfare.</p>
     <div class="mid"><div class="contents"><b>Contents:</b><br>1x Rule Book<br>4x Advanced Mech Cards<br>6x Battleline Mech Cards<br>4x Fighter Bomber Cards<br>4x Logistics Mech Cards</div>
-      <div class="fan"><img src="assets/fan-1.png"><img src="assets/fan-2.png"><img src="assets/fan-3.png"><img src="assets/fan-4.png"></div></div>
+      <div class="fan"><img src="../rulebook-print/assets/card-logistics.png"><img src="../rulebook-print/assets/card-advanced.png"><img src="../rulebook-print/assets/card-fighter-bomber.png"><img src="../rulebook-print/assets/card-battleline.png"></div></div>
     <div class="info"><span><svg viewBox="0 0 24 16" class="ic"><circle cx="7" cy="4" r="3.2"/><path d="M1 15c0-4 2.7-6 6-6s6 2 6 6z"/><circle cx="17" cy="4" r="3.2"/><path d="M11 15c0-4 2.7-6 6-6s6 2 6 6z"/></svg> 2</span><span><svg viewBox="0 0 16 16" class="ic"><circle cx="8" cy="8" r="6.6" fill="none" stroke-width="1.6"/><path d="M8 4v4.4l3 1.8" fill="none" stroke-width="1.6" stroke-linecap="round"/></svg> 15 mins</span></div>
     <div class="logos"><img class="kal" src="assets/logo-kalaro.png"><div class="vw"><img src="../rulebook-print/assets/logo-village-wizard-red.png"><span>@village.wizard</span></div></div></div></div>
 <div class="p glue" style="left:180mm;top:157.5mm;width:13mm;height:95mm">
