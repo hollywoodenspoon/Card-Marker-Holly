@@ -49,3 +49,4 @@ Earlier PRs (#1–#48) used the 0.1.0 alpha line and are unchanged.
 | — | Rulebook as a map fold (one sheet, no tape), new cut, bleed and fold marks; Instagram on the back cover | 0.8.21-beta | 0.8.21-beta | no |
 | — | Rulebook PDF prints full size (was shrunk to ~66%), centred on A4, front and back line up on a long-edge flip | 0.8.22-beta | 0.8.22-beta | no |
 | — | Rulebook: page 9 moves to the outside back slot, Urban Warfare pages shift up, back cover is the last inside panel | 0.8.23-beta | 0.8.23-beta | no |
+| — | Online rulebook PDF: same design, one panel per page, no marks or bleed | 0.8.24-beta | 0.8.24-beta | no |

@@ -198,12 +198,15 @@ function clip(row, col, rot) {
   return `clip-path:inset(${e(t)} ${e(r)} ${e(b)} ${e(l)})`;
 }
 
-function panel(p, row, col, rot, isBack) {
+function panel(p, row, col, rot, isBack, online = false) {
   // Each panel is placed on the page on its own (no rotated strip): a wide rotated box makes Chrome shrink the PDF.
   const cx = OFF + col * PANEL_W + PANEL_W / 2, cy = OFF + row * PANEL_H + PANEL_H / 2;
   const px = isBack ? BOX_X + cy : BOX_X + BOX_H - cy, py = isBack ? BOX_Y + BOX_W - cx : BOX_Y + cx;
   const ang = (isBack ? -90 : 90) + (rot ? 180 : 0);
-  const st = `style="left:${px - PANEL_W / 2}mm;top:${py - PANEL_H / 2}mm;transform:rotate(${ang}deg);${clip(row, col, rot)}"`, cls = `panel${rot ? ' rot' : ''}`;
+  const st = online
+    ? 'style="left:0;top:0;clip-path:inset(0)"' // online PDF: upright, trimmed, no bleed
+    : `style="left:${px - PANEL_W / 2}mm;top:${py - PANEL_H / 2}mm;transform:rotate(${ang}deg);${clip(row, col, rot)}"`;
+  const cls = `panel${rot ? ' rot' : ''}`;
   if (p.cls === 'cover') return `<section class="${cls} cover" ${st}>${p.html}</section>`;
   return `<section class="${cls}" ${st}>${p.bg ? `<img class="bgart${p.bg.startsWith('comic') ? ' comic' : ''}" src="assets/${p.bg}.png" style="object-position:${({'comic-page06':'50% 50%;opacity:.15;object-fit:contain;-webkit-mask-image:none;mask-image:none','comic-bomber':'38% 50%'})[p.bg]||'50% 50%'}" alt="">` : ''}
 ${p.mode ? `<div class="mode">${p.mode}</div>` : ''}<div class="body">${p.html}</div><div class="no">${p.no}</div></section>`;
@@ -314,6 +317,16 @@ ${page(true)}
 const htmlPath = join(here, 'rulebook-accordion.html');
 writeFileSync(htmlPath, html);
 
+// Online PDF: same panels, one per page, upright, in reading order, no marks or bleed.
+const reading = [...sheet.front[0], ...[...sheet.front[1]].reverse(), ...sheet.back.flat()];
+const onlineCss = css.replace(`@page{size:${PAGE_W}mm ${PAGE_H}mm;margin:0}`, `@page{size:${PANEL_W}mm ${PANEL_H}mm;margin:0}`)
+  + `.opage{position:relative;width:${PANEL_W}mm;height:${PANEL_H}mm;overflow:hidden;page-break-after:always}`;
+const onlineHtml = `<!doctype html><html><head><meta charset="utf-8"><title>Battleline: Mech Wars — rulebook</title><style>${onlineCss}</style></head><body>
+${reading.map((p) => `<div class="opage">${panel(p, 0, 0, false, false, true)}</div>`).join('\n')}
+</body></html>`;
+const onlinePath = join(here, 'rulebook-online.html');
+writeFileSync(onlinePath, onlineHtml);
+
 const { chromium } = require('playwright');
 const browser = await chromium.launch();
 const pg = await browser.newPage();
@@ -323,5 +336,9 @@ await pg.waitForLoadState('networkidle');
 const over = await pg.$$eval('.body', (els) => els.map((e, i) => ({ i, over: Math.round(e.scrollHeight - e.clientHeight) })).filter((x) => x.over > 0));
 if (over.length) console.warn('OVERFLOW (px):', JSON.stringify(over));
 await pg.pdf({ path: join(here, 'rulebook-accordion.pdf'), width: `${PAGE_W}mm`, height: `${PAGE_H}mm`, printBackground: true, preferCSSPageSize: true });
+await pg.goto(pathToFileURL(onlinePath).href);
+await pg.evaluate(() => document.fonts.ready);
+await pg.waitForLoadState('networkidle');
+await pg.pdf({ path: join(here, 'rulebook-online.pdf'), width: `${PANEL_W}mm`, height: `${PANEL_H}mm`, printBackground: true, preferCSSPageSize: true });
 await browser.close();
 console.log('wrote', htmlPath);

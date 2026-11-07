@@ -967,3 +967,5 @@ Agreed with the owner in discussion; the plan is in the PR. Adventure Scuffle! i
 - **Urban Warfare, placing:** a placed card pushes with its printed firepower (it enters from outside, so no Logistics bonus).
 - **Urban Warfare, end of turn order:** Battleline check first (the player whose turn did not end wins if both have a line), then the center count, then attrition; the Objective win is checked at the start of the next turn.
 - **Urban Warfare, center count:** counted by owner, so swapping in another own card keeps it; a card pushed into the center starts a fresh count for its owner.
+
+- Online rulebook PDF (0.8.24-beta): one panel per page at panel size (54 × 82 mm), in reading order, no print marks or bleed, so the design matches the printed rulebook exactly.
