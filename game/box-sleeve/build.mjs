@@ -65,7 +65,7 @@ YS.forEach((Y0, i) => {
   }
   for (const p of panels.slice(1)) {
     const fx = X0 + p.x;
-    marks.push(line(fx, Y0 - G, fx, yUp, 'fold'), line(fx, Y0 + TRIM_H + G, fx, yDown, 'fold'));
+    marks.push(line(fx, Y0, fx, Y0 + TRIM_H, 'faint'), line(fx, Y0 - G, fx, yUp, 'fold'), line(fx, Y0 + TRIM_H + G, fx, yDown, 'fold'));
   }
 });
 
@@ -101,7 +101,7 @@ html,body{margin:0;width:${PAGE_W}mm;height:${PAGE_H}mm;overflow:hidden;backgrou
 .glue .in{border:.2mm dashed #999;box-sizing:border-box}
 .gluelbl{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-90deg);font-family:Oswald;font-weight:700;color:#999;font-size:3mm;letter-spacing:.5mm}
 svg.marks{position:absolute;left:0;top:0}
-line{stroke:#000;stroke-width:.2}line.fold{stroke-dasharray:1 .8}
+line{stroke:#000;stroke-width:.2}line.fold{stroke-dasharray:1 .8}line.faint{stroke:rgba(0,0,0,.18);stroke-width:.15;stroke-dasharray:1 .8}
 .note{position:absolute;left:${X0}mm;top:${YS[COPIES - 1] + TRIM_H + 14}mm;width:${TRIM_W}mm;font-size:2.6mm;color:#444;line-height:1.5;background:#fff;z-index:1;padding:1mm 0}
 `;
 
