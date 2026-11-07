@@ -78,7 +78,7 @@ html,body{margin:0;width:${PAGE_W}mm;height:${PAGE_H}mm;overflow:hidden;backgrou
 .p{position:absolute;overflow:hidden}.in img{flex:none;height:auto}.in{position:absolute}
 .front,.sideL,.sideR{background:var(--red)}
 .front .in,.back .in{display:flex;flex-direction:column;align-items:center}
-.flogo{width:50mm;margin-top:auto;margin-bottom:14mm}
+.flogo{width:50mm;margin-top:auto;margin-bottom:6mm}
 .slogo{position:absolute;left:50%;top:40%;width:56mm}
 .svw{position:absolute;left:50%;bottom:4mm;width:9mm;transform:translateX(-50%)}
 .back .in{padding:6mm 5mm 4mm;box-sizing:border-box}
