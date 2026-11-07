@@ -95,7 +95,7 @@ Text is drawn as exact letter shapes from your uploaded fonts and the built-in o
 
 ## Corner cutter guide
 
-If you round the corners with a corner cutter, turn on **Show rounded corners** in the right pane (nothing selected, **Corner cutter guide**) and set its **Corner radius**. The corners it will cut off are shaded in the editor. On the printed sheet, with **Guide lines** on, the guide lines become dotted arcs at each card's corners only, with no lines along the sides.
+If you round the corners with a corner cutter, turn on **Show rounded corners** in the right pane (nothing selected, **Corner cutter guide**) and set its **Corner radius**. The corners it will cut off are shaded in the editor. On the printed sheet, each card's corners get dotted arcs (black dots on a thin white edge, so they show on dark art too), whether or not **Guide lines** is on. With the corner guide on, there are no guide lines along the sides.
 
 ## See also
 

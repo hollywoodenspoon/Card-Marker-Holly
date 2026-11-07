@@ -239,7 +239,7 @@ export function sheetLines(
     /** Corner cutter radius (mm): guides become dotted corner arcs only. */
     cornerMm?: number
   },
-): { guides: Line[]; marks: Line[] } {
+): { guides: Line[]; marks: Line[]; corners: Line[] } {
   const bleed = o.bleedMarks && sheet.cells.some((c) => c.cell.w - c.trim.w > EPS)
   const mark = (edge: MarkEdge) =>
     cutMarks(sheet, {
@@ -250,7 +250,9 @@ export function sheetLines(
     })
   if (o.cornerMm && o.cornerMm > 0)
     return {
-      guides: o.guideLines ? cornerDots(sheet, o.cornerMm) : [],
+      guides: [],
+      // shown whenever the corner guide is on, whatever Guide lines says
+      corners: cornerDots(sheet, o.cornerMm),
       marks: [...(o.cutMarks ? mark('trim') : []), ...(bleed ? dotted(mark('bleed')) : [])],
     }
   return {
@@ -259,6 +261,7 @@ export function sheetLines(
       ...(o.guideLines && bleed ? dotted(guideLines(sheet, 'bleed')) : []),
     ],
     marks: [...(o.cutMarks ? mark('trim') : []), ...(bleed ? dotted(mark('bleed')) : [])],
+    corners: [],
   }
 }
 

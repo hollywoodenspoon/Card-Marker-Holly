@@ -26,6 +26,7 @@ const MARK_WIDTH_MM = 0.2
 /** Resolution of the auto-bleed band; it is cut off, so this only needs to look right at the cut. */
 const BLEED_DPI = 300
 const GUIDE_WIDTH_MM = 0.1
+const CORNER_WIDTH_MM = 0.2
 
 /** svg2pdf sets RGB colours (0–255, or a hex string); with `colors` they become CMYK. */
 function cmykColors(doc: jsPDF, colors: SvgColors) {
@@ -91,14 +92,21 @@ function newDoc(sheet: Pick<Sheet, 'orientation' | 'pageW' | 'pageH'>) {
   })
 }
 
-function strokeLines(t: DrawTarget, lines: Line[], width: number) {
-  t.strokeColor('#000000')
+function strokeLines(t: DrawTarget, lines: Line[], width: number, colour = '#000000') {
+  t.strokeColor(colour)
   t.lineWidth(width)
   for (const l of lines) {
     t.moveTo(l.x1, l.y1)
     t.lineTo(l.x2, l.y2)
     t.stroke()
   }
+}
+
+/** Corner cutter arcs: black dots on a thin white edge, visible on light and dark art. */
+function strokeCorners(t: DrawTarget, lines: Line[]) {
+  if (!lines.length) return
+  strokeLines(t, lines, CORNER_WIDTH_MM + 0.15, '#ffffff')
+  strokeLines(t, lines, CORNER_WIDTH_MM)
 }
 
 /** Collect the leaves of a render tree. */
@@ -158,7 +166,7 @@ export async function exportCardsPdf(
   const layouts = job.groups.map((g) => {
     const { sheet } = g
     const cg = job.project.cornerGuide
-    const { marks, guides } = sheetLines(sheet, {
+    const { marks, guides, corners } = sheetLines(sheet, {
       ...settings,
       cornerMm: cg?.enabled ? cg.radiusMm : 0,
     })
@@ -169,6 +177,8 @@ export async function exportCardsPdf(
       guides,
       backMarks: mirrored(marks),
       backGuides: mirrored(guides),
+      corners,
+      backCorners: mirrored(corners),
       backs: backCells(sheet, settings.flip, off),
       bands: bleedBands(job, BLEED_DPI / 25.4, res, g.card),
     }
@@ -207,6 +217,7 @@ export async function exportCardsPdf(
         }
         if (l.guides.length) strokeLines(target, l.guides, GUIDE_WIDTH_MM)
         if (l.marks.length) strokeLines(target, l.marks, MARK_WIDTH_MM)
+        strokeCorners(target, l.corners)
       })
     if (withBacks)
       await page(l.sheet, async () => {
@@ -218,6 +229,7 @@ export async function exportCardsPdf(
         }
         if (l.backGuides.length) strokeLines(target, l.backGuides, GUIDE_WIDTH_MM)
         if (l.backMarks.length) strokeLines(target, l.backMarks, MARK_WIDTH_MM)
+        strokeCorners(target, l.backCorners)
       })
   }
   const blob = doc.output('blob')
