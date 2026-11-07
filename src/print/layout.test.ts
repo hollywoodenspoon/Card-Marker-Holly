@@ -358,8 +358,12 @@ describe('corner guide on the sheet', () => {
       markOffsetMm: 1,
       markToEdge: false,
     }
-    const g = sheetLines(s, { ...o, cornerMm: 3 }).guides
-    expect(g).toEqual(cornerDots(s, 3))
+    const r = sheetLines(s, { ...o, cornerMm: 3 })
+    expect(r.corners).toEqual(cornerDots(s, 3))
+    expect(r.guides).toEqual([])
+    // shown even with Guide lines off
+    expect(sheetLines(s, { ...o, guideLines: false, cornerMm: 3 }).corners).toEqual(cornerDots(s, 3))
+    const g = r.corners
     expect(g.length).toBeGreaterThan(0)
     // every dot lies within the corner squares of some card
     for (const l of g) {

@@ -52,10 +52,10 @@ export function SheetPreview({
   const corner = g?.enabled ? g.radiusMm : 0
 
   const lines = useMemo(() => {
-    const { marks, guides } = sheetLines(sheet, { ...settings, cornerMm: corner })
-    if (side === 'front') return { marks, guides }
+    const { marks, guides, corners } = sheetLines(sheet, { ...settings, cornerMm: corner })
+    if (side === 'front') return { marks, guides, corners }
     const m = (l: L) => mirrorLine(l, sheet, settings.flip, offset)
-    return { marks: marks.map(m), guides: guides.map(m) }
+    return { marks: marks.map(m), guides: guides.map(m), corners: corners.map(m) }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sheet, settings, side, corner])
 
@@ -126,6 +126,13 @@ export function SheetPreview({
                 stroke="#000"
                 strokeWidth={i < lines.guides.length ? 0.1 : 0.2}
               />
+            ))}
+            {/* corner cutter arcs: white edge under black dots, so they show on any art */}
+            {lines.corners.map((l, i) => (
+              <Line key={`cw${i}`} points={[l.x1, l.y1, l.x2, l.y2]} stroke="#fff" strokeWidth={0.35} />
+            ))}
+            {lines.corners.map((l, i) => (
+              <Line key={`cb${i}`} points={[l.x1, l.y1, l.x2, l.y2]} stroke="#000" strokeWidth={0.2} />
             ))}
           </Group>
         </Layer>

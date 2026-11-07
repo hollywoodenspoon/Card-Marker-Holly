@@ -1,6 +1,14 @@
-# Battleline: Mech Wars — Complete Rules
+# Battleline: Mech Wars - Urban Warfare Edition
 
-This game has two modes. Part 1: Battlelines, the original mode. Part 2: Urban Warfare, the newer mode.
+This is an era of civil war for the Republic of Ria, Warlord-Generals reign supreme fighting for territory and resources of the once great nation. From the fields of Rianth, shadowed by the worldblood spires to the ancient city of Rianz, Battleline Mechs march, bombs fall, and the nation bleeds.
+
+Become a Warlord-General in this time of strife, control the battlefield and reign supreme.
+
+Battleline: Mech Wars is a 2 player card game with 2 distinct game modes. Battlelines and Urban Warfare.
+
+In Battlelines you are commanding your army to form a battleline to match or exceed your opponent to push them back and eventually rout them. In Urban Warfare you are commanding a company trying to take the center of the city district you are assigned to capture. Move your forces in the city but be careful, enemies could be anywhere and push you out before you know it.
+
+_Printable folded rulebook: `rulebook-print/rulebook-accordion.pdf`._
 
 # Part 1: Battlelines
 
@@ -46,8 +54,6 @@ GAMEPLAY:
 # Battleline: Mech Wars — Urban Warfare
 
 _Urban Warfare game mode rules (the newer mode). For the original mode, see Battlelines._
-
-_A 1v1 game of shoving mechs around a city block. Rulebook v1.3._
 
 ## What you need
 18 cards. Each player gets the same 9:

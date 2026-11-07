@@ -44,3 +44,11 @@ Earlier PRs (#1–#48) used the 0.1.0 alpha line and are unchanged.
 | #78 | Urban Warfare rulebook v1.2: instant Battleline, hold 3 | 0.8.16-beta | 0.8.16-beta | no |
 | #79 | Card images rounded corners; print corner guides, bleed fix, rename and tab fixes | 0.8.17-beta | 0.8.17-beta | no |
 | — | Urban Warfare rulebook v1.3 (passing no longer ends the game), Battlelines and combined rulebooks | 0.8.18-beta | 0.8.18-beta | no |
+| — | Folded print rulebook (both modes), rulebook intro from the owner | 0.8.19-beta | 0.8.19-beta | no |
+| — | Folded rulebook as one book (two strips taped), comic backgrounds, tagline removed | 0.8.20-beta | 0.8.20-beta | no |
+| — | Rulebook as a map fold (one sheet, no tape), new cut, bleed and fold marks; Instagram on the back cover | 0.8.21-beta | 0.8.21-beta | no |
+| — | Rulebook PDF prints full size (was shrunk to ~66%), centred on A4, front and back line up on a long-edge flip | 0.8.22-beta | 0.8.22-beta | no |
+| — | Rulebook: page 9 moves to the outside back slot, Urban Warfare pages shift up, back cover is the last inside panel | 0.8.23-beta | 0.8.23-beta | no |
+| — | Online rulebook PDF: same design, one panel per page, no marks or bleed | 0.8.24-beta | 0.8.24-beta | no |
+| — | Tin box sleeve: printable A4 wrap for the 88 × 60 × 18 mm tin | 0.8.25-beta | 0.8.25-beta | no |
+| — | Print: corner cutter guide shows again (on whether or not Guide lines is on, white-edged dots) | 0.8.26-beta | 0.8.26-beta | no |
