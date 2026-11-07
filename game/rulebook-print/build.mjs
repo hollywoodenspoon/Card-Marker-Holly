@@ -320,7 +320,8 @@ writeFileSync(htmlPath, html);
 // Online PDF: same panels, one per page, upright, in reading order, no marks or bleed.
 const reading = [...sheet.front[0], ...[...sheet.front[1]].reverse(), ...sheet.back.flat()];
 const onlineCss = css.replace(`@page{size:${PAGE_W}mm ${PAGE_H}mm;margin:0}`, `@page{size:${PANEL_W}mm ${PANEL_H}mm;margin:0}`)
-  + `.opage{position:relative;width:${PANEL_W}mm;height:${PANEL_H}mm;overflow:hidden;page-break-after:always}`;
+  // contain:paint keeps the bleed-sized art from widening the page (Chrome would shrink the PDF to fit it)
+  + `html,body{width:${PANEL_W}mm;overflow:hidden}.opage{position:relative;width:${PANEL_W}mm;height:${PANEL_H}mm;overflow:hidden;contain:paint;page-break-after:always}`;
 const onlineHtml = `<!doctype html><html><head><meta charset="utf-8"><title>Battleline: Mech Wars — rulebook</title><style>${onlineCss}</style></head><body>
 ${reading.map((p) => `<div class="opage">${panel(p, 0, 0, false, false, true)}</div>`).join('\n')}
 </body></html>`;
