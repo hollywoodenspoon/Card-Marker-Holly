@@ -52,3 +52,4 @@ Earlier PRs (#1–#48) used the 0.1.0 alpha line and are unchanged.
 | — | Online rulebook PDF: same design, one panel per page, no marks or bleed | 0.8.24-beta | 0.8.24-beta | no |
 | — | Tin box sleeve: printable A4 wrap for the 88 × 60 × 18 mm tin | 0.8.25-beta | 0.8.25-beta | no |
 | — | Print: corner cutter guide shows again (on whether or not Guide lines is on, white-edged dots) | 0.8.26-beta | 0.8.26-beta | no |
+| — | Sticker sheet: 35 stickers of 1.5 in on transparent A4 (mechs, jet, Village Wizard hat) | 0.8.27-beta | 0.8.27-beta | no |

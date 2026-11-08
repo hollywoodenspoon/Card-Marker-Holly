@@ -5,7 +5,7 @@ Agreed with the owner (Hanielle Marie N. Armas) on 2026-10-22. Build starts when
 ## What it is
 
 - **Name:** "Hearthside Cardworks Cozy Edition", everywhere visible (window title, exe, About, Help, dialogs). The old name (Card Maker) never appears; internal storage ids may keep it.
-- **Version:** `0.1.0-beta.1`.
+- **Version:** `0.1.0-beta.2`.
 - **Shell:** Electron (Tauri was dropped), Windows only, one portable exe, fully offline.
 
 ## Left out
@@ -52,11 +52,11 @@ The main app (web and the Arch package) keeps every feature, the credits for Adv
 
 One codebase, a build-time edition flag: `VITE_EDITION=cozy` (the page) and `EDITION=cozy` (electron/) set the `__COZY__` define. A Vite plugin (`scripts/cozyStubs.ts`) swaps the left-out modules for tiny stand-ins at resolve time, so the Vector Maker, the game pack dialog, Hearthside Table and the updater are absent from the Cozy bundle, not just hidden. The `{!__COZY__ && …}` branches in the UI are dropped as dead code.
 
-- **Names and version:** `src/app/appInfo.ts` reads `__COZY__`; `APP_VERSION` is `0.1.0-beta.1` (its own, from `COZY_VERSION` in `scripts/cozyStubs.ts`), separate from `package.json`.
+- **Names and version:** `src/app/appInfo.ts` reads `__COZY__`; `APP_VERSION` is `0.1.0-beta.2` (its own, from `COZY_VERSION` in `scripts/cozyStubs.ts`), separate from `package.json`.
 - **Left out:** the Vector Maker (rail, Assets buttons, the lazy view), the playtest link and game pack, and the updater. `src/app/main.tsx` skips the Android setup. The Android browser regex and library URLs that survive in third-party code are hidden by the obfuscator.
 - **Help:** `src/help/topics.ts` filters the Vector Maker section, the playtest page and the website page under `__COZY__`, and gives `desktop-app` the Windows title; `src/help/cozy/*.md` replace a dozen pages (own About with the draft EULA, a Windows-only "The Windows app", no website/updater/table/vector mentions).
 - **Electron:** `electron/main.ts` turns off DevTools (`devTools: false`, no F12 handler), never opens the table window, and keeps its data in a `cardworks-cozy` / "Hearthside Cardworks Cozy Edition data" folder so it never mixes with the main app.
-- **Protection:** `scripts/cozy.mjs` obfuscates the page and preload (javascript-obfuscator 5.9.0, string array + base64, no control-flow flattening so the editor stays fast), compiles the main process to V8 bytecode (bytenode 1.5.7), and drops source maps. `electron-builder.cozy.yml` sets the fuses (asar integrity on, load only from asar, RunAsNode / NODE_OPTIONS / inspect off) and builds a Windows portable exe only, with its own appId and `Hearthside-Cardworks-Cozy-Edition-0.1.0-beta.1.exe` artifact name.
+- **Protection:** `scripts/cozy.mjs` obfuscates the page and preload (javascript-obfuscator 5.9.0, string array + base64, no control-flow flattening so the editor stays fast), compiles the main process to V8 bytecode (bytenode 1.5.7), and drops source maps. `electron-builder.cozy.yml` sets the fuses (asar integrity on, load only from asar, RunAsNode / NODE_OPTIONS / inspect off) and builds a Windows portable exe only, with its own appId and `Hearthside-Cardworks-Cozy-Edition-0.1.0-beta.2.exe` artifact name.
 - **String check:** `scripts/cozyCheck.mjs` fails the build if "Adventure", "Scuffle", "Card Maker", "github", "pacman", "Android", "Linux" or "Hearthside Table" appear in the shipped files (the licence texts are exempt). It runs over `dist` + `dist-electron` and again over the packaged `app.asar`.
 - **Release:** a `cozy` job on `windows-latest` in `.github/workflows/release.yml` runs `npm run cozy:dist` (bytecode must be made on the OS that runs it) and uploads the exe, which the publish job attaches to the versioned release next to the Arch package. It runs **only when the owner asks** (owner, 2026-10-29): tick **Build the Cozy Edition** when running the workflow by hand. Tag pushes and untouched runs build the Arch package alone.
 - **Scope:** the Cozy Edition ships the basic Cardworks card editor only, never the whole suite (no Engine, no Play).

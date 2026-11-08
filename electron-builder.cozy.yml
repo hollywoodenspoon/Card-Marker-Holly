@@ -5,7 +5,7 @@ productName: Hearthside Cardworks Cozy Edition
 copyright: Copyright © 2026 Hanielle Marie N. Armas. All rights reserved.
 extraMetadata:
   name: hearthside-cardworks-cozy
-  version: 0.1.0-beta.1
+  version: 0.1.0-beta.2
   description: Design cards and print them on A4 sheets.
 
 directories:
