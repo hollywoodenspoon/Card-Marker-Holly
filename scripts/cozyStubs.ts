@@ -7,7 +7,7 @@ import type { Plugin } from 'vite'
 export const isCozy = () => process.env.VITE_EDITION === 'cozy' || process.env.EDITION === 'cozy'
 
 /** Cozy Edition's own version, separate from package.json's. */
-export const COZY_VERSION = '0.1.0-beta.1'
+export const COZY_VERSION = '0.1.0-beta.2'
 
 const at = (p: string) => fileURLToPath(new URL(`../${p}`, import.meta.url))
 
