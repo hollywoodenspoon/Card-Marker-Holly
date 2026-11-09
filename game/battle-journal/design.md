@@ -43,7 +43,7 @@ The big picture only. Numbers, names and details are still open and are marked "
 - Each player has 3 slots:
   - **Main hand:** a one-handed or two-handed weapon.
   - **Off hand:** can't be used with a two-handed main hand.
-  - **Armour:** sets the player's starting health. It has no armour value (it never reduces damage on its own) and never deals damage; its abilities give buffs, movement or similar. Health has no cap: healing can take a player above their starting health.
+  - **Armour:** has no armour value (it never reduces damage on its own) and never deals damage; its abilities give buffs, movement or similar. Every player starts at 15 health, whatever their armour (for now). Health has no cap: healing can take a player above their starting health.
 - Off hands can be a second source of damage or a utility.
 - An equipment card shows the abilities you can use.
 - After you use an ability, the card flips to its other face, which has a different set of abilities.
@@ -95,15 +95,15 @@ The big picture only. Numbers, names and details are still open and are marked "
 
 Light descriptions, no numbers yet. Abilities cost action points (AP) out of the player's 2 per turn.
 
-**Plate Armour (heavy)**: 20 starting health (for now)
+**Plate Armour (heavy)**
 - Face 1, **Brace** (1 AP): gain a shield token. A player can spend any number of their shield tokens to reduce incoming damage.
 - Face 2, **Bulwark** (2 AP): the player takes no damage and ignores forced movement from map effects until their next turn.
 
-**Brigandine (medium)**: 18 starting health (for now)
+**Brigandine (medium)**
 - Face 1, **Fighting Spirit** (1 AP): gain 1 power token. A player can spend any number of their power tokens on a damage-dealing attack, each adding +1 damage.
 - Face 2, **Inspire** (1 AP): if you used a weapon action this turn, give an adjacent player 1 power token. If not, gain 1 shield token.
 
-**Linen Cuirass (light)**: 15 starting health (for now)
+**Linen Cuirass (light)**
 - Face 1, **Anticipation** (2 AP): until the start of your next turn, each time you are about to take damage during the boss turn, you may first move 1 hex.
 - Face 2, **Lightweight** (1 AP): gain 1 speed token.
 
