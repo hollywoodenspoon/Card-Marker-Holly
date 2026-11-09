@@ -133,6 +133,14 @@ Light descriptions, no numbers yet. Abilities cost action points (AP) out of the
   - **Lance Charge** (1 AP, from a Midline hex next to a Frontline hex): deal 3 damage. You may spend exactly 2 power tokens to deal 7 damage instead (no more than 2). Then move to an adjacent Frontline hex.
   - **Lance Jump** (2 AP, any zone): spend any number (X) of your tokens, of any type, to deal X damage to a target. Then move to any Frontline hex.
 
+**Longbow** (two-handed)
+- Face 1:
+  - **Aim** (2 AP, Rearline only): your first damage-dealing action next turn deals triple damage, before token buffs are added.
+  - **Quick Shot** (1 AP, Midline or Rearline only): deal 2 damage.
+- Face 2:
+  - **Unleash** (2 AP, Rearline only): deal 3 damage. You can use it only if you used Aim last turn.
+  - **Arrow Rain** (1 AP, zone: later): deal 1 damage to every enemy.
+
 ### Off-hand abilities
 
 **Shield**
@@ -161,7 +169,6 @@ Players keep tokens until they spend them. Any number can be spent at once.
 | Power | Add +1 damage each to a damage-dealing attack. |
 | Speed | Add +1 movement each to a move action. |
 
-What the other main hands do: later.
 
 - The single-use pool may get duplicates of the 6 cards or more designs, so it holds more than one card per player.
 - Equipment has two faces, so those sheets are printed double-sided.
