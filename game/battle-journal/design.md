@@ -37,7 +37,7 @@ The big picture only. Numbers, names and details are still open and are marked "
 
 - Each player has a fixed number of actions per turn, 2 for now.
 - Actions include moving and using an ability. The rest of the list: later.
-- **Free actions** cost no AP. You can do one before or after any action, but only 1 free action per turn. Using a single-use card is a free action.
+- **Free actions** cost no AP. You can do one before or after any action, but only 1 free action per turn. Using a Cantrip is a free action.
 
 ## Equipment
 
@@ -62,7 +62,7 @@ The big picture only. Numbers, names and details are still open and are marked "
 
 ## Other player cards
 
-- Besides equipment, players can have single-use items or spells. Unclaimed ones sit in a shared single-use pool, which the Dagger's Mug draws from. A used card goes back into the pool. Examples:
+- Besides equipment, players can have **Cantrips**: single-use items or spells. Unclaimed ones sit in the shared Cantrip pool, which the Dagger's Mug draws from. A used Cantrip goes back into the pool. Examples:
   - potions that restore health or give a buff,
   - magic scrolls that cast spells, such as one that flips your equipment card to the face you choose.
 
@@ -78,7 +78,7 @@ The big picture only. Numbers, names and details are still open and are marked "
   | Two-handed main hand | 2 |
   | Off hand | 4 |
   | Armour | 6 |
-  | Single-use item or spell | 6 |
+  | Cantrip | 6 |
   | **Total** | **22 (3 sheets, 5 spare slots)** |
 
 - Armour is 3 types with 2 copies each (assumed from the 3 names below).
@@ -154,7 +154,7 @@ Light descriptions, no numbers yet. Abilities cost action points (AP) out of the
 
 **Dagger**
 - Face 1, **Exposing Strike** (1 AP, Frontline only): deal 1 damage. Your next damage this turn is doubled, before token buffs are added.
-- Face 2, **Mug** (1 AP, Frontline only): deal 1 damage and take a random card from the single-use pool.
+- Face 2, **Mug** (1 AP, Frontline only): deal 1 damage and take a random card from the Cantrip pool.
 
 **Torch**
 - Face 1, **Light of Hope** (1 AP, Midline only): must be your first action. You and every adjacent player each gain 1 power, shield or speed token of their choice. You can't use an armour action after this, this turn.
@@ -171,7 +171,7 @@ Players keep tokens until they spend them. Any number can be spent at once.
 | Speed | Add +1 movement each to a move action. |
 
 
-- The single-use pool may get duplicates of the 6 cards or more designs, so it holds more than one card per player.
+- The Cantrip pool may get duplicates of the 6 cards or more designs, so it holds more than one card per player.
 - Equipment has two faces, so those sheets are printed double-sided.
 - Boss cards are not counted here yet.
 
