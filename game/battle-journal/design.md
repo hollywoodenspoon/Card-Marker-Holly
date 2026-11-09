@@ -113,7 +113,7 @@ Light descriptions, no numbers yet. Abilities cost action points (AP) out of the
 - Face 2, **Shield Bash** (1 AP): gain 1 shield token, then spend any number of shield tokens to deal that much damage to a target. Power tokens can add to it, but only if you spend at least 1 shield token. You may spend none: you deal 0 damage and can't add power tokens, but you still gain the shield token and the card still flips.
 
 **Book**
-- Face 1, **Revival** (2 AP): target a player (you can target yourself). Spend any mix of your power, shield and speed tokens to restore that much health to them. If they are incapacitated, this also revives them.
+- Face 1, **Revival** (2 AP): target a player (you can target yourself). Spend any mix of your power, shield and speed tokens to restore that much health to them. If they are incapacitated, this also revives them, but only if you spend at least 1 token.
 - Face 2, **Raise Spirit** (2 AP): you and every adjacent player each gain 1 power, shield or speed token of their choice.
 
 ### Tokens
