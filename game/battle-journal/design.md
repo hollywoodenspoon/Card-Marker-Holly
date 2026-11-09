@@ -19,10 +19,13 @@ The big picture only. Numbers, names and details are still open and are marked "
   - how many cards it draws at the start,
   - the health thresholds where it draws more.
 - Damage dealt to the boss is counted up. Each time the count reaches the damage threshold, the boss loses 1 health and the count starts again.
-- A boss's health and damage threshold both increase with the number of players. Each boss has its own numbers. The baseline and how much they scale: later.
+- A boss's health is fixed. Only its damage threshold increases with the number of players. Each boss has its own numbers. The baseline and how much it scales: later.
 - For now we are designing a **template boss**: one generic boss to build and test the rules on before the real bosses.
 
 ### Template boss
+
+- Health: 10.
+- Draws +1 card per turn at 5 health and +1 more at 2 health.
 
 | Players | Cards drawn per turn |
 | --- | --- |
