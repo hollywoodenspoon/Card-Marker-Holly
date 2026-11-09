@@ -101,7 +101,7 @@ Light descriptions, no numbers yet. Abilities cost action points (AP) out of the
 
 **Brigandine (medium)**
 - Face 1, **Fighting Spirit** (1 AP): gain 1 power token. A player can spend any number of their power tokens on a damage-dealing attack, each adding +1 damage.
-- Face 2, **Inspire** (1 AP): if you used a weapon action this turn, give an adjacent player 1 power token. If not, gain 1 shield token.
+- Face 2, **Momentum** (1 AP): if you used a weapon ability this turn, your next weapon ability this turn costs 1 AP less.
 
 **Linen Cuirass (light)**
 - Face 1, **Anticipation** (2 AP): until the start of your next turn, each time you are about to take damage during the boss turn, you may first move 1 hex.
