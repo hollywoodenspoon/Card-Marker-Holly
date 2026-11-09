@@ -98,6 +98,10 @@ Light descriptions, no numbers yet. Abilities cost action points (AP) out of the
 - Face 1, **Brace** (1 AP): gain a shield token. A player can spend any number of their shield tokens to reduce incoming damage.
 - Face 2, **Bulwark** (2 AP): the player takes no damage and ignores forced movement from map effects until their next turn.
 
+**Brigandine (medium)**
+- Face 1, **Fighting Spirit** (1 AP): gain 1 power token. A player can spend any number of their power tokens on a damage-dealing attack, each adding +1 damage.
+- Face 2, **Inspire** (1 AP): if you used a weapon action this turn, give an adjacent player 1 power token. If not, gain 1 shield token.
+
 What the other equipment does: later.
 
 - Equipment has two faces, so those sheets are printed double-sided.
