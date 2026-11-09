@@ -44,6 +44,11 @@ The big picture only. Numbers, names and details are still open and are marked "
 - Hexes can carry symbols for precise boss mechanics, for example "stand on the Frontline star to soak damage for everyone". Which symbols to use: later.
 - Every boss has a **style**: a mechanic it plays around. Styles don't have to be unique; bosses can share one. A style can change what makes the boss draw more cards, or add a way for the players to lose.
   - Example: a boss that wins at 40 points. Each boss turn it gains points for every add it has on the map. At set point thresholds it draws more cards, instead of at health thresholds.
+- Styles so far:
+  - **Standard:** draws more cards at health thresholds. The template boss uses it.
+  - **Summoner:** the example above. Wins at 40 points from its adds.
+  - **Siege:** the boss attacks a wall or gate on the map. The players lose if it breaks. Each hit the boss lands on the wall moves its tracker. Players can stand on wall hexes to take the hits instead.
+  - **Shield Phases:** the boss can't take damage until the players break crystals or pillars on the map. Breaking them all exposes the boss for a few rounds, then the shield returns.
 
 ## Round structure
 
