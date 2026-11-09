@@ -62,12 +62,19 @@ The big picture only. Numbers, names and details are still open and are marked "
 
 ## Other player cards
 
-- Besides equipment, players can have **Cantrips**: single-use items or spells, drawn from a shared **Cantrip deck**. The Dagger's Mug draws from it. A used Cantrip goes back into the deck. How else players get Cantrips: later.
+- Besides equipment, players can have **Cantrips**: single-use items or spells, drawn from a shared **Cantrip deck**. The Dagger's Mug draws from it. A used Cantrip goes back into the deck.
+- Each player starts the game with 1 Cantrip. How else players get Cantrips: later.
 - A player can hold at most 3 Cantrips.
+- There is only 1 copy of each Cantrip.
 - Cantrips vary a lot: some are powerful, some are not.
 - Their main job is to cover the holes in the current equipment. Examples:
   - potions that restore health or give a buff,
   - magic scrolls that cast spells, such as one that flips your equipment card to the face you choose.
+
+### Cantrips
+
+- **Ankh of Resurrection:** if its owner is incapacitated, they are revived with 1 health. The Ankh is then removed for the rest of the game.
+- **Scroll of Dark Inferno:** sacrifice all your health except 1. Deal X damage to every enemy, where X is the health sacrificed.
 
 ## Components and printing
 
@@ -174,7 +181,7 @@ Players keep tokens until they spend them. Any number can be spent at once.
 | Speed | Add +1 movement each to a move action. |
 
 
-- The Cantrip deck will hold many varied designs, possibly with duplicates.
+- The Cantrip deck will hold many varied designs, one copy each.
 - Equipment has two faces, so those sheets are printed double-sided.
 - Boss cards are not counted here yet.
 
