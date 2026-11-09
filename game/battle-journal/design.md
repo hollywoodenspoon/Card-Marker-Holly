@@ -89,6 +89,10 @@ The big picture only. Numbers, names and details are still open and are marked "
 - **Scroll of Time:** lose all your health. The players get another turn after this one. The Scroll is then removed for the rest of the game.
 - **Scroll of Spirit Summoning:** summon a Spirit Knight, a Spirit Mage or a Spirit Archer to an adjacent hex. The Scroll is then removed for the rest of the game.
 - **Trickster Branch:** deal 5 damage to another player of your choice, and deal 5 damage to a target. Then put it at the bottom of the Cantrip deck.
+- **Half-Eaten Sandwich:** gain 1 health. Then put it at the bottom of the Cantrip deck.
+- **Potion of Power:** gain 2 power tokens. Then put it at the bottom of the Cantrip deck.
+- **Potion of Defense:** gain 2 shield tokens. Then put it at the bottom of the Cantrip deck.
+- **Horn of the Wind:** every player may move to a hex of their choice. Then you take 5 damage. The Horn is then removed for the rest of the game.
 
 ### Summons
 
@@ -121,9 +125,9 @@ The big picture only. Numbers, names and details are still open and are marked "
   | Two-handed main hand | 2 |
   | Off hand | 4 |
   | Armour | 6 |
-  | Cantrip | 14 so far; the deck will grow |
+  | Cantrip | 18 so far; the deck will grow |
 | Summon | 3 |
-  | **Total** | **33 so far (4 sheets, 3 spare slots)** |
+  | **Total** | **37 so far (5 sheets, 8 spare slots)** |
 
 - Armour is 3 types with 2 copies each (assumed from the 3 names below).
 
