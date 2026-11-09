@@ -66,6 +66,7 @@ The big picture only. Numbers, names and details are still open and are marked "
 - Besides equipment, players can have **Cantrips**: single-use items or spells, drawn from a shared **Cantrip deck**. The Dagger's Mug draws from it. A used Cantrip goes to the bottom of the deck, unless it says it is removed for the rest of the game.
 - Each player starts the game with 1 Cantrip. How else players get Cantrips: later.
 - A player can hold at most 3 Cantrips.
+- A player can pass a Cantrip to another player as a free action.
 - There is only 1 copy of each Cantrip.
 - Cantrips vary a lot: some are powerful, some are not.
 - Their main job is to cover the holes in the current equipment. Examples:
@@ -82,7 +83,7 @@ The big picture only. Numbers, names and details are still open and are marked "
 - **Scroll of Warping:** move to any hex you choose. Then put it at the bottom of the Cantrip deck.
 - **Dice of Fate:** your next damage-dealing action deals 1d6 damage instead (before token buffs are added). Then put it at the bottom of the Cantrip deck.
 - **Mom's Packed Lunch:** gain 1 health and 1 token of your choice. Then put it at the bottom of the Cantrip deck.
-- **Cursed Helm:** as long as you hold it, you cannot gain health from any source, and all your damage gets +1 (before token buffs are added).
+- **Cursed Helm:** as long as you hold it, you cannot gain health from any source (reviving counts as gaining health, so you can't be revived), and all your damage gets +1 (before token buffs are added).
 - **Dwarven Boomstick:** deal 5 damage to a target, then take 2 damage. Then put it at the bottom of the Cantrip deck.
 
 ## Components and printing
