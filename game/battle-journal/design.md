@@ -50,12 +50,12 @@ The big picture only. Numbers, names and details are still open and are marked "
 
   | Card | Abilities per face |
   | --- | --- |
-  | One-handed main hand | 2 |
-  | Two-handed main hand | 4 |
+  | One-handed main hand | 1 |
+  | Two-handed main hand | 2 |
   | Off hand | 1 |
   | Armour | 1 |
 
-  A two-handed weapon gives 4 hand abilities per face. A one-handed weapon plus an off hand gives 3, but spread over two cards that flip separately.
+  Either way you get 2 hand abilities per face. A two-hander keeps both on one card, which flips as a whole. A one-hander plus an off hand splits them over two cards that flip separately.
 
 ## Other player cards
 
