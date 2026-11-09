@@ -13,9 +13,12 @@ The big picture only. Numbers, names and details are still open and are marked "
 
 - The board is a notebook. Each two-page spread is one boss.
 - One page holds the boss's details:
-  - its health bar,
+  - its **health**,
+  - its **damage threshold**: the damage needed to remove 1 of its health,
+  - its **unique mechanic**,
   - how many cards it draws at the start,
   - the health thresholds where it draws more.
+- Damage dealt to the boss is counted up. Each time the count reaches the damage threshold, the boss loses 1 health and the count starts again.
 - The other page holds the boss's hex grid, with the boss artwork looming over or around it.
 - Each boss has its own grid size and layout.
 - How many bosses the book has: later.
@@ -26,7 +29,7 @@ The big picture only. Numbers, names and details are still open and are marked "
 - Because every map shares these zones, any boss card works on any map.
 - Zones are also ability range: each ability says which zone(s) you can use it from.
 - Hexes can carry symbols for precise boss mechanics, for example "stand on the Frontline star to soak damage for everyone". Which symbols to use: later.
-- Some bosses also have a signature mechanic that only works on their own map. Not every boss has one.
+- Every boss has a unique mechanic that only works on its own map.
 
 ## Round structure
 
