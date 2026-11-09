@@ -40,10 +40,26 @@ The big picture only. Numbers, names and details are still open and are marked "
 
 ## Equipment
 
-- Each player has 3 slots: main hand, off hand and armour.
-- A two-handed weapon takes both hand slots, so you get no off hand.
+- Each player has 3 slots:
+  - **Main hand:** a one-handed or two-handed weapon.
+  - **Off hand:** can't be used with a two-handed main hand.
+  - **Armour:** also sets the player's total health.
 - An equipment card shows the abilities you can use.
 - After you use an ability, the card flips to its other face, which has a different set of abilities.
+- Abilities per face:
+
+  | Card | Abilities per face |
+  | --- | --- |
+  | One-handed main hand | 2 |
+  | Two-handed main hand | 4 |
+  | Off hand | 1 |
+  | Armour | 1 |
+
+  A two-handed weapon gives 4 hand abilities per face. A one-handed weapon plus an off hand gives 3, but spread over two cards that flip separately.
+
+## Other player cards
+
+- Besides equipment, players can have single-use items or spells. Details: later.
 
 ## The boss deck
 
