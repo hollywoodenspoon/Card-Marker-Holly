@@ -90,8 +90,8 @@ The big picture only. Numbers, names and details are still open and are marked "
 - **Scroll of Spirit Summoning:** summon a Spirit Knight, a Spirit Mage or a Spirit Archer to an adjacent hex. The Scroll is then removed for the rest of the game.
 - **Trickster Branch:** deal 5 damage to another player of your choice, and deal 5 damage to a target. Then put it at the bottom of the Cantrip deck.
 - **Half-Eaten Sandwich:** gain 1 health. Then put it at the bottom of the Cantrip deck.
-- **Potion of Power:** gain 2 power tokens. Then put it at the bottom of the Cantrip deck.
-- **Potion of Defense:** gain 2 shield tokens. Then put it at the bottom of the Cantrip deck.
+- **Potion of Power:** gain 2 offense tokens. Then put it at the bottom of the Cantrip deck.
+- **Potion of Defense:** gain 2 defence tokens. Then put it at the bottom of the Cantrip deck.
 - **Horn of the Wind:** every player may move to a hex of their choice. Then you take 5 damage. The Horn is then removed for the rest of the game.
 - **Evil Skull:** does nothing. You may put it at the bottom of the Cantrip deck by taking 1 damage.
 - **Grocery List:** look at the top 2 cards of the Cantrip deck. Take one and put the other at the bottom of the deck. Then put it at the bottom of the Cantrip deck.
@@ -153,11 +153,11 @@ The big picture only. Numbers, names and details are still open and are marked "
 Light descriptions, no numbers yet. Abilities cost action points (AP) out of the player's 2 per turn.
 
 **Plate Armour (heavy)**
-- Face 1, **Brace** (1 AP): gain a shield token. A player can spend any number of their shield tokens to reduce incoming damage.
+- Face 1, **Brace** (1 AP): gain a defence token. A player can spend any number of their defence tokens to reduce incoming damage.
 - Face 2, **Bulwark** (2 AP): the player takes no damage and ignores forced movement from map effects until their next turn.
 
 **Brigandine (medium)**
-- Face 1, **Fighting Spirit** (1 AP): gain 1 power token. A player can spend any number of their power tokens on a damage-dealing attack, each adding +1 damage.
+- Face 1, **Fighting Spirit** (1 AP): gain 1 offense token. A player can spend any number of their offense tokens on a damage-dealing attack, each adding +1 damage.
 - Face 2, **Momentum** (free action): use it only after a weapon ability this turn. Your next weapon ability this turn costs 1 AP less.
 
 **Linen Cuirass (light)**
@@ -180,14 +180,14 @@ Light descriptions, no numbers yet. Abilities cost action points (AP) out of the
 
 **Mace**
 - Face 1, **Brutal Smash** (1 AP, from a Midline hex next to a Frontline hex): spend any number (X) of your tokens, of any type, to deal 2 + X damage.
-- Face 2, **Wide Swing** (1 AP, Frontline only): deal 2 damage and gain 1 power token. Then take 1 damage and move to an adjacent Frontline hex.
+- Face 2, **Wide Swing** (1 AP, Frontline only): deal 2 damage and gain 1 offense token. Then take 1 damage and move to an adjacent Frontline hex.
 
 **Lance** (two-handed)
 - Face 1:
-  - **Ready Lance** (1 AP, Midline only): gain 2 power tokens.
+  - **Ready Lance** (1 AP, Midline only): gain 2 offense tokens.
   - **Lance Stab** (1 AP, Frontline only): deal 2 damage.
 - Face 2:
-  - **Lance Charge** (1 AP, from a Midline hex next to a Frontline hex): deal 3 damage. You may spend exactly 2 power tokens to deal 7 damage instead (no more than 2). Then move to an adjacent Frontline hex.
+  - **Lance Charge** (1 AP, from a Midline hex next to a Frontline hex): deal 3 damage. You may spend exactly 2 offense tokens to deal 7 damage instead (no more than 2). Then move to an adjacent Frontline hex.
   - **Lance Jump** (2 AP, any zone): spend any number (X) of your tokens, of any type, to deal X damage to a target. Then move to any Frontline hex.
 
 **Longbow** (two-handed)
@@ -201,19 +201,19 @@ Light descriptions, no numbers yet. Abilities cost action points (AP) out of the
 ### Off-hand abilities
 
 **Shield**
-- Face 1, **Shield Stance** (2 AP): gain 1 shield token. Then, until the start of your next turn, you may spend any number of your shield tokens to reduce damage taken by an adjacent player during the boss turn.
-- Face 2, **Shield Bash** (1 AP, Frontline or Midline only): gain 1 shield token, then spend any number of shield tokens to deal that much damage to a target. Power tokens can add to it, but only if you spend at least 1 shield token. You may spend none: you deal 0 damage and can't add power tokens, but you still gain the shield token and the card still flips.
+- Face 1, **Shield Stance** (2 AP): gain 1 defence token. Then, until the start of your next turn, you may spend any number of your defence tokens to reduce damage taken by an adjacent player during the boss turn.
+- Face 2, **Shield Bash** (1 AP, Frontline or Midline only): gain 1 defence token, then spend any number of defence tokens to deal that much damage to a target. Offense tokens can add to it, but only if you spend at least 1 defence token. You may spend none: you deal 0 damage and can't add offense tokens, but you still gain the defence token and the card still flips.
 
 **Book**
-- Face 1, **Revival** (2 AP): target a player (you can target yourself). Spend any mix of your power, shield and speed tokens to restore that much health to them. If they are incapacitated, this also revives them, but only if you spend at least 1 token.
-- Face 2, **Raise Spirit** (2 AP): you and every adjacent player each gain 1 power, shield or speed token of their choice.
+- Face 1, **Revival** (2 AP): target a player (you can target yourself). Spend any mix of your offense, defence and speed tokens to restore that much health to them. If they are incapacitated, this also revives them, but only if you spend at least 1 token.
+- Face 2, **Raise Spirit** (2 AP): you and every adjacent player each gain 1 offense, defence or speed token of their choice.
 
 **Dagger**
 - Face 1, **Exposing Strike** (1 AP, Frontline only): deal 1 damage. Your next damage this turn is doubled, before token buffs are added.
 - Face 2, **Mug** (1 AP, Frontline only): deal 1 damage and draw a card from the Cantrip deck.
 
 **Torch**
-- Face 1, **Light of Hope** (1 AP, Midline only): must be your first action. You and every adjacent player each gain 1 power, shield or speed token of their choice. You can't use an armour action after this, this turn.
+- Face 1, **Light of Hope** (1 AP, Midline only): must be your first action. You and every adjacent player each gain 1 offense, defence or speed token of their choice. You can't use an armour action after this, this turn.
 - Face 2, **Flame of Courage** (2 AP, Frontline only): target a player other than yourself. They get 2 extra actions this turn. (You wave the flame to draw the enemy's ire, buying them time for powerful strikes.)
 
 ### Tokens
@@ -222,8 +222,8 @@ Players keep tokens until they spend them. Any number can be spent at once.
 
 | Token | Spend it to |
 | --- | --- |
-| Shield | Reduce incoming damage by 1 each. |
-| Power | Add +1 damage each to a damage-dealing attack. |
+| Defence | Reduce incoming damage by 1 each. |
+| Offense | Add +1 damage each to a damage-dealing attack. |
 | Speed | Add +1 movement each to a move action. |
 
 
