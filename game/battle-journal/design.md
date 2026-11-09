@@ -139,7 +139,7 @@ Light descriptions, no numbers yet. Abilities cost action points (AP) out of the
   - **Quick Shot** (1 AP, Midline or Rearline only): deal 2 damage.
 - Face 2:
   - **Unleash** (2 AP, Rearline only): deal 3 damage. You can use it only if you used Aim last turn.
-  - **Arrow Rain** (1 AP, zone: later): deal 1 damage to every enemy.
+  - **Arrow Rain** (1 AP, Rearline only): deal 1 damage to every enemy.
 
 ### Off-hand abilities
 
