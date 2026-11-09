@@ -93,8 +93,8 @@ The big picture only. Numbers, names and details are still open and are marked "
   | Two-handed main hand | 2 |
   | Off hand | 4 |
   | Armour | 6 |
-  | Cantrip | 6 for now; the deck will grow |
-  | **Total** | **22 for now (3 sheets, 5 spare slots)** |
+  | Cantrip | 7 so far; the deck will grow |
+  | **Total** | **23 so far (3 sheets, 4 spare slots)** |
 
 - Armour is 3 types with 2 copies each (assumed from the 3 names below).
 
