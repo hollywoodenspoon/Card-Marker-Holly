@@ -103,7 +103,7 @@ Light descriptions, no numbers yet. Abilities cost action points (AP) out of the
 - Face 2, **Inspire** (1 AP): if you used a weapon action this turn, give an adjacent player 1 power token. If not, gain 1 shield token.
 
 **Linen Cuirass (light)**
-- Face 1, **Anticipation** (2 AP): until the start of your next turn, when you are about to take damage during the boss turn, you may first move 1 hex.
+- Face 1, **Anticipation** (2 AP): until the start of your next turn, each time you are about to take damage during the boss turn, you may first move 1 hex.
 - Face 2, **Lightweight** (1 AP): gain 1 speed token.
 
 ### Tokens
