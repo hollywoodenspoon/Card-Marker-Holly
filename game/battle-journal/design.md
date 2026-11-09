@@ -95,15 +95,15 @@ The big picture only. Numbers, names and details are still open and are marked "
 
 Light descriptions, no numbers yet. Abilities cost action points (AP) out of the player's 2 per turn.
 
-**Plate Armour (heavy)**
+**Plate Armour (heavy)**: 20 starting health (for now)
 - Face 1, **Brace** (1 AP): gain a shield token. A player can spend any number of their shield tokens to reduce incoming damage.
 - Face 2, **Bulwark** (2 AP): the player takes no damage and ignores forced movement from map effects until their next turn.
 
-**Brigandine (medium)**
+**Brigandine (medium)**: 18 starting health (for now)
 - Face 1, **Fighting Spirit** (1 AP): gain 1 power token. A player can spend any number of their power tokens on a damage-dealing attack, each adding +1 damage.
 - Face 2, **Inspire** (1 AP): if you used a weapon action this turn, give an adjacent player 1 power token. If not, gain 1 shield token.
 
-**Linen Cuirass (light)**
+**Linen Cuirass (light)**: 15 starting health (for now)
 - Face 1, **Anticipation** (2 AP): until the start of your next turn, each time you are about to take damage during the boss turn, you may first move 1 hex.
 - Face 2, **Lightweight** (1 AP): gain 1 speed token.
 
