@@ -86,6 +86,7 @@ The big picture only. Numbers, names and details are still open and are marked "
 - **Cursed Helm:** as long as you hold it, you cannot gain health from any source (reviving counts as gaining health, so you can't be revived), and all your damage gets +1 (before token buffs are added).
 - **Dwarven Boomstick:** deal 5 damage to a target, then take 2 damage. Then put it at the bottom of the Cantrip deck.
 - **Box of Fireworks:** shuffle the boss deck and the Cantrip deck. Then put it at the bottom of the Cantrip deck.
+- **Scroll of Time:** lose all your health. The players get another turn after this one. The Scroll is then removed for the rest of the game.
 
 ## Components and printing
 
@@ -99,8 +100,8 @@ The big picture only. Numbers, names and details are still open and are marked "
   | Two-handed main hand | 2 |
   | Off hand | 4 |
   | Armour | 6 |
-  | Cantrip | 11 so far; the deck will grow |
-  | **Total** | **27 so far (3 sheets, full)** |
+  | Cantrip | 12 so far; the deck will grow |
+  | **Total** | **28 so far (4 sheets, 8 spare slots)** |
 
 - Armour is 3 types with 2 copies each (assumed from the 3 names below).
 
