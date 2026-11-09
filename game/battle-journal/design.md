@@ -43,7 +43,7 @@ The big picture only. Numbers, names and details are still open and are marked "
 - Each player has 3 slots:
   - **Main hand:** a one-handed or two-handed weapon.
   - **Off hand:** can't be used with a two-handed main hand.
-  - **Armour:** also sets the player's total health. It never deals damage; its abilities give buffs, movement or similar.
+  - **Armour:** sets the player's starting health. It has no armour value (it never reduces damage on its own) and never deals damage; its abilities give buffs, movement or similar. Health has no cap: healing can take a player above their starting health.
 - Off hands can be a second source of damage or a utility.
 - An equipment card shows the abilities you can use.
 - After you use an ability, the card flips to its other face, which has a different set of abilities.
