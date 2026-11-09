@@ -15,9 +15,9 @@ The big picture only. Numbers, names and details are still open and are marked "
 - One page holds the boss's details:
   - its **health**,
   - its **damage threshold**: the damage needed to remove 1 of its health,
-  - its **unique mechanic**,
+  - its **style**: the mechanic it plays around,
   - how many cards it draws at the start,
-  - the health thresholds where it draws more.
+  - the thresholds where it draws more (on health, or on its style's own tracker).
 - Damage dealt to the boss is counted up. Each time the count reaches the damage threshold, the boss loses 1 health and the count starts again.
 - A boss's health is fixed. Only its damage threshold increases with the number of players. Each boss has its own numbers. The baseline and how much it scales: later.
 - For now we are designing a **template boss**: one generic boss to build and test the rules on before the real bosses.
@@ -42,7 +42,8 @@ The big picture only. Numbers, names and details are still open and are marked "
 - Because every map shares these zones, any boss card works on any map.
 - Zones are also ability range: each ability says which zone(s) you can use it from.
 - Hexes can carry symbols for precise boss mechanics, for example "stand on the Frontline star to soak damage for everyone". Which symbols to use: later.
-- Every boss has a unique mechanic that only works on its own map.
+- Every boss has a **style**: a mechanic it plays around. Styles don't have to be unique; bosses can share one. A style can change what makes the boss draw more cards, or add a way for the players to lose.
+  - Example: a boss that wins at 40 points. Each boss turn it gains points for every add it has on the map. At set point thresholds it draws more cards, instead of at health thresholds.
 
 ## Round structure
 
@@ -280,5 +281,5 @@ The boss has three card types for now:
 ## Winning and losing
 
 - The players win when the boss's health reaches 0.
-- They lose if every player is dead.
+- They lose if every player is dead, or if the boss's style gives it another win condition and it reaches it.
 - A boss may have a hard or soft enrage. This is set per boss: later.
