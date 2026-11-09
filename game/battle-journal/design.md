@@ -47,6 +47,7 @@ The big picture only. Numbers, names and details are still open and are marked "
 - Off hands can be a second source of damage or a utility.
 - An equipment card shows the abilities you can use.
 - After you use an ability, the card flips to its other face, which has a different set of abilities.
+- At the start of the game, each player chooses which face each of their equipment cards starts on. So the face numbers below are only labels.
 - Abilities per face:
 
   | Card | Abilities per face |
