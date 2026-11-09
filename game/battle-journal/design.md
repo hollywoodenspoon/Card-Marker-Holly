@@ -90,7 +90,15 @@ The big picture only. Numbers, names and details are still open and are marked "
 | Off hand | Shield, Book, Dagger, Torch |
 | Armour | Plate Armour (heavy), Brigandine (medium), Linen Cuirass (light) |
 
-What each one does: later.
+### Armour abilities
+
+Light descriptions, no numbers yet. Abilities cost action points (AP) out of the player's 2 per turn.
+
+**Plate Armour (heavy)**
+- Face 1, **Brace** (1 AP): gain a shield token. A player can spend any number of their shield tokens to reduce incoming damage.
+- Face 2, **Bulwark** (2 AP): the player takes no damage and ignores forced movement from map effects until their next turn.
+
+What the other equipment does: later.
 
 - Equipment has two faces, so those sheets are printed double-sided.
 - Boss cards are not counted here yet.
