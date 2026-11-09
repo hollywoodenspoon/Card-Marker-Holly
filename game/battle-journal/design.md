@@ -94,6 +94,10 @@ The big picture only. Numbers, names and details are still open and are marked "
 - **Potion of Defense:** gain 2 shield tokens. Then put it at the bottom of the Cantrip deck.
 - **Horn of the Wind:** every player may move to a hex of their choice. Then you take 5 damage. The Horn is then removed for the rest of the game.
 - **Evil Skull:** does nothing. You may put it at the bottom of the Cantrip deck by taking 1 damage.
+- **Grocery List:** look at the top 2 cards of the Cantrip deck. Take one and put the other at the bottom of the deck. Then put it at the bottom of the Cantrip deck.
+- **Card of Fate:** look at the top 2 cards of the boss deck. Remove one from the game and put the other back on top of the deck. The Card of Fate is then removed for the rest of the game.
+- **Scroll of Falling Rocks:** deal 1 damage to every enemy. Then put it at the bottom of the Cantrip deck.
+- **Hasty Pepper:** gain 1 action point. Then put it at the bottom of the Cantrip deck.
 
 ### Summons
 
@@ -126,9 +130,9 @@ The big picture only. Numbers, names and details are still open and are marked "
   | Two-handed main hand | 2 |
   | Off hand | 4 |
   | Armour | 6 |
-  | Cantrip | 19 so far; the deck will grow |
+  | Cantrip | 23 so far; the deck will grow |
 | Summon | 3 |
-  | **Total** | **38 so far (5 sheets, 7 spare slots)** |
+  | **Total** | **42 so far (5 sheets, 3 spare slots)** |
 
 - Armour is 3 types with 2 copies each (assumed from the 3 names below).
 
