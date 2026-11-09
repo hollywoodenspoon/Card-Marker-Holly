@@ -120,6 +120,10 @@ Light descriptions, no numbers yet. Abilities cost action points (AP) out of the
 - Face 1, **Exposing Strike** (1 AP, Frontline only): deal 1 damage. Your next damage this turn is doubled, before token buffs are added.
 - Face 2, **Mug** (1 AP, Frontline only): deal 1 damage and take a random card from the single-use pool.
 
+**Torch**
+- Face 1, **Light of Hope** (1 AP, Midline only): must be your first action. You and every adjacent player each gain 1 power, shield or speed token of their choice. You can't use an armour action after this, this turn.
+- Face 2, **Flame of Courage** (2 AP, Frontline only): target a player other than yourself. They get a 3rd action on their turn. (Assumed: their next turn.)
+
 ### Tokens
 
 Players keep tokens until they spend them. Any number can be spent at once.
