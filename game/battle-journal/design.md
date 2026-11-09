@@ -37,6 +37,7 @@ The big picture only. Numbers, names and details are still open and are marked "
 
 - Each player has a fixed number of actions per turn, 2 for now.
 - Actions include moving and using an ability. The rest of the list: later.
+- A move action moves you 1 hex. Speed tokens add to that.
 - **Free actions** cost no AP. You can do one before or after any action, but only 1 free action per turn. Using a Cantrip is a free action.
 
 ## Equipment
