@@ -94,7 +94,15 @@ The big picture only. Numbers, names and details are still open and are marked "
 - Each summon has its own card: 1 card with 1 ability per face, flipping like equipment.
 - A summon is treated as a player. The player who summoned it controls it, like a second player, but it has only 1 action per turn.
 - A summon has 1 health.
-- Summons so far: Spirit Knight, Spirit Mage, Spirit Archer. Their abilities: later.
+- Summons so far: Spirit Knight, Spirit Mage, Spirit Archer. Spirit Mage abilities: later.
+
+**Spirit Knight**
+- Face 1, **Slash** (1 AP, Frontline only): deal 1 damage.
+- Face 2, **Defend** (1 AP): during the boss turn, take the damage dealt to an adjacent player instead of them.
+
+**Spirit Archer**
+- Face 1, **Shot** (1 AP): deal 1 damage.
+- Face 2, **Overwatch** (1 AP): during the boss turn, if the boss is about to damage an adjacent player, first deal 1 damage to the boss.
 
 ## Components and printing
 
