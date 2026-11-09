@@ -98,6 +98,9 @@ The big picture only. Numbers, names and details are still open and are marked "
 - **Card of Fate:** look at the top 2 cards of the boss deck. Remove one from the game and put the other back on top of the deck. The Card of Fate is then removed for the rest of the game.
 - **Scroll of Falling Rocks:** deal 1 damage to every enemy. Then put it at the bottom of the Cantrip deck.
 - **Hasty Pepper:** gain 1 action point. Then put it at the bottom of the Cantrip deck.
+- **Crystal Ball:** look at the top card of the boss deck. You may put it at the bottom. Then put it at the bottom of the Cantrip deck.
+- **Bard's Lute:** every adjacent player gains 1 token of their choice. Then put it at the bottom of the Cantrip deck.
+- **Gambler's Coin:** flip a coin. Heads: gain 2 action points. Tails: lose 1 action point. Then put it at the bottom of the Cantrip deck.
 
 ### Summons
 
@@ -130,9 +133,9 @@ The big picture only. Numbers, names and details are still open and are marked "
   | Two-handed main hand | 2 |
   | Off hand | 4 |
   | Armour | 6 |
-  | Cantrip | 23 so far; target 36 |
+  | Cantrip | 26 so far; target 36 |
 | Summon | 3 |
-  | **Total** | **42 so far (5 sheets, 3 spare slots)** |
+  | **Total** | **45 so far (5 sheets, full)** |
 
 - Armour is 3 types with 2 copies each (assumed from the 3 names below).
 
