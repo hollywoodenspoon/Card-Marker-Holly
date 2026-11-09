@@ -102,6 +102,20 @@ Light descriptions, no numbers yet. Abilities cost action points (AP) out of the
 - Face 1, **Fighting Spirit** (1 AP): gain 1 power token. A player can spend any number of their power tokens on a damage-dealing attack, each adding +1 damage.
 - Face 2, **Inspire** (1 AP): if you used a weapon action this turn, give an adjacent player 1 power token. If not, gain 1 shield token.
 
+**Linen Cuirass (light)**
+- Face 1, **Anticipation** (2 AP): until the start of your next turn, when you are about to take damage during the boss turn, you may first move 1 hex.
+- Face 2, **Lightweight** (1 AP): gain 1 speed token.
+
+### Tokens
+
+Players keep tokens until they spend them. Any number can be spent at once.
+
+| Token | Spend it to |
+| --- | --- |
+| Shield | Reduce incoming damage by 1 each. |
+| Power | Add +1 damage each to a damage-dealing attack. |
+| Speed | Add +1 movement each to a move action. |
+
 What the other equipment does: later.
 
 - Equipment has two faces, so those sheets are printed double-sided.
