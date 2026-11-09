@@ -60,7 +60,7 @@ The big picture only. Numbers, names and details are still open and are marked "
 
 ## Other player cards
 
-- Besides equipment, players can have single-use items or spells. Unclaimed ones sit in a shared single-use pool, which the Dagger's Mug draws from. Examples:
+- Besides equipment, players can have single-use items or spells. Unclaimed ones sit in a shared single-use pool, which the Dagger's Mug draws from. A used card goes back into the pool. Examples:
   - potions that restore health or give a buff,
   - magic scrolls that cast spells, such as one that flips your equipment card to the face you choose.
 
@@ -132,6 +132,7 @@ Players keep tokens until they spend them. Any number can be spent at once.
 
 What the other equipment does: later.
 
+- The single-use pool may get duplicates of the 6 cards or more designs, so it holds more than one card per player.
 - Equipment has two faces, so those sheets are printed double-sided.
 - Boss cards are not counted here yet.
 
