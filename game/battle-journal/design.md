@@ -74,7 +74,7 @@ The big picture only. Numbers, names and details are still open and are marked "
 ### Cantrips
 
 - **Ankh of Resurrection:** if its owner is incapacitated, they are revived with 1 health. The Ankh is then removed for the rest of the game.
-- **Scroll of Dark Inferno:** sacrifice all your health except 1. Deal X damage to every enemy, where X is the health sacrificed.
+- **Scroll of Dark Inferno:** sacrifice all your health except 1. Deal X damage to every enemy, where X is the health sacrificed. The Scroll is then removed for the rest of the game.
 
 ## Components and printing
 
