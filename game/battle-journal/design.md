@@ -106,6 +106,12 @@ Light descriptions, no numbers yet. Abilities cost action points (AP) out of the
 - Face 1, **Anticipation** (2 AP): until the start of your next turn, each time you are about to take damage during the boss turn, you may first move 1 hex.
 - Face 2, **Lightweight** (1 AP): gain 1 speed token.
 
+### Off-hand abilities
+
+**Shield**
+- Face 1, **Shield Stance** (2 AP): gain 1 shield token. Then, until the start of your next turn, you may spend any number of your shield tokens to reduce damage taken by an adjacent player during the boss turn.
+- Face 2, **Shield Bash** (1 AP): gain 1 shield token, then spend any number of shield tokens to deal that much damage to a target.
+
 ### Tokens
 
 Players keep tokens until they spend them. Any number can be spent at once.
