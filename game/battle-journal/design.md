@@ -90,7 +90,7 @@ The big picture only. Numbers, names and details are still open and are marked "
 - **Scroll of Spirit Summoning:** summon a Spirit Knight, a Spirit Mage or a Spirit Archer to an adjacent hex. The Scroll is then removed for the rest of the game.
 - **Trickster Branch:** deal 5 damage to another player of your choice, and deal 5 damage to a target. Then put it at the bottom of the Cantrip deck.
 - **Half-Eaten Sandwich:** gain 1 health. Then put it at the bottom of the Cantrip deck.
-- **Potion of Power:** gain 2 offense tokens. Then put it at the bottom of the Cantrip deck.
+- **Potion of Offense:** gain 2 offense tokens. Then put it at the bottom of the Cantrip deck.
 - **Potion of Defense:** gain 2 defense tokens. Then put it at the bottom of the Cantrip deck.
 - **Horn of the Wind:** every player may move to a hex of their choice. Then you take 5 damage. The Horn is then removed for the rest of the game.
 - **Evil Skull:** does nothing. You may put it at the bottom of the Cantrip deck by taking 1 damage.
