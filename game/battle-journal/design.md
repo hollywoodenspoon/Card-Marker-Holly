@@ -49,6 +49,7 @@ The big picture only. Numbers, names and details are still open and are marked "
   - **Summoner:** the example above. Wins at 40 points from its adds.
   - **Siege:** the boss attacks a wall or gate on the map. The players lose if it breaks. Each hit the boss lands on the wall moves its tracker. Players can stand on wall hexes to take the hits instead.
   - **Shield Phases:** the boss can't take damage until the players break crystals or pillars on the map. Breaking them all exposes the boss for a few rounds, then the shield returns.
+  - **Countdown:** the boss wins after 20 turns. It draws more cards at set points on the turn counter. Which points: later.
 
 ## Round structure
 
