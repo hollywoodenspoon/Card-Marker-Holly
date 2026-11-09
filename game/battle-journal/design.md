@@ -93,6 +93,7 @@ The big picture only. Numbers, names and details are still open and are marked "
 - **Potion of Power:** gain 2 power tokens. Then put it at the bottom of the Cantrip deck.
 - **Potion of Defense:** gain 2 shield tokens. Then put it at the bottom of the Cantrip deck.
 - **Horn of the Wind:** every player may move to a hex of their choice. Then you take 5 damage. The Horn is then removed for the rest of the game.
+- **Evil Skull:** does nothing. You may put it at the bottom of the Cantrip deck by taking 1 damage.
 
 ### Summons
 
@@ -125,9 +126,9 @@ The big picture only. Numbers, names and details are still open and are marked "
   | Two-handed main hand | 2 |
   | Off hand | 4 |
   | Armour | 6 |
-  | Cantrip | 18 so far; the deck will grow |
+  | Cantrip | 19 so far; the deck will grow |
 | Summon | 3 |
-  | **Total** | **37 so far (5 sheets, 8 spare slots)** |
+  | **Total** | **38 so far (5 sheets, 7 spare slots)** |
 
 - Armour is 3 types with 2 copies each (assumed from the 3 names below).
 
