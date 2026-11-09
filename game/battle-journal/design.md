@@ -66,7 +66,7 @@ The big picture only. Numbers, names and details are still open and are marked "
 - Besides equipment, players can have **Cantrips**: single-use items or spells, drawn from a shared **Cantrip deck**. The Dagger's Mug draws from it. A used Cantrip goes to the bottom of the deck, unless it says it is removed for the rest of the game.
 - Each player starts the game with 1 Cantrip. How else players get Cantrips: later.
 - A player can hold at most 3 Cantrips.
-- A player can pass a Cantrip to another player as a free action.
+- A player can pass a Cantrip to an adjacent player as a free action. You can't pass to a player who already holds 3 Cantrips, or to an incapacitated player.
 - There is only 1 copy of each Cantrip.
 - Cantrips vary a lot: some are powerful, some are not.
 - Their main job is to cover the holes in the current equipment. Examples:
