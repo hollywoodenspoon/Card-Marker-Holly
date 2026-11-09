@@ -37,6 +37,7 @@ The big picture only. Numbers, names and details are still open and are marked "
 
 - Each player has a fixed number of actions per turn, 2 for now.
 - Actions include moving and using an ability. The rest of the list: later.
+- **Free actions** cost no AP. You can do one before or after any action, but only 1 free action per turn. Using a single-use card is a free action.
 
 ## Equipment
 
@@ -101,7 +102,7 @@ Light descriptions, no numbers yet. Abilities cost action points (AP) out of the
 
 **Brigandine (medium)**
 - Face 1, **Fighting Spirit** (1 AP): gain 1 power token. A player can spend any number of their power tokens on a damage-dealing attack, each adding +1 damage.
-- Face 2, **Momentum** (0 AP, once per turn): use it only after a weapon ability this turn. Your next weapon ability this turn costs 1 AP less.
+- Face 2, **Momentum** (free action): use it only after a weapon ability this turn. Your next weapon ability this turn costs 1 AP less.
 
 **Linen Cuirass (light)**
 - Face 1, **Anticipation** (2 AP): until the start of your next turn, each time you are about to take damage during the boss turn, you may first move 1 hex.
