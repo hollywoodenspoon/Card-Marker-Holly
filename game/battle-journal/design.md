@@ -112,6 +112,14 @@ Light descriptions, no numbers yet. Abilities cost action points (AP) out of the
 - Face 1, **Swift Stab** (1 AP, Frontline only): deal 2 damage.
 - Face 2, **Disengaging Strike** (1 AP, from a Frontline hex next to a Midline hex): deal 3 damage, then move to an adjacent Midline hex.
 
+**Lance** (two-handed)
+- Face 1:
+  - **Brace Lance** (1 AP, Midline only): gain 2 power tokens.
+  - **Lance Stab** (1 AP, Frontline only): deal 2 damage.
+- Face 2:
+  - **Lance Charge** (1 AP, from a Midline hex next to a Frontline hex): deal 3 damage. You may spend exactly 2 power tokens to deal 7 damage instead (no more than 2). Then move to a Frontline hex.
+  - **Lance Jump** (2 AP, any zone): spend any number (X) of your tokens, of any type, to deal X damage to a target. Then move to any Frontline hex.
+
 ### Off-hand abilities
 
 **Shield**
