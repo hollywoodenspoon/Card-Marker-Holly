@@ -112,6 +112,10 @@ Light descriptions, no numbers yet. Abilities cost action points (AP) out of the
 - Face 1, **Swift Stab** (1 AP, Frontline only): deal 2 damage.
 - Face 2, **Disengaging Strike** (1 AP, from a Frontline hex next to a Midline hex): deal 3 damage, then move to an adjacent Midline hex.
 
+**Wand**
+- Face 1, **Time Blast** (2 AP, Rearline only): deal 3 damage. Then look at the top 2 + X cards of the boss deck, where X is the number of other players. You may reorder them, then put them back on top.
+- Face 2, **Arcane Bolt** (1 AP, Midline only): deal 1 damage, then choose a player. They gain 1 token of their choice.
+
 **Lance** (two-handed)
 - Face 1:
   - **Ready Lance** (1 AP, Midline only): gain 2 power tokens.
