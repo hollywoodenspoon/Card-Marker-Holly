@@ -59,7 +59,27 @@ The big picture only. Numbers, names and details are still open and are marked "
 
 ## Other player cards
 
-- Besides equipment, players can have single-use items or spells. Details: later.
+- Besides equipment, players can have single-use items or spells, for example:
+  - potions that restore health or give a buff,
+  - magic scrolls that cast spells, such as one that flips your equipment card to the face you choose.
+
+## Components and printing
+
+- All cards are ID-card size (85.6 x 54 mm), because the owner's cutter is made for that size.
+- An A4 sheet holds 9 cards (3 x 3).
+- There is one copy of each player card:
+
+  | Card | Count |
+  | --- | --- |
+  | Armour | 6 |
+  | Off hand | 6 |
+  | One-handed main hand | 6 |
+  | Two-handed main hand | 3 |
+  | Single-use item or spell | 6 |
+  | **Total** | **27 (3 sheets)** |
+
+- Equipment has two faces, so those sheets are printed double-sided.
+- Boss cards are not counted here yet.
 
 ## The boss deck
 
