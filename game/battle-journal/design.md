@@ -62,7 +62,10 @@ The big picture only. Numbers, names and details are still open and are marked "
 
 ## Other player cards
 
-- Besides equipment, players can have **Cantrips**: single-use items or spells. Unclaimed ones sit in the shared Cantrip pool, which the Dagger's Mug draws from. A used Cantrip goes back into the pool. Examples:
+- Besides equipment, players can have **Cantrips**: single-use items or spells, drawn from a shared **Cantrip deck**. The Dagger's Mug draws from it. A used Cantrip goes back into the deck. How else players get Cantrips: later.
+- A player can hold at most 3 Cantrips.
+- Cantrips vary a lot: some are powerful, some are not.
+- Their main job is to cover the holes in the current equipment. Examples:
   - potions that restore health or give a buff,
   - magic scrolls that cast spells, such as one that flips your equipment card to the face you choose.
 
@@ -78,8 +81,8 @@ The big picture only. Numbers, names and details are still open and are marked "
   | Two-handed main hand | 2 |
   | Off hand | 4 |
   | Armour | 6 |
-  | Cantrip | 6 |
-  | **Total** | **22 (3 sheets, 5 spare slots)** |
+  | Cantrip | 6 for now; the deck will grow |
+  | **Total** | **22 for now (3 sheets, 5 spare slots)** |
 
 - Armour is 3 types with 2 copies each (assumed from the 3 names below).
 
@@ -154,7 +157,7 @@ Light descriptions, no numbers yet. Abilities cost action points (AP) out of the
 
 **Dagger**
 - Face 1, **Exposing Strike** (1 AP, Frontline only): deal 1 damage. Your next damage this turn is doubled, before token buffs are added.
-- Face 2, **Mug** (1 AP, Frontline only): deal 1 damage and take a random card from the Cantrip pool.
+- Face 2, **Mug** (1 AP, Frontline only): deal 1 damage and draw a card from the Cantrip deck.
 
 **Torch**
 - Face 1, **Light of Hope** (1 AP, Midline only): must be your first action. You and every adjacent player each gain 1 power, shield or speed token of their choice. You can't use an armour action after this, this turn.
@@ -171,7 +174,7 @@ Players keep tokens until they spend them. Any number can be spent at once.
 | Speed | Add +1 movement each to a move action. |
 
 
-- The Cantrip pool may get duplicates of the 6 cards or more designs, so it holds more than one card per player.
+- The Cantrip deck will hold many varied designs, possibly with duplicates.
 - Equipment has two faces, so those sheets are printed double-sided.
 - Boss cards are not counted here yet.
 
