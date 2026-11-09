@@ -43,7 +43,8 @@ The big picture only. Numbers, names and details are still open and are marked "
 - Each player has 3 slots:
   - **Main hand:** a one-handed or two-handed weapon.
   - **Off hand:** can't be used with a two-handed main hand.
-  - **Armour:** also sets the player's total health.
+  - **Armour:** also sets the player's total health. It never deals damage; its abilities give buffs, movement or similar.
+- Off hands can be a second source of damage or a utility.
 - An equipment card shows the abilities you can use.
 - After you use an ability, the card flips to its other face, which has a different set of abilities.
 - Abilities per face:
@@ -71,12 +72,14 @@ The big picture only. Numbers, names and details are still open and are marked "
 
   | Card | Count |
   | --- | --- |
+  | One-handed main hand | 4 |
+  | Two-handed main hand | 2 |
+  | Off hand | 4 |
   | Armour | 6 |
-  | Off hand | 6 |
-  | One-handed main hand | 6 |
-  | Two-handed main hand | 3 |
   | Single-use item or spell | 6 |
-  | **Total** | **27 (3 sheets)** |
+  | **Total** | **22 (3 sheets, 5 spare slots)** |
+
+- Armour is still open: 6 unique armours, or 3 types (light, medium, heavy) with 2 copies each.
 
 - Equipment has two faces, so those sheets are printed double-sided.
 - Boss cards are not counted here yet.
