@@ -81,6 +81,9 @@ The big picture only. Numbers, names and details are still open and are marked "
 - **Scroll of Lightning:** deal 3 damage to a target. Then put it at the bottom of the Cantrip deck.
 - **Scroll of Warping:** move to any hex you choose. Then put it at the bottom of the Cantrip deck.
 - **Dice of Fate:** your next damage-dealing action deals 1d6 damage instead (before token buffs are added). Then put it at the bottom of the Cantrip deck.
+- **Mom's Packed Lunch:** gain 1 health and 1 token of your choice. Then put it at the bottom of the Cantrip deck.
+- **Cursed Helm:** as long as you hold it, you cannot gain health from any source, and all your damage gets +1 (before token buffs are added).
+- **Dwarven Boomstick:** deal 5 damage to a target, then take 2 damage. Then put it at the bottom of the Cantrip deck.
 
 ## Components and printing
 
@@ -94,8 +97,8 @@ The big picture only. Numbers, names and details are still open and are marked "
   | Two-handed main hand | 2 |
   | Off hand | 4 |
   | Armour | 6 |
-  | Cantrip | 7 so far; the deck will grow |
-  | **Total** | **23 so far (3 sheets, 4 spare slots)** |
+  | Cantrip | 10 so far; the deck will grow |
+  | **Total** | **26 so far (3 sheets, 1 spare slot)** |
 
 - Armour is 3 types with 2 copies each (assumed from the 3 names below).
 
