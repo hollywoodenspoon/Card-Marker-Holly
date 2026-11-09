@@ -87,6 +87,14 @@ The big picture only. Numbers, names and details are still open and are marked "
 - **Dwarven Boomstick:** deal 5 damage to a target, then take 2 damage. Then put it at the bottom of the Cantrip deck.
 - **Box of Fireworks:** shuffle the boss deck and the Cantrip deck. Then put it at the bottom of the Cantrip deck.
 - **Scroll of Time:** lose all your health. The players get another turn after this one. The Scroll is then removed for the rest of the game.
+- **Scroll of Spirit Summoning:** summon a Spirit Knight, a Spirit Mage or a Spirit Archer to an adjacent hex. The Scroll is then removed for the rest of the game.
+
+### Summons
+
+- Each summon has its own card: 1 card with 1 ability per face, flipping like equipment.
+- A summon is treated as a player. The player who summoned it controls it, like a second player, but it has only 1 action per turn.
+- A summon has 1 health.
+- Summons so far: Spirit Knight, Spirit Mage, Spirit Archer. Their abilities: later.
 
 ## Components and printing
 
@@ -100,8 +108,9 @@ The big picture only. Numbers, names and details are still open and are marked "
   | Two-handed main hand | 2 |
   | Off hand | 4 |
   | Armour | 6 |
-  | Cantrip | 12 so far; the deck will grow |
-  | **Total** | **28 so far (4 sheets, 8 spare slots)** |
+  | Cantrip | 13 so far; the deck will grow |
+| Summon | 3 |
+  | **Total** | **32 so far (4 sheets, 4 spare slots)** |
 
 - Armour is 3 types with 2 copies each (assumed from the 3 names below).
 
