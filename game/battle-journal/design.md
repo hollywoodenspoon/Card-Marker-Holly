@@ -79,7 +79,18 @@ The big picture only. Numbers, names and details are still open and are marked "
   | Single-use item or spell | 6 |
   | **Total** | **22 (3 sheets, 5 spare slots)** |
 
-- Armour is still open: 6 unique armours, or 3 types (light, medium, heavy) with 2 copies each.
+- Armour is 3 types with 2 copies each (assumed from the 3 names below).
+
+### The equipment
+
+| Slot | Cards |
+| --- | --- |
+| One-handed main hand | Sword, Wand, Mace, Light Crossbow |
+| Two-handed main hand | Longbow, Lance |
+| Off hand | Shield, Book, Dagger, Torch |
+| Armour | Plate Armour (heavy), Brigandine (medium), Linen Cuirass (light) |
+
+What each one does: later.
 
 - Equipment has two faces, so those sheets are printed double-sided.
 - Boss cards are not counted here yet.
