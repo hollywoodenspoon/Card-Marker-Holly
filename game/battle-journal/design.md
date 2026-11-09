@@ -117,6 +117,10 @@ Light descriptions, no numbers yet. Abilities cost action points (AP) out of the
 - Face 1, **Time Blast** (2 AP, Rearline only): deal 3 damage. Then look at the top 2 + X cards of the boss deck, where X is the number of other players. You may reorder them, then put them back on top.
 - Face 2, **Arcane Bolt** (1 AP, Midline only): deal 1 damage, then choose a player. They gain 1 token of their choice.
 
+**Light Crossbow**
+- Face 1, **Trigger Happy** (1 AP, Midline or Rearline only): deal 1 damage and gain 1 token of your choice.
+- Face 2, **Flaming Bolt** (1 AP, from a Midline hex next to a Rearline hex): deal 3 damage, then move to an adjacent Rearline hex.
+
 **Lance** (two-handed)
 - Face 1:
   - **Ready Lance** (1 AP, Midline only): gain 2 power tokens.
