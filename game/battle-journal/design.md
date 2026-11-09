@@ -59,10 +59,12 @@ The big picture only. Numbers, names and details are still open and are marked "
 
 ## Boss card types
 
-- **Map mechanics:** played on one boss turn, they go off at the start of the next boss turn. Players have one round to respond, for example by dodging out of an area attack or stacking together.
-- **Direct damage:** hits right away, at a zone, one player, or all players.
-- **Adds:** extra enemies. They cannot act on the boss turn they arrive, like summoning sickness. From the next boss turn on, they attack a player every boss turn.
-- Other card types: later.
+The boss has three card types for now:
+
+- **Map attacks:** revealed on one boss turn, they go off on the next boss turn. Players have one round to respond, for example by dodging out of an area attack or stacking together.
+- **Direct effects:** happen right away on the boss's turn, for example dealing damage to all players or flipping players' equipment cards.
+- **Summon effects:** put something on the map, such as enemy adds or obstacles.
+  - Adds cannot act on the boss turn they arrive, like summoning sickness. From the next boss turn on, they attack a player every boss turn.
 
 ## Boss move sets
 
