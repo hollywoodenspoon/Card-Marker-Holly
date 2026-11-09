@@ -30,7 +30,7 @@ The big picture only. Numbers, names and details are still open and are marked "
 
 ## Round structure
 
-1. All players take their turns.
+1. All players act in one shared players' turn. The order among them: later.
 2. The boss takes its turn.
 
 ## Player turns
@@ -122,7 +122,7 @@ Light descriptions, no numbers yet. Abilities cost action points (AP) out of the
 
 **Torch**
 - Face 1, **Light of Hope** (1 AP, Midline only): must be your first action. You and every adjacent player each gain 1 power, shield or speed token of their choice. You can't use an armour action after this, this turn.
-- Face 2, **Flame of Courage** (2 AP, Frontline only): target a player other than yourself. They get a 3rd action on their turn. (Assumed: their next turn.)
+- Face 2, **Flame of Courage** (2 AP, Frontline only): target a player other than yourself. They get a 3rd action this turn.
 
 ### Tokens
 
