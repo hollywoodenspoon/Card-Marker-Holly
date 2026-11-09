@@ -130,7 +130,7 @@ The big picture only. Numbers, names and details are still open and are marked "
   | Two-handed main hand | 2 |
   | Off hand | 4 |
   | Armour | 6 |
-  | Cantrip | 23 so far; the deck will grow |
+  | Cantrip | 23 so far; target 36 |
 | Summon | 3 |
   | **Total** | **42 so far (5 sheets, 3 spare slots)** |
 
