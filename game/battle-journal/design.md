@@ -110,7 +110,7 @@ Light descriptions, no numbers yet. Abilities cost action points (AP) out of the
 
 **Shield**
 - Face 1, **Shield Stance** (2 AP): gain 1 shield token. Then, until the start of your next turn, you may spend any number of your shield tokens to reduce damage taken by an adjacent player during the boss turn.
-- Face 2, **Shield Bash** (1 AP): gain 1 shield token, then spend any number of shield tokens to deal that much damage to a target. Power tokens can add to it, but only if you spend at least 1 shield token. You may spend none: you deal 0 damage and can't add power tokens, but you still gain the shield token and the card still flips.
+- Face 2, **Shield Bash** (1 AP, Frontline or Midline only): gain 1 shield token, then spend any number of shield tokens to deal that much damage to a target. Power tokens can add to it, but only if you spend at least 1 shield token. You may spend none: you deal 0 damage and can't add power tokens, but you still gain the shield token and the card still flips.
 
 **Book**
 - Face 1, **Revival** (2 AP): target a player (you can target yourself). Spend any mix of your power, shield and speed tokens to restore that much health to them. If they are incapacitated, this also revives them, but only if you spend at least 1 token.
