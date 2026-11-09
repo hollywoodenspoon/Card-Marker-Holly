@@ -106,6 +106,12 @@ Light descriptions, no numbers yet. Abilities cost action points (AP) out of the
 - Face 1, **Anticipation** (2 AP): until the start of your next turn, each time you are about to take damage during the boss turn, you may first move 1 hex.
 - Face 2, **Lightweight** (1 AP): gain 1 speed token.
 
+### Main-hand abilities
+
+**Sword**
+- Face 1, **Swift Stab** (1 AP, Frontline only): deal 2 damage.
+- Face 2, **Disengaging Strike** (1 AP, from a Frontline hex next to a Midline hex): deal 3 damage, then move to an adjacent Midline hex.
+
 ### Off-hand abilities
 
 **Shield**
@@ -134,7 +140,7 @@ Players keep tokens until they spend them. Any number can be spent at once.
 | Power | Add +1 damage each to a damage-dealing attack. |
 | Speed | Add +1 movement each to a move action. |
 
-What the other equipment does: later.
+What the other main hands do: later.
 
 - The single-use pool may get duplicates of the 6 cards or more designs, so it holds more than one card per player.
 - Equipment has two faces, so those sheets are printed double-sided.
