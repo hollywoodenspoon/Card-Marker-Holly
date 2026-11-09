@@ -22,10 +22,11 @@ The big picture only. Numbers, names and details are still open and are marked "
 
 ## Zones
 
-- Every hex belongs to a zone, shown by a coloured border and a small symbol in the middle.
-- Every map uses the same zone types, so any boss card works on any map.
+- Every map has the same three zones: **Frontline**, **Midline** and **Rearline**. Each hex belongs to one, shown by its coloured border.
+- Because every map shares these zones, any boss card works on any map.
+- Zones are also ability range: each ability says which zone(s) you can use it from.
+- Hexes can carry symbols for precise boss mechanics, for example "stand on the Frontline star to soak damage for everyone". Which symbols to use: later.
 - Some bosses also have a signature mechanic that only works on their own map. Not every boss has one.
-- How many zone types there are, and their names: later.
 
 ## Round structure
 
