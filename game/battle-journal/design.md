@@ -121,6 +121,10 @@ Light descriptions, no numbers yet. Abilities cost action points (AP) out of the
 - Face 1, **Trigger Happy** (1 AP, Midline or Rearline only): deal 1 damage and gain 1 token of your choice.
 - Face 2, **Flaming Bolt** (1 AP, from a Midline hex next to a Rearline hex): deal 3 damage, then move to an adjacent Rearline hex.
 
+**Mace**
+- Face 1, **Brutal Smash** (2 AP, from a Midline hex next to a Frontline hex): spend any number (X) of your tokens, of any type, to deal 2 + X damage.
+- Face 2, **Wide Swing** (1 AP, Frontline only): deal 2 damage and gain 1 power token. Then take 1 damage and move to an adjacent Frontline hex.
+
 **Lance** (two-handed)
 - Face 1:
   - **Ready Lance** (1 AP, Midline only): gain 2 power tokens.
