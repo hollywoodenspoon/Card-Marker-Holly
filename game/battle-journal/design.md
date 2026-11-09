@@ -30,7 +30,7 @@ The big picture only. Numbers, names and details are still open and are marked "
 
 ## Round structure
 
-1. All players act in one shared players' turn. The order among them: later.
+1. All players act in one shared players' turn. No one goes first: they play at the same time and coordinate their actions.
 2. The boss takes its turn.
 
 ## Player turns
