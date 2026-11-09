@@ -85,6 +85,7 @@ The big picture only. Numbers, names and details are still open and are marked "
 - **Mom's Packed Lunch:** gain 1 health and 1 token of your choice. Then put it at the bottom of the Cantrip deck.
 - **Cursed Helm:** as long as you hold it, you cannot gain health from any source (reviving counts as gaining health, so you can't be revived), and all your damage gets +1 (before token buffs are added).
 - **Dwarven Boomstick:** deal 5 damage to a target, then take 2 damage. Then put it at the bottom of the Cantrip deck.
+- **Box of Fireworks:** shuffle the boss deck and the Cantrip deck. Then put it at the bottom of the Cantrip deck.
 
 ## Components and printing
 
@@ -98,8 +99,8 @@ The big picture only. Numbers, names and details are still open and are marked "
   | Two-handed main hand | 2 |
   | Off hand | 4 |
   | Armour | 6 |
-  | Cantrip | 10 so far; the deck will grow |
-  | **Total** | **26 so far (3 sheets, 1 spare slot)** |
+  | Cantrip | 11 so far; the deck will grow |
+  | **Total** | **27 so far (3 sheets, full)** |
 
 - Armour is 3 types with 2 copies each (assumed from the 3 names below).
 
