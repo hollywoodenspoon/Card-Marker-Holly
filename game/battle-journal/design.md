@@ -157,7 +157,7 @@ Light descriptions, no numbers yet. Abilities cost action points (AP) out of the
 
 **Torch**
 - Face 1, **Light of Hope** (1 AP, Midline only): must be your first action. You and every adjacent player each gain 1 power, shield or speed token of their choice. You can't use an armour action after this, this turn.
-- Face 2, **Flame of Courage** (2 AP, Frontline only): target a player other than yourself. They get a 3rd action this turn.
+- Face 2, **Flame of Courage** (2 AP, Frontline only): target a player other than yourself. They get 2 extra actions this turn. (You wave the flame to draw the enemy's ire, buying them time for powerful strikes.)
 
 ### Tokens
 
