@@ -62,7 +62,7 @@ The big picture only. Numbers, names and details are still open and are marked "
 
 ## Other player cards
 
-- Besides equipment, players can have **Cantrips**: single-use items or spells, drawn from a shared **Cantrip deck**. The Dagger's Mug draws from it. A used Cantrip goes back into the deck.
+- Besides equipment, players can have **Cantrips**: single-use items or spells, drawn from a shared **Cantrip deck**. The Dagger's Mug draws from it. A used Cantrip goes to the bottom of the deck, unless it says it is removed for the rest of the game.
 - Each player starts the game with 1 Cantrip. How else players get Cantrips: later.
 - A player can hold at most 3 Cantrips.
 - There is only 1 copy of each Cantrip.
@@ -75,6 +75,11 @@ The big picture only. Numbers, names and details are still open and are marked "
 
 - **Ankh of Resurrection:** if its owner is incapacitated, they are revived with 1 health. The Ankh is then removed for the rest of the game.
 - **Scroll of Dark Inferno:** sacrifice all your health except 1. Deal X damage to every enemy, where X is the health sacrificed. The Scroll is then removed for the rest of the game.
+- **Healing Salve:** restore 3 health. Then put it at the bottom of the Cantrip deck.
+- **Potion of Swiftness:** gain 5 speed tokens. Then put it at the bottom of the Cantrip deck.
+- **Scroll of Lightning:** deal 3 damage to a target. Then put it at the bottom of the Cantrip deck.
+- **Scroll of Warping:** move to any hex you choose. Then put it at the bottom of the Cantrip deck.
+- **Dice of Fate:** your next damage-dealing action deals 1d6 damage instead (before token buffs are added). Then put it at the bottom of the Cantrip deck.
 
 ## Components and printing
 
