@@ -60,7 +60,7 @@ The big picture only. Numbers, names and details are still open and are marked "
 
 ## Other player cards
 
-- Besides equipment, players can have single-use items or spells, for example:
+- Besides equipment, players can have single-use items or spells. Unclaimed ones sit in a shared single-use pool, which the Dagger's Mug draws from. Examples:
   - potions that restore health or give a buff,
   - magic scrolls that cast spells, such as one that flips your equipment card to the face you choose.
 
@@ -115,6 +115,10 @@ Light descriptions, no numbers yet. Abilities cost action points (AP) out of the
 **Book**
 - Face 1, **Revival** (2 AP): target a player (you can target yourself). Spend any mix of your power, shield and speed tokens to restore that much health to them. If they are incapacitated, this also revives them, but only if you spend at least 1 token.
 - Face 2, **Raise Spirit** (2 AP): you and every adjacent player each gain 1 power, shield or speed token of their choice.
+
+**Dagger**
+- Face 1, **Exposing Strike** (1 AP, Frontline only): deal 1 damage. Your next damage this turn is doubled, before token buffs are added.
+- Face 2, **Mug** (1 AP, Frontline only): deal 1 damage and take a random card from the single-use pool.
 
 ### Tokens
 
