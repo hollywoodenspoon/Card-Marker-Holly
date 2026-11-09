@@ -236,9 +236,9 @@ Players keep tokens until they spend them. Any number can be spent at once.
 - The boss runs itself from a deck of cards. There is no game master.
 - Each card has a cost.
 - On its turn the boss draws a number of cards and reveals them one at a time:
-  - If the boss's ink is at least the card's cost, the card is played. The ink is checked, not spent.
-  - Otherwise the card goes face down into the boss's ink pool.
-- The ink pool never shrinks and has no cap, so the boss grows stronger over the fight.
+  - If the boss's **Power level** is at least the card's cost, the card is played. The Power level is checked, not spent.
+  - Otherwise the card goes face down into the boss's Power level pile, raising its Power level by 1.
+- The Power level never shrinks and has no cap, so the boss grows stronger over the fight.
 - When the deck runs out, it is reshuffled.
 - At set health thresholds the boss draws more cards each turn.
 - How many cards the boss draws, and how this scales with player count: later.
