@@ -652,7 +652,8 @@ function play(d: D, m: Move) {
         return startEffect(
           d,
           { owner: seat, card: m.card, mode: 'window' },
-          act ? { k: 'act', seat, again: true } : { k: 'respond', seat, final },
+          // Open Skirmish: attaching (any window extra) is the turn's action.
+          act ? { k: 'act', seat } : { k: 'respond', seat, final },
         )
       }
       const onField = p.field.some((f) => f.card === m.card)
@@ -1117,7 +1118,8 @@ function finishRegroup(d: D) {
     const p = d.players[seat]
     const stay = p.round.stay ?? []
     p.field.forEach((f, i) => {
-      if (!f.card || f.state === 'ready') return
+      // Open Skirmish: every field card goes to Support, Ready ones too.
+      if (!f.card || (f.state === 'ready' && d.mode !== 'open')) return
       if (stay.includes(f.card)) {
         // It stays in place, face down and Ready, to be revealed again.
         p.field[i] = { card: f.card, faceUp: false, state: 'ready' }
@@ -1129,7 +1131,12 @@ function finishRegroup(d: D) {
     p.mainAttacker = null
   }
   d.combat = null
-  log(d, 'Regroup: Fighting Spirit and unused Support rest; active field cards go to Support.')
+  log(
+    d,
+    d.mode === 'open'
+      ? 'Regroup: Fighting Spirit and unused Support rest; every field card goes to Support.'
+      : 'Regroup: Fighting Spirit and unused Support rest; active field cards go to Support.',
+  )
   d.step = { k: 'place', seat: d.initiative, from: 'rest', placed: [] }
 }
 

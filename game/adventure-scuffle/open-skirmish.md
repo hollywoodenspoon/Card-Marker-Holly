@@ -1,6 +1,6 @@
 # Adventurer Scuffle! (Open Skirmish)
 
-A test mode: the Mutual Reveal Skirmish is replaced by an open board and actions. Combat and Regroup are unchanged. Fate Numbers are not used.
+A test mode: the Mutual Reveal Skirmish is replaced by an open board and actions. Combat is unchanged; at Regroup every field card goes to Support. Fate Numbers are not used.
 
 ## Overview
 
@@ -50,7 +50,7 @@ Starting with the initiative player, players take turns doing one action each:
 - **Support Ability:** use a Support Ability from your Support.
 - **Pass:** you take no more actions this round. The other player keeps going until they pass too.
 
-Living Weapon Dusk can attach from the rest zone on your turn without using your action.
+Attaching a Living Weapon (such as Living Weapon Dusk from the rest zone) is your action for the turn.
 
 Howling Barbarian does not count toward your 3 attackers. If it is still Ready when both players pass, it attacks.
 
@@ -82,7 +82,7 @@ The Main Attacker only decides where the attack comes from and what it targets.
 ### Regroup Phase
 
 1. Rest every card used for Fighting Spirit, every unused Support card and every attached Living Weapon.
-2. Every active field card goes to your Support. Ready cards stay where they are.
+2. Every field card goes to your Support, Ready cards included, unless an ability keeps it on the field.
 3. Refill every empty field position face down from your rest zone, choosing which card goes where. The initiative player refills first. If your rest zone runs out, fill the rest from your Support.
 4. Pass the initiative to the other player.
 
