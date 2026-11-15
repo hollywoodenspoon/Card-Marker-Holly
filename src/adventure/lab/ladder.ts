@@ -5,7 +5,7 @@ import { checkGame } from '../check'
 import { checkDeck } from '../deck'
 import { randomDeck } from '../deckgen/values'
 import { apply, createGame, type Move, type NewGame } from '../engine'
-import type { RevealRule, Seat } from '../state'
+import type { GameMode, RevealRule, Seat } from '../state'
 
 /**
  * The bot ladder: every chosen bot plays every other on the same decks and
@@ -41,6 +41,7 @@ export interface LadderOptions {
   games: number
   seed: number
   reveal?: RevealRule
+  mode?: GameMode
 }
 
 export interface LadderInput {
@@ -64,6 +65,7 @@ export interface LadderSlice {
   entrants: LadderEntrant[]
   games: LadderGame[]
   reveal?: RevealRule
+  mode?: GameMode
 }
 
 export interface LadderGameResult {
@@ -134,6 +136,7 @@ export function playLadderSlice({
   entrants,
   games,
   reveal,
+  mode,
 }: LadderSlice): LadderSliceResult {
   const out: LadderSliceResult = { games: [], checked: 0, problems: [] }
   for (const g of games) {
@@ -143,6 +146,7 @@ export function playLadderSlice({
       names: ['A', 'B'],
       seed: g.seed,
       reveal,
+      mode,
     }
     let s = createGame(game)
     const moves: Move[] = []
@@ -266,6 +270,7 @@ export async function runLadder(
       entrants,
       games: games.slice(i, i + SLICE),
       reveal: options.reveal,
+      mode: options.mode,
     })
   const done = (await exec(slices, games.length)).filter((x): x is LadderSliceResult => !!x)
   return analyzeLadder(input, options, entrants, done, {
@@ -362,7 +367,7 @@ export function ladderReport(r: LadderResult): string {
   const L = [
     `# Bot ladder: ${r.packName}`,
     '',
-    `${total} games${r.stopped ? ' (stopped early)' : ''}, ${r.options.games} per pairing, ${REVEAL_NAMES[r.options.reveal ?? 'classic']}, seed ${r.options.seed}, ${Math.round(r.seconds)} s. Rules checker: ${r.checked} games checked, ${r.problems.length} problems.`,
+    `${total} games${r.stopped ? ' (stopped early)' : ''}, ${r.options.games} per pairing, ${r.options.mode === 'open' ? 'Open Skirmish' : REVEAL_NAMES[r.options.reveal ?? 'classic']}, seed ${r.options.seed}, ${Math.round(r.seconds)} s. Rules checker: ${r.checked} games checked, ${r.problems.length} problems.`,
     '',
     '| Bot | Rating | Win rate | Games | Thinking per move |',
     '|---|---:|---:|---:|---:|',

@@ -88,7 +88,7 @@ function rollout(s: AsState, seat: Seat, r: Rng): number {
   let x = s
   // Quick moves are legal by construction, so the playout skips the legality check and log.
   for (let n = 0; n < 300 && x.step.k !== 'over' && x.round === round; n++) {
-    const next = applyFast(x, quickMove(x, r))
+    const next = applyFast(x, quickMove(x, r, x.step.k === 'act' || x.step.k === 'flip'))
     if (next === x) break
     x = next
   }

@@ -1,7 +1,8 @@
 import { nextInt } from '@/playtest/rng'
 import { applyFast, fsPreview, legalMoves, placePool, type Move } from '../engine'
+import { adjacent, mirrored } from '../board'
 import { other, type AsState, type Seat } from '../state'
-import { engagementTotals } from '../stats'
+import { engagementTotals, statsAt } from '../stats'
 import { determinize } from './determinize'
 import { evaluate } from './evaluate'
 
@@ -90,14 +91,10 @@ export function quickMove(s: AsState, r: Rng, light = false): Move {
     case 'fs':
       return fsMove(s, seat, legal)
     case 'flip':
-      return legal[roll(r, legal.length)]
-    case 'act': {
-      // Open Skirmish: now and then an ability, else turn a card, pass when none is left.
-      const abilities = legal.filter((m) => m.t === 'ability')
-      if (abilities.length && chance(r, LIGHT_USE)) return abilities[roll(r, abilities.length)]
-      const turns = legal.filter((m) => m.t === 'attack' || m.t === 'defend')
-      return turns.length ? turns[roll(r, turns.length)] : { t: 'pass' }
-    }
+    case 'act':
+      // Open Skirmish: light playouts use the rule of thumb; otherwise try each move out.
+      if (light) return st.k === 'act' ? actRule(s, seat, legal, r) : legal[roll(r, legal.length)]
+      return openMove(s, seat, legal, r)
   }
 }
 
@@ -206,4 +203,89 @@ export function fsMove(s: AsState, seat: Seat, legal: Move[]): Move {
   if (last && reserve >= gap) return best.m
   if (gap - best.v <= 1) return best.m
   return { t: 'pass' }
+}
+
+/**
+ * Open Skirmish rule of thumb for the action step. Defend the position the
+ * opponent's Main Attacker threatens while their attack outweighs the cover;
+ * otherwise build an attack chain from the strongest card (each next attacker
+ * next to the last); then cover the threat; pass when nothing helps.
+ * Howling Barbarian (an extra attacker) is left Ready: it attacks on its own.
+ */
+export function actRule(s: AsState, seat: Seat, legal: Move[], r: Rng): Move {
+  const me = s.players[seat]
+  const opp = s.players[other(seat)]
+  const extra = me.round.extra
+  const free = (slot: number) => !extra.includes(me.field[slot].card ?? '')
+  const atk = (slot: number) => statsAt(s, seat, slot).a
+  const def = (slot: number) => statsAt(s, seat, slot).d
+  const attacks = legal.filter((m) => m.t === 'attack' && free(m.slot)) as { t: 'attack'; slot: number }[]
+  const defends = legal.filter((m) => m.t === 'defend' && free(m.slot)) as { t: 'defend'; slot: number }[]
+  const abilities = legal.filter((m) => m.t === 'ability')
+  if (abilities.length && chance(r, LIGHT_USE)) return abilities[roll(r, abilities.length)]
+  // The opponent's threat: their attackers' Attack against my cover at the target.
+  const main = opp.mainAttacker
+  let cover: typeof defends = []
+  let behind = false
+  if (main !== null && main >= 0 && opp.field[main]?.state === 'attacking') {
+    const target = mirrored(main)
+    const near = (i: number) => i === target || adjacent(i, target)
+    let push = 0
+    opp.field.forEach((f, i) => {
+      if (f.card && f.state === 'attacking') push += statsAt(s, other(seat), i).a
+    })
+    let held = 0
+    me.field.forEach((f, i) => {
+      if (f.card && f.state === 'defending' && near(i)) held += def(i)
+    })
+    cover = defends.filter((m) => near(m.slot)).sort((a, b) => def(b.slot) - def(a.slot))
+    behind = push >= held
+  }
+  if (cover.length && behind) return cover[0]
+  const myAttackers = me.field.filter((f, i) => f.card && f.state === 'attacking' && free(i)).length
+  if (attacks.length && myAttackers < 3) {
+    // Lead with the card whose neighbours can follow; then the strongest next one.
+    const lead = (slot: number) =>
+      atk(slot) +
+      (myAttackers ? 0 : 0.5 * Math.max(0, ...attacks.filter((m) => adjacent(m.slot, slot)).map((m) => atk(m.slot))))
+    return [...attacks].sort((a, b) => lead(b.slot) - lead(a.slot))[0]
+  }
+  if (cover.length) return cover[0]
+  return { t: 'pass' }
+}
+
+/**
+ * Open Skirmish, Flip and action steps: try each legal move on one guess of
+ * the hidden cards, play the rest of the Skirmish with the rule of thumb for
+ * both players, and keep the move whose combat looks best.
+ */
+function openMove(s: AsState, seat: Seat, legal: Move[], r: Rng): Move {
+  if (legal.length === 1) return legal[0]
+  const guess = determinize(s, seat, roll(r, 2 ** 31))
+  const score = (m: Move) => {
+    let x = applyFast(guess, m)
+    for (let n = 0; n < 60 && (x.step.k === 'act' || x.step.k === 'flip' || x.step.k === 'choose'); n++) {
+      const st = x.step
+      if (st.k === 'over') break
+      const moves = legalMoves(x)
+      const next =
+        st.k === 'choose'
+          ? chooseMove(x, st.seat, r)
+          : st.k === 'act'
+            ? actRule(x, st.seat, moves, r)
+            : moves[0]
+      x = applyFast(x, next)
+    }
+    return evaluate(x, seat)
+  }
+  let best = legal[0]
+  let bestV = -Infinity
+  for (const m of legal) {
+    const v = score(m)
+    if (v > bestV) {
+      bestV = v
+      best = m
+    }
+  }
+  return best
 }

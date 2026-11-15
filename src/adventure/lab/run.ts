@@ -1,4 +1,5 @@
 import type { AsCard } from '../cards'
+import type { GameMode } from '../state'
 import { checkDeck } from '../deck'
 import { fitModel } from '../deckgen/values'
 import {
@@ -33,12 +34,15 @@ import { mergeSlices, type LabBot, type LabGame, type LabSlice, type LabSliceRes
  * The core set (TFQ) is tested on its own, and as the baseline for the full pool.
  */
 
+
 export interface LabOptions {
   games: number
   bot: LabBot
   seed: number
   /** Code prefixes of the core set, such as "TFQ". */
   core: string[]
+  /** Rules: Mutual Reveal (default) or Open Skirmish. */
+  mode?: GameMode
 }
 
 export interface LabInput {
@@ -177,7 +181,7 @@ export async function runLab(
     const plan = randomPairings(decks.length, games, (o.seed * 31 + i) >>> 0, CHECK_EVERY)
     const league = stopped()
       ? mergeSlices([])
-      : await play('cards', { cards: v.cards, decks, bot: o.bot }, plan)
+      : await play('cards', { cards: v.cards, decks, bot: o.bot, mode: o.mode }, plan)
     const fit = fitModel(
       v.cards.map((c) => c.id),
       decks,
@@ -216,7 +220,7 @@ export async function runLab(
       ? mergeSlices([])
       : await play(
           'constructed',
-          { cards: v.cards, decks: field.map((d) => d.cards), bot: o.bot },
+          { cards: v.cards, decks: field.map((d) => d.cards), bot: o.bot, mode: o.mode },
           plan,
         )
     built.push({ builds, decks: field, games: r })
@@ -228,7 +232,7 @@ export async function runLab(
     const plan = roundRobin(premades.length, budget.premades, (o.seed * 19) >>> 0, CHECK_EVERY)
     const r = stopped()
       ? mergeSlices([])
-      : await play('premades', { cards, decks: premades.map((p) => p.cards), bot: o.bot }, plan)
+      : await play('premades', { cards, decks: premades.map((p) => p.cards), bot: o.bot, mode: o.mode }, plan)
     const st = deckStats(premades.length, r.games)
     premadeResult = {
       decks: premades.map((p, k) => ({ name: p.name, kind: 'premade', cards: p.cards, ...st[k] })),
