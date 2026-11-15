@@ -1,4 +1,5 @@
 import { Play, Square } from '@/ui/icons'
+import type { GameMode } from '@/adventure/state'
 import { useRef, useState } from 'react'
 import type { AsCard } from '@/adventure/cards'
 import {
@@ -46,6 +47,7 @@ export function LadderSetup({
 }) {
   const [entrants, setEntrants] = useState<string[]>(DEFAULT_ENTRANTS)
   const [games, setGames] = useState(100)
+  const [mode, setMode] = useState<GameMode>('mutual')
   const [done, setDone] = useState<number | null>(null)
   const [startedAt, setStartedAt] = useState(0)
   const [tick, setTick] = useState(0)
@@ -67,7 +69,7 @@ export function LadderSetup({
     setStartedAt(now)
     setTick(now)
     setDone(0)
-    const options: LadderOptions = { entrants, games, seed, reveal: 'pairs' }
+    const options: LadderOptions = { entrants, games, seed, reveal: 'pairs', mode }
     try {
       const result = await runLadder(
         { packName, cards, premades },
@@ -192,6 +194,22 @@ export function LadderSetup({
             ))}
           </div>
         </div>
+        <div className="flex flex-col gap-1.5">
+          <span className="text-sm font-medium">Rules</span>
+          <div className="flex gap-2" role="group" aria-label="Rules">
+            {(['mutual', 'open'] as const).map((m) => (
+              <Button
+                key={m}
+                size="sm"
+                variant="outline"
+                active={mode === m}
+                onClick={() => setMode(m)}
+              >
+                {m === 'open' ? 'Open Skirmish' : 'Mutual Reveal'}
+              </Button>
+            ))}
+          </div>
+        </div>
       </div>
       <p className="text-xs text-muted-foreground">
         {pairs} pairings · {total.toLocaleString()} games · about {duration(estimate)} on {threads}{' '}
@@ -214,7 +232,7 @@ export function LadderResults({ row }: { row: LadderSimRow }) {
       <section className="rounded-xl border bg-panel p-3 text-sm">
         <p>
           {total.toLocaleString()} games{r.stopped ? ' (stopped early)' : ''}, {r.options.games} per
-          pairing, {REVEAL_NAMES[r.options.reveal ?? 'classic']}, seed {r.options.seed}.
+          pairing, {r.options.mode === 'open' ? 'Open Skirmish' : REVEAL_NAMES[r.options.reveal ?? 'classic']}, seed {r.options.seed}.
         </p>
         <p className="text-muted-foreground">
           Rules checker: {r.checked} games, {r.problems.length} problems. Ratings: Easy at 1000; 100

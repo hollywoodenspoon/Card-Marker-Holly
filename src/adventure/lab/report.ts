@@ -33,7 +33,7 @@ export function labReport(r: LabResult, cards: AsCard[]): string {
   const L: string[] = []
   L.push(`# Balance lab: ${r.packName}`, '')
   L.push(
-    `${total} games${r.stopped ? ' (stopped early)' : ''}, ${BOTS[r.options.bot]} bots, seed ${r.options.seed}, ${Math.round(r.seconds)} s.`,
+    `${total} games${r.stopped ? ' (stopped early)' : ''}, ${BOTS[r.options.bot]} bots${r.options.mode === 'open' ? ', Open Skirmish' : ''}, seed ${r.options.seed}, ${Math.round(r.seconds)} s.`,
     `Core set: ${r.options.core.join(', ') || 'none'} (${r.coreCount} of ${r.cardCount} cards).`,
     '',
     ...(Object.keys(r.played) as LabStage[]).map(

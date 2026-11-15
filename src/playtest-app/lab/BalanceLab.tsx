@@ -1,4 +1,5 @@
 import { ArrowLeft, Copy, Dices, Download, FlaskConical, Play, Square, Trash2 } from '@/ui/icons'
+import type { GameMode } from '@/adventure/state'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { AsCard } from '@/adventure/cards'
 import { unreadParts } from '@/adventure/effects/registry'
@@ -82,6 +83,7 @@ export function BalanceLab({
   const unread = useMemo(() => cards.filter((c) => unreadParts(c).length), [cards])
   const [games, setGames] = useState(10000)
   const [bot, setBot] = useState<LabBot>('quick')
+  const [rules, setRules] = useState<GameMode>('mutual')
   const [seed, setSeed] = useState(() => randomSeed())
   const [threads, setThreads] = useState(maxThreads)
   const [core, setCore] = useState(() =>
@@ -103,7 +105,7 @@ export function BalanceLab({
     void listSims(packId).then(setSaved)
   }, [packId, open])
 
-  const options: LabOptions = { games, bot, seed, core }
+  const options: LabOptions = { games, bot, seed, core, mode: rules }
   const plan = useMemo(
     () => labPlan({ packName, cards, premades }, { games, core }),
     [packName, cards, premades, games, core],
@@ -386,7 +388,7 @@ export function BalanceLab({
                       data-testid="lab-games"
                     />
                   </div>
-                  <div className="grid gap-3 sm:grid-cols-3">
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     <div className="flex flex-col gap-1.5">
                       <Label htmlFor="lab-bot">Bots</Label>
                       <NativeSelect
@@ -398,6 +400,17 @@ export function BalanceLab({
                         <option value="normal">
                           Tricks (slower, plays better; the table&apos;s Easy)
                         </option>
+                      </NativeSelect>
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <Label htmlFor="lab-mode">Rules</Label>
+                      <NativeSelect
+                        id="lab-mode"
+                        value={rules}
+                        onChange={(e) => setRules(e.target.value as GameMode)}
+                      >
+                        <option value="mutual">Mutual Reveal</option>
+                        <option value="open">Open Skirmish</option>
                       </NativeSelect>
                     </div>
                     {seedField}

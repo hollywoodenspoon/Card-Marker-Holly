@@ -3,6 +3,7 @@ import { apply, createGame, legalMoves, type Move } from './engine'
 import { FIRST_QUEST, TEST_DECKS } from './fixtures/firstQuest'
 import { randomGame } from './fixtures/randomGame'
 import type { AsState } from './state'
+import { botMove } from './bot'
 
 const decks = Object.values(TEST_DECKS)
 
@@ -72,4 +73,22 @@ describe('Open Skirmish', () => {
       expect(s.mode).toBe('open')
     }
   }, 60_000)
+
+  it('Normal bot beats Easy and builds attack chains', () => {
+    let wins = 0
+    let chains = 0
+    const N = 6
+    for (let n = 0; n < N; n++) {
+      let s = setUp(n * 31 + 7)
+      for (let k = 0; k < 4000 && s.step.k !== 'over'; k++) {
+        const seat = s.step.seat
+        if (s.step.k === 'act' && seat === 0 && s.players[0].field.filter((f) => f.state === 'attacking').length >= 2)
+          chains++
+        s = apply(s, botMove(s, seat === 0 ? 'normal' : 'easy', n * 1000 + k))
+      }
+      if (s.winner?.seat === 0) wins++
+    }
+    expect(wins).toBeGreaterThanOrEqual(N * 0.6)
+    expect(chains).toBeGreaterThan(0)
+  }, 120_000)
 })

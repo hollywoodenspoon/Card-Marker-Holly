@@ -4,7 +4,7 @@ import type { AsCard } from '../cards'
 import { checkGame } from '../check'
 import { rulesOf } from '../effects/registry'
 import { apply, createGame, type Move, type NewGame } from '../engine'
-import type { AsState, Seat } from '../state'
+import type { AsState, GameMode, Seat } from '../state'
 import { fightingSpirit } from '../stats'
 
 /**
@@ -52,6 +52,7 @@ export interface LabSlice {
   decks: string[][]
   games: LabGame[]
   bot: LabBot
+  mode?: GameMode
 }
 
 export interface LabSliceResult {
@@ -65,7 +66,7 @@ export interface LabSliceResult {
 
 const MAX_MOVES = 4000
 
-export function playSlice({ cards, decks, games, bot }: LabSlice): LabSliceResult {
+export function playSlice({ cards, decks, games, bot, mode }: LabSlice): LabSliceResult {
   const byName = new Map(cards.map((c) => [c.name, c.id]))
   const out: LabSliceResult = { games: [], uses: {}, checked: 0, problems: [] }
   const count = (id: string, k: 0 | 1) => (out.uses[id] ??= [0, 0])[k]++
@@ -75,6 +76,7 @@ export function playSlice({ cards, decks, games, bot }: LabSlice): LabSliceResul
       decks: [decks[g.a], decks[g.b]],
       names: ['A', 'B'],
       seed: g.seed,
+      mode,
     }
     let s = createGame(game)
     const r = { seed: g.seed ^ 0x9e3779b9 }
