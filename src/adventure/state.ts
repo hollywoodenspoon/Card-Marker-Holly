@@ -135,6 +135,10 @@ export type Step =
   | { k: 'first'; seat: Seat }
   /** Reveal a card as Fighting Spirit, or pass. */
   | { k: 'fs'; seat: Seat }
+  /** Open Skirmish: pick which of your Flip Abilities resolves next. */
+  | { k: 'flip'; seat: Seat }
+  /** Open Skirmish: one action (Attack, Defense, an ability) or pass. */
+  | { k: 'act'; seat: Seat }
   /** A choice inside an ability (a target, a card to rest…). */
   | { k: 'choose'; seat: Seat; prompt: string; options: Option[] }
   | { k: 'over' }
@@ -148,6 +152,10 @@ export type After =
   | { k: 'fsTurn'; seat: Seat }
   /** Back to the same response window (a window extra doesn't use up the response). */
   | { k: 'respond'; seat: Seat; final: boolean }
+  /** Open Skirmish: the other player's Flip pick. */
+  | { k: 'flipTurn'; seat: Seat }
+  /** Open Skirmish: the next action (`again`: the same player, a window extra). */
+  | { k: 'act'; seat: Seat; again?: true }
   /** The next queued trigger (Interpose costs, Endure), then `then`. */
   | { k: 'triggers'; then: 'combat' | 'regroup' }
 
@@ -170,6 +178,14 @@ export type RevealCount = 1 | 2 | 3
  */
 export type RevealRule = 'classic' | 'pairs' | 'triples'
 
+/**
+ * The Skirmish rule. mutual: Mutual Reveal (the rulebook). open: Open Skirmish,
+ * an alternate mode to test: every card is revealed at the start of the round,
+ * Flip Abilities resolve in turns, then players take actions in turn (Attack and
+ * Defense up to 3 each, the last attacker is the Main Attacker). No Fate Numbers.
+ */
+export type GameMode = 'mutual' | 'open'
+
 export type Phase = 'setup' | 'skirmish' | 'combat' | 'regroup' | 'over'
 
 export interface AsLogEntry {
@@ -191,7 +207,7 @@ export interface AsState {
   phase: Phase
   step: Step
   /** Skirmish progress: reveals made this round, and who made the last one. */
-  skirmish: { reveals: number; last: Seat | null }
+  skirmish: { reveals: number; last: Seat | null; passed?: [boolean, boolean] }
   /** Engagements still to fight this round, by attacking seat. */
   queue: Seat[]
   engagement: Engagement | null
@@ -210,6 +226,8 @@ export interface AsState {
   rps?: [Hand | null, Hand | null]
   /** The reveal size rule (pairs for every game since Rulebook v2.6). */
   reveal?: RevealRule
+  /** The Skirmish rule (absent: Mutual Reveal). */
+  mode?: GameMode
   /** Fixed when combat starts: who stacks in each attack, and every card's values. */
   combat?: CombatLock | null
 }

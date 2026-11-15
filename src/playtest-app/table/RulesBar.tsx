@@ -18,6 +18,7 @@ import {
   prompt,
   responseMoves,
 } from '@/adventure/engine'
+import { slotName } from '@/adventure/board'
 import { other } from '@/adventure/state'
 import { engagementTotals } from '@/adventure/stats'
 import { seenBy } from '@/playtest/actions'
@@ -146,6 +147,52 @@ export function RulesBar({
         </Button>
       </>
     )
+  } else if (st.k === 'flip' || st.k === 'act') {
+    const mine = viewer === null || viewer === st.seat
+    const field = rules.players[st.seat].field
+    buttons = mine ? (
+      <>
+        {legalMoves(rules).map((m) => {
+          const key = JSON.stringify(m)
+          if (m.t === 'flip' || (m.t === 'ability' && st.k === 'act'))
+            return (
+              <Button
+                key={key}
+                size="sm"
+                variant="secondary"
+                title={abilityText(rules.cards[m.card]?.ability ?? '')}
+                onClick={() => play(m)}
+                data-testid={m.t === 'flip' ? 'rules-flip' : 'rules-ability'}
+              >
+                <span>
+                  <span className="font-semibold">{rules.cards[m.card]?.name}:</span>{' '}
+                  {m.t === 'flip' ? 'Flip' : abilityName(rules, st.seat, m.card)}
+                </span>
+              </Button>
+            )
+          if (m.t === 'attack' || m.t === 'defend')
+            return (
+              <Button
+                key={key}
+                size="sm"
+                variant="secondary"
+                onClick={() => play(m)}
+                data-testid={`rules-${m.t}`}
+              >
+                {m.t === 'attack' ? <Swords /> : null}
+                {m.t === 'attack' ? 'Attack' : 'Defend'}: {rules.cards[field[m.slot].card!]?.name} (
+                {slotName(m.slot)})
+              </Button>
+            )
+          return null
+        })}
+        {st.k === 'act' && (
+          <Button size="sm" onClick={() => play({ t: 'pass' })} data-testid="rules-pass">
+            Pass
+          </Button>
+        )}
+      </>
+    ) : null
   } else if (st.k === 'choose') {
     hint = st.options.some((o) => o.card || o.slot !== undefined)
       ? 'Tap a highlighted card, or pick below.'

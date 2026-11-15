@@ -14,8 +14,11 @@ The single source of truth for the card game. Git keeps the history, so there ar
 
 ## Changelog
 
+- 0.8.31-beta: Open Skirmish (`open-skirmish.md`), an alternate Skirmish to test in Play: every card revealed at once, Flip Abilities in turns, then Attack/Defense actions. No Fate Numbers.
 Newest first. Every card, balance or rule change gets a line here.
 
+- 2026-11-15 (0.8.32-beta): Open Skirmish: every field card goes to Support at Regroup; attaching a Living Weapon is an action (owner's call).
+- 2026-11-15 (0.8.31-beta): Open Skirmish (`open-skirmish.md`), an alternate Skirmish to test in Play: every card revealed at once, Flip Abilities in turns, then Attack/Defense actions. No Fate Numbers.
 - **2026-11-15, cards.csv:** The First Quest revision (owner's choice, to simplify the set). Crimson Duelist (TFQ-01) is now Flip 1/3/3: "Flip Ability: Target a card on your opponent's field. Put it in the rest zone, then replace it with a random card from their Support." Unassuming Mage (TFQ-37) keeps only the Ace bonus (Fear swap dropped). Runaway Familiar, Backwards Blade and Gambler's Gambit removed; Priestess of Rianz (was TUF-33), Volatile Cannoneer (was TUF-32) and Wildcard Wanderer (was TUF-34) join as TFQ-41/42/43. 185 cards. The engine and its tests are not updated yet.
 
 - **2026-11-01, balance:** first run with every card read by the engine and pairs as the rule (`balance/2026-11-01-v2.6-pairs.md`, 20,000 games). No card changed yet: the flags are Trailblazing Scout, Feinting Swordswoman, Bastion Sentinel, Falcon Strider, Dawnbreaker and Falcon Scout (too strong) and a set of too-weak cards, for the owner to decide.

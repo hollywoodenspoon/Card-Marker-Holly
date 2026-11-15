@@ -89,6 +89,15 @@ export function quickMove(s: AsState, r: Rng, light = false): Move {
       return legal.find((m) => m.t === 'first' && m.attacker === seat) ?? legal[0]
     case 'fs':
       return fsMove(s, seat, legal)
+    case 'flip':
+      return legal[roll(r, legal.length)]
+    case 'act': {
+      // Open Skirmish: now and then an ability, else turn a card, pass when none is left.
+      const abilities = legal.filter((m) => m.t === 'ability')
+      if (abilities.length && chance(r, LIGHT_USE)) return abilities[roll(r, abilities.length)]
+      const turns = legal.filter((m) => m.t === 'attack' || m.t === 'defend')
+      return turns.length ? turns[roll(r, turns.length)] : { t: 'pass' }
+    }
   }
 }
 
