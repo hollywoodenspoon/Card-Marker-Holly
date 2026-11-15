@@ -193,7 +193,7 @@ async function drawIconRow(
     let byImg = greyCache.get(img)
     if (!byImg) greyCache.set(img, (byImg = new Map()))
     let p = byImg.get(key)
-    if (!p) byImg.set(key, (p = greyImage(img, rects[0].w, rects[0].h)))
+    if (!p) byImg.set(key, (p = greyImage(img, rects[0].w, rects[0].h, true)))
     grey = await p
   }
   for (const [i, r] of rects.entries()) await t.image((slots[i] && grey) || img, r.x, r.y, r.w, r.h)

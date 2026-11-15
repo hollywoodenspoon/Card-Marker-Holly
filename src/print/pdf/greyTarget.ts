@@ -1,3 +1,4 @@
+import { evenGrey } from '../../core/render/greyImage'
 import { toGrey } from '../draft'
 import { decode } from './canvasTarget'
 import type { DrawTarget, PdfImage } from './drawTarget'
@@ -11,6 +12,7 @@ export async function greyImage(
   img: PdfImage,
   wMm: number,
   hMm: number,
+  even = false,
 ): Promise<PdfImage | undefined> {
   const src = await decode(img)
   if (!src) return undefined
@@ -26,15 +28,17 @@ export async function greyImage(
   ctx.drawImage(src, 0, 0, w, h)
   const data = ctx.getImageData(0, 0, w, h)
   const p = data.data
-  for (let i = 0; i < p.length; i += 4) {
-    const y = 0.299 * p[i] + 0.587 * p[i + 1] + 0.114 * p[i + 2]
-    p[i] = p[i + 1] = p[i + 2] = y
-  }
+  if (even) evenGrey(p)
+  else
+    for (let i = 0; i < p.length; i += 4) {
+      const y = 0.299 * p[i] + 0.587 * p[i + 1] + 0.114 * p[i + 2]
+      p[i] = p[i + 1] = p[i + 2] = y
+    }
   ctx.putImageData(data, 0, 0)
   const blob = await new Promise<Blob>((r) => canvas.toBlob((b) => r(b!), 'image/png'))
   return {
     kind: 'raster',
-    id: `${img.id}-grey-${w}x${h}`,
+    id: `${img.id}-grey${even ? 'e' : ''}-${w}x${h}`,
     format: 'PNG',
     data: new Uint8Array(await blob.arrayBuffer()),
     widthPx: w,
