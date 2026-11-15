@@ -1,5 +1,5 @@
 Name_AS,Code_AS,Type_AS,FS_AS,A_AS,D_AS,Fate_AS,Ability_AS,Deck_AS,Archetype_AS
-Crimson Duelist {ace},TFQ-01,Field,2,4,4,293,May not be the target of an opponent's Field Ability.,Adventurer's Guild,
+Crimson Duelist {ace},TFQ-01,Flip,1,3,3,293,"Flip Ability: Target a card on your opponent's field. Put it in the rest zone, then replace it with a random card from their Support.",Adventurer's Guild,
 Spirited Knight,TFQ-02,Battle,1,3,2,126,Attacking Side: +1 {fightingspirit_as}. Initiative: +1 {fightingspirit_as}.,Adventurer's Guild,
 Spiritforged Monk,TFQ-03,Battle,1,2,3,537,Initiative: +1 {fightingspirit_as}. Defending Side: +1 {fightingspirit_as}.,Adventurer's Guild,
 Strategic Vanguard,TFQ-04,Battle,1,2,3,550,Defending Side: You may swap one of your attackers to one of your defenders.,Adventurer's Guild,
@@ -35,13 +35,13 @@ Ghoulish Mammoth,TFQ-33,Rest,2,1,2,640,If a Ghoulish card is in your rest zone: 
 Ghoulish Stalker,TFQ-34,Battle,1,3,2,190,If a Ghoulish card was revealed as Fighting Spirit this Engagement: +1 {fightingspirit_as}.,Necromancer Deck,Ghoulish
 Undead Chimera,TFQ-35,Rest,2,2,1,267,Won First Engagement: You may use this card for Fighting Spirit this Engagement. It gets +1 {fightingspirit_as}.,Necromancer Deck,
 Abominable Bishop,TFQ-36,Rest,2,1,2,653,Lost Previous Engagement: You may use this card for Fighting Spirit this Engagement. It gets +1 {fightingspirit_as}.,Necromancer Deck,
-Unassuming Mage {ace},TFQ-37,Inherent,3,1,1,305,"If opponent has an Ace on their field: +3 {attack_as} and +3 {defense_as}. If opponent has a Fear card on their field: In the Skirmish, each time you get a response opportunity, you may first swap this card's position with another card on your field.",Bonus Cards,
+Unassuming Mage {ace},TFQ-37,Inherent,3,1,1,305,If opponent has an Ace on their field: +3 {attack_as} and +3 {defense_as}.,Bonus Cards,
 Coin-Toss Bravo,TFQ-38,Battle,1,3,1,100,"Flip a coin when revealed: Heads +2 {fightingspirit_as}, Tails +0 {fightingspirit_as} instead of printed value.",Bonus Cards,
 Ghoulish Trickster,TFQ-39,Flip,1,2,2,486,"Flip Ability: Swap the position of a Ghoulish card on your field (this card included) with another card on your field. To choose a face-down Ghoulish card, show it to your opponent; it stays face down.",Bonus Cards,Ghoulish
 Lucky Charm Bearer,TFQ-40,Battle,1,2,3,589,If you have 2 or more cards in your rest zone: +1 {fightingspirit_as}.,Bonus Cards,
-Runaway Familiar,TFQ-41,Inherent,1,2,1,280,"Whenever this card would be rested, it goes to your Support instead. This card cannot be rested to pay a cost.",Bonus Cards,
-Backwards Blade,TFQ-42,Inherent,2,1,3,666,2+ Rest Zone: This card's {attack_as} Value and {defense_as} Value are swapped.,Bonus Cards,
-Gambler's Gambit,TFQ-43,Rest,1,2,3,602,"Second Engagement: Flip a coin. Heads: you may use this card for Fighting Spirit this Engagement, and it gets +2 {fightingspirit_as}. Tails: nothing happens, and you may still reveal Fighting Spirit or pass.",Bonus Cards,
+Priestess of Rianz,TFQ-41,Support,2,2,2,435,Put a card from your rest zone into your Support.,Bonus Cards,Rianz
+Volatile Cannoneer,TFQ-42,Field,1,2,2,236,Target player rests a card from their Support.,Bonus Cards,
+Wildcard Wanderer,TFQ-43,Flip,1,3,2,216,Flip Ability: Swap a card on your field with a card from your Support. The card placed on the field is Ready.,Bonus Cards,
 Living Weapon Dusk,TFQ-44,Rest,1,2,1,437,No-Initiative: Attach this card to a ready card on your field.,Bonus Cards,Living Weapon
 Fear the First Shadow,TFQ-45,Flip,1,3,2,313,Flip Ability: Target an Ace on the opponent's field. It is turned to the ability-active position without resolving its ability.,Bonus Cards,
 Warchief of the Horde {ace},TUF-01,Inherent,2,3,3,152,Horde cards on your field cannot be repositioned by an opponent's ability.,The United Horde,Horde
@@ -75,9 +75,6 @@ Doomsayer,TUF-28,Inherent,2,3,1,196,If opponent has 3+ cards in their rest zone:
 Catacomb Priest,TUF-29,Field,2,1,3,622,Rest 1: Return a Ghoulish card from your rest zone to your Support.,Bonus Cards,
 Cackling Demon,TUF-30,Field,2,2,2,341,Rest 1: Opponent rests a card from their Support.,Bonus Cards,
 Prayerful Devotee,TUF-31,Field,3,1,2,508,Rest 1: Swap the target opponent's card's position with another card on their field.,Bonus Cards,
-Volatile Cannoneer,TUF-32,Field,1,2,2,236,Target player rests a card from their Support.,Bonus Cards,
-Priestess of Rianz,TUF-33,Support,2,2,2,435,Put a card from your rest zone into your Support.,Bonus Cards,Rianz
-Wildcard Wanderer,TUF-34,Flip,1,3,2,216,Flip Ability: Swap a card on your field with a card from your Support. The card placed on the field is Ready.,Bonus Cards,
 Sunlight Guardian {ace},TLC-01,Battle,1,4,3,304,Attacking Side: +2 {fightingspirit_as}. Defending Side: +1 {fightingspirit_as}.,Anti-Incursion,
 Solar Dawnblade,TLC-02,Battle,1,4,1,108,First Engagement: +1 {fightingspirit_as}. Attacking Side: +1 {fightingspirit_as}.,Anti-Incursion,
 Comet Lance,TLC-03,Battle,1,4,1,157,Second Engagement: +1 {fightingspirit_as}. Attacking Side: +1 {fightingspirit_as}.,Anti-Incursion,
