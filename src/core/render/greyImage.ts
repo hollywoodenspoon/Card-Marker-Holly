@@ -27,15 +27,28 @@ export function greyCopy(img: CanvasImageSource, vector = false): HTMLCanvasElem
   ctx.drawImage(img, 0, 0, w, h)
   try {
     const data = ctx.getImageData(0, 0, w, h)
-    const p = data.data
-    for (let i = 0; i < p.length; i += 4) {
-      const y = 0.299 * p[i] + 0.587 * p[i + 1] + 0.114 * p[i + 2]
-      p[i] = p[i + 1] = p[i + 2] = y
-    }
+    evenGrey(data.data)
     ctx.putImageData(data, 0, 0)
   } catch {
     /* tainted canvas: leave the colour copy */
   }
   cache.set(img, c)
   return c
+}
+
+/** Grey that every icon averages to, so red and green icons look the same grey. */
+const ICON_GREY = 150
+
+/** Greyscale RGBA pixels in place, shifted so the visible pixels average ICON_GREY. */
+export function evenGrey(p: Uint8ClampedArray): void {
+  let sum = 0
+  let weight = 0
+  for (let i = 0; i < p.length; i += 4) {
+    const y = 0.299 * p[i] + 0.587 * p[i + 1] + 0.114 * p[i + 2]
+    p[i] = y
+    sum += y * p[i + 3]
+    weight += p[i + 3]
+  }
+  const shift = weight ? ICON_GREY - sum / weight : 0
+  for (let i = 0; i < p.length; i += 4) p[i] = p[i + 1] = p[i + 2] = p[i] + shift
 }
