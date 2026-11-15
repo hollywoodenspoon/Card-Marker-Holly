@@ -26,6 +26,7 @@ import {
   HANDS,
   type After,
   type AsState,
+  type GameMode,
   type Hand,
   type PlayerState,
   type RevealCount,
@@ -53,6 +54,11 @@ export type Move =
   | { t: 'ability'; card: string; window?: true }
   /** Answer a choice inside an ability. */
   | { t: 'choose'; id: string }
+  /** Open Skirmish: resolve one of your Flip Abilities. */
+  | { t: 'flip'; card: string }
+  /** Open Skirmish: turn a Ready card to attack or to defend. */
+  | { t: 'attack'; slot: number }
+  | { t: 'defend'; slot: number }
   /** Rock-paper-scissors for the initiative. */
   | { t: 'throw'; hand: Hand }
   /** The rock-paper-scissors winner takes (or gives) the initiative. */
@@ -76,6 +82,8 @@ export interface NewGame {
    * 'triples' only replay games saved before then; see `savedGame`.
    */
   reveal?: RevealRule
+  /** The Skirmish rule: Mutual Reveal (default) or Open Skirmish (a test mode). */
+  mode?: GameMode
 }
 
 /**
@@ -98,6 +106,7 @@ export function createGame({
   opening,
   initiative: fixed,
   reveal,
+  mode,
 }: NewGame): AsState {
   const [r, s] = nextInt(seed, 2)
   const initiative = fixed ?? (r as Seat)
@@ -131,6 +140,7 @@ export function createGame({
     winner: null,
     log: [],
     reveal: reveal ?? 'pairs',
+    ...(mode === 'open' ? { mode } : {}),
   }
   return produce(state, (d) => {
     log(d, `New game: ${names[0]} against ${names[1]}.`)
@@ -402,6 +412,11 @@ function continueAfter(d: D, after: After) {
     case 'respond':
       d.step = { k: 'respond', seat: after.seat, final: after.final }
       return
+    case 'flipTurn':
+      return nextFlip(d, after.seat)
+    case 'act':
+      if (after.again) return void (d.step = { k: 'act', seat: after.seat })
+      return nextAct(d, after.seat)
     case 'triggers': {
       while (d.triggers?.length) {
         const t = d.triggers.shift()!
@@ -441,6 +456,10 @@ export function legalMoves(s: AsState): Move[] {
       return revealOptions(s, st.seat, st.count).map((slots) => ({ t: 'reveal', slots }))
     case 'respond':
       return [...responseMoves(s, st.seat), { t: 'pass' }]
+    case 'flip':
+      return s.flips.flatMap((f) => (f.owner === st.seat ? [{ t: 'flip', card: f.card }] : []))
+    case 'act':
+      return [...actMoves(s, st.seat), ...responseMoves(s, st.seat), { t: 'pass' }]
     case 'choose':
       return st.options.map((o) => ({ t: 'choose', id: o.id }))
     case 'first':
@@ -624,14 +643,16 @@ function play(d: D, m: Move) {
       return continueAfter(d, { k: 'flips', respond: opp })
     }
     case 'ability': {
-      if (st.k !== 'respond') return
+      if (st.k !== 'respond' && st.k !== 'act') return
+      const act = st.k === 'act'
+      const final = st.k === 'respond' && st.final
       if (m.window) {
         const ab = rulesOf(d, m.card)?.window
         log(d, `${p.name} uses ${cardName(d, m.card)}: ${ab?.name}.`)
         return startEffect(
           d,
           { owner: seat, card: m.card, mode: 'window' },
-          { k: 'respond', seat, final: st.final },
+          act ? { k: 'act', seat, again: true } : { k: 'respond', seat, final },
         )
       }
       const onField = p.field.some((f) => f.card === m.card)
@@ -646,8 +667,35 @@ function play(d: D, m: Move) {
       return startEffect(
         d,
         { owner: seat, card: m.card, mode },
-        st.final ? { k: 'assign' } : { k: 'nextReveal' },
+        act ? { k: 'act', seat } : final ? { k: 'assign' } : { k: 'nextReveal' },
       )
+    }
+    case 'flip': {
+      if (st.k !== 'flip') return
+      d.flips.splice(
+        d.flips.findIndex((f) => f.owner === seat && f.card === m.card),
+        1,
+      )
+      const ab = rulesOf(d, m.card)?.flip
+      const ctx: Ctx = { owner: seat, card: m.card, mode: 'flip' }
+      log(d, `Flip Ability: ${cardName(d, m.card)}: ${ab?.name}.`)
+      if (!ab || (ab.can && !ab.can(d, ctx))) {
+        log(d, `${cardName(d, m.card)}: nothing to target, so nothing happens.`)
+        return nextFlip(d, other(seat))
+      }
+      return startEffect(d, ctx, { k: 'flipTurn', seat: other(seat) })
+    }
+    case 'attack':
+    case 'defend': {
+      if (st.k !== 'act') return
+      const f = p.field[m.slot]
+      f.state = m.t === 'attack' ? 'attacking' : 'defending'
+      if (m.t === 'attack' && !(p.round.noMain ?? []).includes(f.card!)) p.mainAttacker = m.slot
+      log(
+        d,
+        `${p.name} turns ${cardName(d, f.card)} (${slotName(m.slot)}) to ${m.t === 'attack' ? 'attack' : 'defend'}.`,
+      )
+      return nextAct(d, seat)
     }
     case 'choose': {
       if (st.k !== 'choose' || !d.pending) return
@@ -662,6 +710,12 @@ function play(d: D, m: Move) {
       return resume(d)
     }
     case 'pass':
+      if (st.k === 'act') {
+        const passed = (d.skirmish.passed ??= [false, false])
+        passed[seat] = true
+        log(d, `${p.name} passes.`)
+        return nextAct(d, seat)
+      }
       if (st.k === 'respond') return st.final ? assign(d) : nextReveal(d)
       if (st.k === 'fs' && d.engagement) {
         d.engagement.passed[seat] = true
@@ -777,7 +831,94 @@ function startSkirmish(d: D) {
   d.results = []
   for (const p of d.players) p.round = newRound()
   log(d, `Round ${d.round}: Skirmish. ${nameOf(d, d.initiative)} has the initiative.`)
+  if (d.mode === 'open') return openReveal(d)
   nextReveal(d)
+}
+
+// ---- Open Skirmish (test mode) ----
+
+/** Every face-down card turns face up; then Flip Abilities, in turns. */
+function openReveal(d: D) {
+  d.skirmish.passed = [false, false]
+  d.flips = []
+  for (const seat of [d.initiative, other(d.initiative)]) {
+    const p = d.players[seat]
+    const turned = p.field.flatMap((f, i) => (f.card && !f.faceUp ? [i] : []))
+    if (!turned.length) continue
+    for (const i of turned) {
+      const f = p.field[i]
+      f.faceUp = true
+      if (f.state !== 'ability' && rulesOf(d, f.card!)?.flip)
+        d.flips.push({ owner: seat, card: f.card! })
+    }
+    log(d, `${p.name} reveals ${turned.map((i) => cardName(d, p.field[i].card)).join(', ')}.`)
+  }
+  nextFlip(d, d.initiative)
+}
+
+/** The next Flip pick: this seat if it has one left, else the other; then the actions. */
+function nextFlip(d: D, seat: Seat) {
+  for (const s of [seat, other(seat)])
+    if (d.flips.some((f) => f.owner === s)) return void (d.step = { k: 'flip', seat: s })
+  d.skirmish.last = null
+  nextAct(d, other(d.initiative))
+}
+
+/** Attack and Defense turns a player may take: Ready, face-up cards, up to 3 each. */
+export function actMoves(s: AsState, seat: Seat): Move[] {
+  const p = s.players[seat]
+  const extra = p.round.extra
+  const count = (k: 'attacking' | 'defending') =>
+    p.field.filter((f) => f.card && f.state === k && !(k === 'attacking' && extra.includes(f.card)))
+      .length
+  const out: Move[] = []
+  p.field.forEach((f, slot) => {
+    if (!f.card || !f.faceUp || f.state !== 'ready') return
+    if (count('attacking') < 3 || extra.includes(f.card)) out.push({ t: 'attack', slot })
+    if (count('defending') < 3) out.push({ t: 'defend', slot })
+  })
+  return out
+}
+
+/** The other player acts next, unless they passed; both passed: Battle. */
+function nextAct(d: D, acted: Seat) {
+  const passed = (d.skirmish.passed ??= [false, false])
+  d.skirmish.last = acted
+  const next = other(acted)
+  if (!passed[next]) return void (d.step = { k: 'act', seat: next })
+  if (!passed[acted]) return void (d.step = { k: 'act', seat: acted })
+  openAssign(d)
+}
+
+/** Both passed: the Main Attacker is the last card turned to attack. */
+function openAssign(d: D) {
+  for (const seat of SEATS) {
+    const p = d.players[seat]
+    // Extra attackers (Howling Barbarian) still Ready join the attack.
+    p.field.forEach((f) => {
+      if (f.card && f.state === 'ready' && p.round.extra.includes(f.card)) f.state = 'attacking'
+    })
+    const noMain = p.round.noMain ?? []
+    const okMain = (i: number | null) =>
+      i !== null && p.field[i].state === 'attacking' && !noMain.includes(p.field[i].card!)
+    if (!okMain(p.mainAttacker))
+      p.mainAttacker = p.field.findIndex((_, i) => okMain(i))
+    if (p.mainAttacker === -1) p.mainAttacker = null
+    const names = (k: string) =>
+      p.field.flatMap((f) => (f.card && f.state === k ? [cardName(d, f.card)] : [])).join(', ')
+    log(
+      d,
+      `${p.name}: Main Attacker ${p.mainAttacker !== null ? `${cardName(d, p.field[p.mainAttacker].card)} (${slotName(p.mainAttacker)})` : 'none'}; attacking: ${names('attacking') || 'none'}; defending: ${names('defending') || 'none'}.`,
+    )
+  }
+  d.triggers = [d.initiative, other(d.initiative)].flatMap((seat) =>
+    d.players[seat].field.flatMap((f) =>
+      f.card && f.faceUp && f.state === 'defending' && rulesOf(d, f.card)?.onStack
+        ? [{ owner: seat, card: f.card, mode: 'onStack' as const }]
+        : [],
+    ),
+  )
+  continueAfter(d, { k: 'triggers', then: 'combat' })
 }
 
 function nextReveal(d: D) {
@@ -1025,6 +1166,10 @@ export function prompt(s: AsState): string {
       return st.final
         ? `${who}: final response. Use an ability, or pass.`
         : `${who}: respond with an ability, or pass.`
+    case 'flip':
+      return `${who}: choose which of your Flip Abilities resolves next.`
+    case 'act':
+      return `${who}: turn a card to attack or defend, use an ability, or pass.`
     case 'choose':
       return `${who}: ${st.prompt.replace(/^Choose/, 'choose')}`
     case 'first':
