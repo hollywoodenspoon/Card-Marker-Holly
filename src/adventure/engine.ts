@@ -691,6 +691,7 @@ function play(d: D, m: Move) {
       if (st.k !== 'act') return
       const f = p.field[m.slot]
       f.state = m.t === 'attack' ? 'attacking' : 'defending'
+      if (m.t === 'attack') p.round.lastAttack = m.slot
       if (m.t === 'attack' && !(p.round.noMain ?? []).includes(f.card!)) p.mainAttacker = m.slot
       log(
         d,
@@ -875,7 +876,10 @@ export function actMoves(s: AsState, seat: Seat): Move[] {
   const out: Move[] = []
   p.field.forEach((f, slot) => {
     if (!f.card || !f.faceUp || f.state !== 'ready') return
-    if (count('attacking') < 3 || extra.includes(f.card)) out.push({ t: 'attack', slot })
+    // Each attacker after the first is declared next to the previous one.
+    const last = p.round.lastAttack
+    const next = last === undefined || adjacent(slot, last)
+    if (next && (count('attacking') < 3 || extra.includes(f.card))) out.push({ t: 'attack', slot })
     if (count('defending') < 3) out.push({ t: 'defend', slot })
   })
   return out
@@ -905,6 +909,8 @@ function openAssign(d: D) {
     if (!okMain(p.mainAttacker))
       p.mainAttacker = p.field.findIndex((_, i) => okMain(i))
     if (p.mainAttacker === -1) p.mainAttacker = null
+    // Every declared attacker joins the Main Attacker's stack.
+    if (p.mainAttacker !== null) p.round.attackUnbound = true
     const names = (k: string) =>
       p.field.flatMap((f) => (f.card && f.state === k ? [cardName(d, f.card)] : [])).join(', ')
     log(
