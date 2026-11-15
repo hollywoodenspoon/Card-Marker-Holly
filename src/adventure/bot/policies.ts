@@ -266,7 +266,6 @@ function openMove(s: AsState, seat: Seat, legal: Move[], r: Rng): Move {
     let x = applyFast(guess, m)
     for (let n = 0; n < 60 && (x.step.k === 'act' || x.step.k === 'flip' || x.step.k === 'choose'); n++) {
       const st = x.step
-      if (st.k === 'over') break
       const moves = legalMoves(x)
       const next =
         st.k === 'choose'
