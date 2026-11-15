@@ -7,11 +7,11 @@ This is a licence to use the program, not a sale of it. By running it, you
 agree to these terms.
 
 1. What you may do. Install and use the program on computers you own or
-   control, for your own personal or commercial card projects. You may keep
-   backup copies of the program file for yourself.
+   control, for your own personal or commercial card projects. You may copy
+   the program file and share it with others, free of charge, as long as it
+   is unchanged and these terms come with it.
 
-2. What you may not do. Copy the program for others, share it, sell it, rent
-   it or lend it; change, decompile, disassemble or reverse engineer it, or try
+2. What you may not do. Sell or rent the program; change, decompile, disassemble or reverse engineer it, or try
    to get at its source code, except where the law allows this despite these
    terms; remove or change its copyright notices; or use it to build a
    competing product.

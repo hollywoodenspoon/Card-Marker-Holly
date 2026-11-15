@@ -1,0 +1,291 @@
+# Battle Journal: design outline
+
+The big picture only. Numbers, names and details are still open and are marked "later".
+
+## The game
+
+- A physical co-op board game for 1 to 6 players.
+- The players fight one boss per game.
+- There are no fixed roles. Equipment decides what each player can do.
+- It should feel like an RPG boss battle.
+
+## The board: the boss book
+
+- The board is a notebook. Each two-page spread is one boss.
+- One page holds the boss's details:
+  - its **health**,
+  - its **damage threshold**: the damage needed to remove 1 of its health,
+  - its **style**: the mechanic it plays around,
+  - how many cards it draws at the start,
+  - the thresholds where it draws more (on health, or on its style's own tracker).
+- Damage dealt to the boss is counted up. Each time the count reaches the damage threshold, the boss loses 1 health and the count starts again.
+- A boss's health is fixed. Only its damage threshold increases with the number of players. Each boss has its own numbers. The baseline and how much it scales: later.
+- For now we are designing a **template boss**: one generic boss to build and test the rules on before the real bosses.
+
+### Template boss
+
+- Health: 10.
+- Draws +1 card per turn at 5 health and +1 more at 2 health.
+
+| Players | Cards drawn per turn |
+| --- | --- |
+| 1 to 2 | 2 |
+| 3 to 4 | 3 |
+| 5 to 6 | 4 |
+- The other page holds the boss's hex grid, with the boss artwork looming over or around it.
+- Each boss has its own grid size and layout.
+- How many bosses the book has: later.
+
+## Zones
+
+- Every map has the same three zones: **Frontline**, **Midline** and **Rearline**. Each hex belongs to one, shown by its coloured border.
+- Because every map shares these zones, any boss card works on any map.
+- Zones are also ability range: each ability says which zone(s) you can use it from.
+- Hexes can carry symbols for precise boss mechanics, for example "stand on the Frontline star to soak damage for everyone". Which symbols to use: later.
+- Every boss has a **style**: a mechanic it plays around. Styles don't have to be unique; bosses can share one. A style can change what makes the boss draw more cards, or add a way for the players to lose.
+  - Example: a boss that wins at 40 points. Each boss turn it gains points for every add it has on the map. At set point thresholds it draws more cards, instead of at health thresholds.
+- Styles so far:
+  - **Standard:** draws more cards at health thresholds. The template boss uses it.
+  - **Summoner:** the example above. Wins at 40 points from its adds.
+  - **Siege:** the boss attacks a wall or gate on the map. The players lose if it breaks. Each hit the boss lands on the wall moves its tracker. Players can stand on wall hexes to take the hits instead.
+  - **Shield Phases:** the boss can't take damage until the players break crystals or pillars on the map. Breaking them all exposes the boss for a few rounds, then the shield returns.
+  - **Countdown:** the boss wins after 20 turns. It draws more cards at set points on the turn counter. Which points: later.
+
+## Round structure
+
+1. All players act in one shared players' turn. No one goes first: they play at the same time and coordinate their actions.
+2. The boss takes its turn.
+
+## Player turns
+
+- Each player has a fixed number of actions per turn, 2 for now.
+- Actions include moving and using an ability. The rest of the list: later.
+- A move action moves you 1 hex. Speed tokens add to that.
+- **Free actions** cost no AP. You can do one before or after any action, but only 1 free action per turn. Using a Cantrip is a free action.
+
+## Equipment
+
+- Each player has 3 slots:
+  - **Main hand:** a one-handed or two-handed weapon.
+  - **Off hand:** can't be used with a two-handed main hand.
+  - **Armour:** has no armour value (it never reduces damage on its own) and never deals damage; its abilities give buffs, movement or similar. Every player starts at 15 health, whatever their armour (for now). Health has no cap: healing can take a player above their starting health.
+- Off hands can be a second source of damage or a utility.
+- An equipment card shows the abilities you can use.
+- After you use an ability, the card flips to its other face, which has a different set of abilities.
+- At the start of the game, each player chooses which face each of their equipment cards starts on. So the face numbers below are only labels.
+- Abilities per face:
+
+  | Card | Abilities per face |
+  | --- | --- |
+  | One-handed main hand | 1 |
+  | Two-handed main hand | 2 |
+  | Off hand | 1 |
+  | Armour | 1 |
+
+  Either way you get 2 hand abilities per face. A two-hander keeps both on one card, which flips as a whole. A one-hander plus an off hand splits them over two cards that flip separately.
+
+## Other player cards
+
+- Besides equipment, players can have **Cantrips**: single-use items or spells, drawn from a shared **Cantrip deck**. The Dagger's Mug draws from it. A used Cantrip goes to the bottom of the deck, unless it says it is removed for the rest of the game.
+- Each player starts the game with 1 Cantrip. How else players get Cantrips: later.
+- A player can hold at most 3 Cantrips.
+- A player can pass a Cantrip to an adjacent player as a free action. You can't pass to a player who already holds 3 Cantrips, or to an incapacitated player. An incapacitated player can't pass Cantrips either.
+- There is only 1 copy of each Cantrip.
+- Cantrips vary a lot: some are powerful, some are not.
+- Their main job is to cover the holes in the current equipment. Examples:
+  - potions that restore health or give a buff,
+  - magic scrolls that cast spells, such as one that flips your equipment card to the face you choose.
+
+### Cantrips
+
+- **Ankh of Resurrection:** if its owner is incapacitated, they are revived with 1 health. The Ankh is then removed for the rest of the game.
+- **Scroll of Dark Inferno:** sacrifice all your health except 1. Deal X damage to every enemy, where X is the health sacrificed. The Scroll is then removed for the rest of the game.
+- **Healing Salve:** restore 3 health. Then put it at the bottom of the Cantrip deck.
+- **Potion of Swiftness:** gain 5 speed tokens. Then put it at the bottom of the Cantrip deck.
+- **Scroll of Lightning:** deal 3 damage to a target. Then put it at the bottom of the Cantrip deck.
+- **Scroll of Warping:** move to any hex you choose. Then put it at the bottom of the Cantrip deck.
+- **Dice of Fate:** your next damage-dealing action deals 1d6 damage instead (before token buffs are added). Then put it at the bottom of the Cantrip deck.
+- **Mom's Packed Lunch:** gain 1 health and 1 token of your choice. Then put it at the bottom of the Cantrip deck.
+- **Cursed Helm:** as long as you hold it, you cannot gain health from any source (reviving counts as gaining health, so you can't be revived), and all your damage gets +1 (before token buffs are added).
+- **Dwarven Boomstick:** deal 5 damage to a target, then take 2 damage. Then put it at the bottom of the Cantrip deck.
+- **Box of Fireworks:** shuffle the boss deck and the Cantrip deck. Then put it at the bottom of the Cantrip deck.
+- **Scroll of Time:** lose all your health. The players get another turn after this one. The Scroll is then removed for the rest of the game.
+- **Scroll of Spirit Summoning:** summon a Spirit Knight, a Spirit Mage or a Spirit Archer to an adjacent hex. The Scroll is then removed for the rest of the game.
+- **Trickster Branch:** deal 5 damage to another player of your choice, and deal 5 damage to a target. Then put it at the bottom of the Cantrip deck.
+- **Half-Eaten Sandwich:** gain 1 health. Then put it at the bottom of the Cantrip deck.
+- **Potion of Offense:** gain 2 offense tokens. Then put it at the bottom of the Cantrip deck.
+- **Potion of Defense:** gain 2 defense tokens. Then put it at the bottom of the Cantrip deck.
+- **Horn of the Wind:** every player may move to a hex of their choice. Then you take 5 damage. The Horn is then removed for the rest of the game.
+- **Evil Skull:** does nothing. You may put it at the bottom of the Cantrip deck by taking 1 damage.
+- **Grocery List:** look at the top 2 cards of the Cantrip deck. Take one and put the other at the bottom of the deck. Then put it at the bottom of the Cantrip deck.
+- **Card of Fate:** look at the top 2 cards of the boss deck. Remove one from the game and put the other back on top of the deck. The Card of Fate is then removed for the rest of the game.
+- **Scroll of Falling Rocks:** deal 1 damage to every enemy. Then put it at the bottom of the Cantrip deck.
+- **Hasty Pepper:** gain 1 action point. Then put it at the bottom of the Cantrip deck.
+- **Crystal Ball:** look at the top card of the boss deck. You may put it at the bottom. Then put it at the bottom of the Cantrip deck.
+- **Bard's Lute:** every adjacent player gains 1 token of their choice. Then put it at the bottom of the Cantrip deck.
+- **Gambler's Coin:** flip a coin. Heads: gain 2 action points. Tails: lose 1 action point. Then put it at the bottom of the Cantrip deck.
+
+### Summons
+
+- Each summon has its own card: 1 card with 1 ability per face, flipping like equipment.
+- A summon is treated as a player. The player who summoned it controls it, like a second player, but it has only 1 action per turn.
+- A summon has 1 health.
+- Summons so far: Spirit Knight, Spirit Mage, Spirit Archer.
+
+**Spirit Knight**
+- Face 1, **Slash** (1 AP, Frontline only): deal 1 damage.
+- Face 2, **Defend** (1 AP): during the boss turn, take the damage dealt to an adjacent player instead of them.
+
+**Spirit Archer**
+- Face 1, **Shot** (1 AP): deal 1 damage.
+- Face 2, **Overwatch** (1 AP): during the boss turn, if the boss is about to damage an adjacent player, first deal 1 damage to the boss.
+
+**Spirit Mage**
+- Face 1, **Spirit Bolt** (1 AP, Midline only): deal 1 damage. The player who summoned this spirit gains 1 token of their choice.
+- Face 2, **Warp to Ally** (1 AP): move to a hex adjacent to the player who summoned this spirit.
+
+## Components and printing
+
+- All cards are ID-card size (85.6 x 54 mm), because the owner's cutter is made for that size.
+- An A4 sheet holds 9 cards (3 x 3).
+- There is one copy of each player card:
+
+  | Card | Count |
+  | --- | --- |
+  | One-handed main hand | 4 |
+  | Two-handed main hand | 2 |
+  | Off hand | 4 |
+  | Armour | 6 |
+  | Cantrip | 26 so far; target 36 |
+| Summon | 3 |
+  | **Total** | **45 so far (5 sheets, full)** |
+
+- Armour is 3 types with 2 copies each (assumed from the 3 names below).
+
+### The equipment
+
+| Slot | Cards |
+| --- | --- |
+| One-handed main hand | Sword, Wand, Mace, Light Crossbow |
+| Two-handed main hand | Longbow, Lance |
+| Off hand | Shield, Book, Dagger, Torch |
+| Armour | Plate Armour (heavy), Brigandine (medium), Linen Cuirass (light) |
+
+### Armour abilities
+
+Light descriptions, no numbers yet. Abilities cost action points (AP) out of the player's 2 per turn.
+
+**Plate Armour (heavy)**
+- Face 1, **Brace** (1 AP): gain a defense token. A player can spend any number of their defense tokens to reduce incoming damage.
+- Face 2, **Bulwark** (2 AP): the player takes no damage and ignores forced movement from map effects until their next turn.
+
+**Brigandine (medium)**
+- Face 1, **Fighting Spirit** (1 AP): gain 1 offense token. A player can spend any number of their offense tokens on a damage-dealing attack, each adding +1 damage.
+- Face 2, **Momentum** (free action): use it only after a weapon ability this turn. Your next weapon ability this turn costs 1 AP less.
+
+**Linen Cuirass (light)**
+- Face 1, **Anticipation** (2 AP): until the start of your next turn, each time you are about to take damage during the boss turn, you may first move 1 hex.
+- Face 2, **Lightweight** (1 AP): gain 1 speed token.
+
+### Main-hand abilities
+
+**Sword**
+- Face 1, **Swift Stab** (1 AP, Frontline only): deal 2 damage.
+- Face 2, **Disengaging Strike** (1 AP, from a Frontline hex next to a Midline hex): deal 3 damage, then move to an adjacent Midline hex.
+
+**Wand**
+- Face 1, **Time Blast** (2 AP, Rearline only): deal 3 damage. Then look at the top 2 + X cards of the boss deck, where X is the number of other players. You may reorder them, then put them back on top.
+- Face 2, **Arcane Bolt** (1 AP, Midline only): deal 1 damage, then choose a player. They gain 1 token of their choice.
+
+**Light Crossbow**
+- Face 1, **Trigger Happy** (1 AP, Midline or Rearline only): deal 1 damage and gain 1 token of your choice.
+- Face 2, **Flaming Bolt** (1 AP, from a Midline hex next to a Rearline hex): deal 3 damage, then move to an adjacent Rearline hex.
+
+**Mace**
+- Face 1, **Brutal Smash** (1 AP, from a Midline hex next to a Frontline hex): spend any number (X) of your tokens, of any type, to deal 2 + X damage.
+- Face 2, **Wide Swing** (1 AP, Frontline only): deal 2 damage and gain 1 offense token. Then take 1 damage and move to an adjacent Frontline hex.
+
+**Lance** (two-handed)
+- Face 1:
+  - **Ready Lance** (1 AP, Midline only): gain 2 offense tokens.
+  - **Lance Stab** (1 AP, Frontline only): deal 2 damage.
+- Face 2:
+  - **Lance Charge** (1 AP, from a Midline hex next to a Frontline hex): deal 3 damage. You may spend exactly 2 offense tokens to deal 7 damage instead (no more than 2). Then move to an adjacent Frontline hex.
+  - **Lance Jump** (2 AP, any zone): spend any number (X) of your tokens, of any type, to deal X damage to a target. Then move to any Frontline hex.
+
+**Longbow** (two-handed)
+- Face 1:
+  - **Aim** (2 AP, Rearline only): your first damage-dealing action next turn deals triple damage, before token buffs are added.
+  - **Quick Shot** (1 AP, Midline or Rearline only): deal 2 damage.
+- Face 2:
+  - **Unleash** (2 AP, Rearline only): deal 3 damage. You can use it only if you used Aim last turn.
+  - **Arrow Rain** (1 AP, Rearline only): deal 1 damage to every enemy.
+
+### Off-hand abilities
+
+**Shield**
+- Face 1, **Shield Stance** (2 AP): gain 1 defense token. Then, until the start of your next turn, you may spend any number of your defense tokens to reduce damage taken by an adjacent player during the boss turn.
+- Face 2, **Shield Bash** (1 AP, Frontline or Midline only): gain 1 defense token, then spend any number of defense tokens to deal that much damage to a target. Offense tokens can add to it, but only if you spend at least 1 defense token. You may spend none: you deal 0 damage and can't add offense tokens, but you still gain the defense token and the card still flips.
+
+**Book**
+- Face 1, **Revival** (2 AP): target a player (you can target yourself). Spend any mix of your offense, defense and speed tokens to restore that much health to them. If they are incapacitated, this also revives them, but only if you spend at least 1 token.
+- Face 2, **Raise Spirit** (2 AP): you and every adjacent player each gain 1 offense, defense or speed token of their choice.
+
+**Dagger**
+- Face 1, **Exposing Strike** (1 AP, Frontline only): deal 1 damage. Your next damage this turn is doubled, before token buffs are added.
+- Face 2, **Mug** (1 AP, Frontline only): deal 1 damage and draw a card from the Cantrip deck.
+
+**Torch**
+- Face 1, **Light of Hope** (1 AP, Midline only): must be your first action. You and every adjacent player each gain 1 offense, defense or speed token of their choice. You can't use an armour action after this, this turn.
+- Face 2, **Flame of Courage** (2 AP, Frontline only): target a player other than yourself. They get 2 extra actions this turn. (You wave the flame to draw the enemy's ire, buying them time for powerful strikes.)
+
+### Tokens
+
+Players keep tokens until they spend them. Any number can be spent at once.
+
+| Token | Spend it to |
+| --- | --- |
+| Defense | Reduce incoming damage by 1 each. |
+| Offense | Add +1 damage each to a damage-dealing attack. |
+| Speed | Add +1 movement each to a move action. |
+
+
+- The Cantrip deck will hold many varied designs, one copy each.
+- Equipment has two faces, so those sheets are printed double-sided.
+- Boss cards are not counted here yet.
+
+## The boss deck
+
+- The boss runs itself from a deck of cards. There is no game master.
+- Each card has a cost.
+- On its turn the boss draws a number of cards and reveals them one at a time:
+  - If the boss's **Power level** is at least the card's cost, the card is played. The Power level is checked, not spent.
+  - Otherwise the card goes face down into the boss's Power level pile, raising its Power level by 1.
+- The Power level never shrinks and has no cap, so the boss grows stronger over the fight.
+- When the deck runs out, it is reshuffled.
+- At set health thresholds the boss draws more cards each turn.
+- How many cards the boss draws, and how this scales with player count: later.
+
+## Boss card types
+
+The boss has three card types for now:
+
+- **Map attacks:** revealed on one boss turn, they go off on the next boss turn. Players have one round to respond, for example by dodging out of an area attack or stacking together.
+- **Direct effects:** happen right away on the boss's turn, for example dealing damage to all players or flipping players' equipment cards.
+- **Summon effects:** put something on the map, such as enemy adds or obstacles.
+  - Adds cannot act on the boss turn they arrive, like summoning sickness. From the next boss turn on, they attack a player every boss turn.
+
+## Boss move sets
+
+- Each boss comes with its own designed deck.
+- Players can mix cards from different decks into a custom move set and pair it with any boss.
+
+## Death and revive
+
+- A player at 0 health is incapacitated and stays down unless a teammate uses a revive ability, such as the Book's Revival.
+
+## Winning and losing
+
+- The players win when the boss's health reaches 0.
+- They lose if every player is dead, or if the boss's style gives it another win condition and it reaches it.
+- A boss may have a hard or soft enrage. This is set per boss: later.

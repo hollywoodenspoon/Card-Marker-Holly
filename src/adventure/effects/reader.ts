@@ -530,6 +530,10 @@ const PHRASES: Phrase[] = [
     (g) => (g.rested ? B.swapOutAndRest : B.opponentSwapOut),
   ),
   action(
+    "target a card on your opponent's field\\. put it in the rest zone, then replace it with a random card from their support",
+    () => B.restAndReplace,
+  ),
+  action(
     'swap a card on your field with a card from your support\\. the card placed on the field is ready',
     () => B.ownSwapIn,
   ),
