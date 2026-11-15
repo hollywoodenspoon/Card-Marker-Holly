@@ -11,6 +11,7 @@ import { plainText } from '@/core/text/richtext'
 import {
   columnIndex,
   columnLetter,
+  greyColumnFor,
   lettersFromHeaders,
   nameColumnFromHeaders,
   parseRows,
@@ -188,5 +189,29 @@ describe('card name column from headers', () => {
     expect(nameColumnFromHeaders(['Title', 'Name'])).toBe('B')
     expect(nameColumnFromHeaders(['Title', 'Rules'])).toBe('A')
     expect(nameColumnFromHeaders(['Nickname', 'Rename', 'Cost'])).toBeUndefined()
+  })
+})
+
+describe('grey icon columns', () => {
+  it('finds the grey column by its header', () => {
+    expect(greyColumnFor(['FS_AS', 'A_AS', 'FS_Grey_AS'], 'A')).toBe('C')
+    expect(greyColumnFor(['Attack', 'Attack Grey'], 'A')).toBe('B')
+    expect(greyColumnFor(['FS', 'Grey FS'], 'A')).toBe('B')
+    expect(greyColumnFor(['Attack', 'Greyhound'], 'A')).toBeUndefined()
+    expect(greyColumnFor(['FS_AS', 'A_Grey_AS'], 'A')).toBeUndefined()
+  })
+
+  it('reads the grey count next to the coloured one', () => {
+    const { front, back, ctx } = setup()
+    const t: Table = [
+      ['Title', 'Rules', 'Art', 'Attack', 'Attack_Grey'],
+      ['A', '', '', '2', '3'],
+      ['B', '', '', '1', 'x'],
+      ['C', '', '', '1', ''],
+    ]
+    const plan = planMerge(t, { frontTemplateId: front.id, backTemplateId: back.id }, ctx)
+    expect(plan.cards[0].values.Attack).toEqual({ kind: 'count', count: 2, grey: 3 })
+    expect(plan.cards[2].values.Attack).toEqual({ kind: 'count', count: 1 })
+    expect(plan.issues.some((i) => i.row === 3 && /grey/.test(i.message))).toBe(true)
   })
 })

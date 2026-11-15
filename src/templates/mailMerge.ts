@@ -179,6 +179,7 @@ export function planMerge(table: Table, s: MergeSettings, ctx: MergeContext): Me
     for (const c of [...ctx.cards].sort((a, b) => a.order - b.order))
       if (c.mergeRow !== undefined && !byRow.has(c.mergeRow)) byRow.set(c.mergeRow, c)
   const taken = ctx.cards.map((c) => c.name)
+  const header = table[Math.max(1, Math.floor(s.firstRow ?? 2)) - 2] ?? []
 
   const cards: PlannedCard[] = []
   for (const row of rows) {
@@ -212,9 +213,16 @@ export function planMerge(table: Table, s: MergeSettings, ctx: MergeContext): Me
       if (el.type === 'text') values[fieldName] = { kind: 'text', text: richTextFromPlain(v) }
       else if (el.type === 'iconRow') {
         const n = Number(v)
-        if (Number.isFinite(n) && n >= 0)
+        if (Number.isFinite(n) && n >= 0) {
           values[fieldName] = { kind: 'count', count: Math.round(n) }
-        else issues.push({ row, message: `“${fieldName}” needs a number, not “${v}”.` })
+          const g = cell(table, row, greyColumnFor(header, el.mergeColumn))
+          if (g) {
+            const gn = Number(g)
+            if (Number.isFinite(gn) && gn >= 0)
+              values[fieldName] = { kind: 'count', count: Math.round(n), grey: Math.round(gn) }
+            else issues.push({ row, message: `“${fieldName}” grey needs a number, not “${g}”.` })
+          }
+        } else issues.push({ row, message: `“${fieldName}” needs a number, not “${v}”.` })
       } else {
         const a = findImage(ctx.assets, v)
         if (!a) {
@@ -254,6 +262,24 @@ export function planMerge(table: Table, s: MergeSettings, ctx: MergeContext): Me
   }
   const updates = cards.filter((c) => c.cardId).length
   return { cards, rowsRead: rows.length, updates, adds: cards.length - updates, issues }
+}
+
+/**
+ * The grey-icon column for an icon row's column: the header that is the same
+ * name with a "Grey" word added (FS_AS → FS_Grey_AS, Attack → Attack Grey).
+ */
+export function greyColumnFor(headerRow: string[], letter: string | undefined) {
+  const i = columnIndex(letter)
+  const norm = (h: string) => h.trim().toLowerCase()
+  const base = i === undefined ? '' : norm(headerRow[i] ?? '')
+  if (!base) return undefined
+  const j = headerRow.findIndex(
+    (h, k) =>
+      k !== i &&
+      /(^|[_ -])grey([_ -]|$)/.test(norm(h)) &&
+      norm(h).replace(/^grey[_ -]|[_ -]?grey(?=[_ -]|$)/, '') === base,
+  )
+  return j >= 0 ? columnLetter(j) : undefined
 }
 
 /** Header names from a row, for "use header names": field name → column letter. */

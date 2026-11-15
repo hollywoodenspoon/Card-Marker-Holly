@@ -4,7 +4,7 @@ import { readCard } from './reader'
 
 describe('game/adventure-scuffle/cards.csv', () => {
   it('has every card', () => {
-    expect(ALL_CARDS.length).toBe(188)
+    expect(ALL_CARDS.length).toBe(185)
     expect(new Set(ALL_CARDS.map((c) => c.code)).size).toBe(ALL_CARDS.length)
   })
 

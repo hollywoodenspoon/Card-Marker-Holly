@@ -618,6 +618,42 @@ function payCost(d: D, ctx: Ctx, cards: string[]) {
   for (const c of cards) rest(d, ctx.owner, c)
 }
 
+/** Rest target opponent's field card and replace it with a random card from their Support. */
+export const restAndReplace: Ability<number> = {
+  name: "Rest an opponent's field card and replace it with a random Support card",
+  can: (s, ctx) => s.players[other(ctx.owner)].support.length > 0,
+  plan(io) {
+    const opp = other(io.ctx.owner)
+    return slotFromId(
+      io.pick(
+        io.ctx.owner,
+        "Choose the opponent's card to rest.",
+        io.s.players[opp].field
+          .map((_, i) => i)
+          .filter(
+            (i) =>
+              !!io.s.players[opp].field[i].card &&
+              touchable(io.s, io.ctx, opp, i, { target: true, move: true }),
+          )
+          .map((i) => slotOption(io.s, opp, i, io.ctx.owner)),
+      ),
+    )
+  },
+  apply(d, ctx, slot) {
+    const opp = other(ctx.owner)
+    const sup = d.players[opp].support
+    const old = d.players[opp].field[slot].card
+    if (!sup.length || !old) return
+    const card = sup[rand(d, sup.length)]
+    swapIn(d, opp, slot, card, false)
+    log(
+      d,
+      `${cardName(d, ctx.card)}: ${cardName(d, old)} is rested and a random card from ${d.players[opp].name}'s Support takes its place.`,
+    )
+    rest(d, opp, old)
+  },
+}
+
 /** The card the ability swaps out is rested too. */
 export const swapOutAndRest: Ability<number> = {
   ...opponentSwapOut,
