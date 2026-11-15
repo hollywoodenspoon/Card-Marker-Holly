@@ -179,7 +179,9 @@ export function planMerge(table: Table, s: MergeSettings, ctx: MergeContext): Me
     for (const c of [...ctx.cards].sort((a, b) => a.order - b.order))
       if (c.mergeRow !== undefined && !byRow.has(c.mergeRow)) byRow.set(c.mergeRow, c)
   const taken = ctx.cards.map((c) => c.name)
-  const header = table[Math.max(1, Math.floor(s.firstRow ?? 2)) - 2] ?? []
+  const above = table[Math.max(1, Math.floor(s.firstRow ?? 2)) - 2] ?? []
+  const hasGrey = (r: string[] | undefined) => !!r?.some((h) => /gr[ea]y/i.test(h))
+  const header = hasGrey(above) ? above : (table.slice(0, 5).find(hasGrey) ?? above)
 
   const cards: PlannedCard[] = []
   for (const row of rows) {
@@ -209,21 +211,26 @@ export function planMerge(table: Table, s: MergeSettings, ctx: MergeContext): Me
     const values: Record<string, FieldValue> = {}
     for (const [fieldName, el] of fields) {
       const v = cell(table, row, el.mergeColumn)
+      if (el.type === 'iconRow') {
+        const g = cell(table, row, greyColumnFor(header, el.mergeColumn))
+        if (!v && !g) continue
+        const n = v ? Number(v) : countOf(existing, fieldName, el)
+        const gn = g ? Number(g) : undefined
+        if (!Number.isFinite(n) || n < 0) {
+          issues.push({ row, message: `“${fieldName}” needs a number, not “${v}”.` })
+          continue
+        }
+        const value: FieldValue & { kind: 'count' } = { kind: 'count', count: Math.round(n) }
+        if (gn !== undefined) {
+          if (Number.isFinite(gn) && gn >= 0) value.grey = Math.round(gn)
+          else issues.push({ row, message: `“${fieldName}” grey needs a number, not “${g}”.` })
+        }
+        values[fieldName] = value
+        continue
+      }
       if (!v) continue
       if (el.type === 'text') values[fieldName] = { kind: 'text', text: richTextFromPlain(v) }
-      else if (el.type === 'iconRow') {
-        const n = Number(v)
-        if (Number.isFinite(n) && n >= 0) {
-          values[fieldName] = { kind: 'count', count: Math.round(n) }
-          const g = cell(table, row, greyColumnFor(header, el.mergeColumn))
-          if (g) {
-            const gn = Number(g)
-            if (Number.isFinite(gn) && gn >= 0)
-              values[fieldName] = { kind: 'count', count: Math.round(n), grey: Math.round(gn) }
-            else issues.push({ row, message: `“${fieldName}” grey needs a number, not “${g}”.` })
-          }
-        } else issues.push({ row, message: `“${fieldName}” needs a number, not “${v}”.` })
-      } else {
+      else {
         const a = findImage(ctx.assets, v)
         if (!a) {
           issues.push({
@@ -264,20 +271,22 @@ export function planMerge(table: Table, s: MergeSettings, ctx: MergeContext): Me
   return { cards, rowsRead: rows.length, updates, adds: cards.length - updates, issues }
 }
 
+function countOf(card: Card | undefined, field: string, el: FieldElement) {
+  const v = card?.fields[field]
+  return v?.kind === 'count' ? v.count : el.type === 'iconRow' ? el.defaultCount : 0
+}
+
 /**
  * The grey-icon column for an icon row's column: the header that is the same
  * name with a "Grey" word added (FS_AS → FS_Grey_AS, Attack → Attack Grey).
  */
 export function greyColumnFor(headerRow: string[], letter: string | undefined) {
   const i = columnIndex(letter)
-  const norm = (h: string) => h.trim().toLowerCase()
+  const norm = (h: string) => h.toLowerCase().replace(/[^a-z0-9]/g, '')
   const base = i === undefined ? '' : norm(headerRow[i] ?? '')
   if (!base) return undefined
   const j = headerRow.findIndex(
-    (h, k) =>
-      k !== i &&
-      /(^|[_ -])grey([_ -]|$)/.test(norm(h)) &&
-      norm(h).replace(/^grey[_ -]|[_ -]?grey(?=[_ -]|$)/, '') === base,
+    (h, k) => k !== i && /gr[ea]y/.test(norm(h)) && norm(h).replace(/gr[ea]y/, '') === base,
   )
   return j >= 0 ? columnLetter(j) : undefined
 }
