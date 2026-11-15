@@ -44,7 +44,7 @@ Flip Abilities are mandatory, and the card's owner picks the targets. With no le
 
 Starting with the initiative player, players take turns doing one action each:
 
-- **Attack:** turn a face-up Ready card clockwise. Up to 3 cards a round. The last card you turn to attack is your Main Attacker. Mark it with a cube.
+- **Attack:** turn a face-up Ready card clockwise. Up to 3 cards a round. Each attacker you declare becomes your Main Attacker (move the cube to it). After your first, each new attacker must be adjacent to the one you declared before it.
 - **Defense:** turn a face-up Ready card counter-clockwise. Up to 3 cards a round.
 - **Field Ability:** use the Field Ability of a face-up Ready card. The card becomes ability-active.
 - **Support Ability:** use a Support Ability from your Support.
@@ -56,7 +56,7 @@ Howling Barbarian does not count toward your 3 attackers. If it is still Ready w
 
 When both players have passed, form the stacks:
 
-1. Your attack stack is your Main Attacker plus your attackers adjacent to it.
+1. Your attack stack is your Main Attacker plus every card you declared as an attacker.
 2. It attacks the Mirrored Position of your Main Attacker on the opponent's field.
 3. The opponent's defense stack is their defenders on or adjacent to that position.
 4. Unbound cards join stacks from anywhere.

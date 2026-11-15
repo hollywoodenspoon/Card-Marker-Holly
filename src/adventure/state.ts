@@ -79,6 +79,8 @@ export interface RoundFlags {
   stay?: string[]
   /** Response-window extras used, as "reveal number:card" (Unassuming Mage's swap). */
   window?: string[]
+  /** Open Skirmish: the last attacker declared; the next must be adjacent to it. */
+  lastAttack?: number
 }
 
 export const newRound = (): RoundFlags => ({ attackUnbound: false, used: [], extra: [] })
