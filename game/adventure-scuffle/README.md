@@ -4,9 +4,10 @@ The single source of truth for the card game. Git keeps the history, so there ar
 
 | File | What it is |
 | --- | --- |
-| `cards.csv` | Every card, at its current version, in the Hearthside Cardworks import columns: `Name_AS, Code_AS, Type_AS, FS_AS, A_AS, D_AS, Fate_AS, Ability_AS, Deck_AS, Archetype_AS`. Stats in ability text are written as symbols (`{attack_as}`, `{defense_as}`, `{fightingspirit_as}`) so the rules engine reads them. |
-| `rulebook.md` | The rulebook (v3.0, Open Skirmish). |
-| `mutual-reveal.md` | The retired Mutual Reveal rulebook (v2.6); the engine keeps the mode but it gets no more updates. |
+| `cards.csv` | Card archive: every card of every set, before the TFQ redesign, in the Hearthside Cardworks import columns: `Name_AS, Code_AS, Type_AS, FS_AS, A_AS, D_AS, Fate_AS, Ability_AS, Deck_AS, Archetype_AS`. Stats in ability text are written as symbols (`{attack_as}`, `{defense_as}`, `{fightingspirit_as}`) so the rules engine reads them. |
+| `tfq.csv` | The First Quest, the cards in the game. Other sets get their own CSV as they come back. |
+| `rulebook.md` | The rulebook (The First Quest only). |
+| `archive/` | Old rules: `rulebook-v3.0-all-sets.md`, `mutual-reveal.md` (the engine keeps Mutual Reveal, not updated). |
 | `balance/` | Balance lab reports, one file per run that led to a change. |
 
 **Codes** follow the set: TFQ The First Quest, TUF The United Front, TLC The Light of Courage, TAC The Arms of Creation, TEC The Entropy Cometh. Within a set, cards are numbered deck by deck in the set plan's order, then the bonus cards.
@@ -17,6 +18,7 @@ The single source of truth for the card game. Git keeps the history, so there ar
 
 Newest first. Every card, balance or rule change gets a line here.
 
+- 2026-11-16: The First Quest only. `tfq.csv` holds the redesigned TFQ cards; `cards.csv` is the card archive; the rulebook covers TFQ only (v3.0 kept in `archive/`). The engine doesn't read `tfq.csv` yet.
 - 2026-11-16 (0.8.36-beta): Rulebook v3.0: Open Skirmish is the rule (`rulebook.md`, folded in from `open-skirmish.md`). Mutual Reveal retired to `mutual-reveal.md`; the engine keeps it but gets no more updates (owner's call).
 - 2026-11-15 (0.8.33-beta): Open Skirmish: each attacker must be declared adjacent to the previous one and becomes the Main Attacker; every declared attacker joins the attack stack (owner's call, the old rules).
 - 2026-11-15 (0.8.32-beta): Open Skirmish: every field card goes to Support at Regroup; attaching a Living Weapon is an action (owner's call).
