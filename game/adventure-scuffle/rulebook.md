@@ -1,7 +1,7 @@
 # ADVENTURE SCUFFLE!
-### Rulebook — Mutual Reveal Mode (v2.6)
+### Rulebook (v3.0)
 
-v2.6 makes **pairs** the Skirmish rule: after the opening pairs, cards are revealed two at a time. "Changes since v2.5" at the end lists the changes.
+v3.0 makes the **Open Skirmish** the rule: every field card is revealed at once, Flip Abilities resolve in turns, then players take actions. Mutual Reveal is retired (`mutual-reveal.md`). "Changes since v2.6" at the end lists the changes.
 
 ---
 
@@ -36,57 +36,56 @@ New players can pick a premade Free Company instead of building one.
 
 Each round is a **Skirmish Phase**, a **Combat Phase** and a **Regroup Phase**.
 
-### Skirmish Phase: Mutual Reveal
+### Skirmish Phase
 
-Both fields start face down. Players reveal each other's cards, and each reveal is answered by a response.
+**Reveal**
 
-1. The initiative player reveals **2 adjacent face-down cards** on the opponent's field.
-2. The opponent gets a **response** (see below).
-3. The opponent reveals **2 adjacent face-down cards** on the initiative player's field.
-4. The initiative player gets a response.
-5. From then on, players alternate revealing **2 cards at a time** on the other player's field, starting with the initiative player. Each card revealed must be **next to an already-revealed card** on that field (the two cards needn't touch each other). Each reveal is followed by a response from the player whose cards were revealed.
-   - If only one face-down card is left on that field, reveal it alone.
-   - If no face-down card next to a revealed card is left, any face-down card may be revealed.
-   - A player with no face-down card left to reveal is skipped; the other keeps revealing.
-   - If no adjacent face-down pair is left for an opening reveal, reveal one card instead.
-6. When all 12 field cards are face up, the **initiative player** gets one final response.
+1. Both players turn all their face-down field cards face up at the same time.
+2. The initiative player picks one of their Flip Abilities and resolves it.
+3. The other player picks one of theirs and resolves it.
+4. Keep alternating until every Flip Ability has resolved. When one player has none left, the other resolves the rest of theirs in any order.
 
-**A response** is one of:
-- **Use a Field Ability** of any face-up Ready card on your own field that hasn't used it yet (not only a card just revealed). The card becomes ability-active.
-- **Use a Support Ability** from your Support.
-- **Pass.**
+**Flip Abilities** are mandatory; the card's owner picks any targets. If there is no legal target, nothing happens. A Flip Ability doesn't make its card ability-active: it stays Ready and can still attack or defend. A face-down card that an ability turned ability-active "without resolving its ability" doesn't trigger its Flip Ability.
 
-Some cards let you do something in a response window *in addition to* your response (for example, attaching a Living Weapon from the rest zone, or Unassuming Mage's swap). Their text says so.
+**Actions**
 
-**Flip Abilities** trigger the moment their card is revealed, before the response. They are mandatory; the card's owner picks any targets. If there is no legal target, nothing happens. A Flip Ability doesn't make its card ability-active: it stays Ready and still attacks or defends. A face-down card that an ability turned ability-active "without resolving its ability" doesn't trigger its Flip Ability when revealed.
+Starting with the initiative player, players take turns doing **one action** each:
 
-**No card turns a field card face down during the Skirmish.**
+- **Attack:** turn a face-up Ready card clockwise. Up to 3 cards a round. Each attacker you declare becomes your **Main Attacker** (move the cube to it). After your first, each new attacker must be adjacent to the one you declared before it.
+- **Defense:** turn a face-up Ready card counter-clockwise. Up to 3 cards a round.
+- **Field Ability:** use the Field Ability of a face-up Ready card. The card becomes ability-active.
+- **Support Ability:** use a Support Ability from your Support.
+- **Pass:** you take no more actions this round. The other player keeps going until they pass too.
 
-### Attack/Defense Assignment
+Attaching a Living Weapon (from your Support or from your rest zone) is your action for the turn.
 
-When the Skirmish ends, each player assigns their own field:
+A card "included in your attacking group this round, regardless of its Fate Number rank" (such as Howling Barbarian) doesn't count toward your 3 attackers. If it is still Ready when both players pass, it attacks.
 
-1. Cards that are already ability-active stay ability-active. They don't attack or defend this round.
-2. Rank the remaining Ready cards by Fate Number, lowest first.
-3. The **lower half attacks**, the **upper half defends**. With an odd number of cards, the extra card defends.
-   - A card "included in your attacking group regardless of its Fate Number rank" is left out of the split and added to the attackers as an extra attacker.
-4. Your attacker with the lowest Fate Number is your **Main Attacker**. Mark it with a cube.
-5. **The stacks form.** Your attack stack is your Main Attacker plus your attackers adjacent to it. It attacks the **Mirrored Position** of your Main Attacker on the opponent's field (same row, opposite column). The opponent's defense stack is their defenders on or adjacent to that position. Interpose cards and Unbound cards may join stacks from anywhere.
-6. **Values lock.** Every card's Attack and Defense, with position bonuses and other Inherent changes, stays as it is now for the rest of the round, even if the card moves or a condition stops being met. Only modifiers applied during combat (such as debuff tokens) still change them.
+**Forming the stacks**
 
-**The Main Attacker** only decides where the attack comes from and what it targets. Once combat has started it is an attacker like any other, and no ability checks which card is the Main Attacker. Abilities may still decide, before the stacks form, which card *can* become Main Attacker.
+When both players have passed:
+
+1. Your **attack stack** is every card you declared as an attacker.
+2. It attacks the **Mirrored Position** of your Main Attacker on the opponent's field (same row, opposite column).
+3. The opponent's **defense stack** is their defenders on or adjacent to that position.
+4. Interpose cards and Unbound cards may join stacks from anywhere.
+5. **Values lock.** Every card's Attack and Defense, with position bonuses and other Inherent changes, stays as it is now for the rest of the round, even if the card moves or a condition stops being met. Only modifiers applied during combat (such as debuff tokens) still change them.
+
+**The Main Attacker** only decides where the attack comes from and what it targets. Once combat has started it is an attacker like any other.
+
+**Fate Numbers** are not used.
 
 ### Combat Phase
 
 1. Each player's attack makes one Engagement. The initiative player chooses which one resolves first: the **First Engagement**; the other is the **Second Engagement**.
-   - A player with no attacker plays no Engagement this round.
+   - A player with no attacker plays no Engagement this round. The other player's Engagement is the First Engagement.
    - If an attack has no defender on or adjacent to its target, the attacker scores the point at once and no Fighting Spirit is revealed.
 2. **Starting totals:** Attack is the attack stack's total Attack; Defense is the defense stack's total Defense.
 3. **Fighting Spirit:** players alternate revealing one card at a time, starting with the initiative player in every Engagement, whichever side they are on.
    - Reveal a card from your Support and add its Fighting Spirit to your side, or use a rest-zone card whose Rest Ability lets you use it for Fighting Spirit (it stays in the rest zone and can be used once per Engagement).
    - Resolve its Battle Ability before the next reveal.
    - **Or pass.** Passing locks your total for this Engagement only; the other player may keep revealing until they pass too.
-   - If an ability moves a card between your attack stack and your defense stack, totals update at once. Such abilities ignore Fate Numbers. A swap trades the two cards' places in the stacks, wherever they sit, each keeping its locked values; the attack still comes from the same position and targets the same position.
+   - If an ability moves a card between your attack stack and your defense stack, totals update at once. A swap trades the two cards' places in the stacks, each keeping its locked values; the attack still comes from the same position and targets the same position.
    - A condition that turns on during combat (an Unbound, an Interpose) adds its cards to the stack at once, at their locked values.
 4. **Scoring:** the higher total scores 1 point, attacker or defender. A tie scores nothing. Reaching 4 points wins at once.
 5. **Between Engagements,** players may use any Rest Ability whose condition is met.
@@ -96,7 +95,7 @@ When the Skirmish ends, each player assigns their own field:
 
 1. Remove all debuff tokens.
 2. Rest every card used for Fighting Spirit, every unused Support card, and every attached Living Weapon.
-3. Cards with **Endure** may stay on the field (see Endure). Every other active field card goes to your Support. Ready cards stay where they are.
+3. Every field card goes to your Support, Ready cards included, unless an ability keeps it on the field (such as Endure).
 4. **Refill** every empty field position face down from your rest zone, choosing which card goes where; the initiative player refills first. If your rest zone runs out, fill the rest from your Support. Every round starts with 6 cards on each field.
 5. Pass the initiative. The next round's Skirmish reveals the refilled cards.
 
@@ -116,7 +115,7 @@ When the Skirmish ends, each player assigns their own field:
 
 **Ready** - a card that hasn't attacked, defended or used an ability this round.
 
-**Active** - a card that is attacking (turned clockwise), defending (turned counter-clockwise) or ability-active (turned diagonally). Attacking and defending are assigned after the Skirmish; ability-active comes from using an ability.
+**Active** - a card that is attacking (turned clockwise), defending (turned counter-clockwise) or ability-active (turned diagonally).
 
 **Adjacent / next to** - directly above, below, left or right on the same field. Diagonals don't count.
 
@@ -128,31 +127,31 @@ When the Skirmish ends, each player assigns their own field:
 
 **Attack, Defense and Fighting Spirit Values** - printed on the card's left edge, right edge and top edge. A greyed-out icon shows the most the stat can reach through the card's own ability. **No card's Fighting Spirit can be above 3,** after every bonus. **Exception:** Guardian of Creation is printed with 4.
 
-**Fate Number** - a unique number from 100 to 666 on every card. It only decides the Attack/Defense Assignment.
+**Fate Number** - a unique number from 100 to 666 on every card. Not used in these rules.
 
-**Swapped-in card** - a card an ability puts on the field in place of another. It takes the replaced card's face (up or down) and its state, unless the ability says otherwise ("is Ready"). Its Flip Ability triggers only when it is later revealed.
+**Swapped-in card** - a card an ability puts on the field in place of another. It takes the replaced card's face (up or down) and its state, unless the ability says otherwise ("is Ready").
 
 ---
 
 ## Ability Types
 
-**Field Ability** - used from the field, as a response in the Skirmish, by a face-up Ready card. Using it makes the card ability-active, so it doesn't attack or defend this round.
+**Field Ability** - used from the field as an action, by a face-up Ready card. Using it makes the card ability-active, so it doesn't attack or defend this round.
 
-**Support Ability** - used from your Support, as a response in the Skirmish. Show the card, resolve it, then rest it, unless the text says otherwise.
+**Support Ability** - used from your Support as an action. Show the card, resolve it, then rest it, unless the text says otherwise.
 
-**Rest Ability** - used from the rest zone when its condition is met. "You may use this card for Fighting Spirit this Engagement" is used on your Fighting Spirit turn instead of revealing a Support card; the card stays in the rest zone. Living Weapons that are Rest cards attach from the rest zone in the Skirmish.
+**Rest Ability** - used from the rest zone when its condition is met. "You may use this card for Fighting Spirit this Engagement" is used on your Fighting Spirit turn instead of revealing a Support card; the card stays in the rest zone.
 
 **Battle Ability** - resolves when its card is revealed as Fighting Spirit. Its condition is checked once, at reveal.
 
 **Inherent Ability** - always on, wherever the card is; its own text sets its limits (a positional bonus only works on the field). Checks that look at the field only count face-up cards.
 
-**Flip Ability** - triggers when its card is revealed in the Skirmish (see the Skirmish Phase).
+**Flip Ability** - resolves in the Reveal at the start of the Skirmish, in turns.
 
 ---
 
 ## Keywords and Wording
 
-Ability text is `[Condition or Cost]: [Effect]`. "+1  A", "+1  D" and "+1  FS" are printed with a double space for the icons.
+Ability text is `[Condition or Cost]: [Effect]`.
 
 ### Conditions
 
@@ -188,14 +187,14 @@ Any ability, Inherent included, may start with **Rest N**: rest N cards of your 
 
 ### Archetypes (families)
 
-- A card belongs to an archetype if its name contains the archetype word (Hero of Rianz is a Rianz card), or if it **prints** an archetype (every card of The United Horde prints Horde).
-- An archetype check never counts the card itself: "If a Rianz card is also on your field" needs **another** face-up Rianz card.
+- A card belongs to an archetype if its name contains the archetype word (Grave Keeper is a Grave card), or if it **prints** an archetype (every card of The United Horde prints Horde).
+- An archetype check never counts the card itself: "If a Grave card is also on your field" needs **another** face-up Grave card.
 - **At most 6 cards** share an archetype. Exceptions: Fear 7, Horde 12, Living Weapon no cap.
 - Archetype effects are written in plain text. Common forms:
   - `If a [A] card is also on your field: …` and `If a [A] card is in your rest zone: …`
   - `If a [A] card was revealed as Fighting Spirit this Engagement: …`
   - `If a [A] card is in your rest zone, this card does not need to be rested after use.`
-  - `Swap the position of a [A] card on your field (this card included) with another card on your field.` A face-down [A] card can be chosen by showing it to the opponent; it stays face down.
+  - `Swap the position of a [A] card on your field (this card included) with another card on your field.`
 
 ### Unbound
 
@@ -215,7 +214,7 @@ A token lowers a field card's Attack or Defense by 1 (the ability names the stat
 
 ### Hire
 
-`Hire: Swap a card in your Support with a card in your rest zone.` You need a card in each place. Hiring a card out of your Support counts as resting it (Runaway Familiar can't be hired out). A face-down rest-zone card can't be hired back.
+`Hire: Swap a card in your Support with a card in your rest zone.` You need a card in each place. Hiring a card out of your Support counts as resting it. A face-down rest-zone card can't be hired back.
 
 ### Interpose
 
@@ -225,18 +224,16 @@ A token lowers a field card's Attack or Defense by 1 (the ability names the stat
 
 An archetype of Rest and Support cards named "Living Weapon [Name]".
 - "Attach this card to a ready card on your field": the weapon goes under its host and adds its Attack and Defense to it.
-- Weapons attach **only during the Skirmish**: Support weapons as a Support Ability, Rest weapons from the rest zone in a response window.
+- Weapons attach **only during the Skirmish**, as an action: Support weapons as a Support Ability, Rest weapons from the rest zone.
 - **One weapon per card.** If the host leaves the field, the weapon goes to the rest zone. A weapon on a locked or ability-active host does nothing.
 - An attached weapon isn't a field card: it doesn't count for "on your field" checks and can't be targeted on its own.
-- You may arm your own face-down card; on the opponent's side, only face-up cards. A weapon on an opponent's card only restricts it, never lowers its stats.
+- On the opponent's side, a weapon only restricts its host, never lowers its stats.
 - **Only Living Weapons add stats to another card.**
 
 ---
 
 ## Card Rulings
 
-- **Unassuming Mage:** while the opponent has a Fear card on their field and the Mage is face up, in each of your response windows you may first swap the Mage with any card on your field (once per window). It doesn't use up your response.
-- **Unmade Wretch:** "Rest 1, if an Unmade card is also on your field: Target opponent's card. It is turned to the ability-active position without resolving its ability."
 - **Doppelganger Thief:** pays Rest 2 plus the copied ability's own cost.
 - **Strategic Vanguard:** see the swap rule in Combat step 3.
 - **A lone Engagement** (only one player attacks) counts as the First Engagement.
@@ -244,20 +241,10 @@ An archetype of Rest and Support cards named "Living Weapon [Name]".
 
 ---
 
-## Changes since v2.5
+## Changes since v2.6
 
-1. **Pairs is the Skirmish rule.** After the opening pairs, players reveal 2 cards at a time instead of 1 (Skirmish step 5). The one-card-at-a-time rule ("Classic") and the test rule "Triples" are retired.
-2. Step 5 now says what happens when one card, or no card next to a revealed one, is left.
-
-## Changes since v2.4
-
-1. **Version markers removed;** the change logs of v2 to v2.4 are folded into the text.
-2. **Field Ability (terminology)** said it is used "as a response to your own card being revealed"; it now matches the Skirmish rule (any later response, by a face-up Ready card).
-3. **Flip Ability (terminology)** said it triggers at setup or at refill, and only changes Attack or Defense; it now triggers when revealed in the Skirmish and can do anything its text says (many Flip cards rest Support cards or swap positions).
-4. **Ace (terminology)** said "never more than one"; it now includes the Guardian of Creation exception.
-5. **Archetype keywords** listed the retired Kindred names (Strike, Return, Maneuver, Discount) as keywords; they are now plain-text forms.
-6. **Endure** is now part of Regroup step 3 instead of only its own section.
-7. **Responses** now mention abilities usable in a response window in addition to the response (Living Weapons, Unassuming Mage).
-8. **Stacks:** Interpose and Unbound are named in the Assignment step that forms them.
-9. **Initiative:** Hearthside Table can use rock-paper-scissors or a random draw.
-10. **Card rulings** collected in one section.
+1. **Open Skirmish is the rule.** The Skirmish is now Reveal (all cards at once, Flip Abilities in turns) then Actions (Attack, Defense, Field Ability, Support Ability, Pass). Mutual Reveal, its responses and its reveal order are retired (`mutual-reveal.md`, kept for reference; the engine keeps it but it gets no more updates).
+2. **Attack/Defense Assignment** by Fate Number is gone: players declare up to 3 attackers (each adjacent to the last, the last one is the Main Attacker) and up to 3 defenders. The attack stack is every declared attacker. Fate Numbers are not used.
+3. **Regroup:** every field card goes to Support, Ready cards included, unless an ability keeps it on the field.
+4. **Living Weapons** attach as an action.
+5. Card ruling for Unassuming Mage removed (its Fear swap was dropped from the card).

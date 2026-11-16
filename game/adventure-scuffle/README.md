@@ -5,7 +5,8 @@ The single source of truth for the card game. Git keeps the history, so there ar
 | File | What it is |
 | --- | --- |
 | `cards.csv` | Every card, at its current version, in the Hearthside Cardworks import columns: `Name_AS, Code_AS, Type_AS, FS_AS, A_AS, D_AS, Fate_AS, Ability_AS, Deck_AS, Archetype_AS`. Stats in ability text are written as symbols (`{attack_as}`, `{defense_as}`, `{fightingspirit_as}`) so the rules engine reads them. |
-| `rulebook.md` | The Mutual Reveal rulebook. |
+| `rulebook.md` | The rulebook (v3.0, Open Skirmish). |
+| `mutual-reveal.md` | The retired Mutual Reveal rulebook (v2.6); the engine keeps the mode but it gets no more updates. |
 | `balance/` | Balance lab reports, one file per run that led to a change. |
 
 **Codes** follow the set: TFQ The First Quest, TUF The United Front, TLC The Light of Courage, TAC The Arms of Creation, TEC The Entropy Cometh. Within a set, cards are numbered deck by deck in the set plan's order, then the bonus cards.
@@ -14,9 +15,9 @@ The single source of truth for the card game. Git keeps the history, so there ar
 
 ## Changelog
 
-- 0.8.31-beta: Open Skirmish (`open-skirmish.md`), an alternate Skirmish to test in Play: every card revealed at once, Flip Abilities in turns, then Attack/Defense actions. No Fate Numbers.
 Newest first. Every card, balance or rule change gets a line here.
 
+- 2026-11-16 (0.8.36-beta): Rulebook v3.0: Open Skirmish is the rule (`rulebook.md`, folded in from `open-skirmish.md`). Mutual Reveal retired to `mutual-reveal.md`; the engine keeps it but gets no more updates (owner's call).
 - 2026-11-15 (0.8.33-beta): Open Skirmish: each attacker must be declared adjacent to the previous one and becomes the Main Attacker; every declared attacker joins the attack stack (owner's call, the old rules).
 - 2026-11-15 (0.8.32-beta): Open Skirmish: every field card goes to Support at Regroup; attaching a Living Weapon is an action (owner's call).
 - 2026-11-15 (0.8.31-beta): Open Skirmish (`open-skirmish.md`), an alternate Skirmish to test in Play: every card revealed at once, Flip Abilities in turns, then Attack/Defense actions. No Fate Numbers.
