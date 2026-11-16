@@ -1,7 +1,7 @@
 # src/adventure/ map: Adventure Scuffle rules engine
 Pure TypeScript, no React. Rules: `game/adventure-scuffle/rulebook.md`. Notes: `docs/adventure-rules-engine.md`.
 
-- `state.ts` (game state types) · `engine.ts` (createGame, legalMoves, apply; `mode: 'open'` is Open Skirmish, `game/adventure-scuffle/open-skirmish.md`, tested in `openSkirmish.test.ts`) · `stats.ts` (values, stacks)
+- `state.ts` (game state types) · `engine.ts` (createGame, legalMoves, apply; `mode: 'open'` is Open Skirmish, the rule in `game/adventure-scuffle/rulebook.md`; the default Mutual Reveal mode is retired, `mutual-reveal.md`, not updated, tested in `openSkirmish.test.ts`) · `stats.ts` (values, stacks)
 - `check.ts` (rules checker) · `observe.ts` (hidden info) · `cards.ts`, `deck.ts` · `board.ts`, `table.ts` (to table pieces)
 - `effects/`: card text → rules (own map)
 - `bot/`: bots (own map)
