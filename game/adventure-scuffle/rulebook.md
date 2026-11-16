@@ -45,8 +45,6 @@ Each round is a **Skirmish Phase**, a **Combat Phase** and a **Regroup Phase**.
 3. The other player picks one of theirs and resolves it.
 4. Keep alternating until every Flip Ability has resolved. When one player has none left, the other resolves the rest of theirs in any order.
 
-**Flip Abilities** are mandatory; the card's owner picks any targets. If there is no legal target, nothing happens. A Flip Ability doesn't make its card ability-active: it stays Ready and can still attack or defend. A face-down card that an ability turned ability-active "without resolving its ability" doesn't trigger its Flip Ability.
-
 **Actions**
 
 Starting with the initiative player, players take turns doing **one action** each:
@@ -145,7 +143,7 @@ When both players have passed:
 
 **Inherent Ability** - always on, wherever the card is; its own text sets its limits (a positional bonus only works on the field). Checks that look at the field only count face-up cards.
 
-**Flip Ability** - resolves in the Reveal at the start of the Skirmish, in turns.
+**Flip Ability** - resolves in the Reveal at the start of the Skirmish, in turns. Mandatory; the card's owner picks any targets. With no legal target, nothing happens. It doesn't make its card ability-active: the card stays Ready and can still attack or defend. A face-down card that an ability turned ability-active "without resolving its ability" doesn't trigger its Flip Ability.
 
 ---
 
