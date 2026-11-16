@@ -55,7 +55,7 @@ Starting with the initiative player, players take turns doing **one action** eac
 
 Attaching a Living Weapon (from your Support or from your rest zone) is your action for the turn.
 
-A card that is "included in your attacking group this round" (such as Howling Barbarian) doesn't count toward your 3 attackers. If it is still Ready when both players pass, it attacks.
+A card that "can be declared as an attacker even if you already have 3 attackers" (Howling Barbarian) can be your 4th attacker.
 
 **Forming the stacks**
 
