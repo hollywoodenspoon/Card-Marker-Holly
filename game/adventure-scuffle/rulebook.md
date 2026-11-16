@@ -55,7 +55,7 @@ Starting with the initiative player, players take turns doing **one action** eac
 
 Attaching a Living Weapon (from your Support or from your rest zone) is your action for the turn.
 
-A card "included in your attacking group this round, regardless of its Fate Number rank" (such as Howling Barbarian) doesn't count toward your 3 attackers. If it is still Ready when both players pass, it attacks.
+A card that is "included in your attacking group this round" (such as Howling Barbarian) doesn't count toward your 3 attackers. If it is still Ready when both players pass, it attacks.
 
 **Forming the stacks**
 
@@ -117,8 +117,6 @@ When both players have passed:
 **Won / Lost an Engagement** - you scored its point / the other player did. A tie is neither. Only the current round counts, so "Lost Previous Engagement" can only be met in the Second Engagement.
 
 **Attack, Defense and Fighting Spirit Values** - printed on the card's left edge, right edge and top edge. A greyed-out icon shows the most the stat can reach through the card's own ability. **No card's Fighting Spirit can be above 3,** after every bonus.
-
-**Fate Number** - a unique number from 100 to 666 on every card. Not used in these rules.
 
 **Swapped-in card** - a card an ability puts on the field in place of another. It takes the replaced card's face (up or down) and its state, unless the ability says otherwise ("is Ready").
 
