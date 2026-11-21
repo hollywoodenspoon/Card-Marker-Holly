@@ -48,7 +48,7 @@ A field card turned face down: can't attack, defend, use abilities or be counted
 1. Initiative player picks which Engagement is First.
 2. Empty defense stack: attacker scores, no Fighting Spirit.
 3. Totals: attack = Σ Attack (+ attached weapon Attack); defense = Σ Defense (+ weapon Defense). Stats never change during the round.
-4. **Fighting Spirit turns:** initiative player first in every Engagement. On a turn: reveal one Support card (add its FS, resolve its Battle ability), or, if a card allows it, use a rest-zone card (Ghoulish Brute/Stalker, any card under Grave Mistress); both count as a reveal. Or pass. Passing is final for that Engagement. The Engagement ends when both have passed.
+4. **Fighting Spirit turns:** initiative player first in every Engagement. On a turn: reveal one Support card (add its FS, resolve its Battle ability), or, if a card allows it, use a rest-zone card (Ghoulish Brute/Stalker, any card under Grave Mistress); both count as a reveal, and the used card's Battle ability resolves. Or pass. Passing is final for that Engagement. The Engagement ends when both have passed.
 5. A rest-zone card used for FS leaves the rest zone into the Engagement and is rested again at Regroup.
 6. Higher total scores 1; tie scores nothing.
 7. Support cards not used carry to the Second Engagement.
@@ -56,7 +56,7 @@ A field card turned face down: can't attack, defend, use abilities or be counted
 ### 4.3 Battle-ability rulings
 - **Swap an attacker with a defender** (Monk, Vanguard, Coin-Toss): the two cards change stacks; totals update; the target doesn't change. Coin-Toss Tails: the opponent chooses which of their cards swap.
 - **Force Pass** (Ghoulish Brute): the opponent makes one more reveal (a rest-zone FS use counts), then is passed.
-- **Use 2 cards** (Archmage): opponent's next reveal is two Support cards at once, both add FS and both Battle abilities resolve. With only 1 card in Support, they must reveal it; they can't pass instead.
+- **Archmage:** the opponent can't pass before their next reveal; that reveal is 2 Support cards at once, both add FS and both Battle abilities resolve. 1 card in Support: they reveal it. 0 cards: nothing happens.
 - **Opponent rests a card from their Support:** opponent chooses. **Random:** uniform random card. Empty Support: nothing.
 - **Coin flip:** 50/50.
 
@@ -75,8 +75,6 @@ A field card turned face down: can't attack, defend, use abilities or be counted
 - **Emissary:** the opponent's Support is visible to the player (bots: perfect information on that Support) for the round.
 - **Grave Guardian:** while it is in the current Engagement's attack or defense stack, its owner ignores "rests a card from their Support" effects.
 
-- **Lucky Charm Bearer:** "top card" = the most recently rested card.
+- **Lucky Charm Bearer:** "top card" = the most recently rested card. It can be revealed later in the same Engagement.
+- **Grave Mistress:** the 3+ check is made once, when Combat starts; if met, the effect lasts both Engagements whatever the count does later.
 - **Unassuming Mage:** can't be used unless an opposing Ace is face up on the field.
-
-## Open questions
-1. Grave Mistress: does the 3+ Rest Zone count drop as you use rest-zone cards, ending the effect mid-Engagement?
