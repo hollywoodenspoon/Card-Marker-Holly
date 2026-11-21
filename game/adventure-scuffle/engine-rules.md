@@ -1,6 +1,6 @@
 # Adventure Scuffle! — engine rules
 
-The exact rules the engine (`src/adventure/`) implements for The First Quest. Players use `rulebook.md`; this file holds every detail and ruling the code needs. Card text overrides these rules. Items marked **OPEN** wait for the owner's ruling.
+The exact rules the engine (`src/adventure/`) implements for The First Quest. Players use `rulebook.md`; this file holds every detail and ruling the code needs. Card text overrides these rules.
 
 ## 1. State
 
