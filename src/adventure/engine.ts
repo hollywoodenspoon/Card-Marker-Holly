@@ -263,7 +263,10 @@ export function responseMoves(s: AsState, seat: Seat): Move[] {
   for (const f of p.field) {
     if (!f.card || !f.faceUp || f.state !== 'ready') continue
     const ab = rulesOf(s, f.card)?.field
-    if (ab && usable(s, ab, { owner: seat, card: f.card, mode: 'field' }, s.mode === 'open' ? 1 : 0))
+    if (
+      ab &&
+      usable(s, ab, { owner: seat, card: f.card, mode: 'field' }, s.mode === 'open' ? 1 : 0)
+    )
       out.push({ t: 'ability', card: f.card })
   }
   for (const card of p.support) {
@@ -283,7 +286,10 @@ export function windowMoves(s: AsState, seat: Seat): Move[] {
   if (s.phase !== 'skirmish') return []
   const p = s.players[seat]
   const cards = [
-    ...p.field.flatMap((f) => (f.card && f.faceUp ? [f.card] : [])),
+    // A Rest card's action (Ghoulish Disruptor) is used from the rest zone only.
+    ...p.field.flatMap((f) =>
+      f.card && f.faceUp && s.cards[f.card]?.type !== 'Rest' ? [f.card] : [],
+    ),
     ...p.rest.filter((c) => !isLocked(s, seat, c)),
   ]
   return cards.flatMap((card): Move[] => {
@@ -931,8 +937,7 @@ function openAssign(d: D) {
     const noMain = p.round.noMain ?? []
     const okMain = (i: number | null) =>
       i !== null && p.field[i].state === 'attacking' && !noMain.includes(p.field[i].card!)
-    if (!okMain(p.mainAttacker))
-      p.mainAttacker = p.field.findIndex((_, i) => okMain(i))
+    if (!okMain(p.mainAttacker)) p.mainAttacker = p.field.findIndex((_, i) => okMain(i))
     if (p.mainAttacker === -1) p.mainAttacker = null
     // Every declared attacker joins the Main Attacker's stack.
     if (p.mainAttacker !== null) p.round.attackUnbound = true
