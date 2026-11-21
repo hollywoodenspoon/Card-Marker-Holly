@@ -6,7 +6,8 @@ The single source of truth for the card game. Git keeps the history, so there ar
 | --- | --- |
 | `cards.csv` | Card archive: every card of every set, before the TFQ redesign, in the Hearthside Cardworks import columns: `Name_AS, Code_AS, Type_AS, FS_AS, A_AS, D_AS, Fate_AS, Ability_AS, Deck_AS, Archetype_AS`. Stats in ability text are written as symbols (`{attack_as}`, `{defense_as}`, `{fightingspirit_as}`) so the rules engine reads them. |
 | `tfq.csv` | The First Quest, the cards in the game. Other sets get their own CSV as they come back. |
-| `rulebook.md` | The rulebook (The First Quest only). |
+| `rulebook.md` | The player rulebook (The First Quest only). Card text beats the rules. |
+| `engine-rules.md` | Exact rules and rulings for the engine. |
 | `archive/` | Old rules: `rulebook-v3.0-all-sets.md`, `mutual-reveal.md` (the engine keeps Mutual Reveal, not updated). |
 | `balance/` | Balance lab reports, one file per run that led to a change. |
 
@@ -18,11 +19,14 @@ The single source of truth for the card game. Git keeps the history, so there ar
 
 Newest first. Every card, balance or rule change gets a line here.
 
+- 2026-11-21: TFQ rewrite in `tfq.csv`: all card text reworded (`Condition: Effect`, quoted archetypes); stat buffs removed (grey columns zeroed) and stats adjusted (Hero, Doppelganger, Lucky Charm, Grave Mistress, Grave Guardian, Emissary, Archmage, Mission Handler, Brute, Stalker); new effects for Knight, Monk, Archmage, Weapon Master, Trusted Shield Bearer, Emissary, Grave Mistress, Grave Guardian, Brute, Stalker, Mission Handler, Unassuming Mage (now Field), Coin-Toss Bravo, Lucky Charm; random vs chosen discards split. Reason: cut mid-combat counting.
+- 2026-11-21: Rules split: `rulebook.md` for players (card text beats the rules; 1 Flip per player; Field abilities send the card to the rest zone and replace it from Support; face down replaces ability-active), `engine-rules.md` for the engine. Engine not updated yet.
 - 2026-11-16: The First Quest only. `tfq.csv` holds the redesigned TFQ cards; `cards.csv` is the card archive; the rulebook covers TFQ only (v3.0 kept in `archive/`). The engine doesn't read `tfq.csv` yet.
 - 2026-11-16 (0.8.36-beta): Rulebook v3.0: Open Skirmish is the rule (`rulebook.md`, folded in from `open-skirmish.md`). Mutual Reveal retired to `mutual-reveal.md`; the engine keeps it but gets no more updates (owner's call).
 - 2026-11-15 (0.8.33-beta): Open Skirmish: each attacker must be declared adjacent to the previous one and becomes the Main Attacker; every declared attacker joins the attack stack (owner's call, the old rules).
 - 2026-11-15 (0.8.32-beta): Open Skirmish: every field card goes to Support at Regroup; attaching a Living Weapon is an action (owner's call).
 - 2026-11-15 (0.8.31-beta): Open Skirmish (`open-skirmish.md`), an alternate Skirmish to test in Play: every card revealed at once, Flip Abilities in turns, then Attack/Defense actions. No Fate Numbers.
+- **2026-11-21, engine (0.8.37-beta):** the engine reads every tfq.csv card and follows `engine-rules.md` (Field ability replacement from Support, one Flip each, blind random rests, face-down turns, Archmage, Ghoulish Brute, Grave Mistress, Emissary). TFQ games are tested with `TFQ_CARDS`.
 - **2026-11-15, cards.csv:** The First Quest revision (owner's choice, to simplify the set). Crimson Duelist (TFQ-01) is now Flip 1/3/3: "Flip Ability: Target a card on your opponent's field. Put it in the rest zone, then replace it with a random card from their Support." Unassuming Mage (TFQ-37) keeps only the Ace bonus (Fear swap dropped). Runaway Familiar, Backwards Blade and Gambler's Gambit removed; Priestess of Rianz (was TUF-33), Volatile Cannoneer (was TUF-32) and Wildcard Wanderer (was TUF-34) join as TFQ-41/42/43. 185 cards. The engine and its tests are not updated yet.
 
 - **2026-11-01, balance:** first run with every card read by the engine and pairs as the rule (`balance/2026-11-01-v2.6-pairs.md`, 20,000 games). No card changed yet: the flags are Trailblazing Scout, Feinting Swordswoman, Bastion Sentinel, Falcon Strider, Dawnbreaker and Falcon Scout (too strong) and a set of too-weak cards, for the owner to decide.

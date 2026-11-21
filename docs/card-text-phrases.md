@@ -136,6 +136,22 @@ A card can only have one of these. "Reveal this card" with a second keep clause 
 
 A card swapped off the field counts as repositioned, so a card that "cannot be repositioned by an opponent's ability" can't be swapped out by an opponent.
 
+## The First Quest (tfq.csv)
+
+- "Opponent rests a random card from their Support." (blind pick)
+- "Turn target [Ready / Ace] card on the opponent's field face down."
+- "Rest target Ace on the opponent's field." · "This card goes to your Support instead of your rest zone."
+- "Swap the positions of two cards on your field." · "Rest up to N "W" cards from your Support."
+- "Put the top card of your rest zone into your Support."
+- "Opponent swaps one of their attackers with one of their defenders."
+- "Opponent must pass after their next reveal." · "Opponent cannot pass until their next reveal. That reveal uses 2 cards for Fighting Spirit."
+- "You may use this card for Fighting Spirit." · "You may use any card in your rest zone for Fighting Spirit until the end of the round."
+- "Then turn this card face down." (Rest abilities)
+- "Cannot be targeted by the opponent's effects." · "Opponent cannot reposition this card / adjacent cards."
+- "Your "W" cards on the field cannot be turned face down." · "Opponent plays with their Support revealed for the rest of the round."
+- "This card can be declared as an attacker even if you already have 3 attackers." · "You cannot be forced to rest cards."
+- Conditions: "N+ Rest Zone(at the start of Combat):", "N+ "W" cards in your rest zone:"
+
 ## Sets after The First Quest (Rulebook v2.6)
 
 Read by `src/adventure/effects/mechanics.ts`. `[W]` is an archetype word, `N` a number.

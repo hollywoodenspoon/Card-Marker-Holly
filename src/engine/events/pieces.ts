@@ -430,7 +430,6 @@ const builtins: PieceDef[] = [
         options: [
           { value: 'easy', label: 'Easy' },
           { value: 'normal', label: 'Normal' },
-          { value: 'hard', label: 'Hard' },
           { value: 'none', label: 'no' },
         ],
         default: 'normal',

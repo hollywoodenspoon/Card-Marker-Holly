@@ -1,5 +1,5 @@
 import { nextInt } from '@/playtest/rng'
-import { colOf, slotName } from '../board'
+import { colOf, neighbours, slotName } from '../board'
 import { cardName, other, type AsState, type Seat } from '../state'
 import { rulesOf } from './registry'
 import type { Ctx, D, Option, PlanIO } from './types'
@@ -130,11 +130,37 @@ export function touchable(
   const up = s.players[seat].field[slot].faceUp
   if (up && how.target && ctx.mode === 'field' && r?.fieldProof) return false
   if (up && how.move && r?.fixed) return false
+  // The Kingdom's Hero: never the target of the opponent's effects.
+  if (up && how.target && r?.untargetable) return false
+  // Weapon Master: the opponent can't reposition it (Flank) or the cards next to it (Center).
+  if (how.move && held(s, seat, slot)) return false
   // Armiger Warden: not the target of an opponent's ability this round.
   if (how.target && s.players[seat].round.shielded?.includes(card)) return false
   // Warchief of the Horde: its archetype's cards can't be repositioned by an opponent.
   if (how.move && guarded(s, seat, card)) return false
   return true
+}
+
+/** Is a field position held in place by a face-up Weapon Master? */
+function held(s: S, seat: Seat, slot: number) {
+  return s.players[seat].field.some((f, i) => {
+    if (!f.card || !f.faceUp) return false
+    return (rulesOf(s, f.card)?.holds ?? []).some(
+      (h) => (h.adjacent ? neighbours(i).includes(slot) : i === slot) && h.test(s, seat, i),
+    )
+  })
+}
+
+/** Is this player safe from "rests a card from their Support" (Grave Guardian in the Engagement)? */
+export function restImmune(s: S, seat: Seat) {
+  if (!s.engagement) return false
+  return s.players[seat].field.some(
+    (f, slot) =>
+      !!f.card &&
+      f.faceUp &&
+      (f.state === 'attacking' || f.state === 'defending') &&
+      !!rulesOf(s, f.card)?.restProof?.(s, seat, slot),
+  )
 }
 
 /** Is a field card kept in place by a face-up card's guard (Warchief of the Horde)? */
@@ -230,6 +256,7 @@ export function opponentRestsPlan(io: PlanIO): string | null {
 export function opponentRestsApply(d: D, ctx: Ctx, card: string | null) {
   const opp = other(ctx.owner)
   if (!card) return log(d, `${d.players[opp].name} has no Support card to rest.`)
+  if (restImmune(d as S, opp)) return log(d, `${d.players[opp].name} can't be forced to rest cards.`)
   log(d, `${d.players[opp].name} rests ${cardName(d, card)} from their Support.`)
   rest(d, opp, card)
 }

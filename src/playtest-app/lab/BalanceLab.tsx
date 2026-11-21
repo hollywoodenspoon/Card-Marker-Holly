@@ -83,7 +83,8 @@ export function BalanceLab({
   const unread = useMemo(() => cards.filter((c) => unreadParts(c).length), [cards])
   const [games, setGames] = useState(10000)
   const [bot, setBot] = useState<LabBot>('quick')
-  const [rules, setRules] = useState<GameMode>('mutual')
+  // Open Skirmish is the Adventure Scuffle rule.
+  const rules: GameMode = 'open'
   const [seed, setSeed] = useState(() => randomSeed())
   const [threads, setThreads] = useState(maxThreads)
   const [core, setCore] = useState(() =>
@@ -93,6 +94,7 @@ export function BalanceLab({
     ),
   )
   const [mode, setMode] = useState<'balance' | 'ladder'>('balance')
+  const [record, setRecord] = useState(false)
   const [saved, setSaved] = useState<SimRow[]>([])
   const [open, setOpen] = useState<SimRow | null>(null)
   const [progress, setProgress] = useState<Record<LabStage, number> | null>(null)
@@ -105,7 +107,7 @@ export function BalanceLab({
     void listSims(packId).then(setSaved)
   }, [packId, open])
 
-  const options: LabOptions = { games, bot, seed, core, mode: rules }
+  const options: LabOptions = { games, bot, seed, core, mode: rules, record }
   const plan = useMemo(
     () => labPlan({ packName, cards, premades }, { games, core }),
     [packName, cards, premades, games, core],
@@ -133,11 +135,24 @@ export function BalanceLab({
         ),
         () => stop.current,
       )
+      const { records, ...kept } = result
+      if (records?.length) {
+        const url = URL.createObjectURL(
+          new Blob([records.map((g) => JSON.stringify(g)).join('\n') + '\n'], {
+            type: 'application/x-ndjson',
+          }),
+        )
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `${packName}-games-seed${seed}.jsonl`
+        a.click()
+        setTimeout(() => URL.revokeObjectURL(url), 10_000)
+      }
       const row: BalanceSimRow = {
         id: `sim-${Date.now()}`,
         packId,
         savedAt: Date.now(),
-        result,
+        result: kept,
         report: labReport(result, cards),
       }
       await saveSim(row)
@@ -331,8 +346,10 @@ export function BalanceLab({
                   aria-pressed={mode === 'ladder'}
                   onClick={() => setMode('ladder')}
                   data-testid="lab-mode-ladder"
+                  disabled
+                  title="Off for now, until it plays The First Quest rules"
                 >
-                  Bot ladder
+                  Bot ladder (off for now)
                 </Button>
               </div>
               {mode === 'ladder' && (
@@ -402,19 +419,18 @@ export function BalanceLab({
                         </option>
                       </NativeSelect>
                     </div>
-                    <div className="flex flex-col gap-1.5">
-                      <Label htmlFor="lab-mode">Rules</Label>
-                      <NativeSelect
-                        id="lab-mode"
-                        value={rules}
-                        onChange={(e) => setRules(e.target.value as GameMode)}
-                      >
-                        <option value="mutual">Mutual Reveal</option>
-                        <option value="open">Open Skirmish</option>
-                      </NativeSelect>
-                    </div>
                     {seedField}
                     {threadsField}
+                    <label className="flex min-h-11 items-center gap-2 text-sm sm:col-span-2">
+                      <input
+                        type="checkbox"
+                        className="size-5"
+                        checked={record}
+                        onChange={(e) => setRecord(e.target.checked)}
+                        data-testid="lab-record"
+                      />
+                      Save games (downloads a .jsonl file of every game's moves)
+                    </label>
                   </div>
                   <div className="flex flex-col gap-1.5">
                     <span className="text-sm font-medium">Core set</span>

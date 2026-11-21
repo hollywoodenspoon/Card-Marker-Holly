@@ -54,8 +54,9 @@ describe('the card reader', () => {
   it('needs an action to fit the card type', () => {
     // An Inherent card has no way to use an action.
     expect(readText('Inherent', 'Opponent rests a card from their Support.').rules).toBeNull()
-    // A cost only on abilities a player chooses to use.
-    expect(readText('Flip', 'Rest 1: Opponent rests a card from their Support.').rules).toBeNull()
+    // A cost only on abilities a player chooses to use (a Flip cost is optional).
+    expect(readText('Battle', 'Rest 1: Opponent rests a card from their Support.').rules).toBeNull()
+    expect(readText('Flip', 'Rest 1: Opponent rests a card from their Support.').rules?.flip?.optional).toBe(true)
   })
 
   it('gives Fighting Spirit only to Battle Abilities', () => {

@@ -1,187 +1,95 @@
 # ADVENTURE SCUFFLE!
 ### Rulebook
 
----
-
 ## Overview
 
-Two players each bring a Free Company of 12 cards. The game is played in rounds; each round has two Engagements, each worth 1 point. The first player to **4 points** wins at once.
+Two players each bring a Free Company of 12 cards. Each round has up to two Engagements, each worth 1 point. The first player to **4 points** wins.
 
-**Components:** each player's 12 cards, a coin (for coin-flip cards), 2 cubes to mark each player's Main Attacker.
+**You need:** your 12 cards, a coin, and a marker for your Main Attacker.
 
 ---
 
 ## Building a Free Company
 
-- **Exactly 12 cards, one copy of each.**
-- **At most one Ace.** Aces are cards marked as Ace, usually with stronger stats or abilities. A Free Company may have zero or one Ace.
-- **Bonus cards** are released outside the premade Free Companies. They follow the same rules; a bonus Ace counts toward the Ace limit.
-
-New players can pick a premade Free Company instead of building one.
+- Exactly 12 cards, one copy of each.
+- At most one Ace.
 
 ---
 
-## Start of the Game
+## The Cards
 
-1. Decide the initiative: rock-paper-scissors (the winner takes or gives the initiative). Hearthside Table can also decide it at random.
-2. Each player places 6 of their 12 cards face down on their field; the initiative player places first. The other 6 cards are their **Support**.
+Each card shows its **Fighting Spirit** (top), **Attack** (left) and **Defense** (right), its type and its ability.
 
-**The field** is 6 positions in 2 rows and 3 columns. The top row is the **Front Line**, the bottom row the **Rear Guard**; the middle column is the **Center**, the two side columns the **Flank**. Every position is one row and one column at once (top-left is Front Line and Flank).
+| Type | When it works |
+|---|---|
+| **Flip** | When the card is flipped face up. |
+| **Field** | As your action, from a face-up Ready card on your field. |
+| **Support** | As your action, from your Support. Show it, resolve it, then rest it. |
+| **Rest** | From your rest zone, as the text says. |
+| **Battle** | When the card is revealed for Fighting Spirit. |
+| **Inherent** | Always on. |
 
----
-
-## Round Structure
-
-Each round is a **Skirmish Phase**, a **Combat Phase** and a **Regroup Phase**.
-
-### Skirmish Phase
-
-**Reveal**
-
-1. Both players turn all their face-down field cards face up at the same time.
-2. The initiative player picks one of their Flip Abilities and resolves it.
-3. The other player picks one of theirs and resolves it.
-4. Keep alternating until every Flip Ability has resolved. When one player has none left, the other resolves the rest of theirs in any order.
-
-**Actions**
-
-Starting with the initiative player, players take turns doing **one action** each:
-
-- **Attack:** turn a face-up Ready card clockwise. Up to 3 cards a round. Each attacker you declare becomes your **Main Attacker** (move the cube to it). After your first, each new attacker must be adjacent to the one you declared before it.
-- **Defense:** turn a face-up Ready card counter-clockwise. Up to 3 cards a round.
-- **Field Ability:** use the Field Ability of a face-up Ready card. The card becomes ability-active.
-- **Support Ability:** use a Support Ability from your Support.
-- **Pass:** you take no more actions this round. The other player keeps going until they pass too.
-
-Attaching a Living Weapon (from your Support or from your rest zone) is your action for the turn.
-
-A card that "can be declared as an attacker even if you already have 3 attackers" (Howling Barbarian) can be your 4th attacker.
-
-**Forming the stacks**
-
-When both players have passed:
-
-1. Your **attack stack** is every card you declared as an attacker.
-2. It attacks the **Mirrored Position** of your Main Attacker on the opponent's field (same row, opposite column).
-3. The opponent's **defense stack** is their defenders on or adjacent to that position.
-4. **Values lock.** Every card's Attack and Defense, with position bonuses and other Inherent changes, stays as it is now for the rest of the round, even if the card moves or a condition stops being met.
-
-**The Main Attacker** only decides where the attack comes from and what it targets. Once combat has started it is an attacker like any other.
-
-### Combat Phase
-
-1. Each player's attack makes one Engagement. The initiative player chooses which one resolves first: the **First Engagement**; the other is the **Second Engagement**.
-   - A player with no attacker plays no Engagement this round. The other player's Engagement is the First Engagement.
-   - If an attack has no defender on or adjacent to its target, the attacker scores the point at once and no Fighting Spirit is revealed.
-2. **Starting totals:** Attack is the attack stack's total Attack; Defense is the defense stack's total Defense.
-3. **Fighting Spirit:** players alternate revealing one card at a time, starting with the initiative player in every Engagement, whichever side they are on.
-   - Reveal a card from your Support and add its Fighting Spirit to your side, or use a rest-zone card whose Rest Ability lets you use it for Fighting Spirit (it stays in the rest zone and can be used once per Engagement).
-   - Resolve its Battle Ability before the next reveal.
-   - **Or pass.** Passing locks your total for this Engagement only; the other player may keep revealing until they pass too.
-   - If an ability moves a card between your attack stack and your defense stack, totals update at once. A swap trades the two cards' places in the stacks, each keeping its locked values; the attack still comes from the same position and targets the same position.
-4. **Scoring:** the higher total scores 1 point, attacker or defender. A tie scores nothing. Reaching 4 points wins at once.
-5. **Between Engagements,** players may use any Rest Ability whose condition is met.
-6. Resolve the Second Engagement the same way. Support cards you didn't use carry over to it.
-
-### Regroup Phase
-
-1. Rest every card used for Fighting Spirit, every unused Support card, and every attached Living Weapon.
-2. Every field card goes to your Support, Ready cards included, unless an ability keeps it on the field.
-3. **Refill** every empty field position face down from your rest zone, choosing which card goes where; the initiative player refills first. If your rest zone runs out, fill the rest from your Support. Every round starts with 6 cards on each field.
-4. Pass the initiative. The next round's Skirmish reveals the refilled cards.
+An archetype is a word in quotes, like "Grave". A "Grave" card is any card with Grave in its name. "Also on your field" means another one, not this card.
 
 ---
 
-## Terminology
+## Setup
 
-**Free Company** - a player's 12-card deck.
+1. Decide who has the initiative (rock-paper-scissors).
+2. Each player places 6 cards face down on their field, initiative player first. The other 6 are your **Support** (your hand).
 
-**Ace** - a card marked as Ace (see Building a Free Company).
-
-**Support** - the cards in a player's hand. Used for Fighting Spirit in combat, or for Support Abilities in the Skirmish.
-
-**Field** - a player's 6 positions (see Start of the Game).
-
-**Rest / Rest Zone** - to rest a card is to put it in your rest zone, a face-up pile. Rest-zone cards refill the field at Regroup and can use Rest Abilities.
-
-**Ready** - a card that hasn't attacked, defended or used an ability this round.
-
-**Active** - a card that is attacking (turned clockwise), defending (turned counter-clockwise) or ability-active (turned diagonally).
-
-**Adjacent / next to** - directly above, below, left or right on the same field. Diagonals don't count.
-
-**Mirrored Position** - the same row, opposite column, on the opponent's field.
-
-**Engagement** - one attack against one defense in the Combat Phase. A round has at most two.
-
-**Won / Lost an Engagement** - you scored its point / the other player did. A tie is neither. Only the current round counts, so "Lost Previous Engagement" can only be met in the Second Engagement.
-
-**Attack, Defense and Fighting Spirit Values** - printed on the card's left edge, right edge and top edge. A greyed-out icon shows the most the stat can reach through the card's own ability. **No card's Fighting Spirit can be above 3,** after every bonus.
-
-**Swapped-in card** - a card an ability puts on the field in place of another. It takes the replaced card's face (up or down) and its state, unless the ability says otherwise ("is Ready").
+**The field** is 2 rows of 3. The top row is the **Front Line**, the bottom row the **Rear Guard**. The middle column is the **Center**, the side columns the **Flank**.
 
 ---
 
-## Ability Types
+## A Round
 
-**Field Ability** - used from the field as an action, by a face-up Ready card. Using it makes the card ability-active, so it doesn't attack or defend this round.
+### 1. Skirmish
 
-**Support Ability** - used from your Support as an action. Show the card, resolve it, then rest it, unless the text says otherwise.
+**Reveal.** Both players flip all their field cards face up. Then each player resolves **one** Flip ability, initiative player first. If you have several, choose one.
 
-**Rest Ability** - used from the rest zone when its condition is met. "You may use this card for Fighting Spirit this Engagement" is used on your Fighting Spirit turn instead of revealing a Support card; the card stays in the rest zone.
+**Actions.** Starting with the initiative player, take turns doing one action:
 
-**Battle Ability** - resolves when its card is revealed as Fighting Spirit. Its condition is checked once, at reveal.
+- **Attack:** turn a Ready card sideways to the right. Up to 3 a round. The newest attacker is your **Main Attacker**; after the first, each new attacker must be next to the previous one.
+- **Defend:** turn a Ready card sideways to the left. Up to 3 a round.
+- **Field ability:** use it, then put the card in your rest zone and replace it with a card from your Support. The new card takes its place, Ready. You need a card in Support to do this.
+- **Support or Rest ability:** use one.
+- **Pass:** you're done for the round. The other player continues until they pass.
 
-**Inherent Ability** - always on, wherever the card is; its own text sets its limits (a positional bonus only works on the field). Checks that look at the field only count face-up cards.
+**Face down.** A card turned face down can't attack, defend or use its ability, and stays face down for the round.
 
-**Flip Ability** - resolves in the Reveal at the start of the Skirmish, in turns. Mandatory; the card's owner picks any targets. With no legal target, nothing happens. It doesn't make its card ability-active: the card stays Ready and can still attack or defend.
+### 2. Combat
+
+Your attack hits the position opposite your Main Attacker (same row, other column). Every card you declared as an attacker is in your attack. The opponent defends with their defenders on or next to that position.
+
+Each attack is one **Engagement**. The initiative player chooses which is resolved first.
+
+1. If no defender is on or next to the target, the attacker scores at once.
+2. Add up the attackers' Attack and the defenders' Defense.
+3. **Fighting Spirit:** starting with the initiative player, take turns revealing a card from your Support and adding its Fighting Spirit, or **pass**. If a card allows it, you can use a card from your rest zone instead. Once you pass, you can't reveal again this Engagement.
+4. The higher total scores 1 point. A tie scores nothing.
+
+Support cards you didn't use carry over to the second Engagement.
+
+### 3. Regroup
+
+1. Rest every card used for Fighting Spirit and every card left in your Support.
+2. Every field card goes to your Support.
+3. Refill your field face down from your rest zone, initiative player first. If your rest zone runs out, fill the rest from your Support.
+4. Pass the initiative.
 
 ---
 
-## Keywords and Wording
+## Words on Cards
 
-Ability text is `[Condition or Cost]: [Effect]`.
-
-### Conditions
-
-- **Position:** `Center:` / `Flank:` — only while the card is in that zone.
-- **Initiative / No-Initiative** — whether you have the initiative this round.
-- **Attacking Side / Defending Side** — which side of the current Engagement you are on.
-- **First / Second Engagement**, **Won First Engagement**, **Lost Previous Engagement.**
-- **N+ Rest Zone** — your rest zone holds N or more cards.
-- **"If you have N or fewer cards in Support"**, **"If opponent has N+ cards in their rest zone"**, **"If opponent has an Ace on their field"** (a face-up Ace).
-- **Board state:** `If [condition]: [effect]`, checked continuously; on the field, until values lock.
-
-### Costs
-
-Any ability, Inherent included, may start with **Rest N**: rest N cards of your choice from your Support, not counting the ability's own card. Pay in full or you can't use it. An Inherent cost is paid when its effect applies.
-
-### Targeting
-
-- "Opponent" always means the opponent. "Target player" is either player, the user's choice.
-- "Opponent rests a card from their Support": the opponent chooses which card.
-- "Your opponent reveals a random card from their Support to you": it is shown to both players, then goes back to their Support.
-- A "ready card" target can be face up or face down.
-- A protected card can't be chosen by the ability it is protected from.
-- **"Cannot be repositioned"** protects against every swap by an opponent's ability, including being swapped out of the field.
-
-### Archetypes
-
-- A card belongs to an archetype if its name contains the archetype word (Grave Keeper is a Grave card), or if it **prints** an archetype (Living Weapon Dusk prints Living Weapon).
-- An archetype check never counts the card itself: "If a Grave card is also on your field" needs **another** face-up Grave card.
-- **At most 6 cards** share an archetype. Exception: Living Weapon has no cap.
-- Archetype effects are written in plain text. Common forms:
-  - `If a [A] card is also on your field: …` and `If a [A] card is in your rest zone: …`
-  - `If a [A] card was revealed as Fighting Spirit this Engagement: …`
-  - `If a [A] card is in your rest zone, this card does not need to be rested after use.`
-  - `Swap the position of a [A] card on your field (this card included) with another card on your field.`
-
-### Living Weapon
-
-An archetype of Rest and Support cards named "Living Weapon [Name]".
-- "Attach this card to a ready card on your field": the weapon goes under its host and adds its Attack and Defense to it.
-- Weapons attach **only during the Skirmish**, as an action: Support weapons as a Support Ability, Rest weapons from the rest zone.
-- **One weapon per card.** If the host leaves the field, the weapon goes to the rest zone. A weapon on a locked or ability-active host does nothing.
-- An attached weapon isn't a field card: it doesn't count for "on your field" checks and can't be targeted on its own.
-- On the opponent's side, a weapon only restricts its host, never lowers its stats.
-- **Only Living Weapons add stats to another card.**
+- **Card effects:** these rules are how the game is played; card effects are made to break them. When a card and the rules disagree, follow the card.
+- **Rest a card:** put it in your rest zone, a face-up pile.
+- **Rest N:** a cost. Rest N cards from your Support first.
+- **Ready:** hasn't attacked, defended or used an ability this round.
+- **Next to:** directly above, below, left or right.
+- **Initiative / No-Initiative:** you have / don't have the initiative.
+- **Attacking Side / Defending Side:** your side in the current Engagement.
+- **N+ Rest Zone:** you have N or more cards in your rest zone.
+- **Opponent rests a card:** they choose. **A random card:** they shuffle their Support and you pick blind.
+- **Swap an attacker with a defender:** they trade places in combat.
+- **Living Weapon:** attaching one is your action. It goes under a Ready card and adds its Attack and Defense. At Regroup, or when its card leaves the field, rest it.

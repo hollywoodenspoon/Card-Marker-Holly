@@ -1,4 +1,5 @@
 import csv from '../../../game/adventure-scuffle/cards.csv?raw'
+import tfqCsv from '../../../game/adventure-scuffle/tfq.csv?raw'
 import { parseDelimited } from '@/storage/sheetFiles'
 import type { PackCard } from '@/playtest/pack'
 import { cardsFromPack, type AsCard } from '../cards'
@@ -8,8 +9,8 @@ import { cardsFromPack, type AsCard } from '../cards'
  * (the source of truth) the way Hearthside Cardworks exports a pack. Card id =
  * code in lower case without the dash, as in the other fixtures.
  */
-function read(): AsCard[] {
-  const [head, ...rows] = parseDelimited(csv)
+function read(text: string): AsCard[] {
+  const [head, ...rows] = parseDelimited(text)
   const pack: PackCard[] = rows
     .filter((r) => r.some((v) => v.trim()))
     .map((r) => {
@@ -20,4 +21,7 @@ function read(): AsCard[] {
   return cardsFromPack(pack).cards
 }
 
-export const ALL_CARDS: AsCard[] = read()
+export const ALL_CARDS: AsCard[] = read(csv)
+
+/** The First Quest as played now, from `game/adventure-scuffle/tfq.csv`. */
+export const TFQ_CARDS: AsCard[] = read(tfqCsv)

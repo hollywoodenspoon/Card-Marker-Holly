@@ -6,7 +6,8 @@ import { quickMove, roll, type Rng } from './policies'
 import { trickMove } from './tricks'
 
 export type BotLevel = 'easy' | 'normal' | 'hard'
-export const BOT_LEVELS: BotLevel[] = ['easy', 'normal', 'hard']
+/** Hard (ISMCTS) is turned off for now: it plays as Normal and isn't offered. */
+export const BOT_LEVELS: BotLevel[] = ['easy', 'normal']
 export const BOT_NAMES: Record<BotLevel, string> = { easy: 'Easy', normal: 'Normal', hard: 'Hard' }
 
 export interface BotOptions {
@@ -100,11 +101,17 @@ function rollout(s: AsState, seat: Seat, r: Rng): number {
 }
 
 /** The bot's move for the player to act. */
+export function hardMove(s: AsState, opts: BotOptions = {}, seed = 1): Move {
+  const seat = actor(s)
+  if (seat === null) throw new Error('The game is over.')
+  return mctsMove(s, seat, { seed }, opts)
+}
+
 export function botMove(s: AsState, level: BotLevel, seed: number, opts: BotOptions = {}): Move {
   const seat = actor(s)
   if (seat === null) throw new Error('The game is over.')
   const r = { seed }
-  if (level === 'hard') return mctsMove(s, seat, r, opts)
-  if (level === 'normal') return searchMove(s, seat, r, opts.playouts ?? 96, opts.thinkMs)
+  if (level === 'normal' || level === 'hard')
+    return searchMove(s, seat, r, opts.playouts ?? 96, opts.thinkMs)
   return tricksMove(s, r)
 }

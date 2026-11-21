@@ -1,46 +1,46 @@
 Name_AS,Code_AS,Type_AS,FS_AS,A_AS,D_AS,Fate_AS,Ability_AS,Deck_AS,Archetype_AS,FS_Grey_AS,A_Grey_AS,D_Grey_AS
-Crimson Duelist {ace},TFQ-01,Flip,1,3,3,293,"Flip Ability: Target a card on your opponent's field. Put it in the rest zone, then replace it with a random card from their Support.",Adventurer's Guild,,0,0,0
-Spirited Knight,TFQ-02,Battle,1,3,2,126,Attacking Side: +1 {fightingspirit_as}. Initiative: +1 {fightingspirit_as}.,Adventurer's Guild,,2,0,0
-Spiritforged Monk,TFQ-03,Battle,1,2,3,537,Initiative: +1 {fightingspirit_as}. Defending Side: +1 {fightingspirit_as}.,Adventurer's Guild,,2,0,0
-Strategic Vanguard,TFQ-04,Battle,1,2,3,550,Defending Side: You may swap one of your attackers to one of your defenders.,Adventurer's Guild,,0,0,0
-Decoy Ninja,TFQ-05,Battle,1,2,2,319,No-Initiative: You may swap this card's position with a ready card on your field.,Adventurer's Guild,,0,0,0
-Adventuring Ranger,TFQ-06,Flip,2,1,1,499,"Flip Ability, if an Adventuring card is also on your field: Opponent rests a card from their Support.",Adventurer's Guild,,0,0,0
+Crimson Duelist {ace},TFQ-01,Flip,1,3,3,293,Rest target card on the opponent's field. Replace it with a random card from their Support.,Adventurer's Guild,,0,0,0
+Spirited Knight,TFQ-02,Battle,1,3,2,126,Initiative: Opponent rests a card from their Support.,Adventurer's Guild,,0,0,0
+Spiritforged Monk,TFQ-03,Battle,1,2,3,537,Attacking Side: Swap one of your attackers with one of your defenders.,Adventurer's Guild,,0,0,0
+Strategic Vanguard,TFQ-04,Battle,1,2,3,550,Defending Side: You may swap one of your attackers with one of your defenders.,Adventurer's Guild,,0,0,0
+Decoy Ninja,TFQ-05,Battle,1,2,2,319,No-Initiative: You may swap this card's position with a Ready card on your field.,Adventurer's Guild,,0,0,0
+Adventuring Ranger,TFQ-06,Flip,2,1,1,499,"If an ""Adventuring"" card is also on your field: Opponent rests a random card from their Support.",Adventurer's Guild,,0,0,0
 Adventuring Marksman,TFQ-07,Field,1,3,2,139,Opponent rests a card from their Support.,Adventurer's Guild,,0,0,0
-Adventuring Witch,TFQ-08,Field,2,2,2,332,Swap target opponent's ready card on the field with a random card from their Support. The card that enters the field inherits the state of the card it swapped with. The card it swapped with is rested.,Adventurer's Guild,,0,0,0
-Adventuring Quartermaster,TFQ-09,Field,1,2,3,563,Swap a card on your field with a card from your Support. The card placed on the field is Ready.,Adventurer's Guild,,0,0,0
-Adventuring Knight,TFQ-10,Flip,2,1,1,512,"Flip Ability, if an Adventuring card is also on your field: Swap the target opponent's card's position with another card on their field.",Adventurer's Guild,,0,0,0
-Mission Handler,TFQ-11,Support,3,2,1,229,Once per round: Swap a ready card's position with another ready card on your field. This card is not rested after use.,Adventurer's Guild,,0,0,0
-Adventuring Dragoon,TFQ-12,Support,2,2,2,344,Rest 1: Target opponent's card on the field is turned to the ability-active position without resolving its ability.,Adventurer's Guild,,0,0,0
-The Kingdom's Hero {ace},TFQ-13,Inherent,1,4,4,113,Cannot be the target of the opponent's effects.,Hero's Retinue,The Kingdom's,0,0,0
-The Kingdom's Archmage,TFQ-14,Battle,1,2,2,357,Defending Side: +1 {fightingspirit_as}. Initiative: +1 {fightingspirit_as}.,Hero's Retinue,The Kingdom's,2,0,0
-Scout Saboteur,TFQ-15,Battle,2,1,2,615,"Attacking Side: Opponent rests a card from their Support, if able.",Hero's Retinue,Scout,0,0,0
-Scout Assassin,TFQ-16,Flip,2,2,1,242,Rest 1: Swap target opponent's ready card on the field with a random card from their Support. The card that enters the field inherits the state of the card it swapped with.,Hero's Retinue,Scout,0,0,0
-Scout Disruptor,TFQ-17,Field,1,2,2,370,"If a Scout card is also on your field: Swap the positions of two target cards on the opponent's field, then swap the positions of two target cards on your field.",Hero's Retinue,Scout,0,0,0
-The Kingdom's Weapon Master,TFQ-18,Inherent,1,3,2,151,Center: +1 {defense_as}. Flank: +1 {attack_as}.,Hero's Retinue,The Kingdom's,0,1,1
-The Kingdom's Trusted Shield Bearer,TFQ-19,Inherent,1,2,3,576,Flank: +1 {attack_as}. Center: +1 {defense_as}.,Hero's Retinue,The Kingdom's,0,1,1
-Scout Sentinel,TFQ-20,Support,2,2,2,383,If a Scout card is also on your field: Swap the positions of two of your cards on the field.,Hero's Retinue,Scout,0,0,0
-Light Dragoon,TFQ-21,Support,2,2,2,396,Swap this card's position with another card on your field. This card inherits the state of the card it swapped with.,Hero's Retinue,,0,0,0
-The Kingdom's Tower Guardian,TFQ-22,Inherent,2,2,2,409,This card cannot be repositioned by an opponent's ability.,Hero's Retinue,The Kingdom's,0,0,0
-The Kingdom's Emissary,TFQ-23,Inherent,1,2,2,422,If a The Kingdom's card is also on your field: +1 {attack_as}. If a The Kingdom's card is in your rest zone: +1 {defense_as}.,Hero's Retinue,The Kingdom's,0,1,1
+Adventuring Witch,TFQ-08,Field,2,2,2,332,Swap target Ready card on the opponent's field with a random card from their Support. Rest the card swapped out.,Adventurer's Guild,,0,0,0
+Adventuring Quartermaster,TFQ-09,Field,1,2,3,563,Swap a card on your field with a card from your Support. The new card is Ready.,Adventurer's Guild,,0,0,0
+Adventuring Knight,TFQ-10,Flip,2,1,1,512,"If an ""Adventuring"" card is also on your field: Swap the positions of two target cards on the opponent's field.",Adventurer's Guild,,0,0,0
+Mission Handler,TFQ-11,Support,2,2,2,229,Swap the positions of two Ready cards on your field.,Adventurer's Guild,,0,0,0
+Adventuring Dragoon,TFQ-12,Support,2,2,2,344,Rest 1: Turn target card on the opponent's field face down.,Adventurer's Guild,,0,0,0
+The Kingdom's Hero {ace},TFQ-13,Inherent,1,4,2,113,Cannot be targeted by the opponent's effects.,Hero's Retinue,The Kingdom's,0,0,0
+The Kingdom's Archmage,TFQ-14,Battle,1,2,3,357,Opponent cannot pass until their next reveal. That reveal uses 2 cards for Fighting Spirit.,Hero's Retinue,The Kingdom's,0,0,0
+Scout Saboteur,TFQ-15,Battle,2,1,2,615,Attacking Side: Opponent rests a random card from their Support.,Hero's Retinue,Scout,0,0,0
+Scout Assassin,TFQ-16,Flip,2,2,1,242,Rest 1: Swap target Ready card on the opponent's field with a random card from their Support.,Hero's Retinue,Scout,0,0,0
+Scout Disruptor,TFQ-17,Field,1,2,2,370,"If a ""Scout"" card is also on your field: Swap the positions of two target cards on the opponent's field, then swap the positions of two cards on your field.",Hero's Retinue,Scout,0,0,0
+The Kingdom's Weapon Master,TFQ-18,Inherent,1,3,2,151,Center: Opponent cannot reposition adjacent cards. Flank: Opponent cannot reposition this card.,Hero's Retinue,The Kingdom's,0,0,0
+The Kingdom's Trusted Shield Bearer,TFQ-19,Inherent,1,2,3,576,"If a ""The Kingdom's"" card is also on your field: Your ""The Kingdom's"" cards on the field cannot be turned face down.",Hero's Retinue,The Kingdom's,0,0,0
+Scout Sentinel,TFQ-20,Support,2,2,2,383,"If a ""Scout"" card is also on your field: Swap the positions of two cards on your field.",Hero's Retinue,Scout,0,0,0
+Light Dragoon,TFQ-21,Support,2,2,2,396,Swap this card with a card on your field.,Hero's Retinue,,0,0,0
+The Kingdom's Tower Guardian,TFQ-22,Inherent,2,2,2,409,Opponent cannot reposition this card.,Hero's Retinue,The Kingdom's,0,0,0
+The Kingdom's Emissary,TFQ-23,Inherent,2,2,2,422,"If a ""The Kingdom's"" card is also on your field: Opponent plays with their Support revealed for the rest of the round.",Hero's Retinue,The Kingdom's,0,0,0
 Howling Barbarian,TFQ-24,Inherent,1,3,2,164,This card can be declared as an attacker even if you already have 3 attackers.,Hero's Retinue,,0,0,0
-Grave Mistress of Rotos {ace},TFQ-25,Inherent,3,2,2,306,3+ Rest Zone: +2 {attack_as} and +2 {defense_as}.,Necromancer Deck,Grave,0,2,2
-Grave Digger of Rotos,TFQ-26,Support,1,1,2,177,Rest up to two Ghoulish cards from your Support. Opponent rests a card from their Support.,Necromancer Deck,Grave,0,0,0
-Grave Doppelganger,TFQ-27,Field,2,3,2,434,Rest 2: Copy and use the Field Ability of a card on the opponent's field (excluding abilities that themselves copy another ability).,Necromancer Deck,Grave,0,0,0
-Grave Keeper,TFQ-28,Field,2,2,2,447,Rest 1: Target a ready card on the opponent's field. It is turned to the ability-active position without resolving its ability.,Necromancer Deck,Grave,0,0,0
-Grave Reclaimer,TFQ-29,Field,2,2,2,627,Rest 1: Swap the position of a Grave card on your field with another card on your field.,Necromancer Deck,Grave,0,0,0
-Grave Guardian of Rotos,TFQ-30,Inherent,1,2,2,460,3+ Rest Zone: +1 {attack_as} and +1 {defense_as}.,Necromancer Deck,Grave,0,1,1
-Ghoulish Disruptor,TFQ-31,Rest,2,1,1,473,From your rest zone: Swap the positions of two target cards on the opponent's field. Then turn this card face down.,Necromancer Deck,Ghoulish,0,0,0
-Ghoulish Flanker,TFQ-32,Rest,1,2,1,254,From your rest zone: Opponent rests a card from their Support. Then turn this card face down.,Necromancer Deck,Ghoulish,0,0,0
-Ghoulish Brute,TFQ-33,Rest,2,1,2,640,If a Ghoulish card is also on your field: You may use this card for Fighting Spirit this Engagement. It gets +1 {fightingspirit_as}.,Necromancer Deck,Ghoulish,1,0,0
-Ghoulish Stalker,TFQ-34,Rest,1,1,1,190,If a Ghoulish card is also on your field: You may use this card for Fighting Spirit this Engagement. It gets +2 {fightingspirit_as}.,Necromancer Deck,Ghoulish,2,0,0
-Ghoulish Skirmisher,TFQ-35,Flip,2,2,1,267,Flip Ability: Opponent puts a random card from their Support into their rest zone.,Necromancer Deck,Ghoulish,0,0,0
-Ghoulish Line Breaker,TFQ-36,Battle,2,1,2,653,"If 2 or more Ghoulish cards are in your rest zone: Opponent rests a card from their Support, if able.",Necromancer Deck,Ghoulish,0,0,0
-Unassuming Mage {ace},TFQ-37,Inherent,3,1,1,305,If opponent has an Ace on their field: +3 {attack_as} and +3 {defense_as}.,Bonus Cards,,0,3,3
-Coin-Toss Bravo,TFQ-38,Battle,1,3,1,100,"Flip a coin when revealed: Heads +2 {fightingspirit_as}, Tails +0 {fightingspirit_as} instead of printed value.",Bonus Cards,,2,0,0
-Cackling Demon,TFQ-39,Field,2,2,2,486,Rest 1: Opponent rests a card from their Support.,Bonus Cards,,0,0,0
-Lucky Charm Bearer,TFQ-40,Battle,1,2,3,589,If you have 2 or more cards in your rest zone: +1 {fightingspirit_as}.,Bonus Cards,,1,0,0
+Grave Mistress of Rotos {ace},TFQ-25,Inherent,3,1,2,306,3+ Rest Zone at the start of Combat: You may use any card in your rest zone for Fighting Spirit until the end of the round.,Necromancer Deck,Grave,0,0,0
+Grave Digger of Rotos,TFQ-26,Support,1,1,2,177,"Rest up to 2 ""Ghoulish"" cards from your Support. Opponent rests a random card from their Support.",Necromancer Deck,Grave,0,0,0
+Grave Doppelganger,TFQ-27,Field,1,3,2,434,Rest 2: Use the Field Ability of target card on the opponent's field. Abilities that copy cannot be copied.,Necromancer Deck,Grave,0,0,0
+Grave Keeper,TFQ-28,Field,2,2,2,447,Rest 1: Turn target Ready card on the opponent's field face down.,Necromancer Deck,Grave,0,0,0
+Grave Reclaimer,TFQ-29,Field,2,2,2,627,"Rest 1: Swap the positions of a ""Grave"" card on your field and another card on your field.",Necromancer Deck,Grave,0,0,0
+Grave Guardian of Rotos,TFQ-30,Inherent,1,2,3,460,"2+ Rest Zone: While this card is in the Engagement, you cannot be forced to rest cards.",Necromancer Deck,Grave,0,0,0
+Ghoulish Disruptor,TFQ-31,Rest,2,1,1,473,Swap the positions of two target cards on the opponent's field. Then turn this card face down.,Necromancer Deck,Ghoulish,0,0,0
+Ghoulish Flanker,TFQ-32,Rest,1,2,1,254,Opponent rests a random card from their Support. Then turn this card face down.,Necromancer Deck,Ghoulish,0,0,0
+Ghoulish Brute,TFQ-33,Rest,1,2,1,640,"If a ""Ghoulish"" card is also on your field: You may use this card for Fighting Spirit. Attacking Side: Opponent must pass after their next reveal.",Necromancer Deck,Ghoulish,0,0,0
+Ghoulish Stalker,TFQ-34,Rest,1,1,1,190,"If a ""Ghoulish"" card is also on your field: You may use this card for Fighting Spirit. Opponent rests a card from their Support.",Necromancer Deck,Ghoulish,0,0,0
+Ghoulish Skirmisher,TFQ-35,Flip,2,2,1,267,Opponent rests a random card from their Support.,Necromancer Deck,Ghoulish,0,0,0
+Ghoulish Line Breaker,TFQ-36,Battle,2,1,2,653,"2+ ""Ghoulish"" cards in your rest zone: Opponent rests a random card from their Support.",Necromancer Deck,Ghoulish,0,0,0
+Unassuming Mage {ace},TFQ-37,Field,3,2,2,305,Rest target Ace on the opponent's field. This card goes to your Support instead of your rest zone.,Bonus Cards,,0,0,0
+Coin-Toss Bravo,TFQ-38,Battle,1,3,1,100,Flip a coin. Heads: Swap one of your attackers with one of your defenders. Tails: Opponent swaps one of their attackers with one of their defenders.,Bonus Cards,,0,0,0
+Cackling Demon,TFQ-39,Rest,2,2,2,486,Rest 1: Opponent rests a random card from their Support.,Bonus Cards,,0,0,0
+Lucky Charm Bearer,TFQ-40,Battle,1,1,3,589,2+ Rest Zone: Put the top card of your rest zone into your Support.,Bonus Cards,,0,0,0
 The Kingdom's High Priestess,TFQ-41,Support,2,2,2,435,Put a card from your rest zone into your Support.,Bonus Cards,The Kingdom's,0,0,0
 Volatile Cannoneer,TFQ-42,Field,1,2,2,236,Target player rests a card from their Support.,Bonus Cards,,0,0,0
-Wildcard Wanderer,TFQ-43,Flip,1,3,2,216,Flip Ability: Swap a card on your field with a card from your Support. The card placed on the field is Ready.,Bonus Cards,,0,0,0
-Living Weapon Dusk,TFQ-44,Rest,1,2,1,437,Attach this card to a ready card on your field.,Bonus Cards,Living Weapon,0,0,0
-Fear the First Shadow,TFQ-45,Flip,1,3,2,313,Flip Ability: Target an Ace on the opponent's field. It is turned to the ability-active position without resolving its ability.,Bonus Cards,,0,0,0
+Wildcard Wanderer,TFQ-43,Flip,1,3,2,216,Swap a card on your field with a card from your Support. The new card is Ready.,Bonus Cards,,0,0,0
+Living Weapon Dusk,TFQ-44,Rest,1,2,1,437,Attach this card to a Ready card on your field.,Bonus Cards,Living Weapon,0,0,0
+Fear the First Shadow,TFQ-45,Flip,1,3,2,313,Turn target Ace on the opponent's field face down.,Bonus Cards,,0,0,0

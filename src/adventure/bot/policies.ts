@@ -26,7 +26,7 @@ export function easyMove(s: AsState, r: Rng): Move {
   const legal = legalMoves(s).filter((m) => m.t !== 'unplace')
   if (s.step.k === 'place')
     return legal.find((m) => m.t === 'placeRandom') ?? legal.find((m) => m.t === 'done')!
-  if (s.step.k === 'fs' && chance(r, 0.5)) return { t: 'pass' }
+  if (s.step.k === 'fs' && legal.some((m) => m.t === 'pass') && chance(r, 0.5)) return { t: 'pass' }
   if (s.step.k === 'initiative') return { t: 'initiative', take: true }
   return legal[roll(r, legal.length)]
 }
@@ -174,6 +174,12 @@ export function chooseMove(s: AsState, seat: Seat, r: Rng): Move {
  * change the result is worth spending; earlier, only cards that come close.
  */
 export function fsMove(s: AsState, seat: Seat, legal: Move[]): Move {
+  const m = fsChoice(s, seat, legal)
+  // The Kingdom's Archmage: no pass until the next reveal.
+  return m.t === 'pass' && !legal.some((x) => x.t === 'pass') ? (legal[0] ?? m) : m
+}
+
+function fsChoice(s: AsState, seat: Seat, legal: Move[]): Move {
   const e = s.engagement
   if (!e) return { t: 'pass' }
   const t = engagementTotals(s, e)
@@ -219,8 +225,14 @@ export function actRule(s: AsState, seat: Seat, legal: Move[], r: Rng): Move {
   const free = (slot: number) => !extra.includes(me.field[slot].card ?? '')
   const atk = (slot: number) => statsAt(s, seat, slot).a
   const def = (slot: number) => statsAt(s, seat, slot).d
-  const attacks = legal.filter((m) => m.t === 'attack' && free(m.slot)) as { t: 'attack'; slot: number }[]
-  const defends = legal.filter((m) => m.t === 'defend' && free(m.slot)) as { t: 'defend'; slot: number }[]
+  const attacks = legal.filter((m) => m.t === 'attack' && free(m.slot)) as {
+    t: 'attack'
+    slot: number
+  }[]
+  const defends = legal.filter((m) => m.t === 'defend' && free(m.slot)) as {
+    t: 'defend'
+    slot: number
+  }[]
   const abilities = legal.filter((m) => m.t === 'ability')
   if (abilities.length && chance(r, LIGHT_USE)) return abilities[roll(r, abilities.length)]
   // The opponent's threat: their attackers' Attack against my cover at the target.
@@ -247,7 +259,10 @@ export function actRule(s: AsState, seat: Seat, legal: Move[], r: Rng): Move {
     // Lead with the card whose neighbours can follow; then the strongest next one.
     const lead = (slot: number) =>
       atk(slot) +
-      (myAttackers ? 0 : 0.5 * Math.max(0, ...attacks.filter((m) => adjacent(m.slot, slot)).map((m) => atk(m.slot))))
+      (myAttackers
+        ? 0
+        : 0.5 *
+          Math.max(0, ...attacks.filter((m) => adjacent(m.slot, slot)).map((m) => atk(m.slot))))
     return [...attacks].sort((a, b) => lead(b.slot) - lead(a.slot))[0]
   }
   if (cover.length) return cover[0]
@@ -264,7 +279,11 @@ function openMove(s: AsState, seat: Seat, legal: Move[], r: Rng): Move {
   const guess = determinize(s, seat, roll(r, 2 ** 31))
   const score = (m: Move) => {
     let x = applyFast(guess, m)
-    for (let n = 0; n < 60 && (x.step.k === 'act' || x.step.k === 'flip' || x.step.k === 'choose'); n++) {
+    for (
+      let n = 0;
+      n < 60 && (x.step.k === 'act' || x.step.k === 'flip' || x.step.k === 'choose');
+      n++
+    ) {
       const st = x.step
       const moves = legalMoves(x)
       const next =

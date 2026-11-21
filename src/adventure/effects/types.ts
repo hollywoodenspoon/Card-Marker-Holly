@@ -17,7 +17,7 @@ export interface Ctx {
    * attaching from the rest zone, Unassuming Mage's swap). onStack: paid when the
    * stacks form (Rest 1: Interpose). endure: at Regroup, stay on the field.
    */
-  mode: 'field' | 'support' | 'flip' | 'battle' | 'window' | 'onStack' | 'endure'
+  mode: 'field' | 'support' | 'flip' | 'battle' | 'window' | 'onStack' | 'endure' | 'replace'
 }
 
 /** One answer to a choice. Board options name their seat and slot, so the table can highlight them. */
@@ -100,6 +100,22 @@ export interface CardRules {
   endure?: Ability
   /** Cards of these archetypes on the owner's field can't be repositioned by an opponent (Warchief of the Horde). */
   guards?: string[]
+  /** Grave Guardian: while this holds in the Engagement, its owner ignores "rests a card from their Support". */
+  restProof?(s: AsState, seat: Seat, slot: number): boolean
+  /** Shield Bearer: the owner's [word] cards can't be turned face down while the test holds. */
+  downProof?: { word: string; test(s: AsState, seat: Seat, card: string): boolean }
+  /** The Kingdom's Hero: can't be targeted by the opponent's effects. */
+  untargetable?: boolean
+  /** Weapon Master: the opponent can't reposition this card (self) or adjacent cards while the test holds. */
+  holds?: { adjacent: boolean; test(s: AsState, seat: Seat, slot: number): boolean }[]
+  /** Emissary: the opponent's Support is shown while the test holds. */
+  revealsSupport?(s: AsState, seat: Seat): boolean
+  /** Barbarian: doesn't count toward the 3-attacker limit. */
+  extraAttacker?: boolean
+  /** Grave Mistress: every rest-zone card can be used for Fighting Spirit when the test holds at Combat start. */
+  restFsAll?(s: AsState, seat: Seat): boolean
+  /** Unassuming Mage: goes to Support instead of the rest zone after its Field ability. */
+  toSupport?: boolean
 }
 
 export type D = Draft<AsState>

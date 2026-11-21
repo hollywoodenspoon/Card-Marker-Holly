@@ -15,8 +15,7 @@ const list = (s: string) =>
 export function LeagueView() {
   const league = useGame((s) => s.game.league)
   const commit = useGame((s) => s.commit)
-  const edit = (recipe: (l: League) => void, key?: string) =>
-    commit((g) => recipe(g.league), key)
+  const edit = (recipe: (l: League) => void, key?: string) => commit((g) => recipe(g.league), key)
   return (
     <div className="h-full overflow-y-auto" data-testid="league-view">
       <Section title="Levels">
@@ -63,11 +62,12 @@ export function LeagueView() {
                   <NativeSelect
                     id={`bot-${lv.id}`}
                     value={lv.bot}
-                    onChange={(e) => edit((l) => void (l.levels[i].bot = e.target.value as BotName))}
+                    onChange={(e) =>
+                      edit((l) => void (l.levels[i].bot = e.target.value as BotName))
+                    }
                   >
                     <option value="easy">Easy</option>
                     <option value="normal">Normal</option>
-                    <option value="hard">Hard</option>
                   </NativeSelect>
                 </div>
               </div>
@@ -165,8 +165,8 @@ export function LeagueView() {
       </Section>
       <Section title="Names">
         <p className="text-xs text-muted-foreground">
-          Separate with commas or new lines. Generated duelists mix a first and a last name and
-          come from a region.
+          Separate with commas or new lines. Generated duelists mix a first and a last name and come
+          from a region.
         </p>
         {(['first', 'last', 'regions'] as const).map((k) => (
           <div key={k} className="flex flex-col gap-1">

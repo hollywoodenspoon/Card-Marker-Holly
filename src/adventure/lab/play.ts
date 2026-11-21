@@ -53,6 +53,22 @@ export interface LabSlice {
   games: LabGame[]
   bot: LabBot
   mode?: GameMode
+  /** Keep every game's moves (for the saved-games file). */
+  record?: boolean
+}
+
+/** One saved game: enough to replay it (createGame with these, then apply each move). */
+export interface GameRecord {
+  seed: number
+  mode: GameMode
+  /** Card ids of seat 0's and seat 1's decks. */
+  decks: [string[], string[]]
+  /** Bot level on each seat. */
+  levels: [string, string]
+  moves: Move[]
+  winner: Seat | null
+  first: Seat
+  rounds: number
 }
 
 export interface LabSliceResult {
@@ -62,11 +78,12 @@ export interface LabSliceResult {
   /** Checked games, and what the checker (or a refused move) found. */
   checked: number
   problems: string[]
+  records?: GameRecord[]
 }
 
 const MAX_MOVES = 4000
 
-export function playSlice({ cards, decks, games, bot, mode }: LabSlice): LabSliceResult {
+export function playSlice({ cards, decks, games, bot, mode, record }: LabSlice): LabSliceResult {
   const byName = new Map(cards.map((c) => [c.name, c.id]))
   const out: LabSliceResult = { games: [], uses: {}, checked: 0, problems: [] }
   const count = (id: string, k: 0 | 1) => (out.uses[id] ??= [0, 0])[k]++
@@ -96,7 +113,7 @@ export function playSlice({ cards, decks, games, bot, mode }: LabSlice): LabSlic
         if (fsUsesAbility(s, m)) count(m.card, 1)
       }
       if (m.t === 'ability') count(m.card, 1)
-      if (g.check) moves.push(m)
+      if (g.check || record) moves.push(m)
       s = next
       if (s.round === 1 && s.step.k !== 'rps' && s.step.k !== 'initiative') first = s.initiative
     }
@@ -116,6 +133,17 @@ export function playSlice({ cards, decks, games, bot, mode }: LabSlice): LabSlic
       for (const p of checkGame(game, moves).problems)
         out.problems.push(`${where}, move ${p.move + 1} (round ${p.round}): ${p.text}`)
     }
+    if (record)
+      (out.records ??= []).push({
+        seed: g.seed,
+        mode: mode ?? 'mutual',
+        decks: [decks[g.a], decks[g.b]],
+        levels: [bot, bot],
+        moves,
+        winner: s.winner?.seat ?? null,
+        first,
+        rounds: s.round,
+      })
     out.games.push({ a: g.a, b: g.b, winner: s.winner?.seat ?? null, first, rounds: s.round })
   }
   return out
@@ -133,6 +161,7 @@ export function mergeSlices(parts: LabSliceResult[]): LabSliceResult {
     }
     out.checked += p.checked
     out.problems.push(...p.problems)
+    if (p.records) (out.records ??= []).push(...p.records)
   }
   return out
 }

@@ -12,6 +12,7 @@ import {
   slotOf,
 } from './helpers'
 import * as M from './mechanics'
+import * as T from './tfq'
 import { attackStack, defenseStack, tokensOn } from '../stats'
 import type { Ability, CardRules, Ctx, D } from './types'
 
@@ -56,7 +57,7 @@ const all =
   (q) =>
     c.tests.every((t) => t(q))
 
-type Mode = Ctx['mode']
+type Mode = Exclude<Ctx['mode'], 'replace'>
 
 interface Build {
   /** How the card's action is used, from its type (Inherent and Rest cards have none). */
@@ -76,6 +77,8 @@ interface Build {
   extraFs?: (s: AsState, seat: Seat) => number
   /** The two sides of a coin, and the conditions for flipping it at all. */
   coin?: { heads?: Ability; tails?: Ability; tests: Test[] }
+  /** Ghoulish Rest cards: turned face down in the rest zone after use. */
+  lockSelf?: boolean
 }
 
 const MODE: Record<string, Mode | null> = {
@@ -84,7 +87,7 @@ const MODE: Record<string, Mode | null> = {
   Flip: 'flip',
   Battle: 'battle',
   Inherent: null,
-  Rest: null,
+  Rest: 'window',
 }
 
 /** "grave" → "Grave" (archetype words are matched without case). */
@@ -99,7 +102,13 @@ const CONDITIONS: [RegExp, (g: Record<string, string>) => Test][] = [
   [/^defending side$/, () => (q) => !!q.e && q.e.attacker !== q.seat],
   [/^initiative$/, () => (q) => q.s.initiative === q.seat],
   [/^no-initiative$/, () => (q) => q.s.initiative !== q.seat],
-  [/^(?<n>\d+)\+ rest zone$/, (g) => (q) => restCount(q.s, q.seat) >= Number(g.n)],
+  [/^(?<n>\d+)\+ rest zone(?: at the start of combat)?$/, (g) => (q) => restCount(q.s, q.seat) >= Number(g.n)],
+  [
+    new RegExp(`^(?<n>\\d+)\\+ ${W} cards in your rest zone$`),
+    (g) => (q) =>
+      q.s.players[q.seat].rest.filter((c) => c !== q.card && inArchetype(q.s, c, g.w)).length >=
+      Number(g.n),
+  ],
   [
     /^if you have (?<n>\d+) or more cards in your rest zone$/,
     (g) => (q) => restCount(q.s, q.seat) >= Number(g.n),
@@ -357,10 +366,13 @@ function action(
         return true
       }
       // A cost or once-per-round only for abilities a player chooses to use.
-      if ((c.cost || c.once) && b.mode !== 'field' && b.mode !== 'support') return false
+      if ((c.cost || c.once) && b.mode !== 'field' && b.mode !== 'support' && b.mode !== 'window')
+        // A Flip with a cost: the owner may pay it (Scout Assassin).
+        if (b.mode !== 'flip' || c.once) return false
       const ab = make(g, b)
       if (!ab) return false
       b.ability = wrap(ab, c)
+      if (b.mode === 'flip' && c.cost) b.ability = { ...b.ability, optional: true }
       b.abilityAt = b.at
       b.abilityIf = c.tests.length > 0
       return true
@@ -429,6 +441,18 @@ const PHRASES: Phrase[] = [
       }
     },
   ),
+  // Ghoulish Brute/Stalker: usable for Fighting Spirit from the rest zone; the
+  // text after it is the card's Battle ability.
+  {
+    body: 'you may use this card for fighting spirit',
+    read(_g, c, b) {
+      if (actionOnly(c) || b.mode !== 'window' || b.rules.restFs) return false
+      const test = all(c)
+      b.rules.restFs = { can: (s, seat, card) => test({ s, seat, card, e: s.engagement }), bonus: 0 }
+      b.mode = 'battle'
+      return true
+    },
+  },
   // Fighting Spirit when revealed.
   passive(
     'flip a coin when revealed: heads \\+(?<h>\\d+) fs, tails \\+(?<t>\\d+) fs instead of (?:the |its )?printed value',
@@ -561,6 +585,120 @@ const PHRASES: Phrase[] = [
       return B.copyAbility as Ability
     },
   ),
+  // ---- The First Quest ----
+  action(
+    "rest target card on the opponent's field\\. replace it with a random card from their support",
+    () => B.restAndReplace,
+  ),
+  action(
+    "swap target ready card on the opponent's field with a random card from their support(?<rested>\\. rest the card swapped out)?",
+    (g) => (g.rested ? B.swapOutAndRest : B.opponentSwapOut),
+  ),
+  action(
+    'swap a card on your field with a card from your support\\. the new card is ready',
+    () => B.ownSwapIn,
+  ),
+  action(
+    "swap the positions of two target cards on the opponent's field(?<then>, then swap the positions of two cards on your field)?",
+    (g) => (g.then ? M.andThen(B.opponentPositionSwap(), T.swapTwoAny) : B.opponentPositionSwap()) as Ability,
+  ),
+  action('swap the positions of two cards on your field', () => T.swapTwoAny as Ability),
+  action(
+    "turn target (?:(?<ready>ready card)|(?<ace>ace)|card) on the opponent's field face down",
+    (g) => T.turnDown(g.ready ? 'ready' : g.ace ? 'ace' : 'any') as Ability,
+  ),
+  action('swap this card with a card on your field', (_g, b) =>
+    b.mode === 'support' ? (B.swapInSelf(false, true) as Ability) : null,
+  ),
+  action(
+    `rest up to (?<n>\\d+) ${W} cards from your support\\. opponent rests a random card from their support`,
+    (g) => M.andThen(T.restArch(Number(g.n), word(g.w)), T.opponentRandomRests) as Ability,
+  ),
+  action('opponent rests a random card from their support', () => T.opponentRandomRests as Ability),
+  action(
+    "use the field ability of target card on the opponent's field\\. abilities that copy cannot be copied",
+    (_g, b) => {
+      b.rules.copies = true
+      return B.copyAbility as Ability
+    },
+  ),
+  action(
+    `swap the positions of an? ${W} card on your field and another card on your field`,
+    (g) => B.maneuver(word(g.w), { self: true, showDown: false }),
+  ),
+  action(
+    "rest target ace on the opponent's field\\. this card goes to your support instead of your rest zone",
+    (_g, b) => {
+      b.rules.toSupport = true
+      return T.restAce as Ability
+    },
+  ),
+  action('opponent swaps one of their attackers with one of their defenders', (_g, b) =>
+    b.mode === 'battle' ? (T.opponentSwitchesSides as Ability) : null,
+  ),
+  action('put the top card of your rest zone into your support', () => T.topRestToSupport as Ability),
+  action(
+    'opponent cannot pass until their next reveal\\. that reveal uses 2 cards for fighting spirit',
+    (_g, b) => (b.mode === 'battle' ? (T.doubleReveal as Ability) : null),
+  ),
+  action('opponent must pass after their next reveal', (_g, b) =>
+    b.mode === 'battle' ? (T.forcePass as Ability) : null,
+  ),
+  {
+    body: 'then turn this card face down',
+    read(_g, c, b) {
+      if (actionOnly(c) || c.tests.length || b.mode !== 'window' || b.lockSelf) return false
+      b.lockSelf = true
+      return true
+    },
+  },
+  flag("cannot be targeted by the opponent's effects", (r) => (r.untargetable = true)),
+  flag(
+    'this card can be declared as an attacker even if you already have 3 attackers',
+    (r) => (r.extraAttacker = true),
+  ),
+  passive('opponent cannot reposition (?:(?<adj>adjacent cards)|this card)', (g, c, b) => {
+    if (!g.adj && !c.tests.length) {
+      b.rules.fixed = true
+      return
+    }
+    const test = all(c)
+    b.rules.holds = [
+      ...(b.rules.holds ?? []),
+      {
+        adjacent: !!g.adj,
+        test: (s, seat, slot) =>
+          test({ s, seat, slot, card: s.players[seat].field[slot]?.card ?? '', e: s.engagement }),
+      },
+    ]
+  }),
+  passive(`your ${W} cards on the field cannot be turned face down`, (g, c, b) => {
+    const test = all(c)
+    b.rules.downProof = {
+      word: word(g.w),
+      test: (s, seat, card) => test({ s, seat, card, e: s.engagement }),
+    }
+  }),
+  passive('opponent plays with their support revealed for the rest of the round', (_g, c, b) => {
+    const test = all(c)
+    b.rules.revealsSupport = (s, seat) =>
+      faceUp(s, seat).some((x) => s.cards[x.card] && test({ s, seat, card: x.card, e: s.engagement }))
+  }),
+  passive(
+    'you may use any card in your rest zone for fighting spirit until the end of the round',
+    (_g, c, b) => {
+      const test = all(c)
+      b.rules.restFsAll = (s, seat) => test({ s, seat, card: '', e: s.engagement })
+    },
+  ),
+  passive(
+    'while this card is in the engagement, you cannot be forced to rest cards',
+    (_g, c, b) => {
+      const test = all(c)
+      b.rules.restProof = (s, seat, slot) =>
+        test({ s, seat, slot, card: s.players[seat].field[slot]?.card ?? '', e: s.engagement })
+    },
+  ),
   // ---- Sets after The First Quest (Rulebook v2.6) ----
   action(
     "target (?:an? )?(?:(?<ace>an ace on the opponent's field)|(?<down>a face-down ready card on the opponent's field)|(?<mir>the opponent's ready card in this card's mirrored position)|(?<any>opponent's card))\\. it is turned to the ability-active position without resolving its ability",
@@ -645,7 +783,7 @@ const PHRASES: Phrase[] = [
         then: g.interpose ? 'interpose' : g.main ? 'noMain' : undefined,
       }) as Ability
       if (b.mode === 'support' && !b.ability) return ((b.ability = wrap(ab, c)), true)
-      if (b.mode === null && !b.rules.window) return ((b.rules.window = wrap(ab, c)), true)
+      if (b.mode === 'window' && !b.ability) return ((b.ability = wrap(ab, c)), true)
       return false
     },
   },
@@ -718,6 +856,8 @@ export function normalize(text: string) {
   return (
     text
       .toLowerCase()
+      .replace(/["“”]the kingdom's["“”]/g, "kingdom's")
+      .replace(/["“”]/g, '')
       .replace(/[‘’]/g, "'")
       .replace(/\{fightingspirit_as\}/g, 'fs')
       .replace(/\{attack_as\}/g, 'attack')
@@ -778,6 +918,7 @@ function finish(b: Build) {
       const q = { s, seat, slot, card: s.players[seat].field[slot].card ?? '', e: s.engagement }
       return stat.reduce((acc, f) => f(q, acc), v)
     }
+  if (b.ability && b.lockSelf) b.ability = T.thenLockSelf(b.ability)
   if (b.ability && b.mode) {
     rules[b.mode] = b.keep ? { ...b.ability, keep: b.keep } : b.ability
   }

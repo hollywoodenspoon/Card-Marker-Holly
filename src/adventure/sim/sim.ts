@@ -98,7 +98,16 @@ export interface SimResult {
 
 const hidden = (s: AsState, seat: Seat) => {
   const p = s.players[seat]
-  return [...p.field.flatMap((f) => (f.card ? [f.card] : [])), ...p.support, ...p.rest, ...p.spent]
+  return [
+    ...p.field.flatMap((f) => (f.card ? [f.card] : [])),
+    // Living Weapons attached on either field belong to their owner.
+    ...s.players.flatMap((q) =>
+      q.field.flatMap((f) => (f.weapon?.owner === seat ? [f.weapon.card] : [])),
+    ),
+    ...p.support,
+    ...p.rest,
+    ...p.spent,
+  ]
 }
 
 export function simulate(o: SimOptions): SimResult {
@@ -141,6 +150,7 @@ export function simulate(o: SimOptions): SimResult {
       decks: [o.decks[deckNames[0]], o.decks[deckNames[1]]],
       names: [deckNames[0], deckNames[1]],
       seed,
+      mode: 'open',
     }
     const m = playMatch(game, levels, o.playouts)
     const s = m.state

@@ -1,7 +1,9 @@
+import type { GameRecord } from '../lab/play'
 import { cardsFromPack, isAdventurePack } from '../cards'
 import { checkDeck } from '../deck'
 import { BOT_LEVELS, type BotLevel } from '../bot'
-import { FIRST_QUEST, FIRST_QUEST_DECKS } from '../fixtures/firstQuest'
+import { TFQ_CARDS } from '../fixtures/allCards'
+import { randomDeck } from '../deckgen/values'
 import { readPack } from '@/playtest/pack'
 import { report, simulate } from './sim'
 
@@ -23,19 +25,28 @@ export function packDecks(bytes: Uint8Array) {
   return { cards, decks, skipped }
 }
 
+/** Eight random legal Free Companies from The First Quest (tfq.csv). */
+function tfqDecks(seed: number) {
+  const decks: Record<string, string[]> = {}
+  for (let i = 0; i < 8; i++) decks[`TFQ deck ${i + 1}`] = randomDeck(TFQ_CARDS, seed * 31 + i)[0]
+  return decks
+}
+
 export interface RunArgs {
   games: number
   levels: BotLevel[]
   seed: number
   playouts?: number
   pack?: Uint8Array
+  /** Called with each finished game as one JSON line (a GameRecord from lab/play.ts). */
+  onRecord?: (line: string) => void
 }
 
 export function run(a: RunArgs, onGame?: (n: number) => void) {
   const levels = a.levels.map((l) => (BOT_LEVELS.includes(l) ? l : 'normal')) as BotLevel[]
   const src = a.pack
     ? packDecks(a.pack)
-    : { cards: FIRST_QUEST, decks: FIRST_QUEST_DECKS, skipped: [] }
+    : { cards: TFQ_CARDS, decks: tfqDecks(a.seed), skipped: [] }
   if (Object.keys(src.decks).length === 0) throw new Error('No legal Free Company in the pack.')
   const r = simulate({
     cards: src.cards,
@@ -45,6 +56,21 @@ export function run(a: RunArgs, onGame?: (n: number) => void) {
     seed: a.seed,
     playouts: a.playouts,
     onGame,
+    onMatch: a.onRecord
+      ? (m) => {
+          const rec: GameRecord = {
+            seed: m.seed,
+            mode: 'open',
+            decks: [src.decks[m.decks[0]], src.decks[m.decks[1]]],
+            levels: m.levels,
+            moves: m.match.moves,
+            winner: m.match.state.winner?.seat ?? null,
+            first: m.match.first,
+            rounds: m.match.state.round,
+          }
+          a.onRecord?.(JSON.stringify({ ...rec, names: m.decks, by: m.match.by }))
+        }
+      : undefined,
   })
   const notes = src.skipped.length
     ? `\n## Decks left out\n\n${src.skipped.map((s) => `- ${s}`).join('\n')}\n`

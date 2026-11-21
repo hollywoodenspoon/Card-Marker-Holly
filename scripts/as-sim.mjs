@@ -3,9 +3,11 @@
 //
 //   npm run as:sim -- [--games 500] [--levels normal,hard] [--pack my.cmpack]
 //                     [--seed 1] [--playouts 48] [--out report.md]
+//                     [--games-out games.jsonl]
 //
-// Without --pack it plays The First Quest's three premade decks.
-import { readFileSync, writeFileSync } from 'node:fs'
+// Without --pack it plays 8 random legal First Quest decks (Open Skirmish).
+// --games-out writes one JSON line per game (seed, decks, levels, moves, winner).
+import { appendFileSync, readFileSync, writeFileSync } from 'node:fs'
 import { createServer } from 'vite'
 
 const args = process.argv.slice(2)
@@ -19,6 +21,8 @@ const seed = Number(opt('seed', 1))
 const playouts = opt('playouts') ? Number(opt('playouts')) : undefined
 const packPath = opt('pack')
 const out = opt('out')
+const gamesOut = opt('games-out')
+if (gamesOut) writeFileSync(gamesOut, '')
 
 const server = await createServer({
   server: { middlewareMode: true },
@@ -29,9 +33,19 @@ try {
   const { run } = await server.ssrLoadModule('/src/adventure/sim/run.ts')
   const pack = packPath ? new Uint8Array(readFileSync(packPath)) : undefined
   const started = Date.now()
-  const md = run({ games, levels, seed, playouts, pack }, (n) => {
-    if (n % 10 === 0 || n === games) process.stderr.write(`\r${n}/${games} games`)
-  })
+  const md = run(
+    {
+      games,
+      levels,
+      seed,
+      playouts,
+      pack,
+      onRecord: gamesOut ? (line) => appendFileSync(gamesOut, line + '\n') : undefined,
+    },
+    (n) => {
+      if (n % 10 === 0 || n === games) process.stderr.write(`\r${n}/${games} games`)
+    },
+  )
   process.stderr.write(
     `\rDone: ${games} games in ${((Date.now() - started) / 1000).toFixed(1)} s\n`,
   )
