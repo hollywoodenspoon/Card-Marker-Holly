@@ -111,6 +111,7 @@ export function botMove(s: AsState, level: BotLevel, seed: number, opts: BotOpti
   const seat = actor(s)
   if (seat === null) throw new Error('The game is over.')
   const r = { seed }
-  if (level === 'normal' || level === 'hard') return searchMove(s, seat, r, opts.playouts ?? 96, opts.thinkMs)
+  if (level === 'normal' || level === 'hard')
+    return searchMove(s, seat, r, opts.playouts ?? 96, opts.thinkMs)
   return tricksMove(s, r)
 }
