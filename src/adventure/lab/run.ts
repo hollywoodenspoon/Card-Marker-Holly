@@ -21,7 +21,14 @@ import {
   suboptimalDecks,
   type Build,
 } from './decks'
-import { mergeSlices, type LabBot, type LabGame, type LabSlice, type LabSliceResult } from './play'
+import {
+  mergeSlices,
+  type LabBot,
+  type LabGame,
+  type LabSlice,
+  type LabSliceResult,
+  type GameRecord,
+} from './play'
 
 /**
  * The Balance lab: one run in three stages, with no decks to pick.
@@ -34,7 +41,6 @@ import { mergeSlices, type LabBot, type LabGame, type LabSlice, type LabSliceRes
  * The core set (TFQ) is tested on its own, and as the baseline for the full pool.
  */
 
-
 export interface LabOptions {
   games: number
   bot: LabBot
@@ -43,6 +49,8 @@ export interface LabOptions {
   core: string[]
   /** Rules: Mutual Reveal (default) or Open Skirmish. */
   mode?: GameMode
+  /** Keep every game's moves in the result (records). */
+  record?: boolean
 }
 
 export interface LabInput {
@@ -83,6 +91,8 @@ export interface LabResult {
   suggestions: Suggestion[]
   checked: number
   problems: string[]
+  /** Every game, when options.record is set. */
+  records?: GameRecord[]
 }
 
 /** The code prefix of a card ("TFQ" for "TFQ-01"). */
@@ -159,7 +169,7 @@ export async function runLab(
   const play = async (stage: LabStage, slice: Omit<LabSlice, 'games'>, games: LabGame[]) => {
     const parts = await exec(
       stage,
-      chunk(games, sliceSize(o.bot)).map((g) => ({ ...slice, games: g })),
+      chunk(games, sliceSize(o.bot)).map((g) => ({ ...slice, record: o.record, games: g })),
     )
     const r = mergeSlices(parts.filter((p): p is LabSliceResult => !!p))
     played[stage] += r.games.length
@@ -232,7 +242,11 @@ export async function runLab(
     const plan = roundRobin(premades.length, budget.premades, (o.seed * 19) >>> 0, CHECK_EVERY)
     const r = stopped()
       ? mergeSlices([])
-      : await play('premades', { cards, decks: premades.map((p) => p.cards), bot: o.bot, mode: o.mode }, plan)
+      : await play(
+          'premades',
+          { cards, decks: premades.map((p) => p.cards), bot: o.bot, mode: o.mode },
+          plan,
+        )
     const st = deckStats(premades.length, r.games)
     premadeResult = {
       decks: premades.map((p, k) => ({ name: p.name, kind: 'premade', cards: p.cards, ...st[k] })),
@@ -273,5 +287,6 @@ export async function runLab(
     suggestions: suggest(labViews, cards),
     checked: merged.checked,
     problems: merged.problems.slice(0, 50),
+    records: merged.records,
   }
 }

@@ -1,3 +1,4 @@
+import type { GameRecord } from '../lab/play'
 import { cardsFromPack, isAdventurePack } from '../cards'
 import { checkDeck } from '../deck'
 import { BOT_LEVELS, type BotLevel } from '../bot'
@@ -37,6 +38,8 @@ export interface RunArgs {
   seed: number
   playouts?: number
   pack?: Uint8Array
+  /** Called with each finished game as one JSON line (a GameRecord from lab/play.ts). */
+  onRecord?: (line: string) => void
 }
 
 export function run(a: RunArgs, onGame?: (n: number) => void) {
@@ -53,6 +56,21 @@ export function run(a: RunArgs, onGame?: (n: number) => void) {
     seed: a.seed,
     playouts: a.playouts,
     onGame,
+    onMatch: a.onRecord
+      ? (m) => {
+          const rec: GameRecord = {
+            seed: m.seed,
+            mode: 'open',
+            decks: [src.decks[m.decks[0]], src.decks[m.decks[1]]],
+            levels: m.levels,
+            moves: m.match.moves,
+            winner: m.match.state.winner?.seat ?? null,
+            first: m.match.first,
+            rounds: m.match.state.round,
+          }
+          a.onRecord?.(JSON.stringify({ ...rec, names: m.decks, by: m.match.by }))
+        }
+      : undefined,
   })
   const notes = src.skipped.length
     ? `\n## Decks left out\n\n${src.skipped.map((s) => `- ${s}`).join('\n')}\n`
