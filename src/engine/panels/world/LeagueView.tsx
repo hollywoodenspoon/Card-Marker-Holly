@@ -67,7 +67,6 @@ export function LeagueView() {
                   >
                     <option value="easy">Easy</option>
                     <option value="normal">Normal</option>
-                    <option value="hard">Hard</option>
                   </NativeSelect>
                 </div>
               </div>

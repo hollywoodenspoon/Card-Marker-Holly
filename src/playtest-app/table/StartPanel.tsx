@@ -151,7 +151,8 @@ export function StartPanel({
   const [mode, setMode] = useState<Mode>(last.mode ?? 'free')
   const [levels, setLevels] = useState<BotLevel[]>(last.levels ?? ['normal', 'normal'])
   const [opening, setOpening] = useState<'rps' | 'coin'>(last.opening ?? 'rps')
-  const [gameRules, setGameRules] = useState<GameMode>(last.rules ?? 'mutual')
+  // Open Skirmish is the Adventure Scuffle rule.
+  const gameRules: GameMode = 'open'
   const thinkMs = usePlaytest((s) => s.thinkMs)
   // Against the bot you are Player 1; the bot plays Player 2.
   const botSeats = mode === 'bot' ? [1] : mode === 'botbot' || mode === 'rush' ? [0, 1] : []
@@ -368,22 +369,6 @@ export function StartPanel({
             >
               <option value="rps">Rock-paper-scissors (winner takes or gives)</option>
               <option value="coin">Random</option>
-            </NativeSelect>
-          </div>
-        )}
-        {ruled && mode !== 'rush' && (
-          <div className="flex items-center gap-2">
-            <Label htmlFor="pt-rules" className="w-28 shrink-0">
-              Rules
-            </Label>
-            <NativeSelect
-              id="pt-rules"
-              value={gameRules}
-              onChange={(e) => setGameRules(e.target.value as GameMode)}
-              data-testid="playtest-rules"
-            >
-              <option value="mutual">Mutual Reveal</option>
-              <option value="open">Open Skirmish (test)</option>
             </NativeSelect>
           </div>
         )}

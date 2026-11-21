@@ -83,7 +83,8 @@ export function BalanceLab({
   const unread = useMemo(() => cards.filter((c) => unreadParts(c).length), [cards])
   const [games, setGames] = useState(10000)
   const [bot, setBot] = useState<LabBot>('quick')
-  const [rules, setRules] = useState<GameMode>('mutual')
+  // Open Skirmish is the Adventure Scuffle rule.
+  const rules: GameMode = 'open'
   const [seed, setSeed] = useState(() => randomSeed())
   const [threads, setThreads] = useState(maxThreads)
   const [core, setCore] = useState(() =>
@@ -331,8 +332,10 @@ export function BalanceLab({
                   aria-pressed={mode === 'ladder'}
                   onClick={() => setMode('ladder')}
                   data-testid="lab-mode-ladder"
+                  disabled
+                  title="Off for now, until it plays The First Quest rules"
                 >
-                  Bot ladder
+                  Bot ladder (off for now)
                 </Button>
               </div>
               {mode === 'ladder' && (
@@ -400,17 +403,6 @@ export function BalanceLab({
                         <option value="normal">
                           Tricks (slower, plays better; the table&apos;s Easy)
                         </option>
-                      </NativeSelect>
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                      <Label htmlFor="lab-mode">Rules</Label>
-                      <NativeSelect
-                        id="lab-mode"
-                        value={rules}
-                        onChange={(e) => setRules(e.target.value as GameMode)}
-                      >
-                        <option value="mutual">Mutual Reveal</option>
-                        <option value="open">Open Skirmish</option>
                       </NativeSelect>
                     </div>
                     {seedField}

@@ -141,6 +141,7 @@ export function simulate(o: SimOptions): SimResult {
       decks: [o.decks[deckNames[0]], o.decks[deckNames[1]]],
       names: [deckNames[0], deckNames[1]],
       seed,
+      mode: 'open',
     }
     const m = playMatch(game, levels, o.playouts)
     const s = m.state
