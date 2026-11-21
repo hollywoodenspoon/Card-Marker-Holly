@@ -34,7 +34,7 @@ Players alternate one action each, initiative player first, until both have pass
 - **Pass.**
 
 ### 3.3 Face down
-A field card turned face down: can't attack, defend, use abilities or be counted by "on your field" checks; keeps its position; can't be turned face up again this round unless an effect does so. If it was attacking or defending, it leaves the attack/defense. **OPEN 1**
+A field card turned face down: can't attack, defend, use abilities or be counted by "on your field" checks; keeps its position; can't be turned face up again this round unless an effect does so. If it was attacking or defending, it no longer counts in the attack or defense; in combat its stats are removed from the total.
 
 ## 4. Combat
 
@@ -48,15 +48,15 @@ A field card turned face down: can't attack, defend, use abilities or be counted
 1. Initiative player picks which Engagement is First.
 2. Empty defense stack: attacker scores, no Fighting Spirit.
 3. Totals: attack = Σ Attack (+ attached weapon Attack); defense = Σ Defense (+ weapon Defense). Stats never change during the round.
-4. **Fighting Spirit turns:** initiative player first in every Engagement. On a turn: reveal one Support card (add its FS, resolve its Battle ability), use a rest-zone card allowed by its text (Ghoulish Brute/Stalker, any card under Grave Mistress), or pass. Passing is final for that Engagement. The Engagement ends when both have passed.
+4. **Fighting Spirit turns:** initiative player first in every Engagement. On a turn: reveal one Support card (add its FS, resolve its Battle ability), or, if a card allows it, use a rest-zone card (Ghoulish Brute/Stalker, any card under Grave Mistress); both count as a reveal. Or pass. Passing is final for that Engagement. The Engagement ends when both have passed.
 5. A rest-zone card used for FS leaves the rest zone into the Engagement and is rested again at Regroup.
 6. Higher total scores 1; tie scores nothing.
 7. Support cards not used carry to the Second Engagement.
 
 ### 4.3 Battle-ability rulings
-- **Swap an attacker with a defender** (Monk, Vanguard, Coin-Toss): the two cards change stacks; totals update; the target doesn't change. **OPEN 2**
-- **Force Pass** (Ghoulish Brute): opponent reveals one more card, then is passed. **OPEN 3**
-- **Use 2 cards** (Archmage): opponent's next reveal is two Support cards at once, both add FS and both Battle abilities resolve. **OPEN 4**
+- **Swap an attacker with a defender** (Monk, Vanguard, Coin-Toss): the two cards change stacks; totals update; the target doesn't change. Coin-Toss Tails: the opponent chooses which of their cards swap.
+- **Force Pass** (Ghoulish Brute): the opponent makes one more reveal (a rest-zone FS use counts), then is passed.
+- **Use 2 cards** (Archmage): opponent's next reveal is two Support cards at once, both add FS and both Battle abilities resolve. With only 1 card in Support, they must reveal it; they can't pass instead.
 - **Opponent rests a card from their Support:** opponent chooses. **Random:** uniform random card. Empty Support: nothing.
 - **Coin flip:** 50/50.
 
@@ -75,11 +75,8 @@ A field card turned face down: can't attack, defend, use abilities or be counted
 - **Emissary:** the opponent's Support is visible to the player (bots: perfect information on that Support) for the round.
 - **Grave Guardian:** while it is in the current Engagement's attack or defense stack, its owner ignores "rests a card from their Support" effects.
 
+- **Lucky Charm Bearer:** "top card" = the most recently rested card.
+- **Unassuming Mage:** can't be used unless an opposing Ace is face up on the field.
+
 ## Open questions
-1. Can a card that is already attacking or defending be turned face down, and does it then leave combat?
-2. Coin-Toss Tails: the opponent chooses which of their cards swap?
-3. Force Pass: does "after their next reveal" mean they still get one more reveal first, and does a rest-zone FS use count as a reveal?
-4. Archmage with only 1 card in Support: reveal 1, or must pass?
-5. Lucky Charm Bearer "top card": the most recently rested card?
-6. Unassuming Mage with no opposing Ace: can it still be used (nothing happens), or not at all?
-7. Grave Mistress: does the 3+ Rest Zone count drop as you use rest-zone cards, ending the effect mid-Engagement?
+1. Grave Mistress: does the 3+ Rest Zone count drop as you use rest-zone cards, ending the effect mid-Engagement?

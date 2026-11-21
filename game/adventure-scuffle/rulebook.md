@@ -1,10 +1,6 @@
 # ADVENTURE SCUFFLE!
 ### Rulebook
 
-**Card text beats the rules.** These rules are how the game is played; card abilities are made to break them. When a card and this rulebook disagree, follow the card.
-
----
-
 ## Overview
 
 Two players each bring a Free Company of 12 cards. Each round has up to two Engagements, each worth 1 point. The first player to **4 points** wins.
@@ -70,7 +66,7 @@ Each attack is one **Engagement**. The initiative player chooses which is resolv
 
 1. If no defender is on or next to the target, the attacker scores at once.
 2. Add up the attackers' Attack and the defenders' Defense.
-3. **Fighting Spirit:** starting with the initiative player, take turns revealing a card from your Support and adding its Fighting Spirit, or **pass**. Once you pass, you can't reveal again this Engagement.
+3. **Fighting Spirit:** starting with the initiative player, take turns revealing a card from your Support and adding its Fighting Spirit, or **pass**. If a card allows it, you can use a card from your rest zone instead. Once you pass, you can't reveal again this Engagement.
 4. The higher total scores 1 point. A tie scores nothing.
 
 Support cards you didn't use carry over to the second Engagement.
@@ -86,6 +82,7 @@ Support cards you didn't use carry over to the second Engagement.
 
 ## Words on Cards
 
+- **Card effects:** these rules are how the game is played; card effects are made to break them. When a card and the rules disagree, follow the card.
 - **Rest a card:** put it in your rest zone, a face-up pile.
 - **Rest N:** a cost. Rest N cards from your Support first.
 - **Ready:** hasn't attacked, defended or used an ability this round.
