@@ -13,6 +13,7 @@ import {
   withoutLog,
 } from './effects/helpers'
 import { rulesOf } from './effects/registry'
+import { replaceSelf } from './effects/tfq'
 import type { Ability, Ctx, Option, PlanIO } from './effects/types'
 import { engagementSides, engagementTotals, fightingSpirit, finalBlow, lockCombat } from './stats'
 import {
@@ -230,7 +231,7 @@ class Ask {
 class NoChoice {}
 
 /** Could the ability go through now? (Its condition, and a first answer to every choice.) */
-export function usable(s: AsState, ab: Ability, ctx: Ctx): boolean {
+export function usable(s: AsState, ab: Ability, ctx: Ctx, leave = 0): boolean {
   if (ab.can && !ab.can(s, ctx)) return false
   const io: PlanIO = {
     s,
@@ -243,7 +244,8 @@ export function usable(s: AsState, ab: Ability, ctx: Ctx): boolean {
   }
   try {
     ab.plan(io)
-    return true
+    // Open Skirmish Field ability: a Support card must be left to replace it.
+    return s.players[ctx.owner].support.filter((c) => !io.reserved.includes(c)).length >= leave
   } catch (e) {
     if (e instanceof NoChoice) return false
     throw e
@@ -251,7 +253,8 @@ export function usable(s: AsState, ab: Ability, ctx: Ctx): boolean {
 }
 
 /** The ability a card has for a way of using it. */
-const abilityOf = (s: AsState, ctx: Ctx): Ability | undefined => rulesOf(s, ctx.card)?.[ctx.mode]
+const abilityOf = (s: AsState, ctx: Ctx): Ability | undefined =>
+  ctx.mode === 'replace' ? (replaceSelf as Ability) : rulesOf(s, ctx.card)?.[ctx.mode]
 
 /** Field and Support Abilities a player may use in a response. */
 export function responseMoves(s: AsState, seat: Seat): Move[] {
@@ -260,7 +263,7 @@ export function responseMoves(s: AsState, seat: Seat): Move[] {
   for (const f of p.field) {
     if (!f.card || !f.faceUp || f.state !== 'ready') continue
     const ab = rulesOf(s, f.card)?.field
-    if (ab && usable(s, ab, { owner: seat, card: f.card, mode: 'field' }))
+    if (ab && usable(s, ab, { owner: seat, card: f.card, mode: 'field' }, s.mode === 'open' ? 1 : 0))
       out.push({ t: 'ability', card: f.card })
   }
   for (const card of p.support) {
@@ -295,15 +298,13 @@ export function windowMoves(s: AsState, seat: Seat): Move[] {
 export function restFsCards(s: AsState, seat: Seat): string[] {
   const e = s.engagement
   if (!e) return []
+  const all = s.players[seat].round.restFsAll
   return s.players[seat].rest.filter((card) => {
     const r = rulesOf(s, card)?.restFs
-    return (
-      r &&
-      !isLocked(s, seat, card, 'rest') &&
-      !e.fs[seat].some((x) => x.card === card) &&
-      !(r.coin && e.tried.includes(card)) &&
-      r.can(s, seat, card)
-    )
+    if (isLocked(s, seat, card, 'rest') || e.fs[seat].some((x) => x.card === card)) return false
+    // Grave Mistress: any rest-zone card.
+    if (all && !r?.coin) return true
+    return r && !(r.coin && e.tried.includes(card)) && r.can(s, seat, card)
   })
 }
 
@@ -377,7 +378,11 @@ function resume(d: D) {
   ab.apply(d, p.ctx, plan)
   const { owner, card, mode } = p.ctx
   const own = d.players[owner]
-  if (mode === 'field') {
+  if (mode === 'field' && d.mode === 'open') {
+    // The used card goes to the rest zone and a Support card takes its place, Ready.
+    const next: Ctx = { owner, card, mode: 'replace' }
+    if (replaceSelf.can!(d, next)) return startEffect(d, next, p.after)
+  } else if (mode === 'field') {
     const f = own.field.find((x) => x.card === card)
     if (f) f.state = 'ability'
   } else if (mode === 'support' && own.support.includes(card) && !ab.keep?.(d, p.ctx))
@@ -465,6 +470,9 @@ export function legalMoves(s: AsState): Move[] {
     case 'first':
       return s.queue.map((attacker) => ({ t: 'first', attacker }))
     case 'fs':
+      // Archmage: no pass and no rest-zone card until the 2-card reveal is made.
+      if (s.engagement?.mustReveal === st.seat && s.players[st.seat].support.length)
+        return s.players[st.seat].support.map((card): Move => ({ t: 'fs', card }))
       return [
         ...s.players[st.seat].support.map((card): Move => ({ t: 'fs', card })),
         ...restFsCards(s, st.seat).map((card): Move => ({ t: 'fs', card, from: 'rest' })),
@@ -673,10 +681,8 @@ function play(d: D, m: Move) {
     }
     case 'flip': {
       if (st.k !== 'flip') return
-      d.flips.splice(
-        d.flips.findIndex((f) => f.owner === seat && f.card === m.card),
-        1,
-      )
+      // One Flip ability per player each round.
+      d.flips = d.flips.filter((f) => f.owner !== seat)
       const ab = rulesOf(d, m.card)?.flip
       const ctx: Ctx = { owner: seat, card: m.card, mode: 'flip' }
       log(d, `Flip Ability: ${cardName(d, m.card)}: ${ab?.name}.`)
@@ -735,8 +741,17 @@ function play(d: D, m: Move) {
       const r = rulesOf(d, m.card)
       const printed = fightingSpirit(d, seat, m.card)
       let value: number
+      // Ghoulish Brute: this reveal is the forced player's last.
+      const forced = e.passAfter === seat
+      if (e.mustReveal === seat) {
+        if (e.twoLeft === undefined) e.twoLeft = 1
+        else {
+          delete e.mustReveal
+          delete e.twoLeft
+        }
+      }
       if (m.from === 'rest') {
-        const rf = r!.restFs!
+        const rf = r?.restFs ?? { bonus: 0, can: () => true }
         if (rf.coin) {
           e.tried.push(m.card)
           const heads = coin(d)
@@ -763,9 +778,14 @@ function play(d: D, m: Move) {
         d,
         `${p.name} reveals ${cardName(d, m.card)}${m.from === 'rest' ? ' from the rest zone' : ''} as Fighting Spirit (+${value}${r?.finalBlow ? `, Final Blow +${r.finalBlow} if it stays the last card revealed` : ''}). Attack ${t.attack} vs Defense ${t.defense}.`,
       )
+      if (forced) {
+        delete e.passAfter
+        e.passed[seat] = true
+        log(d, `${p.name} must pass now.`)
+      }
       const battle = r?.battle
       const ctx: Ctx = { owner: seat, card: m.card, mode: 'battle' }
-      if (m.from !== 'rest' && battle && usable(d, battle, ctx)) {
+      if (battle && usable(d, battle, ctx)) {
         if (!battle.optional) log(d, `Battle Ability: ${cardName(d, m.card)}: ${battle.name}.`)
         return startEffect(d, ctx, { k: 'fsTurn', seat })
       }
@@ -784,7 +804,12 @@ function advance(d: D) {
     if (st.k === 'respond' && responseMoves(d, st.seat).length === 0) {
       if (st.final) assign(d)
       else nextReveal(d)
-    } else if (st.k === 'fs' && d.engagement && legalMoves(d).length === 1) {
+    } else if (
+      st.k === 'fs' &&
+      d.engagement &&
+      legalMoves(d).length === 1 &&
+      legalMoves(d)[0].t === 'pass'
+    ) {
       d.engagement.passed[st.seat] = true
       log(d, `${nameOf(d, st.seat)} has no Support left and passes.`)
       nextFsTurn(d, st.seat)
@@ -870,16 +895,16 @@ function nextFlip(d: D, seat: Seat) {
 export function actMoves(s: AsState, seat: Seat): Move[] {
   const p = s.players[seat]
   const extra = p.round.extra
+  const free = (card: string) => extra.includes(card) || !!rulesOf(s, card)?.extraAttacker
   const count = (k: 'attacking' | 'defending') =>
-    p.field.filter((f) => f.card && f.state === k && !(k === 'attacking' && extra.includes(f.card)))
-      .length
+    p.field.filter((f) => f.card && f.state === k && !(k === 'attacking' && free(f.card))).length
   const out: Move[] = []
   p.field.forEach((f, slot) => {
     if (!f.card || !f.faceUp || f.state !== 'ready') return
     // Each attacker after the first is declared next to the previous one.
     const last = p.round.lastAttack
     const next = last === undefined || adjacent(slot, last)
-    if (next && (count('attacking') < 3 || extra.includes(f.card))) out.push({ t: 'attack', slot })
+    if (next && (count('attacking') < 3 || free(f.card))) out.push({ t: 'attack', slot })
     if (count('defending') < 3) out.push({ t: 'defend', slot })
   })
   return out
@@ -995,6 +1020,12 @@ function formStacks(d: D) {
 
 function startCombat(d: D) {
   d.phase = 'combat'
+  // Grave Mistress: checked once, as Combat starts.
+  for (const seat of SEATS) {
+    const p = d.players[seat]
+    if (p.field.some((f) => f.card && f.faceUp && rulesOf(d, f.card)?.restFsAll?.(d, seat)))
+      p.round.restFsAll = true
+  }
   d.queue = []
   for (const seat of SEATS) {
     if (d.players[seat].mainAttacker !== null) d.queue.push(seat)
@@ -1051,6 +1082,13 @@ function nextEngagement(d: D) {
 
 function nextFsTurn(d: D, acted: Seat) {
   const e = d.engagement!
+  // Archmage: the second card of the 2-card reveal.
+  if (e.mustReveal === acted && e.twoLeft === 1 && d.players[acted].support.length)
+    return void (d.step = { k: 'fs', seat: acted })
+  if (e.mustReveal === acted) {
+    delete e.mustReveal
+    delete e.twoLeft
+  }
   const next = other(acted)
   if (!e.passed[next]) d.step = { k: 'fs', seat: next }
   else if (!e.passed[acted]) d.step = { k: 'fs', seat: acted }

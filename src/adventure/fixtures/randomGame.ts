@@ -1,12 +1,21 @@
 import { nextInt } from '@/playtest/rng'
 import { apply, createGame, legalMoves } from '../engine'
 import type { AsState, GameMode, RevealRule } from '../state'
+import type { AsCard } from '../cards'
 import { FIRST_QUEST } from './firstQuest'
 
 /** Every card of a player is in exactly one place. */
 function cardsOf(s: AsState, seat: 0 | 1) {
   const p = s.players[seat]
-  return [...p.field.flatMap((f) => (f.card ? [f.card] : [])), ...p.support, ...p.rest, ...p.spent]
+  return [
+    ...p.field.flatMap((f) => (f.card ? [f.card] : [])),
+    ...s.players.flatMap((q) =>
+      q.field.flatMap((f) => (f.weapon?.owner === seat ? [f.weapon.card] : [])),
+    ),
+    ...p.support,
+    ...p.rest,
+    ...p.spent,
+  ]
 }
 
 /** Random legal moves from a seed until the game ends. */
@@ -16,8 +25,9 @@ export function randomGame(
   seed: number,
   reveal?: RevealRule,
   mode?: GameMode,
+  cards: AsCard[] = FIRST_QUEST,
 ) {
-  let s = createGame({ cards: FIRST_QUEST, decks: [a, b], names: ['A', 'B'], seed, reveal, mode })
+  let s = createGame({ cards, decks: [a, b], names: ['A', 'B'], seed, reveal, mode })
   let r = seed ^ 0x5bd1e995
   let moves = 0
   for (; moves < 3000 && s.step.k !== 'over'; moves++) {

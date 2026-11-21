@@ -59,6 +59,8 @@ export interface RoundFlags {
   used: string[]
   /** Cards that join the attackers whatever their Fate Number (Howling Barbarian). */
   extra: string[]
+  /** Grave Mistress: every rest-zone card is usable for Fighting Spirit this Combat. */
+  restFsAll?: boolean
   /**
    * Other "non-adjacent cards are counted" abilities this round: for defense,
    * or only for an archetype's cards (`word`).
@@ -103,6 +105,12 @@ export interface Engagement {
   tried: string[]
   /** The last Fighting Spirit revealed (Final Blow checks it when the Engagement ends). */
   last?: { seat: Seat; index: number }
+  /** Ghoulish Brute: this seat is passed after its next reveal. */
+  passAfter?: Seat
+  /** Archmage: this seat can't pass and its next reveal is 2 cards. */
+  mustReveal?: Seat
+  /** Archmage: the forced player still owes this many cards of their 2-card reveal. */
+  twoLeft?: number
 }
 
 export interface EngagementResult {

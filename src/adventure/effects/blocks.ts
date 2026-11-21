@@ -1,6 +1,7 @@
 import { slotName } from '../board'
 import { cardName, other, type AsState, type Seat } from '../state'
 import {
+  dropWeapon,
   cardFromId,
   cardOption,
   faceUp,
@@ -294,6 +295,7 @@ export function decoy(readyOnly: boolean): Ability<number> {
         entry.value = d.cards[swapped]?.fs ?? 0
         entry.from = 'field'
       }
+      dropWeapon(d, ctx.owner, slot)
       p.spent.splice(p.spent.indexOf(ctx.card), 1, swapped)
       p.field[slot] = { card: ctx.card, faceUp: old.faceUp, state: 'ready' }
       log(

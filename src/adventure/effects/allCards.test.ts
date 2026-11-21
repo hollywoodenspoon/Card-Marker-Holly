@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { ALL_CARDS } from '../fixtures/allCards'
+import { ALL_CARDS, TFQ_CARDS } from '../fixtures/allCards'
 import { readCard } from './reader'
 
 describe('game/adventure-scuffle/cards.csv', () => {
@@ -10,6 +10,16 @@ describe('game/adventure-scuffle/cards.csv', () => {
 
   it('the rules engine reads every card', () => {
     const unread = ALL_CARDS.flatMap((c) => {
+      const r = readCard(c)
+      return r.unread.length ? [`${c.code} ${c.name}: ${r.unread.join(' | ')}`] : []
+    })
+    expect(unread).toEqual([])
+  })
+})
+
+describe('game/adventure-scuffle/tfq.csv', () => {
+  it('the rules engine reads every card', () => {
+    const unread = TFQ_CARDS.flatMap((c) => {
       const r = readCard(c)
       return r.unread.length ? [`${c.code} ${c.name}: ${r.unread.join(' | ')}`] : []
     })
