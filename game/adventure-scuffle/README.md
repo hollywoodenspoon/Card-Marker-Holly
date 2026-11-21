@@ -19,6 +19,7 @@ The single source of truth for the card game. Git keeps the history, so there ar
 
 Newest first. Every card, balance or rule change gets a line here.
 
+- 2026-11-21: TFQ rewrite in `tfq.csv`: all card text reworded (`Condition: Effect`, quoted archetypes); stat buffs removed (grey columns zeroed) and stats adjusted (Hero, Doppelganger, Lucky Charm, Grave Mistress, Grave Guardian, Emissary, Archmage, Mission Handler, Brute, Stalker); new effects for Knight, Monk, Archmage, Weapon Master, Trusted Shield Bearer, Emissary, Grave Mistress, Grave Guardian, Brute, Stalker, Mission Handler, Unassuming Mage (now Field), Coin-Toss Bravo, Lucky Charm; random vs chosen discards split. Reason: cut mid-combat counting.
 - 2026-11-21: Rules split: `rulebook.md` for players (card text beats the rules; 1 Flip per player; Field abilities send the card to the rest zone and replace it from Support; face down replaces ability-active), `engine-rules.md` for the engine. Engine not updated yet.
 - 2026-11-16: The First Quest only. `tfq.csv` holds the redesigned TFQ cards; `cards.csv` is the card archive; the rulebook covers TFQ only (v3.0 kept in `archive/`). The engine doesn't read `tfq.csv` yet.
 - 2026-11-16 (0.8.36-beta): Rulebook v3.0: Open Skirmish is the rule (`rulebook.md`, folded in from `open-skirmish.md`). Mutual Reveal retired to `mutual-reveal.md`; the engine keeps it but gets no more updates (owner's call).
